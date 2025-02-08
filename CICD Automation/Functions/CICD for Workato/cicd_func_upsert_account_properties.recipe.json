@@ -1,0 +1,1006 @@
+{
+  "name": "CICD | FUNC | Upsert Account Properties",
+  "description": "When there is a function call, do action",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "bba270cb",
+    "title": null,
+    "description": null,
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"environment\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Environment\"},{\"name\":\"project_configuration_id\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Project configuration ID\"},{\"name\":\"user_id\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"User ID\"},{\"name\":\"user_name\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"User name\"}]",
+      "result_schema_json": "[{\"name\":\"result\",\"type\":\"boolean\",\"optional\":false,\"control_type\":\"checkbox\",\"label\":\"Result\",\"render_input\":{},\"parse_output\":{},\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Result\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"name\":\"result\",\"type\":\"boolean\",\"optional\":false}}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Environment",
+            "name": "environment",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Project configuration ID",
+            "name": "project_configuration_id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "User ID",
+            "name": "user_id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "User name",
+            "name": "user_name",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "lookup_table",
+        "name": "search_entries",
+        "as": "84a04ce8",
+        "title": null,
+        "description": "\n      Search\n      <span class=\"provider\">entries</span>\n      in\n      <span class=\"provider\">CICD | LT | Migrate Environment Properties</span>\n      lookup table\n    ",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "lookup_table_id": "CICD | LT | Migrate Account Properties"
+        },
+        "input": {
+          "lookup_table_id": {
+            "zip_name": "cicd_lt_migrate_environment_properties.lookup_table.json",
+            "name": "CICD | LT | Migrate Environment Properties",
+            "folder": ""
+          },
+          "parameters": {
+            "col1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"bba270cb\",\"path\":[\"parameters\",\"project_configuration_id\"]}')}",
+            "col2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"bba270cb\",\"path\":[\"parameters\",\"environment\"]}')}",
+            "col5": "environment"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Entries",
+            "name": "entries",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Entry ID",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "id"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Project Configuration",
+                    "name": "col1",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Target Environment",
+                    "name": "col2",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Key",
+                    "name": "col3",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Value",
+                    "name": "col4",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Type",
+                    "name": "col5",
+                    "type": "string",
+                    "sticky": true
+                  }
+                ],
+                "label": "Entry",
+                "type": "object",
+                "name": "entry"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Provide one or more entry fields to search the entry",
+            "label": "Search by",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Project Configuration",
+                "name": "col1",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Target Environment",
+                "name": "col2",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Key",
+                "name": "col3",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Value",
+                "name": "col4",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Type",
+                "name": "col5",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "comment": "get environment properties",
+        "uuid": "c4e2816d-3c02-4b46-85ee-74b57d964c08"
+      },
+      {
+        "number": 2,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "greater_than",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"84a04ce8\",\"path\":[\"entries\",{\"path_element_type\":\"size\"}]}')}",
+              "rhs": "0",
+              "uuid": "condition-bb49808e-cb0c-42ef-ab97-526cd0c6023e"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 3,
+            "provider": "cicd_for_workato_v3_connector_865610_1729896062",
+            "name": "upsert_properties",
+            "as": "7de9b5f5",
+            "title": null,
+            "description": "Upsert <span class=\"provider\">properties</span> to Workato <span class=\"provider\">environment</span>",
+            "keyword": "action",
+            "toggleCfg": {
+              "workato_environment": false
+            },
+            "input": {
+              "workato_environment": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"bba270cb\",\"path\":[\"parameters\",\"environment\"]}')}",
+              "properties": {
+                "name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"84a04ce8\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"entry\",\"col3\"]}')}",
+                "value": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"84a04ce8\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"entry\",\"col4\"]}')}",
+                "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"84a04ce8\",\"path\":[\"entries\"]}')}"
+              },
+              "type": "environment"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "select",
+                "hint": "Enter environment.",
+                "label": "Environment",
+                "name": "workato_environment",
+                "optional": false,
+                "pick_list": "environments",
+                "toggle_field": {
+                  "name": "workato_environment",
+                  "label": "Environment",
+                  "type": "string",
+                  "control_type": "text",
+                  "optional": false,
+                  "hint": "Enter environment.",
+                  "toggle_hint": "Custom value"
+                },
+                "toggle_hint": "Select from list",
+                "type": "string"
+              },
+              {
+                "hint": "Please enter a list of account properties.",
+                "label": "Properties",
+                "name": "properties",
+                "of": "object",
+                "optional": false,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "optional": false,
+                    "type": "string",
+                    "name": "name"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Value",
+                    "optional": false,
+                    "type": "string",
+                    "name": "value"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "text",
+                "hint": "Enter type.",
+                "label": "Type",
+                "name": "type",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "hint": "Enter Project ID.",
+                "label": "Project ID",
+                "name": "project_id",
+                "optional": true,
+                "type": "string"
+              }
+            ],
+            "visible_config_fields": [
+              "workato_environment",
+              "properties",
+              "properties.name",
+              "properties.value",
+              "project_id"
+            ],
+            "uuid": "8d6b6d75-a916-4ed6-a8fc-6834a77d8c95"
+          }
+        ],
+        "uuid": "3e62e357-4549-4bd8-9b42-a7a9f66ec372",
+        "skip": false
+      },
+      {
+        "number": 4,
+        "provider": "lookup_table",
+        "name": "search_entries",
+        "as": "653551cf",
+        "title": null,
+        "description": "\n      Search\n      <span class=\"provider\">entries</span>\n      in\n      <span class=\"provider\">CICD | LT | Migrate Environment Properties</span>\n      lookup table\n    ",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "lookup_table_id": "CICD | LT | Migrate Account Properties"
+        },
+        "input": {
+          "lookup_table_id": {
+            "zip_name": "cicd_lt_migrate_environment_properties.lookup_table.json",
+            "name": "CICD | LT | Migrate Environment Properties",
+            "folder": ""
+          },
+          "parameters": {
+            "col1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"bba270cb\",\"path\":[\"parameters\",\"project_configuration_id\"]}')}",
+            "col2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"bba270cb\",\"path\":[\"parameters\",\"environment\"]}')}",
+            "col5": "project"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Entries",
+            "name": "entries",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Entry ID",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "id"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Project Configuration",
+                    "name": "col1",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Target Environment",
+                    "name": "col2",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Key",
+                    "name": "col3",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Value",
+                    "name": "col4",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Type",
+                    "name": "col5",
+                    "type": "string",
+                    "sticky": true
+                  }
+                ],
+                "label": "Entry",
+                "type": "object",
+                "name": "entry"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Provide one or more entry fields to search the entry",
+            "label": "Search by",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Project Configuration",
+                "name": "col1",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Target Environment",
+                "name": "col2",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Key",
+                "name": "col3",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Value",
+                "name": "col4",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Type",
+                "name": "col5",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "comment": "get project properties",
+        "uuid": "26f1bba1-968c-43d6-9f32-c6d96179d05c"
+      },
+      {
+        "number": 5,
+        "provider": "lookup_table",
+        "name": "search_entries",
+        "as": "d151b94d",
+        "title": null,
+        "description": "\n      Search\n      <span class=\"provider\">entries</span>\n      in\n      <span class=\"provider\">CICD | LT | Project Configuration</span>\n      lookup table\n    ",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "lookup_table_id": "CICD | LT | Project Configuration"
+        },
+        "input": {
+          "lookup_table_id": {
+            "zip_name": "cicd_lt_project_configuration.lookup_table.json",
+            "name": "CICD | LT | Project Configuration",
+            "folder": ""
+          },
+          "parameters": {
+            "col1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"bba270cb\",\"path\":[\"parameters\",\"project_configuration_id\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Entries",
+            "name": "entries",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Entry ID",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "id"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Id",
+                    "name": "col1",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Project Name",
+                    "name": "col2",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Asset Environment",
+                    "name": "col3",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Asset Id",
+                    "name": "col4",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Asset Type",
+                    "name": "col5",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Project Context",
+                    "name": "col6",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Notification Settings",
+                    "name": "col7",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Dependencies",
+                    "name": "col8",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Target Folder Details",
+                    "name": "col9",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Last Updated",
+                    "name": "col10",
+                    "type": "string",
+                    "sticky": true
+                  }
+                ],
+                "label": "Entry",
+                "type": "object",
+                "name": "entry"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Provide one or more entry fields to search the entry",
+            "label": "Search by",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Id",
+                "name": "col1",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Project Name",
+                "name": "col2",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Asset Environment",
+                "name": "col3",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Asset Id",
+                "name": "col4",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Asset Type",
+                "name": "col5",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Project Context",
+                "name": "col6",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Notification Settings",
+                "name": "col7",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Dependencies",
+                "name": "col8",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Target Folder Details",
+                "name": "col9",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Last Updated",
+                "name": "col10",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "comment": "get project name",
+        "uuid": "2853d66c-688f-43bd-bdc9-7989d3e23b14"
+      },
+      {
+        "number": 6,
+        "provider": "cicd_for_workato_v3_connector_865610_1729896062",
+        "name": "list_projects",
+        "as": "8d14f1ea",
+        "keyword": "action",
+        "toggleCfg": {
+          "workato_environment": false
+        },
+        "input": {
+          "workato_environment": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"bba270cb\",\"path\":[\"parameters\",\"environment\"]}')}",
+          "page": "1"
+        },
+        "uuid": "927f6953-51d3-431a-9528-33a36240de71"
+      },
+      {
+        "number": 7,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "greater_than",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"653551cf\",\"path\":[\"entries\",{\"path_element_type\":\"size\"}]}')}",
+              "rhs": "0",
+              "uuid": "condition-bb49808e-cb0c-42ef-ab97-526cd0c6023e"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 8,
+            "provider": "cicd_for_workato_v3_connector_865610_1729896062",
+            "name": "upsert_properties",
+            "as": "bc13d642",
+            "title": null,
+            "description": "Upsert <span class=\"provider\">properties</span> to Workato <span class=\"provider\">environment</span>",
+            "keyword": "action",
+            "toggleCfg": {
+              "workato_environment": false
+            },
+            "input": {
+              "workato_environment": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"bba270cb\",\"path\":[\"parameters\",\"environment\"]}')}",
+              "properties": {
+                "name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"653551cf\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"entry\",\"col3\"]}')}",
+                "value": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"653551cf\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"entry\",\"col4\"]}')}",
+                "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"653551cf\",\"path\":[\"entries\"]}')}"
+              },
+              "type": "project",
+              "project_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"cicd_for_workato_v3_connector_865610_1729896062\",\"line\":\"8d14f1ea\",\"path\":[\"project_list\"]}').where(name:_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"d151b94d\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"entry\",\"col2\"]}')).pluck('id').first"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "select",
+                "hint": "Enter environment.",
+                "label": "Environment",
+                "name": "workato_environment",
+                "optional": false,
+                "pick_list": "environments",
+                "toggle_field": {
+                  "name": "workato_environment",
+                  "label": "Environment",
+                  "type": "string",
+                  "control_type": "text",
+                  "optional": false,
+                  "hint": "Enter environment.",
+                  "toggle_hint": "Custom value"
+                },
+                "toggle_hint": "Select from list",
+                "type": "string"
+              },
+              {
+                "hint": "Please enter a list of account properties.",
+                "label": "Properties",
+                "name": "properties",
+                "of": "object",
+                "optional": false,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "optional": false,
+                    "type": "string",
+                    "name": "name"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Value",
+                    "optional": false,
+                    "type": "string",
+                    "name": "value"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "text",
+                "hint": "Enter type.",
+                "label": "Type",
+                "name": "type",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "hint": "Enter Project ID.",
+                "label": "Project ID",
+                "name": "project_id",
+                "optional": true,
+                "type": "string"
+              }
+            ],
+            "visible_config_fields": [
+              "workato_environment",
+              "properties",
+              "properties.name",
+              "properties.value",
+              "project_id"
+            ],
+            "uuid": "337fe867-7c97-46a4-8eb5-d6b5c5466fa6"
+          }
+        ],
+        "uuid": "9f250ddb-829f-41a8-8f2d-d1638291a96c",
+        "skip": false
+      },
+      {
+        "number": 9,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe_async",
+        "as": "0231896d",
+        "title": null,
+        "description": "Call <span class=\"provider\">CICD | FUNC | Audit Log</span> (async)",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "CICD | FUNC | Audit Log"
+        },
+        "toggleCfg": {
+          "parameters.method": true
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "CICD Automation/Data Access Functions/cicd_func_audit_log.recipe.json",
+            "name": "CICD | FUNC | Audit Log",
+            "folder": "CICD Automation/Data Access Functions"
+          },
+          "parameters": {
+            "table": "CICD | Audit Log",
+            "method": "POST",
+            "entries": {
+              "entity": "Migrate Properties",
+              "entity_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"bba270cb\",\"path\":[\"parameters\",\"project_configuration_id\"]}')} | #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"bba270cb\",\"path\":[\"parameters\",\"environment\"]}')}",
+              "operation": "Save Property Migration",
+              "user_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"bba270cb\",\"path\":[\"parameters\",\"user_name\"]}')}",
+              "timestamp": "=now",
+              "user_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"bba270cb\",\"path\":[\"parameters\",\"user_id\"]}')}"
+            }
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Table",
+                "type": "string",
+                "name": "table",
+                "optional": true,
+                "default": "CICD | Audit Log"
+              },
+              {
+                "control_type": "select",
+                "label": "Method",
+                "type": "string",
+                "name": "method",
+                "optional": false,
+                "hint": "GET, POST",
+                "pick_list": [
+                  [
+                    "GET",
+                    "GET"
+                  ],
+                  [
+                    "POST",
+                    "POST"
+                  ]
+                ],
+                "toggle_hint": "Select from list",
+                "toggle_field": {
+                  "name": "method",
+                  "label": "Method",
+                  "type": "string",
+                  "control_type": "text",
+                  "optional": false,
+                  "toggle_hint": "Enter Value",
+                  "hint": "Map Method"
+                }
+              },
+              {
+                "name": "entries",
+                "type": "array",
+                "of": "object",
+                "label": "Entries",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Entity",
+                    "name": "entity",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Entity ID",
+                    "name": "entity_id",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Operation",
+                    "name": "operation",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "User ID",
+                    "name": "user_id",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "User name",
+                    "name": "user_name",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Timestamp",
+                    "name": "timestamp",
+                    "type": "string",
+                    "optional": false
+                  }
+                ]
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "080b605a-0080-4608-a9ea-78980732de0c"
+      },
+      {
+        "number": 10,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "75b3e4d3",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "toggleCfg": {
+          "result.result": false
+        },
+        "input": {
+          "result": {
+            "result": "=_dp('{\"pill_type\":\"output\",\"provider\":\"cicd_for_workato_v3_connector_865610_1729896062\",\"line\":\"bc13d642\",\"path\":[\"result\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"cicd_for_workato_v3_connector_865610_1729896062\",\"line\":\"bc13d642\",\"path\":[\"result\"]}') : true"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "checkbox",
+                "label": "Result",
+                "render_input": {
+                },
+                "parse_output": {
+                },
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Result",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "result",
+                  "type": "boolean",
+                  "optional": false
+                },
+                "name": "result",
+                "type": "boolean",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "checkbox",
+                "label": "Result",
+                "render_input": {
+                },
+                "parse_output": {
+                },
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Result",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "result",
+                  "type": "boolean",
+                  "optional": false
+                },
+                "name": "result",
+                "type": "boolean",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "46d027db-9ad7-4b02-a489-08d7d521d903"
+      }
+    ],
+    "uuid": "fd506c56-1ea0-4f2f-8465-b59ebadec9c9"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "lookup_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "cicd_for_workato_v3_connector_865610_1729896062",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "CICD Automation/Connections/cicd_con_cicd_for_workato_v3.connection.json",
+        "name": "CICD | CON | CICD for Workato V3",
+        "folder": "CICD Automation/Connections",
+        "custom": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,584 @@
+{
+  "name": "CICD | FUNC | (MS Teams) Continue Approved Deployment",
+  "description": "When there is a function call, do action",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "7f7d9fe5",
+    "title": null,
+    "description": null,
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"user_id\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"User ID\"},{\"name\":\"message_id\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\",\"label\":\"Message ID\"},{\"name\":\"data\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\",\"label\":\"Data\"},{\"name\":\"user_name\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"User name\"}]",
+      "result_schema_json": "[{\"control_type\":\"checkbox\",\"label\":\"Result\",\"render_input\":{},\"parse_output\":{},\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Result\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"name\":\"result\",\"type\":\"boolean\",\"optional\":false},\"name\":\"result\",\"type\":\"boolean\",\"optional\":false,\"default\":\"true\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "User ID",
+            "name": "user_id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Message ID",
+            "name": "message_id",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "Data",
+            "name": "data",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "User name",
+            "name": "user_name",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "json_parser",
+        "name": "parse_json",
+        "as": "1b56aa0b",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "input": {
+          "sample_document": "{\n\t\"execution_reference\": \"14c10525-1555-4bb9-8048-c18dfde6fd1c\",\n\t\"approval_action\": \"false\",\n\t\"rejection_reason\": \"This is a reason\",\n \t\"source_env\": \"sample env\",\n\t\"target_env\": \"sample env\"\n}",
+          "document": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7f7d9fe5\",\"path\":[\"parameters\",\"data\"]}').presence || \"{}\""
+        },
+        "extended_output_schema": [
+          {
+            "label": "Document",
+            "name": "document",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Execution reference",
+                "type": "string",
+                "name": "execution_reference"
+              },
+              {
+                "control_type": "text",
+                "label": "Approval action",
+                "type": "string",
+                "name": "approval_action"
+              },
+              {
+                "control_type": "text",
+                "label": "Rejection reason",
+                "type": "string",
+                "name": "rejection_reason"
+              },
+              {
+                "control_type": "text",
+                "label": "Source env",
+                "type": "string",
+                "name": "source_env"
+              },
+              {
+                "control_type": "text",
+                "label": "Target env",
+                "type": "string",
+                "name": "target_env"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Edit schema",
+            "name": "edit_schema",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "multiselect",
+                "label": "Override fields",
+                "pick_list": [
+                  [
+                    "document > execution_reference",
+                    "document__sep__execution_reference"
+                  ],
+                  [
+                    "document > approval_action",
+                    "document__sep__approval_action"
+                  ],
+                  [
+                    "document > rejection_reason",
+                    "document__sep__rejection_reason"
+                  ],
+                  [
+                    "document > source_env",
+                    "document__sep__source_env"
+                  ],
+                  [
+                    "document > target_env",
+                    "document__sep__target_env"
+                  ]
+                ],
+                "optional": true,
+                "extends_schema": true,
+                "type": "string",
+                "name": "override_fields_picklist"
+              }
+            ],
+            "sticky": false,
+            "type": "object"
+          }
+        ],
+        "comment": "Parse Execution Data",
+        "uuid": "e08fd5bb-1492-4c2c-a3e9-1cd325bbc5c3"
+      },
+      {
+        "number": 2,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe",
+        "as": "281a651f",
+        "title": null,
+        "description": "Call <span class=\"provider\">CICD | FUNC | User Permission Analyzer</span>",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "CICD | FUNC | User Permission Analyzer"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "CICD Automation/Functions/RBAC/cicd_func_user_permission_analyzer.recipe.json",
+            "name": "CICD | FUNC | User Permission Analyzer",
+            "folder": "CICD Automation/Functions/RBAC"
+          },
+          "parameters": {
+            "user": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7f7d9fe5\",\"path\":[\"parameters\",\"user_id\"]}')}",
+            "permissions": "=[\"continue_deployment\",\"continue_deployment_(prod)\"]"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "name": "permissions",
+                "type": "array",
+                "of": "object",
+                "label": "Permissions",
+                "optional": false,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "name": "name",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Result",
+                    "render_input": {
+                    },
+                    "parse_output": {
+                    },
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Result",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "name": "result",
+                      "type": "boolean",
+                      "optional": false
+                    },
+                    "name": "result",
+                    "type": "boolean",
+                    "optional": false
+                  }
+                ]
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "User",
+                "name": "user",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "name": "permissions",
+                "type": "array",
+                "of": "string",
+                "label": "Permissions",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "cb1ce9c1-b06d-481c-9f5c-658148d07520"
+      },
+      {
+        "number": 3,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "is_not_true",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"281a651f\",\"path\":[\"result\",\"permissions\",{\"path_element_type\":\"current_item\"},\"result\"]}')}",
+              "rhs": "",
+              "uuid": "condition-12250439-5032-42bc-b97a-7027df1f9c06"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 4,
+            "provider": "teams_bot",
+            "name": "post_blocks_message",
+            "as": "5dd37586",
+            "title": null,
+            "description": "Post <span class=\"provider\">message</span> to user as <span class=\"provider\">Workbot</span>",
+            "keyword": "action",
+            "toggleCfg": {
+              "channel": false,
+              "blocks.1.text_block.separator": true
+            },
+            "input": {
+              "channel": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7f7d9fe5\",\"path\":[\"parameters\",\"user_id\"]}')}",
+              "blocks": [
+                {
+                  "block_type": "text_block",
+                  "text_block": {
+                    "text_type": "subheader",
+                    "text": "=\"\\u{274C} Error!\""
+                  }
+                },
+                {
+                  "block_type": "text_block",
+                  "text_block": {
+                    "text_type": "body_text",
+                    "style": {
+                      "color": "attention"
+                    },
+                    "text": "Insufficient privileges!",
+                    "separator": "true"
+                  }
+                }
+              ]
+            },
+            "uuid": "6fa3cae2-602f-48ff-81d1-75ca4cdbee70"
+          },
+          {
+            "number": 5,
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "false"
+            },
+            "uuid": "836a9470-cffb-4709-bc0a-6a0092867980"
+          }
+        ],
+        "uuid": "ad4e772c-b7d0-464c-afaa-a4c9f08f62c7"
+      },
+      {
+        "number": 6,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe",
+        "as": "4c8f9822",
+        "title": null,
+        "description": "Call <span class=\"provider\">CICD | FUNC | Continue Approved Deployments</span>",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "CICD | FUNC | Continue Approved Deployments"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "CICD Automation/Functions/Core Pipeline/Deploy/cicd_func_continue_approved_deployments.recipe.json",
+            "name": "CICD | FUNC | Continue Approved Deployments",
+            "folder": "CICD Automation/Functions/Core Pipeline/Deploy"
+          },
+          "parameters": {
+            "user_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7f7d9fe5\",\"path\":[\"parameters\",\"user_id\"]}')}",
+            "user_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7f7d9fe5\",\"path\":[\"parameters\",\"user_name\"]}')}",
+            "execution_reference": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"1b56aa0b\",\"path\":[\"document\",\"execution_reference\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "checkbox",
+                "label": "Result",
+                "render_input": {
+                },
+                "parse_output": {
+                },
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Result",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "result",
+                  "type": "boolean",
+                  "optional": false
+                },
+                "name": "result",
+                "type": "boolean",
+                "optional": false,
+                "default": "true"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "User ID",
+                "name": "user_id",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "User name",
+                "name": "user_name",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Execution reference",
+                "name": "execution_reference",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "External ID",
+                "name": "external_id",
+                "type": "string",
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "flow_id",
+          "parameters.response_url"
+        ],
+        "uuid": "b454a6bb-069b-446a-b43d-b8e06eecaa40"
+      },
+      {
+        "number": 7,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe",
+        "as": "6d99ffe5",
+        "title": null,
+        "description": "Call <span class=\"provider\">CICD | FUNC | (MS Teams) List Pipeline Executions</span>",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "CICD | FUNC | (MS Teams) List Pipeline Executions"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "CICD Automation/Triggers/Microsoft Teams/Functions/Pipeline Execution/cicd_func_ms_teams_list_pipeline_executions.recipe.json",
+            "name": "CICD | FUNC | (MS Teams) List Pipeline Executions",
+            "folder": "CICD Automation/Triggers/Microsoft Teams/Functions/Pipeline Execution"
+          },
+          "parameters": {
+            "user_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7f7d9fe5\",\"path\":[\"parameters\",\"user_id\"]}')}",
+            "message_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7f7d9fe5\",\"path\":[\"parameters\",\"message_id\"]}')}",
+            "execution_reference": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"1b56aa0b\",\"path\":[\"document\",\"execution_reference\"]}')}"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Execution Reference",
+                "name": "execution_reference",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Execution Status",
+                "name": "execution_status",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "User ID",
+                "name": "user_id",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Message ID",
+                "name": "message_id",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Project configuration ID",
+                "name": "project_configuration_id",
+                "type": "string",
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "flow_id",
+          "parameters.message_id",
+          "parameters.execution_reference"
+        ],
+        "uuid": "08900fee-fded-4d47-8b2e-675c1bf271ab"
+      },
+      {
+        "number": 8,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "940ff6b2",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "toggleCfg": {
+          "result.result": false
+        },
+        "input": {
+          "result": {
+            "result": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"4c8f9822\",\"path\":[\"result\",\"result\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "checkbox",
+                "label": "Result",
+                "render_input": {
+                },
+                "parse_output": {
+                },
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Result",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "result",
+                  "type": "boolean",
+                  "optional": false
+                },
+                "name": "result",
+                "type": "boolean",
+                "optional": false,
+                "default": "true"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "checkbox",
+                "label": "Result",
+                "render_input": {
+                },
+                "parse_output": {
+                },
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Result",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "result",
+                  "type": "boolean",
+                  "optional": false
+                },
+                "name": "result",
+                "type": "boolean",
+                "optional": false,
+                "default": "true"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "985d4a68-4ec6-491b-b4a9-41db99ad0608"
+      }
+    ],
+    "uuid": "7d80f480-59aa-4e93-bb6b-c116eae6033e",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "json_parser",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "teams_bot",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "CICD Automation/Connections/cicd_con_workbot_for_ms_teams.connection.json",
+        "name": "CICD | CON | Workbot for MS Teams",
+        "folder": "CICD Automation/Connections"
+      }
+    }
+  ]
+}
