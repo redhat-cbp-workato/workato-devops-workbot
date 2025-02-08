@@ -1,0 +1,1769 @@
+{
+  "name": "CICD | FUNC | (MS Teams) Remove Project Configuration",
+  "description": "When there is a function call, do action",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "98d6dbf6",
+    "title": null,
+    "description": null,
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"control_type\":\"text\",\"label\":\"Project config ID\",\"name\":\"project_config_id\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"User ID\",\"name\":\"user_id\",\"type\":\"string\",\"optional\":false},{\"name\":\"message_id\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\",\"label\":\"Message ID\"},{\"name\":\"data\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\",\"label\":\"Data\"},{\"name\":\"user_name\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"User name\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Project config ID",
+            "name": "project_config_id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "User ID",
+            "name": "user_id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Message ID",
+            "name": "message_id",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "Data",
+            "name": "data",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "User name",
+            "name": "user_name",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe",
+        "as": "8e26b300",
+        "title": null,
+        "description": "Call <span class=\"provider\">CICD | FUNC | User Permission Analyzer</span>",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "CICD | FUNC | User Permission Analyzer"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "CICD Automation/Functions/RBAC/cicd_func_user_permission_analyzer.recipe.json",
+            "name": "CICD | FUNC | User Permission Analyzer",
+            "folder": "CICD Automation/Functions/RBAC"
+          },
+          "parameters": {
+            "user": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"user_id\"]}')}",
+            "permissions": "=[\"manage_project_configuration\"]"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "name": "permissions",
+                "type": "array",
+                "of": "object",
+                "label": "Permissions",
+                "optional": false,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "name": "name",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Result",
+                    "render_input": {
+                    },
+                    "parse_output": {
+                    },
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Result",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "name": "result",
+                      "type": "boolean",
+                      "optional": false
+                    },
+                    "name": "result",
+                    "type": "boolean",
+                    "optional": false
+                  }
+                ]
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "User",
+                "name": "user",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "name": "permissions",
+                "type": "array",
+                "of": "string",
+                "label": "Permissions",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "d24a877e-4f1a-4cb8-85a7-5e37b8d29b6c"
+      },
+      {
+        "number": 2,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "is_not_true",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"8e26b300\",\"path\":[\"result\",\"permissions\",{\"path_element_type\":\"current_item\"},\"result\"]}')}",
+              "rhs": "",
+              "uuid": "condition-a07895bd-ab44-401f-828d-ef288a1fb930"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 3,
+            "provider": "teams_bot",
+            "name": "post_blocks_message",
+            "as": "c5f9f41f",
+            "title": null,
+            "description": null,
+            "keyword": "action",
+            "toggleCfg": {
+              "channel": false,
+              "blocks.1.text_block.separator": true
+            },
+            "input": {
+              "channel": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"user_id\"]}')}",
+              "blocks": [
+                {
+                  "block_type": "text_block",
+                  "text_block": {
+                    "text_type": "subheader",
+                    "text": "=\"\\u{274C} Error!\""
+                  }
+                },
+                {
+                  "block_type": "text_block",
+                  "text_block": {
+                    "text_type": "body_text",
+                    "style": {
+                      "color": "attention"
+                    },
+                    "text": "Insufficient privileges!",
+                    "separator": "true"
+                  }
+                }
+              ]
+            },
+            "uuid": "46399ed7-d74e-401b-a20e-5e0b98bf7492"
+          },
+          {
+            "number": 4,
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "false"
+            },
+            "uuid": "0620953a-30f6-4803-9c27-023006d0a156"
+          }
+        ],
+        "uuid": "ccfea795-756d-4409-8b4c-ffddba3f3a88"
+      },
+      {
+        "number": 5,
+        "provider": "json_parser",
+        "name": "parse_json",
+        "as": "0599f34a",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "input": {
+          "sample_document": "{\"stage\":\"sample stage\", \"confirmation\": true}",
+          "document": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"data\"]}').presence || \"{}\""
+        },
+        "extended_output_schema": [
+          {
+            "label": "Document",
+            "name": "document",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Stage",
+                "type": "string",
+                "name": "stage"
+              },
+              {
+                "control_type": "text",
+                "label": "Confirmation",
+                "render_input": {
+                },
+                "parse_output": {
+                },
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Confirmation",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "type": "boolean",
+                  "name": "confirmation"
+                },
+                "type": "boolean",
+                "name": "confirmation"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "5fc48f3b-c742-4906-926c-d81807310ed7"
+      },
+      {
+        "number": 6,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "equals_to",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"0599f34a\",\"path\":[\"document\",\"stage\"]}')}",
+              "rhs": "collect_confirmation",
+              "uuid": "condition-3836e7c0-17a5-44af-ad30-ff6aa11b6746"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 7,
+            "provider": "lookup_table",
+            "name": "search_entries",
+            "as": "7aa40d4e",
+            "title": null,
+            "description": "\n      Search\n      <span class=\"provider\">entries</span>\n      in\n      <span class=\"provider\">CICD | LT | Project Configuration</span>\n      lookup table\n    ",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "lookup_table_id": "CICD | LT | Project Configuration"
+            },
+            "input": {
+              "lookup_table_id": {
+                "zip_name": "cicd_lt_project_configuration.lookup_table.json",
+                "name": "CICD | LT | Project Configuration",
+                "folder": ""
+              },
+              "parameters": {
+                "col1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"project_config_id\"]}')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Entries",
+                "name": "entries",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "Entry ID",
+                    "parse_output": "integer_conversion",
+                    "type": "integer",
+                    "name": "id"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Id",
+                        "name": "col1",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Project Name",
+                        "name": "col2",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Asset Environment",
+                        "name": "col3",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Asset Id",
+                        "name": "col4",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Asset Type",
+                        "name": "col5",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Project Context",
+                        "name": "col6",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Notification Settings",
+                        "name": "col7",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Dependencies",
+                        "name": "col8",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Target Folder Details",
+                        "name": "col9",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Last Updated",
+                        "name": "col10",
+                        "type": "string",
+                        "sticky": true
+                      }
+                    ],
+                    "label": "Entry",
+                    "type": "object",
+                    "name": "entry"
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Provide one or more entry fields to search the entry",
+                "label": "Search by",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Id",
+                    "name": "col1",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Project Name",
+                    "name": "col2",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Asset Environment",
+                    "name": "col3",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Asset Id",
+                    "name": "col4",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Asset Type",
+                    "name": "col5",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Project Context",
+                    "name": "col6",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Notification Settings",
+                    "name": "col7",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Dependencies",
+                    "name": "col8",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Target Folder Details",
+                    "name": "col9",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Last Updated",
+                    "name": "col10",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "4deccf74-1fd2-4094-ae1c-65eae30c43a8"
+          },
+          {
+            "number": 8,
+            "provider": "teams_bot",
+            "name": "post_blocks_message",
+            "as": "add3cd34",
+            "title": null,
+            "description": null,
+            "keyword": "action",
+            "toggleCfg": {
+              "channel": false,
+              "blocks.1.text_block.separator": true,
+              "blocks.2.action_set_block.actions.0.action_submit.bot_command": true,
+              "blocks.2.action_set_block.actions.1.action_submit.bot_command": true
+            },
+            "input": {
+              "channel": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"user_id\"]}')}",
+              "blocks": [
+                {
+                  "block_type": "text_block",
+                  "text_block": {
+                    "text_type": "header",
+                    "text": "Removal Confirmation"
+                  }
+                },
+                {
+                  "block_type": "text_block",
+                  "text_block": {
+                    "text_type": "body_text",
+                    "text": "Do you want to remove project configuration **#{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"7aa40d4e\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"entry\",\"col2\"]}')}**?",
+                    "separator": "true"
+                  }
+                },
+                {
+                  "block_type": "action_set_block",
+                  "action_set_block": {
+                    "actions": [
+                      {
+                        "block_type": "action_submit",
+                        "action_submit": {
+                          "title": "Yes",
+                          "bot_command": "workato_cicd_execute",
+                          "params": "command: remove_project_config replace_message: true stage: process_confirmation confirmation: true param1: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"project_config_id\"]}')}"
+                        }
+                      },
+                      {
+                        "block_type": "action_submit",
+                        "action_submit": {
+                          "title": "No",
+                          "bot_command": "workato_cicd_execute",
+                          "params": "command: list_project_config replace_message: true"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ],
+              "message_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"message_id\"]}').presence"
+            },
+            "visible_config_fields": [
+              "channel",
+              "blocks",
+              "blocks.block_type",
+              "blocks.text_block.text",
+              "blocks.text_block.text_type",
+              "blocks.text_block.separator",
+              "blocks.text_block.style.color",
+              "blocks.text_block.style.fontType",
+              "blocks.text_block.style.isSubtle",
+              "blocks.text_block.style.size",
+              "blocks.text_block.style.weight",
+              "blocks.column_set_block.columns",
+              "blocks.column_set_block.columns.items",
+              "blocks.column_set_block.columns.items.block_type",
+              "blocks.column_set_block.columns.items.text_block.text",
+              "blocks.column_set_block.columns.items.text_block.text_type",
+              "blocks.column_set_block.columns.items.text_block.separator",
+              "blocks.column_set_block.columns.items.text_block.style.color",
+              "blocks.column_set_block.columns.items.text_block.style.fontType",
+              "blocks.column_set_block.columns.items.text_block.style.isSubtle",
+              "blocks.column_set_block.columns.items.text_block.style.size",
+              "blocks.column_set_block.columns.items.text_block.style.weight",
+              "blocks.column_set_block.columns.items.image_block.url",
+              "blocks.column_set_block.columns.items.image_block.style.size",
+              "blocks.column_set_block.columns.items.image_block.style.horizontalAlignment",
+              "blocks.column_set_block.columns.items.image_block.style.separator",
+              "blocks.column_set_block.columns.items.fact_set.facts",
+              "blocks.column_set_block.columns.items.fact_set.facts.title",
+              "blocks.column_set_block.columns.items.fact_set.facts.value",
+              "blocks.column_set_block.columns.items.fact_set.style.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions",
+              "blocks.column_set_block.columns.items.action_set_block.actions.block_type",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_open_url.url",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_open_url.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_submit.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_submit.bot_command",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_submit.params",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.block_type",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.text",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.text_type",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.color",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.fontType",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.isSubtle",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.size",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.weight",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.url",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.style.size",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.style.horizontalAlignment",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.style.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.facts",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.facts.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.facts.value",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.style.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.block_type",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_open_url.url",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_open_url.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.bot_command",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.params",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.style.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.id",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.label",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.hint",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.is_multiline",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.placeholder",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.value",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.id",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.label",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.hint",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.placeholder",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.value",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.label",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.hint",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.id",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.value",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.style",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.id",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.label",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.hint",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.value",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.init_value",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.separator",
+              "blocks.column_set_block.columns.items.action_set_block.style.separator",
+              "blocks.column_set_block.columns.width",
+              "blocks.column_set_block.columns.style.separator",
+              "blocks.column_set_block.columns.style.style",
+              "blocks.column_set_block.style.spacing",
+              "blocks.column_set_block.style.separator",
+              "blocks.action_set_block.actions",
+              "blocks.action_set_block.actions.block_type",
+              "blocks.action_set_block.actions.action_open_url.url",
+              "blocks.action_set_block.actions.action_open_url.title",
+              "blocks.action_set_block.actions.action_submit.title",
+              "blocks.action_set_block.actions.action_submit.bot_command",
+              "blocks.action_set_block.actions.action_submit.params",
+              "blocks.action_set_block.actions.action_show_card.title",
+              "blocks.action_set_block.actions.action_show_card.blocks",
+              "blocks.action_set_block.actions.action_show_card.blocks.block_type",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.text",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.text_type",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.separator",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.style.color",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.style.fontType",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.style.isSubtle",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.style.size",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.style.weight",
+              "blocks.action_set_block.actions.action_show_card.blocks.image_block.url",
+              "blocks.action_set_block.actions.action_show_card.blocks.image_block.style.size",
+              "blocks.action_set_block.actions.action_show_card.blocks.image_block.style.horizontalAlignment",
+              "blocks.action_set_block.actions.action_show_card.blocks.image_block.style.separator",
+              "blocks.action_set_block.actions.action_show_card.blocks.fact_set.facts",
+              "blocks.action_set_block.actions.action_show_card.blocks.fact_set.facts.title",
+              "blocks.action_set_block.actions.action_show_card.blocks.fact_set.facts.value",
+              "blocks.action_set_block.actions.action_show_card.blocks.fact_set.style.separator",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.block_type",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_open_url.url",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_open_url.title",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.title",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.bot_command",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.params",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.style.separator",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_input.id",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_input.label",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_input.hint",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_input.is_multiline",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_input.placeholder",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_input.value",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_input.separator",
+              "blocks.action_set_block.actions.action_show_card.blocks.date_input.id",
+              "blocks.action_set_block.actions.action_show_card.blocks.date_input.label",
+              "blocks.action_set_block.actions.action_show_card.blocks.date_input.hint",
+              "blocks.action_set_block.actions.action_show_card.blocks.date_input.placeholder",
+              "blocks.action_set_block.actions.action_show_card.blocks.date_input.value",
+              "blocks.action_set_block.actions.action_show_card.blocks.date_input.separator",
+              "blocks.action_set_block.actions.action_show_card.blocks.toggle_input.label",
+              "blocks.action_set_block.actions.action_show_card.blocks.toggle_input.hint",
+              "blocks.action_set_block.actions.action_show_card.blocks.toggle_input.id",
+              "blocks.action_set_block.actions.action_show_card.blocks.toggle_input.title",
+              "blocks.action_set_block.actions.action_show_card.blocks.toggle_input.value",
+              "blocks.action_set_block.actions.action_show_card.blocks.toggle_input.separator",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.style",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.id",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.label",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.hint",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.choices",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.title",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.value",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.init_value",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.separator",
+              "blocks.action_set_block.style.separator",
+              "blocks.image_block.url",
+              "blocks.image_block.style.size",
+              "blocks.image_block.style.horizontalAlignment",
+              "blocks.image_block.style.separator",
+              "blocks.fact_set.facts",
+              "blocks.fact_set.facts.title",
+              "blocks.fact_set.facts.value",
+              "blocks.fact_set.style.separator",
+              "blocks.text_input.id",
+              "blocks.text_input.label",
+              "blocks.text_input.hint",
+              "blocks.text_input.is_multiline",
+              "blocks.text_input.placeholder",
+              "blocks.text_input.value",
+              "blocks.text_input.separator",
+              "blocks.date_input.id",
+              "blocks.date_input.label",
+              "blocks.date_input.hint",
+              "blocks.date_input.placeholder",
+              "blocks.date_input.value",
+              "blocks.date_input.separator",
+              "blocks.time_input.id",
+              "blocks.time_input.label",
+              "blocks.time_input.hint",
+              "blocks.time_input.placeholder",
+              "blocks.time_input.value",
+              "blocks.time_input.separator",
+              "blocks.toggle_input.label",
+              "blocks.toggle_input.hint",
+              "blocks.toggle_input.id",
+              "blocks.toggle_input.title",
+              "blocks.toggle_input.value",
+              "blocks.toggle_input.separator",
+              "blocks.choice_set_input.style",
+              "blocks.choice_set_input.id",
+              "blocks.choice_set_input.label",
+              "blocks.choice_set_input.hint",
+              "blocks.choice_set_input.choices",
+              "blocks.choice_set_input.choices.title",
+              "blocks.choice_set_input.choices.value",
+              "blocks.choice_set_input.choices.init_value",
+              "blocks.choice_set_input.separator",
+              "blocks.repeat_block_group.objects",
+              "blocks.repeat_block_group.objects.blocks",
+              "blocks.repeat_block_group.objects.blocks.block_type",
+              "blocks.repeat_block_group.objects.blocks.text_block.text",
+              "blocks.repeat_block_group.objects.blocks.text_block.text_type",
+              "blocks.repeat_block_group.objects.blocks.text_block.separator",
+              "blocks.repeat_block_group.objects.blocks.text_block.style.color",
+              "blocks.repeat_block_group.objects.blocks.text_block.style.fontType",
+              "blocks.repeat_block_group.objects.blocks.text_block.style.isSubtle",
+              "blocks.repeat_block_group.objects.blocks.text_block.style.size",
+              "blocks.repeat_block_group.objects.blocks.text_block.style.weight",
+              "blocks.repeat_block_group.objects.blocks.image_block.url",
+              "blocks.repeat_block_group.objects.blocks.image_block.style.size",
+              "blocks.repeat_block_group.objects.blocks.image_block.style.horizontalAlignment",
+              "blocks.repeat_block_group.objects.blocks.image_block.style.separator",
+              "blocks.repeat_block_group.objects.blocks.fact_set.facts",
+              "blocks.repeat_block_group.objects.blocks.fact_set.facts.title",
+              "blocks.repeat_block_group.objects.blocks.fact_set.facts.value",
+              "blocks.repeat_block_group.objects.blocks.fact_set.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.block_type",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.text",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.text_type",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.style.color",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.style.fontType",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.style.isSubtle",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.style.size",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.style.weight",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.image_block.url",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.image_block.style.size",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.image_block.style.horizontalAlignment",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.image_block.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.fact_set.facts",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.fact_set.facts.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.fact_set.facts.value",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.fact_set.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.block_type",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_open_url.url",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_open_url.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_submit.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_submit.bot_command",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_submit.params",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.block_type",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.text",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.text_type",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.color",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.fontType",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.isSubtle",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.size",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.weight",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.url",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.style.size",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.style.horizontalAlignment",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.facts",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.facts.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.facts.value",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.block_type",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_open_url.url",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_open_url.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.bot_command",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.params",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.id",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.label",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.hint",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.is_multiline",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.placeholder",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.value",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.id",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.label",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.hint",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.placeholder",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.value",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.label",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.hint",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.id",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.value",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.style",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.id",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.label",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.hint",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.value",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.init_value",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.width",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.style.style",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.style.spacing",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.style.separator",
+              "blocks.repeat_block_group.objects.blocks.text_with_thumbnail_block.header_text",
+              "blocks.repeat_block_group.objects.blocks.text_with_thumbnail_block.text",
+              "blocks.repeat_block_group.objects.blocks.text_with_thumbnail_block.image_url",
+              "blocks.repeat_block_group.objects.blocks.text_with_thumbnail_block.separator",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.header_text",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.text",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.button_title",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.button_type",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.bot_command",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.params",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.link_to_open",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.separator",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.image_url",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.header_text",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.text",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.button_title",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.button_type",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.bot_command",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.params",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.link_to_open",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.separator",
+              "blocks.repeat_block_group.separator",
+              "blocks.text_with_thumbnail_block.header_text",
+              "blocks.text_with_thumbnail_block.text",
+              "blocks.text_with_thumbnail_block.image_url",
+              "blocks.text_with_thumbnail_block.separator",
+              "blocks.text_with_button_block.header_text",
+              "blocks.text_with_button_block.text",
+              "blocks.text_with_button_block.button_title",
+              "blocks.text_with_button_block.button_type",
+              "blocks.text_with_button_block.bot_command",
+              "blocks.text_with_button_block.params",
+              "blocks.text_with_button_block.link_to_open",
+              "blocks.text_with_button_block.separator",
+              "blocks.text_with_button_and_thumbnail_block.image_url",
+              "blocks.text_with_button_and_thumbnail_block.header_text",
+              "blocks.text_with_button_and_thumbnail_block.text",
+              "blocks.text_with_button_and_thumbnail_block.button_title",
+              "blocks.text_with_button_and_thumbnail_block.button_type",
+              "blocks.text_with_button_and_thumbnail_block.bot_command",
+              "blocks.text_with_button_and_thumbnail_block.params",
+              "blocks.text_with_button_and_thumbnail_block.link_to_open",
+              "blocks.text_with_button_and_thumbnail_block.separator",
+              "blocks.bot_commands_menu_block.label",
+              "blocks.bot_commands_menu_block.style",
+              "blocks.bot_commands_menu_block.hint",
+              "blocks.bot_commands_menu_block.button_title",
+              "blocks.bot_commands_menu_block.separator",
+              "mentions",
+              "mentions.mention",
+              "mentions.username",
+              "message_id"
+            ],
+            "uuid": "f48944aa-f84c-443a-baf1-8176eebb86a6"
+          }
+        ],
+        "uuid": "1cafd4c8-4b95-480b-9e69-a710d739f090"
+      },
+      {
+        "number": 9,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "equals_to",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"0599f34a\",\"path\":[\"document\",\"stage\"]}')}",
+              "rhs": "process_confirmation",
+              "uuid": "condition-c3ff5242-a8d8-4ee1-aac2-7f99c5fcc314"
+            },
+            {
+              "operand": "is_true",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"0599f34a\",\"path\":[\"document\",\"confirmation\"]}')}",
+              "rhs": "",
+              "uuid": "condition-8e5efa7d-2d24-40de-8850-612bba493dcf"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 10,
+            "provider": "workato_recipe_function",
+            "name": "call_recipe",
+            "as": "926804e9",
+            "title": null,
+            "description": "Call <span class=\"provider\">CICD | FUNC | Remove Project Configuration</span>",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "flow_id": "CICD | FUN | Remove Project Configuration"
+            },
+            "input": {
+              "flow_id": {
+                "zip_name": "CICD Automation/Functions/Project Configuration/cicd_func_remove_project_configuration.recipe.json",
+                "name": "CICD | FUNC | Remove Project Configuration",
+                "folder": "CICD Automation/Functions/Project Configuration"
+              },
+              "parameters": {
+                "project_config_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"project_config_id\"]}')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "checkbox",
+                    "label": "Is dependency",
+                    "render_input": {
+                    },
+                    "parse_output": {
+                    },
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Is Dependency",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "name": "is_dependency",
+                      "type": "boolean",
+                      "optional": false
+                    },
+                    "name": "is_dependency",
+                    "type": "boolean",
+                    "optional": false,
+                    "default": "false"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Status",
+                    "render_input": {
+                    },
+                    "parse_output": {
+                    },
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Status",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "name": "is_removed",
+                      "type": "boolean",
+                      "optional": false
+                    },
+                    "name": "is_removed",
+                    "type": "boolean",
+                    "optional": false,
+                    "default": "false"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "name": "name",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Parameters",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Project config ID",
+                    "name": "project_config_id",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "ecc66751-e011-455a-9558-d1e47dae6a27"
+          },
+          {
+            "number": 11,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "is_true",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"926804e9\",\"path\":[\"result\",\"is_dependency\"]}')}",
+                  "rhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"project_config_id\"]}')}",
+                  "uuid": "condition-250e9a51-d076-4788-8f01-fdd497622e36"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 12,
+                "provider": "teams_bot",
+                "name": "post_blocks_message",
+                "as": "dd099224",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "toggleCfg": {
+                  "channel": false,
+                  "blocks.1.text_block.separator": true,
+                  "blocks.2.column_set_block.style.separator": true,
+                  "blocks.2.column_set_block.columns.0.items.0.text_block.style.size": true,
+                  "blocks.3.action_set_block.actions.0.action_submit.bot_command": true
+                },
+                "input": {
+                  "channel": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"user_id\"]}')}",
+                  "blocks": [
+                    {
+                      "block_type": "text_block",
+                      "text_block": {
+                        "text_type": "subheader",
+                        "text": "=\"\\u{274C} Error!\""
+                      }
+                    },
+                    {
+                      "block_type": "text_block",
+                      "text_block": {
+                        "text_type": "body_text",
+                        "style": {
+                          "color": "attention"
+                        },
+                        "text": "Selected Project Configuration **#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"926804e9\",\"path\":[\"result\",\"name\"]}')}** is a dependency.",
+                        "separator": "true"
+                      }
+                    },
+                    {
+                      "block_type": "column_set_block",
+                      "column_set_block": {
+                        "style": {
+                          "separator": "true"
+                        },
+                        "columns": [
+                          {
+                            "items": [
+                              {
+                                "block_type": "text_block",
+                                "text_block": {
+                                  "text": "Please clear it as a dependency before removing it.",
+                                  "text_type": "custom",
+                                  "style": {
+                                    "size": "small"
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "block_type": "action_set_block",
+                      "action_set_block": {
+                        "actions": [
+                          {
+                            "block_type": "action_submit",
+                            "action_submit": {
+                              "title": "Close",
+                              "params": "command: list_project_config replace_message: true",
+                              "bot_command": "workato_cicd_execute"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "uuid": "726f7186-c4ab-44ff-937f-9babce96aa41"
+              },
+              {
+                "number": 13,
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "false"
+                },
+                "uuid": "e6d79002-e8f2-4e4a-acd9-dd5c70c944a1"
+              }
+            ],
+            "uuid": "f8cc916a-e1a4-465a-bef8-d476bd32bfff"
+          },
+          {
+            "number": 14,
+            "provider": "workato_recipe_function",
+            "name": "call_recipe_async",
+            "as": "908a2e5f",
+            "title": null,
+            "description": "Call <span class=\"provider\">CICD | FUNC | Audit Log</span> (async)",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "flow_id": "CICD | FUNC | Audit Log"
+            },
+            "toggleCfg": {
+              "parameters.method": true
+            },
+            "input": {
+              "flow_id": {
+                "zip_name": "CICD Automation/Data Access Functions/cicd_func_audit_log.recipe.json",
+                "name": "CICD | FUNC | Audit Log",
+                "folder": "CICD Automation/Data Access Functions"
+              },
+              "parameters": {
+                "table": "CICD | Audit Log",
+                "method": "POST",
+                "entries": {
+                  "entity": "Project Configuration",
+                  "entity_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"project_config_id\"]}')}",
+                  "operation": "Remove Project Configuration",
+                  "user_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"user_name\"]}')}",
+                  "timestamp": "=now",
+                  "user_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"user_id\"]}')}"
+                }
+              }
+            },
+            "extended_input_schema": [
+              {
+                "label": "Parameters",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Table",
+                    "type": "string",
+                    "name": "table",
+                    "optional": true,
+                    "default": "CICD | Audit Log"
+                  },
+                  {
+                    "control_type": "select",
+                    "label": "Method",
+                    "type": "string",
+                    "name": "method",
+                    "optional": false,
+                    "hint": "GET, POST",
+                    "pick_list": [
+                      [
+                        "GET",
+                        "GET"
+                      ],
+                      [
+                        "POST",
+                        "POST"
+                      ]
+                    ],
+                    "toggle_hint": "Select from list",
+                    "toggle_field": {
+                      "name": "method",
+                      "label": "Method",
+                      "type": "string",
+                      "control_type": "text",
+                      "optional": false,
+                      "toggle_hint": "Enter Value",
+                      "hint": "Map Method"
+                    }
+                  },
+                  {
+                    "name": "entries",
+                    "type": "array",
+                    "of": "object",
+                    "label": "Entries",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Entity",
+                        "name": "entity",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Entity ID",
+                        "name": "entity_id",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Operation",
+                        "name": "operation",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "User ID",
+                        "name": "user_id",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "User name",
+                        "name": "user_name",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Timestamp",
+                        "name": "timestamp",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ]
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "240a76e7-26c5-4b63-bfc8-224610ea6cae"
+          },
+          {
+            "number": 15,
+            "provider": "teams_bot",
+            "name": "post_blocks_message",
+            "as": "7dc99b36",
+            "title": null,
+            "description": null,
+            "keyword": "action",
+            "toggleCfg": {
+              "channel": false,
+              "blocks.1.text_block.separator": true
+            },
+            "input": {
+              "channel": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"user_id\"]}')}",
+              "blocks": [
+                {
+                  "block_type": "text_block",
+                  "text_block": {
+                    "text_type": "subheader",
+                    "text": "=\"\\u{2705} Success!\""
+                  }
+                },
+                {
+                  "block_type": "text_block",
+                  "text_block": {
+                    "text_type": "body_text",
+                    "style": {
+                      "color": "attention"
+                    },
+                    "text": "Project Configuration **#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"926804e9\",\"path\":[\"result\",\"name\"]}')}** removed successfully.",
+                    "separator": "true"
+                  }
+                }
+              ],
+              "message_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"message_id\"]}').presence"
+            },
+            "visible_config_fields": [
+              "channel",
+              "blocks",
+              "blocks.block_type",
+              "blocks.text_block.text",
+              "blocks.text_block.text_type",
+              "blocks.text_block.separator",
+              "blocks.text_block.style.color",
+              "blocks.text_block.style.fontType",
+              "blocks.text_block.style.isSubtle",
+              "blocks.text_block.style.size",
+              "blocks.text_block.style.weight",
+              "blocks.column_set_block.columns",
+              "blocks.column_set_block.columns.items",
+              "blocks.column_set_block.columns.items.block_type",
+              "blocks.column_set_block.columns.items.text_block.text",
+              "blocks.column_set_block.columns.items.text_block.text_type",
+              "blocks.column_set_block.columns.items.text_block.separator",
+              "blocks.column_set_block.columns.items.text_block.style.color",
+              "blocks.column_set_block.columns.items.text_block.style.fontType",
+              "blocks.column_set_block.columns.items.text_block.style.isSubtle",
+              "blocks.column_set_block.columns.items.text_block.style.size",
+              "blocks.column_set_block.columns.items.text_block.style.weight",
+              "blocks.column_set_block.columns.items.image_block.url",
+              "blocks.column_set_block.columns.items.image_block.style.size",
+              "blocks.column_set_block.columns.items.image_block.style.horizontalAlignment",
+              "blocks.column_set_block.columns.items.image_block.style.separator",
+              "blocks.column_set_block.columns.items.fact_set.facts",
+              "blocks.column_set_block.columns.items.fact_set.facts.title",
+              "blocks.column_set_block.columns.items.fact_set.facts.value",
+              "blocks.column_set_block.columns.items.fact_set.style.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions",
+              "blocks.column_set_block.columns.items.action_set_block.actions.block_type",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_open_url.url",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_open_url.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_submit.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_submit.bot_command",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_submit.params",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.block_type",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.text",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.text_type",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.color",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.fontType",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.isSubtle",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.size",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.weight",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.url",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.style.size",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.style.horizontalAlignment",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.style.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.facts",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.facts.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.facts.value",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.style.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.block_type",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_open_url.url",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_open_url.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.bot_command",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.params",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.style.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.id",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.label",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.hint",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.is_multiline",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.placeholder",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.value",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.id",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.label",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.hint",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.placeholder",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.value",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.label",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.hint",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.id",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.value",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.separator",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.style",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.id",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.label",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.hint",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.title",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.value",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.init_value",
+              "blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.separator",
+              "blocks.column_set_block.columns.items.action_set_block.style.separator",
+              "blocks.column_set_block.columns.width",
+              "blocks.column_set_block.columns.style.separator",
+              "blocks.column_set_block.columns.style.style",
+              "blocks.column_set_block.style.spacing",
+              "blocks.column_set_block.style.separator",
+              "blocks.action_set_block.actions",
+              "blocks.action_set_block.actions.block_type",
+              "blocks.action_set_block.actions.action_open_url.url",
+              "blocks.action_set_block.actions.action_open_url.title",
+              "blocks.action_set_block.actions.action_submit.title",
+              "blocks.action_set_block.actions.action_submit.bot_command",
+              "blocks.action_set_block.actions.action_submit.params",
+              "blocks.action_set_block.actions.action_show_card.title",
+              "blocks.action_set_block.actions.action_show_card.blocks",
+              "blocks.action_set_block.actions.action_show_card.blocks.block_type",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.text",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.text_type",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.separator",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.style.color",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.style.fontType",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.style.isSubtle",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.style.size",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_block.style.weight",
+              "blocks.action_set_block.actions.action_show_card.blocks.image_block.url",
+              "blocks.action_set_block.actions.action_show_card.blocks.image_block.style.size",
+              "blocks.action_set_block.actions.action_show_card.blocks.image_block.style.horizontalAlignment",
+              "blocks.action_set_block.actions.action_show_card.blocks.image_block.style.separator",
+              "blocks.action_set_block.actions.action_show_card.blocks.fact_set.facts",
+              "blocks.action_set_block.actions.action_show_card.blocks.fact_set.facts.title",
+              "blocks.action_set_block.actions.action_show_card.blocks.fact_set.facts.value",
+              "blocks.action_set_block.actions.action_show_card.blocks.fact_set.style.separator",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.block_type",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_open_url.url",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_open_url.title",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.title",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.bot_command",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.params",
+              "blocks.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.style.separator",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_input.id",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_input.label",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_input.hint",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_input.is_multiline",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_input.placeholder",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_input.value",
+              "blocks.action_set_block.actions.action_show_card.blocks.text_input.separator",
+              "blocks.action_set_block.actions.action_show_card.blocks.date_input.id",
+              "blocks.action_set_block.actions.action_show_card.blocks.date_input.label",
+              "blocks.action_set_block.actions.action_show_card.blocks.date_input.hint",
+              "blocks.action_set_block.actions.action_show_card.blocks.date_input.placeholder",
+              "blocks.action_set_block.actions.action_show_card.blocks.date_input.value",
+              "blocks.action_set_block.actions.action_show_card.blocks.date_input.separator",
+              "blocks.action_set_block.actions.action_show_card.blocks.toggle_input.label",
+              "blocks.action_set_block.actions.action_show_card.blocks.toggle_input.hint",
+              "blocks.action_set_block.actions.action_show_card.blocks.toggle_input.id",
+              "blocks.action_set_block.actions.action_show_card.blocks.toggle_input.title",
+              "blocks.action_set_block.actions.action_show_card.blocks.toggle_input.value",
+              "blocks.action_set_block.actions.action_show_card.blocks.toggle_input.separator",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.style",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.id",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.label",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.hint",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.choices",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.title",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.value",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.init_value",
+              "blocks.action_set_block.actions.action_show_card.blocks.choice_set_input.separator",
+              "blocks.action_set_block.style.separator",
+              "blocks.image_block.url",
+              "blocks.image_block.style.size",
+              "blocks.image_block.style.horizontalAlignment",
+              "blocks.image_block.style.separator",
+              "blocks.fact_set.facts",
+              "blocks.fact_set.facts.title",
+              "blocks.fact_set.facts.value",
+              "blocks.fact_set.style.separator",
+              "blocks.text_input.id",
+              "blocks.text_input.label",
+              "blocks.text_input.hint",
+              "blocks.text_input.is_multiline",
+              "blocks.text_input.placeholder",
+              "blocks.text_input.value",
+              "blocks.text_input.separator",
+              "blocks.date_input.id",
+              "blocks.date_input.label",
+              "blocks.date_input.hint",
+              "blocks.date_input.placeholder",
+              "blocks.date_input.value",
+              "blocks.date_input.separator",
+              "blocks.time_input.id",
+              "blocks.time_input.label",
+              "blocks.time_input.hint",
+              "blocks.time_input.placeholder",
+              "blocks.time_input.value",
+              "blocks.time_input.separator",
+              "blocks.toggle_input.label",
+              "blocks.toggle_input.hint",
+              "blocks.toggle_input.id",
+              "blocks.toggle_input.title",
+              "blocks.toggle_input.value",
+              "blocks.toggle_input.separator",
+              "blocks.choice_set_input.style",
+              "blocks.choice_set_input.id",
+              "blocks.choice_set_input.label",
+              "blocks.choice_set_input.hint",
+              "blocks.choice_set_input.choices",
+              "blocks.choice_set_input.choices.title",
+              "blocks.choice_set_input.choices.value",
+              "blocks.choice_set_input.choices.init_value",
+              "blocks.choice_set_input.separator",
+              "blocks.repeat_block_group.objects",
+              "blocks.repeat_block_group.objects.blocks",
+              "blocks.repeat_block_group.objects.blocks.block_type",
+              "blocks.repeat_block_group.objects.blocks.text_block.text",
+              "blocks.repeat_block_group.objects.blocks.text_block.text_type",
+              "blocks.repeat_block_group.objects.blocks.text_block.separator",
+              "blocks.repeat_block_group.objects.blocks.text_block.style.color",
+              "blocks.repeat_block_group.objects.blocks.text_block.style.fontType",
+              "blocks.repeat_block_group.objects.blocks.text_block.style.isSubtle",
+              "blocks.repeat_block_group.objects.blocks.text_block.style.size",
+              "blocks.repeat_block_group.objects.blocks.text_block.style.weight",
+              "blocks.repeat_block_group.objects.blocks.image_block.url",
+              "blocks.repeat_block_group.objects.blocks.image_block.style.size",
+              "blocks.repeat_block_group.objects.blocks.image_block.style.horizontalAlignment",
+              "blocks.repeat_block_group.objects.blocks.image_block.style.separator",
+              "blocks.repeat_block_group.objects.blocks.fact_set.facts",
+              "blocks.repeat_block_group.objects.blocks.fact_set.facts.title",
+              "blocks.repeat_block_group.objects.blocks.fact_set.facts.value",
+              "blocks.repeat_block_group.objects.blocks.fact_set.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.block_type",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.text",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.text_type",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.style.color",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.style.fontType",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.style.isSubtle",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.style.size",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.text_block.style.weight",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.image_block.url",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.image_block.style.size",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.image_block.style.horizontalAlignment",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.image_block.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.fact_set.facts",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.fact_set.facts.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.fact_set.facts.value",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.fact_set.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.block_type",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_open_url.url",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_open_url.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_submit.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_submit.bot_command",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_submit.params",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.block_type",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.text",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.text_type",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.color",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.fontType",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.isSubtle",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.size",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_block.style.weight",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.url",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.style.size",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.style.horizontalAlignment",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.image_block.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.facts",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.facts.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.facts.value",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.fact_set.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.block_type",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_open_url.url",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_open_url.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.bot_command",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.actions.action_submit.params",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.show_card_action_set_block.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.id",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.label",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.hint",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.is_multiline",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.placeholder",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.value",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.text_input.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.id",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.label",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.hint",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.placeholder",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.value",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.date_input.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.label",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.hint",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.id",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.value",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.toggle_input.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.style",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.id",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.label",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.hint",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.title",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.value",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.choices.init_value",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.actions.action_show_card.blocks.choice_set_input.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.items.action_set_block.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.width",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.style.separator",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.columns.style.style",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.style.spacing",
+              "blocks.repeat_block_group.objects.blocks.column_set_block.style.separator",
+              "blocks.repeat_block_group.objects.blocks.text_with_thumbnail_block.header_text",
+              "blocks.repeat_block_group.objects.blocks.text_with_thumbnail_block.text",
+              "blocks.repeat_block_group.objects.blocks.text_with_thumbnail_block.image_url",
+              "blocks.repeat_block_group.objects.blocks.text_with_thumbnail_block.separator",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.header_text",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.text",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.button_title",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.button_type",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.bot_command",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.params",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.link_to_open",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_block.separator",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.image_url",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.header_text",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.text",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.button_title",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.button_type",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.bot_command",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.params",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.link_to_open",
+              "blocks.repeat_block_group.objects.blocks.text_with_button_and_thumbnail_block.separator",
+              "blocks.repeat_block_group.separator",
+              "blocks.text_with_thumbnail_block.header_text",
+              "blocks.text_with_thumbnail_block.text",
+              "blocks.text_with_thumbnail_block.image_url",
+              "blocks.text_with_thumbnail_block.separator",
+              "blocks.text_with_button_block.header_text",
+              "blocks.text_with_button_block.text",
+              "blocks.text_with_button_block.button_title",
+              "blocks.text_with_button_block.button_type",
+              "blocks.text_with_button_block.bot_command",
+              "blocks.text_with_button_block.params",
+              "blocks.text_with_button_block.link_to_open",
+              "blocks.text_with_button_block.separator",
+              "blocks.text_with_button_and_thumbnail_block.image_url",
+              "blocks.text_with_button_and_thumbnail_block.header_text",
+              "blocks.text_with_button_and_thumbnail_block.text",
+              "blocks.text_with_button_and_thumbnail_block.button_title",
+              "blocks.text_with_button_and_thumbnail_block.button_type",
+              "blocks.text_with_button_and_thumbnail_block.bot_command",
+              "blocks.text_with_button_and_thumbnail_block.params",
+              "blocks.text_with_button_and_thumbnail_block.link_to_open",
+              "blocks.text_with_button_and_thumbnail_block.separator",
+              "blocks.bot_commands_menu_block.label",
+              "blocks.bot_commands_menu_block.style",
+              "blocks.bot_commands_menu_block.hint",
+              "blocks.bot_commands_menu_block.button_title",
+              "blocks.bot_commands_menu_block.separator",
+              "mentions",
+              "mentions.mention",
+              "mentions.username",
+              "message_id"
+            ],
+            "uuid": "654ef28d-47d6-426e-b39c-a8fc6dc2ce70"
+          },
+          {
+            "number": 16,
+            "provider": "workato_recipe_function",
+            "name": "call_recipe_async",
+            "as": "401d60bb",
+            "title": null,
+            "description": "Call <span class=\"provider\">CICD | FUNC | (MS Teams) List Project Configurations</span> (async)",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "flow_id": "CICD | FUN | (MS Teams) List Project Configurations"
+            },
+            "input": {
+              "flow_id": {
+                "zip_name": "CICD Automation/Triggers/Microsoft Teams/Functions/Project Configuration/cicd_func_ms_teams_list_project_configurations.recipe.json",
+                "name": "CICD | FUNC | (MS Teams) List Project Configurations",
+                "folder": "CICD Automation/Triggers/Microsoft Teams/Functions/Project Configuration"
+              },
+              "parameters": {
+                "user_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"user_id\"]}')}",
+                "message_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"98d6dbf6\",\"path\":[\"parameters\",\"message_id\"]}').presence"
+              }
+            },
+            "extended_input_schema": [
+              {
+                "label": "Parameters",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "User ID",
+                    "name": "user_id",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Message ID",
+                    "name": "message_id",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Project config ID",
+                    "name": "project_config_id",
+                    "type": "string",
+                    "optional": true
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "flow_id",
+              "parameters",
+              "parameters.user_id",
+              "parameters.message_id"
+            ],
+            "uuid": "64d93c4a-5200-4e9f-b283-e017491ba06b"
+          }
+        ],
+        "uuid": "331bcaf9-65c9-472f-8609-fbf77cdf60ee"
+      }
+    ],
+    "uuid": "5fcc4aff-c654-493f-a266-9c76b2f3c1ae",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "teams_bot",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "CICD Automation/Connections/cicd_con_workbot_for_ms_teams.connection.json",
+        "name": "CICD | CON | Workbot for MS Teams",
+        "folder": "CICD Automation/Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "lookup_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "json_parser",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
