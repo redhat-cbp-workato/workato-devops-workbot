@@ -1,0 +1,524 @@
+{
+  "name": "CICD | FUNC | (MS Teams) Search for CICD Components",
+  "description": "When there is a new command to Slack Workbot, do action and other actions",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "c738bd9e",
+    "title": null,
+    "description": null,
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"user_id\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"User ID\"},{\"name\":\"component\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Component\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "User ID",
+            "name": "user_id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Component",
+            "name": "component",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "equals_to",
+              "lhs": "#{_('data.workato_recipe_function.c738bd9e.parameters.component')}",
+              "rhs": "project_config",
+              "uuid": "condition-0ca9f57b-a180-4c13-9881-6b842ed7dd2c"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 2,
+            "provider": "lookup_table",
+            "name": "get_entries",
+            "as": "fec2d3a9",
+            "title": null,
+            "description": "\n      Get all\n      <span class=\"provider\">entries</span>\n      from\n      <span class=\"provider\">CICD | LT | Project Configuration</span>\n      lookup table\n    ",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "lookup_table_id": "CICD | LT | Project Configuration"
+            },
+            "input": {
+              "lookup_table_id": {
+                "zip_name": "cicd_lt_project_configuration.lookup_table.json",
+                "name": "CICD | LT | Project Configuration",
+                "folder": ""
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Entries",
+                "name": "entries",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "Entry ID",
+                    "parse_output": "integer_conversion",
+                    "type": "integer",
+                    "name": "id"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Id",
+                        "name": "col1",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Project Name",
+                        "name": "col2",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Asset Environment",
+                        "name": "col3",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Asset Id",
+                        "name": "col4",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Asset Type",
+                        "name": "col5",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Project Context",
+                        "name": "col6",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Notification Settings",
+                        "name": "col7",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Dependencies",
+                        "name": "col8",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Target Folder Details",
+                        "name": "col9",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Last Updated",
+                        "name": "col10",
+                        "type": "string",
+                        "sticky": true
+                      }
+                    ],
+                    "label": "Entry",
+                    "type": "object",
+                    "name": "entry"
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "uuid": "52efc8f7-228a-4f85-aa75-a90804df94bd"
+          },
+          {
+            "number": 3,
+            "provider": "teams_bot",
+            "name": "post_blocks_message",
+            "as": "0b597955",
+            "keyword": "action",
+            "toggleCfg": {
+              "channel": false,
+              "blocks.1.choice_set_input.separator": true,
+              "blocks.2.action_set_block.actions.0.action_submit.bot_command": true
+            },
+            "input": {
+              "channel": "#{_('data.workato_recipe_function.c738bd9e.parameters.user_id')}",
+              "blocks": [
+                {
+                  "block_type": "text_block",
+                  "text_block": {
+                    "text": "Project Configuration Search",
+                    "text_type": "header"
+                  }
+                },
+                {
+                  "block_type": "choice_set_input",
+                  "choice_set_input": {
+                    "style": "filtered",
+                    "id": "param1",
+                    "label": "Project Configuration",
+                    "hint": "Please select a project configuration",
+                    "separator": "true",
+                    "choices": {
+                      "____source": "#{_('data.lookup_table.fec2d3a9.entries')}",
+                      "title": "#{_('data.lookup_table.fec2d3a9.entries.first.entry.col2')} (#{_('data.lookup_table.fec2d3a9.entries.first.entry.col5')})",
+                      "value": "#{_('data.lookup_table.fec2d3a9.entries.first.entry.col1')}"
+                    }
+                  }
+                },
+                {
+                  "block_type": "action_set_block",
+                  "action_set_block": {
+                    "actions": [
+                      {
+                        "block_type": "action_submit",
+                        "action_submit": {
+                          "title": "Search",
+                          "bot_command": "workato_cicd_execute",
+                          "params": "command: list_project_config replace_message: true"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "uuid": "c25bf0cd-d10f-4a8e-bd37-823e6ebcf5c5"
+          }
+        ],
+        "uuid": "ccab6d1e-fce6-41e6-bd1c-0ed6d9b78b2d"
+      },
+      {
+        "number": 4,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "equals_to",
+              "lhs": "#{_('data.workato_recipe_function.c738bd9e.parameters.component')}",
+              "rhs": "pipeline_config",
+              "uuid": "condition-0ca9f57b-a180-4c13-9881-6b842ed7dd2c"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 5,
+            "provider": "lookup_table",
+            "name": "search_entries",
+            "as": "a3409acf",
+            "title": null,
+            "description": "\n      Search\n      <span class=\"provider\">entries</span>\n      in\n      <span class=\"provider\">CICD | LT | Pipeline Configuration</span>\n      lookup table\n    ",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "lookup_table_id": "CICD | LT | Pipeline Configuration"
+            },
+            "input": {
+              "lookup_table_id": {
+                "zip_name": "cicd_lt_pipeline_configuration.lookup_table.json",
+                "name": "CICD | LT | Pipeline Configuration",
+                "folder": ""
+              },
+              "parameters": {
+                "col6": "trigger"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Entries",
+                "name": "entries",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "Entry ID",
+                    "parse_output": "integer_conversion",
+                    "type": "integer",
+                    "name": "id"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Id",
+                        "name": "col1",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Trigger",
+                        "name": "col2",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "isEnabled",
+                        "name": "col3",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Description",
+                        "name": "col4",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Source Environment",
+                        "name": "col5",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Stage",
+                        "name": "col6",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Steps",
+                        "name": "col7",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Deployment Mode",
+                        "name": "col8",
+                        "type": "string",
+                        "sticky": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Last Updated",
+                        "name": "col9",
+                        "type": "string",
+                        "sticky": true
+                      }
+                    ],
+                    "label": "Entry",
+                    "type": "object",
+                    "name": "entry"
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Provide one or more entry fields to search the entry",
+                "label": "Search by",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Id",
+                    "name": "col1",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Trigger",
+                    "name": "col2",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "isEnabled",
+                    "name": "col3",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Description",
+                    "name": "col4",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Source Environment",
+                    "name": "col5",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Stage",
+                    "name": "col6",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Steps",
+                    "name": "col7",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Deployment Mode",
+                    "name": "col8",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Last Updated",
+                    "name": "col9",
+                    "type": "string",
+                    "sticky": true,
+                    "optional": true
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "6b62f48b-3ac5-4e09-9900-ae6a5693ae90"
+          },
+          {
+            "number": 6,
+            "provider": "teams_bot",
+            "name": "post_blocks_message",
+            "as": "6fb6d5fb",
+            "keyword": "action",
+            "toggleCfg": {
+              "channel": false,
+              "blocks.1.choice_set_input.separator": true,
+              "blocks.2.action_set_block.actions.0.action_submit.bot_command": true
+            },
+            "input": {
+              "channel": "#{_('data.workato_recipe_function.c738bd9e.parameters.user_id')}",
+              "blocks": [
+                {
+                  "block_type": "text_block",
+                  "text_block": {
+                    "text": "Pipeline Configuration Search",
+                    "text_type": "header"
+                  }
+                },
+                {
+                  "block_type": "choice_set_input",
+                  "choice_set_input": {
+                    "style": "filtered",
+                    "id": "param1",
+                    "label": "Pipeline Configuration",
+                    "hint": "Please select a pipeline configuration",
+                    "separator": "true",
+                    "choices": {
+                      "____source": "#{_('data.lookup_table.a3409acf.entries')}",
+                      "title": "#{_('data.lookup_table.a3409acf.entries.first.entry.col4')}",
+                      "value": "#{_('data.lookup_table.a3409acf.entries.first.entry.col1')}"
+                    }
+                  }
+                },
+                {
+                  "block_type": "action_set_block",
+                  "action_set_block": {
+                    "actions": [
+                      {
+                        "block_type": "action_submit",
+                        "action_submit": {
+                          "title": "Search",
+                          "bot_command": "workato_cicd_execute",
+                          "params": "command: list_pipeline_config replace_message: true"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "uuid": "df3eb96f-5a6a-42f8-bb69-9b0139c0a465"
+          }
+        ],
+        "uuid": "945a82d1-fe8e-41f3-bdf3-72524087b742"
+      }
+    ],
+    "comment": "Define how users should command Workbot from Slack",
+    "uuid": "6259ca44-fdd1-45e9-bba0-c637b434b502"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "lookup_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "teams_bot",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "CICD Automation/Connections/cicd_con_workbot_for_ms_teams.connection.json",
+        "name": "CICD | CON | Workbot for MS Teams",
+        "folder": "CICD Automation/Connections"
+      }
+    }
+  ]
+}

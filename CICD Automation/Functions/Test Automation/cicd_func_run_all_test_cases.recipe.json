@@ -1,0 +1,584 @@
+{
+  "name": "CICD | FUNC | Run All Test Cases",
+  "description": "When there is a function call, do action",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "a29774bd",
+    "title": null,
+    "description": null,
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+    },
+    "toggleCfg": {
+    },
+    "input": {
+      "parameters_schema_json": "[{\"control_type\":\"text\",\"label\":\"Source Environment\",\"name\":\"source_env\",\"type\":\"string\",\"optional\":false},{\"name\":\"asset_id\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Asset ID\"},{\"name\":\"asset_type\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Asset type\"}]",
+      "result_schema_json": "[{\"control_type\":\"integer\",\"label\":\"ID\",\"name\":\"id\",\"type\":\"integer\",\"optional\":true,\"parse_output\":\"integer_conversion\"},{\"control_type\":\"text\",\"label\":\"Status\",\"name\":\"status\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Workato environment\",\"name\":\"workato_environment\",\"type\":\"string\"},{\"name\":\"percentage\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Percentage\"},{\"name\":\"results\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Results\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Source Environment",
+            "name": "source_env",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Asset ID",
+            "name": "asset_id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Asset type",
+            "name": "asset_type",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_list",
+        "name": "create_list",
+        "as": "b143fcd7",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "input": {
+          "size": "36"
+        },
+        "uuid": "1b6df933-7525-41ee-837b-2f3103f8c3f5"
+      },
+      {
+        "number": 2,
+        "keyword": "try",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "input": {
+        },
+        "block": [
+          {
+            "number": 3,
+            "provider": "cicd_for_workato_v3_connector_865610_1729896062",
+            "name": "run_testcases_async",
+            "as": "d85768d5",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+              "workato_environment": false
+            },
+            "input": {
+              "workato_environment": "#{_('data.workato_recipe_function.a29774bd.parameters.source_env')}",
+              "asset_id": "#{_('data.workato_recipe_function.a29774bd.parameters.asset_id')}",
+              "asset_type": "#{_('data.workato_recipe_function.a29774bd.parameters.asset_type')}"
+            },
+            "uuid": "c683a0b0-5dda-4603-86de-3c1d30baf6f8"
+          },
+          {
+            "number": 4,
+            "as": "159e1e2f",
+            "keyword": "catch",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 5,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "20f242ce",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "result": {
+                    "status": "=\"completed\"",
+                    "workato_environment": "#{_('data.workato_recipe_function.a29774bd.parameters.source_env')}",
+                    "id": "#{_('data.cicd_for_workato_v3_connector_865610_1729896062.d85768d5.data.id')}",
+                    "percentage": "=100",
+                    "results": "=\"No Test Cases Found\""
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "integer",
+                        "label": "ID",
+                        "parse_output": "integer_conversion",
+                        "name": "id",
+                        "type": "integer",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Workato environment",
+                        "name": "workato_environment",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Percentage",
+                        "name": "percentage",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Results",
+                        "name": "results",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "integer",
+                        "label": "ID",
+                        "parse_output": "integer_conversion",
+                        "name": "id",
+                        "type": "integer",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Workato environment",
+                        "name": "workato_environment",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Percentage",
+                        "name": "percentage",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Results",
+                        "name": "results",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "result",
+                  "result.status",
+                  "result.deployment_mode",
+                  "result.workato_environment",
+                  "result.source_reference",
+                  "result.id",
+                  "result.download_url"
+                ],
+                "uuid": "61783ca0-262e-4e66-8490-9ec8f46cac44"
+              }
+            ],
+            "uuid": "c7fafc9a-f495-4bc9-96d2-a4e2f2ee08da"
+          }
+        ],
+        "uuid": "26402d72-eed0-42c2-a1dd-6a6e20e5a14a"
+      },
+      {
+        "number": 6,
+        "as": "da0eb1ad",
+        "keyword": "foreach",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "repeat_mode": "simple",
+        "clear_scope": "false",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 7,
+            "provider": "cicd_for_workato_v3_connector_865610_1729896062",
+            "name": "get_testcase_status",
+            "as": "f5351659",
+            "title": null,
+            "description": "Get <span class=\"provider\">Status of Test Cases</span> in <span class=\"provider\">Workato</span>",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "workato_environment": "DEV"
+            },
+            "toggleCfg": {
+              "workato_environment": false
+            },
+            "input": {
+              "id": "#{_('data.cicd_for_workato_v3_connector_865610_1729896062.d85768d5.data.id')}",
+              "workato_environment": "#{_('data.workato_recipe_function.a29774bd.parameters.source_env')}"
+            },
+            "uuid": "65ed9309-464d-4bbd-9579-c1bab5d7f4e3"
+          },
+          {
+            "number": 8,
+            "keyword": "if",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+            },
+            "input": {
+              "type": "compound",
+              "operand": "or",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_('data.cicd_for_workato_v3_connector_865610_1729896062.f5351659.data.status')}",
+                  "rhs": "completed",
+                  "uuid": "condition-8f06dc42-6bc5-4493-8656-1fb8e0e99fde"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 9,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "5a580fd1",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                },
+                "toggleCfg": {
+                },
+                "input": {
+                  "result": {
+                    "id": "#{_('data.cicd_for_workato_v3_connector_865610_1729896062.f5351659.data.id')}",
+                    "status": "#{_('data.cicd_for_workato_v3_connector_865610_1729896062.f5351659.data.status')}",
+                    "workato_environment": "#{_('data.workato_recipe_function.a29774bd.parameters.source_env')}",
+                    "percentage": "=(_('data.cicd_for_workato_v3_connector_865610_1729896062.f5351659.data.results').where(\"status\":\"succeeded\").length*100)/_('data.cicd_for_workato_v3_connector_865610_1729896062.f5351659.data.results').length",
+                    "results": "=_('data.cicd_for_workato_v3_connector_865610_1729896062.f5351659.data.results')"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "integer",
+                        "label": "ID",
+                        "parse_output": "integer_conversion",
+                        "name": "id",
+                        "type": "integer",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Workato environment",
+                        "name": "workato_environment",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Percentage",
+                        "name": "percentage",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Results",
+                        "name": "results",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "integer",
+                        "label": "ID",
+                        "parse_output": "integer_conversion",
+                        "name": "id",
+                        "type": "integer",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "name": "status",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Workato environment",
+                        "name": "workato_environment",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Percentage",
+                        "name": "percentage",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Results",
+                        "name": "results",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "result",
+                  "result.id",
+                  "result.status",
+                  "result.deployment_mode",
+                  "result.workato_environment",
+                  "result.source_reference",
+                  "result.download_url"
+                ],
+                "uuid": "f24852e7-cf97-4fa3-8516-1d6690910974"
+              }
+            ],
+            "uuid": "a17eeca1-b457-4a5b-b396-fed77fb78968"
+          },
+          {
+            "number": 10,
+            "provider": "clock",
+            "name": "wait_for_interval",
+            "as": "12110c0a",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+            },
+            "toggleCfg": {
+              "interval": false
+            },
+            "input": {
+              "interval": "1"
+            },
+            "uuid": "8155a5ff-0ec0-4d29-bd44-a146d2197ca4",
+            "skip": false
+          }
+        ],
+        "source": "#{_('data.workato_list.b143fcd7.list')}",
+        "uuid": "b816c88f-2390-4532-9351-3aa6c9adfd77",
+        "skip": false
+      },
+      {
+        "number": 11,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "1970a7c6",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "dynamicPickListSelection": {
+        },
+        "toggleCfg": {
+        },
+        "input": {
+          "result": {
+            "status": "=_('data.cicd_for_workato_v3_connector_865610_1729896062.f5351659.data.status') or \"failure\"",
+            "workato_environment": "#{_('data.workato_recipe_function.a29774bd.parameters.source_env')}",
+            "id": "#{_('data.cicd_for_workato_v3_connector_865610_1729896062.f5351659.data.id')}",
+            "percentage": "=(_('data.cicd_for_workato_v3_connector_865610_1729896062.f5351659.data.results').where(\"status\":\"succeeded\").length*100)/(_('data.cicd_for_workato_v3_connector_865610_1729896062.f5351659.data.results').length*100)",
+            "results": "=_('data.cicd_for_workato_v3_connector_865610_1729896062.f5351659.data.results')"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "integer",
+                "label": "ID",
+                "parse_output": "integer_conversion",
+                "name": "id",
+                "type": "integer",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Status",
+                "name": "status",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "label": "Workato environment",
+                "name": "workato_environment",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "label": "Percentage",
+                "name": "percentage",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Results",
+                "name": "results",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "integer",
+                "label": "ID",
+                "parse_output": "integer_conversion",
+                "name": "id",
+                "type": "integer",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Status",
+                "name": "status",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "label": "Workato environment",
+                "name": "workato_environment",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "label": "Percentage",
+                "name": "percentage",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Results",
+                "name": "results",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "result",
+          "result.status",
+          "result.deployment_mode",
+          "result.workato_environment",
+          "result.source_reference",
+          "result.id",
+          "result.download_url"
+        ],
+        "uuid": "ecb0533b-aba9-4a65-9777-2844aff44a61"
+      }
+    ],
+    "uuid": "5845d930-6afe-4100-b058-429ff5a17f86"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "cicd_for_workato_v3_connector_865610_1729896062",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "CICD Automation/Connections/cicd_con_cicd_for_workato_v3.connection.json",
+        "name": "CICD | CON | CICD for Workato V3",
+        "folder": "CICD Automation/Connections",
+        "custom": true
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_list",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
