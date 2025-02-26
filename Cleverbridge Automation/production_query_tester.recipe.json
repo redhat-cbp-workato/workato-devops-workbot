@@ -1,0 +1,646 @@
+{
+  "name": "Production Query Tester",
+  "description": "",
+  "version": 42,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "clock",
+    "name": "scheduled_event",
+    "as": "c70d2020",
+    "title": null,
+    "description": "<span class=\"provider\">Trigger</span> every 5 minutes",
+    "keyword": "trigger",
+    "input": {
+      "time_unit": "minutes",
+      "trigger_every": "5"
+    },
+    "extended_input_schema": [
+      {
+        "control_type": "integer",
+        "default": "5",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Define repeating schedule. Enter whole numbers only.\n                        This field can be set to a minimum of 5 minutes.",
+        "label": "Trigger every",
+        "name": "trigger_every",
+        "optional": false,
+        "suffix": {
+          "text": "minutes"
+        },
+        "type": "string"
+      },
+      {
+        "control_type": "select",
+        "hint": "Select the timezone to use. Leave it blank to use <b>{{authUser.timezone}}</b>",
+        "label": "Timezone",
+        "name": "timezone",
+        "optional": true,
+        "pick_list": "timezone_id_global_pick_list",
+        "pick_list_connection_less": true,
+        "type": "string"
+      },
+      {
+        "control_type": "date_time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set date and time to start or leave blank to start immediately. <b>Once recipe has been run or tested, value cannot be changed.</b>",
+        "label": "Start after",
+        "name": "start_after",
+        "optional": true,
+        "parse_output": "date_time_conversion",
+        "since_field": true,
+        "type": "date_time",
+        "ignore_timezone": true,
+        "render_input": "date_time_conversion"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "salesforce",
+        "name": "search_sobjects_soql_v2",
+        "as": "fb06b1f5",
+        "title": null,
+        "description": "Search for <span class=\"provider\">records using SOQL query</span> in <span class=\"provider\">Salesforce</span>",
+        "keyword": "action",
+        "input": {
+          "limit": "1000",
+          "query": "SELECT \nRH_Subscription_Number__c,\nSBQQ__Contract__r.EndDate,\nSBQQ__Contract__r.SBQQ__RenewalOpportunity__r.CloseDate,\nSBQQ__Contract__r.SBQQ__RenewalOpportunity__r.Account.Name,\nSBQQ__Contract__r.SBQQ__RenewalOpportunity__r.AccountID,\nSBQQ__Contract__r.SBQQ__RenewalOpportunity__r.Country_of_Order__c,\nSBQQ__Contract__r.SBQQ__RenewalOpportunity__r.Owner.FirstName,\nSBQQ__Contract__r.SBQQ__RenewalOpportunity__r.Owner.LastName,\nSBQQ__Contract__r.SBQQ__RenewalOpportunity__r.Owner.Email,\nSBQQ__Contract__r.SBQQ__RenewalOpportunity__r.StageName,\nSBQQ__Contract__r.SBQQ__RenewalOpportunity__r.ID\nFROM SBQQ__Subscription__c\nWHERE SBQQ__Contract__r.SBQQ__RenewalOpportunity__r.IsClosed = FALSE\nAND SBQQ__Contract__r.SBQQ__RenewalOpportunity__c != NULL\nAND RH_Subscription_Number__c != NULL\nAND SBQQ__Contract__r.EndDate = NEXT_N_DAYS:90\nAND SBQQ__Contract__r.EndDate > NEXT_N_DAYS:89\n",
+          "output_schema": "[{\"properties\":[{\"control_type\":\"text\",\"label\":\"Type\",\"type\":\"string\",\"name\":\"type\"},{\"control_type\":\"text\",\"label\":\"URL\",\"type\":\"string\",\"name\":\"url\"}],\"label\":\"Attributes\",\"type\":\"object\",\"name\":\"attributes\"},{\"control_type\":\"text\",\"label\":\"RH subscription number c\",\"type\":\"string\",\"name\":\"RH_Subscription_Number__c\"},{\"properties\":[{\"properties\":[{\"control_type\":\"text\",\"label\":\"Type\",\"type\":\"string\",\"name\":\"type\"},{\"control_type\":\"text\",\"label\":\"URL\",\"type\":\"string\",\"name\":\"url\"}],\"label\":\"Attributes\",\"type\":\"object\",\"name\":\"attributes\"},{\"control_type\":\"text\",\"label\":\"End date\",\"type\":\"string\",\"name\":\"EndDate\"},{\"properties\":[{\"properties\":[{\"control_type\":\"text\",\"label\":\"Type\",\"type\":\"string\",\"name\":\"type\"},{\"control_type\":\"text\",\"label\":\"URL\",\"type\":\"string\",\"name\":\"url\"}],\"label\":\"Attributes\",\"type\":\"object\",\"name\":\"attributes\"},{\"control_type\":\"text\",\"label\":\"Close date\",\"type\":\"string\",\"name\":\"CloseDate\"},{\"properties\":[{\"properties\":[{\"control_type\":\"text\",\"label\":\"Type\",\"type\":\"string\",\"name\":\"type\"},{\"control_type\":\"text\",\"label\":\"URL\",\"type\":\"string\",\"name\":\"url\"}],\"label\":\"Attributes\",\"type\":\"object\",\"name\":\"attributes\"},{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"Name\"}],\"label\":\"Account\",\"type\":\"object\",\"name\":\"Account\"},{\"control_type\":\"text\",\"label\":\"Account ID\",\"type\":\"string\",\"name\":\"AccountId\"},{\"control_type\":\"text\",\"label\":\"Country of order c\",\"type\":\"string\",\"name\":\"Country_of_Order__c\"},{\"properties\":[{\"properties\":[{\"control_type\":\"text\",\"label\":\"Type\",\"type\":\"string\",\"name\":\"type\"},{\"control_type\":\"text\",\"label\":\"URL\",\"type\":\"string\",\"name\":\"url\"}],\"label\":\"Attributes\",\"type\":\"object\",\"name\":\"attributes\"},{\"control_type\":\"text\",\"label\":\"First name\",\"type\":\"string\",\"name\":\"FirstName\"},{\"control_type\":\"text\",\"label\":\"Last name\",\"type\":\"string\",\"name\":\"LastName\"},{\"control_type\":\"text\",\"label\":\"Email\",\"type\":\"string\",\"name\":\"Email\"}],\"label\":\"Owner\",\"type\":\"object\",\"name\":\"Owner\"},{\"control_type\":\"text\",\"label\":\"Stage name\",\"type\":\"string\",\"name\":\"StageName\"},{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"Id\"}],\"label\":\"SBQQ renewal opportunity r\",\"type\":\"object\",\"name\":\"SBQQ__RenewalOpportunity__r\"}],\"label\":\"SBQQ contract r\",\"type\":\"object\",\"name\":\"SBQQ__Contract__r\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "checkbox",
+            "label": "Done",
+            "name": "done",
+            "parse_output": {
+            },
+            "toggle_field": {
+              "label": "Done",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "type": "boolean",
+              "name": "done"
+            },
+            "toggle_hint": "Select from option list",
+            "type": "boolean",
+            "render_input": {
+            }
+          },
+          {
+            "control_type": "integer",
+            "label": "Total size",
+            "name": "totalSize",
+            "parse_output": "integer_conversion",
+            "type": "integer"
+          },
+          {
+            "label": "Records",
+            "name": "records",
+            "of": "object",
+            "properties": [
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Type",
+                    "type": "string",
+                    "name": "type"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "URL",
+                    "type": "string",
+                    "name": "url"
+                  }
+                ],
+                "label": "Attributes",
+                "type": "object",
+                "name": "attributes"
+              },
+              {
+                "control_type": "text",
+                "label": "RH subscription number c",
+                "type": "string",
+                "name": "RH_Subscription_Number__c"
+              },
+              {
+                "properties": [
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Type",
+                        "type": "string",
+                        "name": "type"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "URL",
+                        "type": "string",
+                        "name": "url"
+                      }
+                    ],
+                    "label": "Attributes",
+                    "type": "object",
+                    "name": "attributes"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "End date",
+                    "type": "string",
+                    "name": "EndDate"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Type",
+                            "type": "string",
+                            "name": "type"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "URL",
+                            "type": "string",
+                            "name": "url"
+                          }
+                        ],
+                        "label": "Attributes",
+                        "type": "object",
+                        "name": "attributes"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Close date",
+                        "type": "string",
+                        "name": "CloseDate"
+                      },
+                      {
+                        "properties": [
+                          {
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Type",
+                                "type": "string",
+                                "name": "type"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "URL",
+                                "type": "string",
+                                "name": "url"
+                              }
+                            ],
+                            "label": "Attributes",
+                            "type": "object",
+                            "name": "attributes"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Name",
+                            "type": "string",
+                            "name": "Name"
+                          }
+                        ],
+                        "label": "Account",
+                        "type": "object",
+                        "name": "Account"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Account ID",
+                        "type": "string",
+                        "name": "AccountId"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Country of order c",
+                        "type": "string",
+                        "name": "Country_of_Order__c"
+                      },
+                      {
+                        "properties": [
+                          {
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Type",
+                                "type": "string",
+                                "name": "type"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "URL",
+                                "type": "string",
+                                "name": "url"
+                              }
+                            ],
+                            "label": "Attributes",
+                            "type": "object",
+                            "name": "attributes"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "First name",
+                            "type": "string",
+                            "name": "FirstName"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Last name",
+                            "type": "string",
+                            "name": "LastName"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Email",
+                            "type": "string",
+                            "name": "Email"
+                          }
+                        ],
+                        "label": "Owner",
+                        "type": "object",
+                        "name": "Owner"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Stage name",
+                        "type": "string",
+                        "name": "StageName"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "ID",
+                        "type": "string",
+                        "name": "Id"
+                      }
+                    ],
+                    "label": "SBQQ renewal opportunity r",
+                    "type": "object",
+                    "name": "SBQQ__RenewalOpportunity__r"
+                  }
+                ],
+                "label": "SBQQ contract r",
+                "type": "object",
+                "name": "SBQQ__Contract__r"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "uuid": "ed970f87-f48d-44bb-b11a-7ca310206af5"
+      },
+      {
+        "number": 2,
+        "provider": "workato_variable",
+        "name": "declare_list",
+        "as": "3c5f89c1",
+        "title": " Create lang list list",
+        "description": "Create <span class=\"provider\">lang list</span> list",
+        "keyword": "action",
+        "input": {
+          "name": "lang list",
+          "list_item_schema_json": "[{\"name\":\"lang\",\"type\":\"string\",\"optional\":false,\"label\":\"lang\",\"control_type\":\"text\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "hint": "",
+            "label": "lang list",
+            "name": "list_items",
+            "of": "object",
+            "optional": false,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "lang",
+                "name": "lang",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Set the initial items in the list. Defaults to an empty list if not supplied.",
+            "label": "Items",
+            "name": "list_items",
+            "of": "object",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "lang",
+                "name": "lang",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "uuid": "91cd1110-ba23-44db-b53e-36d67f07ccaf"
+      },
+      {
+        "number": 3,
+        "as": "63e495de",
+        "keyword": "foreach",
+        "repeat_mode": "batch",
+        "batch_size": "10",
+        "clear_scope": "false",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 4,
+            "provider": "lookup_table",
+            "name": "search_entries",
+            "as": "dbdc5a6f",
+            "title": null,
+            "description": "\n      Search\n      <span class=\"provider\">entries</span>\n      in\n      <span class=\"provider\">Cleverbridge Languages</span>\n      lookup table\n    ",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "lookup_table_id": "Cleverbridge Languages"
+            },
+            "input": {
+              "lookup_table_id": {
+                "zip_name": "cleverbridge_languages.lookup_table.json",
+                "name": "Cleverbridge Languages",
+                "folder": ""
+              },
+              "parameters": {
+                "col1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"63e495de\",\"path\":[\"batch\",{\"path_element_type\":\"current_item\"},\"SBQQ__Contract__r\",\"SBQQ__RenewalOpportunity__r\",\"Country_of_Order__c\"]}')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Entries",
+                "name": "entries",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "Entry ID",
+                    "parse_output": "integer_conversion",
+                    "type": "integer",
+                    "name": "id"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Country",
+                        "name": "col1",
+                        "sticky": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Language",
+                        "name": "col2",
+                        "sticky": true,
+                        "type": "string"
+                      }
+                    ],
+                    "label": "Entry",
+                    "type": "object",
+                    "name": "entry"
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Provide one or more entry fields to search the entry",
+                "label": "Search by",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Country",
+                    "name": "col1",
+                    "sticky": true,
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Language",
+                    "name": "col2",
+                    "sticky": true,
+                    "type": "string",
+                    "optional": true
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "a33e2e14-d2cb-433d-ba86-b855861fa9ce"
+          },
+          {
+            "number": 5,
+            "provider": "workato_variable",
+            "name": "insert_to_list",
+            "as": "a6f1f02b",
+            "title": "Add items to lang list list",
+            "description": "Add <span class=\"provider\">items</span> to <span class=\"provider\">lang list</span> list",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": "lang list (step 4)"
+            },
+            "input": {
+              "location": "end",
+              "name": "91cd1110-ba23-44db-b53e-36d67f07ccaf:3c5f89c1",
+              "list_item": {
+                "lang": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"dbdc5a6f\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"entry\",\"col2\"]}')}"
+              }
+            },
+            "extended_input_schema": [
+              {
+                "hint": "",
+                "label": "List item",
+                "name": "list_item",
+                "optional": false,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "lang",
+                    "name": "lang",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "90abbdd4-7d93-49af-816e-8b40ed6cb85a"
+          }
+        ],
+        "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"fb06b1f5\",\"path\":[\"records\"]}')}",
+        "uuid": "c7a62f1e-6006-4b90-8a9b-7d1e5917e83e"
+      },
+      {
+        "number": 6,
+        "provider": "slack_bot",
+        "name": "post_bot_message",
+        "as": "8312dffe",
+        "title": null,
+        "description": "Post <span class=\"provider\">message</span> as <span class=\"provider\">Slack Workbot</span>",
+        "keyword": "action",
+        "toggleCfg": {
+          "channel": true
+        },
+        "input": {
+          "channel": "U03P6BPAETG",
+          "text": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"3c5f89c1\",\"path\":[\"list_items\"]}').join(\",\")"
+        },
+        "uuid": "d7dd2c6a-2ec3-4c92-a68e-e2903fd32131",
+        "skip": false
+      },
+      {
+        "number": 7,
+        "as": "b1b5b28e",
+        "keyword": "stop",
+        "input": {
+          "stop_with_error": "false"
+        },
+        "uuid": "2941660a-aa68-49e9-93e4-e1230e220529"
+      },
+      {
+        "number": 8,
+        "provider": "workato_variable",
+        "name": "declare_list",
+        "as": "203c0bd3",
+        "title": " Create RH Subscription Numbers list",
+        "description": "Create <span class=\"provider\">RH Subscription Numbers</span> list",
+        "keyword": "action",
+        "input": {
+          "name": "RH Subscription Numbers",
+          "list_item_schema_json": "[{\"control_type\":\"text\",\"label\":\"Rh sub number\",\"type\":\"string\",\"name\":\"rh_sub_number\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "hint": "",
+            "label": "RH Subscription Numbers",
+            "name": "list_items",
+            "of": "object",
+            "optional": false,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Rh sub number",
+                "type": "string",
+                "name": "rh_sub_number"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Set the initial items in the list. Defaults to an empty list if not supplied.",
+            "label": "Items",
+            "name": "list_items",
+            "of": "object",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Rh sub number",
+                "type": "string",
+                "name": "rh_sub_number"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "uuid": "0a0ed907-d66f-4c3e-b37f-149467af97d2"
+      },
+      {
+        "number": 9,
+        "provider": "workato_variable",
+        "name": "insert_to_list_batch",
+        "as": "7ab67f54",
+        "title": "Add items to RH Subscription Numbers list",
+        "description": "Add <span class=\"provider\">items</span> to <span class=\"provider\">RH Subscription Numbers</span> list",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "name": "RH Subscription Numbers (step 3)"
+        },
+        "input": {
+          "location": "end",
+          "name": "0a0ed907-d66f-4c3e-b37f-149467af97d2:203c0bd3",
+          "list_items": {
+            "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"fb06b1f5\",\"path\":[\"records\"]}')}",
+            "rh_sub_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"fb06b1f5\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"RH_Subscription_Number__c\"]}')}"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "hint": "",
+            "label": "List items",
+            "name": "list_items",
+            "of": "object",
+            "optional": false,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Rh sub number",
+                "type": "string",
+                "name": "rh_sub_number"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "uuid": "64d009bb-cf15-42d9-9c43-f97196eb6b6a"
+      }
+    ],
+    "uuid": "95fbf20e-56fe-45aa-aac4-6172ebcef414",
+    "unfinished": false
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Cleverbridge Automation/production_workatosalesintegration_redhat_com_crm.connection.json",
+        "name": "Production (workatosalesintegration@redhat.com.crm)",
+        "folder": "Cleverbridge Automation"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "slack_bot",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "lookup_table",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
