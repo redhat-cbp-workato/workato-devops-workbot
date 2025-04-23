@@ -1,0 +1,2279 @@
+{
+  "name": "REC|GAN - Compliance Status for Partners",
+  "description": "",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "clock",
+    "name": "scheduled_event",
+    "as": "5e21648c",
+    "title": null,
+    "description": "<span class=\"provider\">Trigger</span> on a <span class=\"provider\">custom schedule</span>",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "time_unit": "Custom schedule"
+    },
+    "input": {
+      "time_unit": "custom_schedule",
+      "cron_expression": "1 6 * * *"
+    },
+    "extended_input_schema": [
+      {
+        "control_type": "cron",
+        "enforce_template_mode": true,
+        "hint": "                        Cron expressions are written as: <b>[minute]  [hour]  [day of month]  [month]  [day of week]</b>.\n                        <a href=\"https://crontab.guru/\" target=\"_blank\">Learn more</a>\n",
+        "label": "Cron expression",
+        "name": "cron_expression",
+        "optional": false,
+        "type": "string"
+      },
+      {
+        "control_type": "select",
+        "hint": "Select the timezone to use. Leave it blank to use <b>{{authUser.account_timezone}}</b>",
+        "label": "Timezone",
+        "name": "timezone",
+        "optional": true,
+        "pick_list": "timezone_id_global_pick_list",
+        "pick_list_connection_less": true,
+        "type": "string"
+      },
+      {
+        "control_type": "date_time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set date and time to start or leave blank to start immediately. <b>Once recipe has been run or tested, value cannot be changed.</b>",
+        "label": "Start after",
+        "name": "start_after",
+        "optional": true,
+        "parse_output": "date_time_conversion",
+        "since_field": true,
+        "type": "date_time",
+        "ignore_timezone": true,
+        "render_input": "date_time_conversion"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "google_sheets",
+        "name": "__adhoc_http_action",
+        "as": "ce2aeaa6",
+        "title": "DeleteRows",
+        "description": "<span class=\"provider\">DeleteRows</span> in <span class=\"provider\">Google Sheets</span> (Custom)",
+        "keyword": "action",
+        "input": {
+          "mnemonic": "DeleteRows",
+          "verb": "post",
+          "request_type": "json",
+          "response_type": "json",
+          "path": "spreadsheets/1deuvhZOlgSAYp6xs8tkrgV8uFTjSNCYAjTMLjk2E2a8:batchUpdate",
+          "input": {
+            "schema": "[{\"name\":\"requests\",\"type\":\"array\",\"of\":\"object\",\"label\":\"Requests\",\"properties\":[{\"properties\":[{\"properties\":[{\"control_type\":\"text\",\"label\":\"Sheet ID\",\"type\":\"string\",\"name\":\"sheetId\",\"details\":{\"real_name\":\"sheetId\"}},{\"control_type\":\"text\",\"label\":\"Dimension\",\"type\":\"string\",\"name\":\"dimension\",\"details\":{\"real_name\":\"dimension\"}},{\"control_type\":\"number\",\"label\":\"Start index\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"startIndex\",\"details\":{\"real_name\":\"startIndex\"}},{\"control_type\":\"number\",\"label\":\"End index\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"endIndex\",\"details\":{\"real_name\":\"endIndex\"}}],\"label\":\"Range\",\"type\":\"object\",\"name\":\"range\",\"details\":{\"real_name\":\"range\"}}],\"label\":\"Delete dimension\",\"type\":\"object\",\"name\":\"deleteDimension\",\"details\":{\"real_name\":\"deleteDimension\"}}],\"details\":{\"real_name\":\"requests\"}}]",
+            "data": {
+              "requests": [
+                {
+                  "deleteDimension": {
+                    "range": {
+                      "sheetId": "0",
+                      "dimension": "ROWS",
+                      "startIndex": 1,
+                      "endIndex": 1000
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "output": "[{\"control_type\":\"text\",\"label\":\"Spreadsheet ID\",\"type\":\"string\",\"name\":\"spreadsheetId\"}]",
+          "response_headers": "[{\"control_type\":\"text\",\"label\":\"Content type\",\"type\":\"string\",\"name\":\"content_type\"},{\"control_type\":\"text\",\"label\":\"Vary\",\"type\":\"string\",\"name\":\"vary\"},{\"control_type\":\"text\",\"label\":\"Date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"date\"},{\"control_type\":\"text\",\"label\":\"Server\",\"type\":\"string\",\"name\":\"server\"},{\"control_type\":\"text\",\"label\":\"X xss protection\",\"type\":\"string\",\"name\":\"x_xss_protection\"},{\"control_type\":\"text\",\"label\":\"X frame options\",\"type\":\"string\",\"name\":\"x_frame_options\"},{\"control_type\":\"text\",\"label\":\"X content type options\",\"type\":\"string\",\"name\":\"x_content_type_options\"},{\"control_type\":\"text\",\"label\":\"Alt svc\",\"type\":\"string\",\"name\":\"alt_svc\"},{\"control_type\":\"text\",\"label\":\"X l 2 request path\",\"type\":\"string\",\"name\":\"x_l2_request_path\"},{\"control_type\":\"text\",\"label\":\"Transfer encoding\",\"type\":\"string\",\"name\":\"transfer_encoding\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Body",
+            "name": "body",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Spreadsheet ID",
+                "optional": true,
+                "type": "string",
+                "name": "spreadsheetId"
+              }
+            ],
+            "type": "object"
+          },
+          {
+            "label": "Headers",
+            "name": "headers",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Content type",
+                "optional": true,
+                "type": "string",
+                "name": "content_type"
+              },
+              {
+                "control_type": "text",
+                "label": "Vary",
+                "optional": true,
+                "type": "string",
+                "name": "vary"
+              },
+              {
+                "control_type": "text",
+                "label": "Date",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "date"
+              },
+              {
+                "control_type": "text",
+                "label": "Server",
+                "optional": true,
+                "type": "string",
+                "name": "server"
+              },
+              {
+                "control_type": "text",
+                "label": "X xss protection",
+                "optional": true,
+                "type": "string",
+                "name": "x_xss_protection"
+              },
+              {
+                "control_type": "text",
+                "label": "X frame options",
+                "optional": true,
+                "type": "string",
+                "name": "x_frame_options"
+              },
+              {
+                "control_type": "text",
+                "label": "X content type options",
+                "optional": true,
+                "type": "string",
+                "name": "x_content_type_options"
+              },
+              {
+                "control_type": "text",
+                "label": "Alt svc",
+                "optional": true,
+                "type": "string",
+                "name": "alt_svc"
+              },
+              {
+                "control_type": "text",
+                "label": "X l 2 request path",
+                "optional": true,
+                "type": "string",
+                "name": "x_l2_request_path"
+              },
+              {
+                "control_type": "text",
+                "label": "Transfer encoding",
+                "optional": true,
+                "type": "string",
+                "name": "transfer_encoding"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "hint": "Base URI is <b>https://sheets.googleapis.com/v4/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+            "label": "Path",
+            "name": "path",
+            "optional": false,
+            "type": "string"
+          },
+          {
+            "control_type": "select",
+            "default": "json",
+            "extends_schema": true,
+            "label": "Request type",
+            "name": "request_type",
+            "optional": true,
+            "pick_list": [
+              [
+                "JSON request body",
+                "json"
+              ],
+              [
+                "URL encoded form",
+                "urlencoded"
+              ],
+              [
+                "Multipart form",
+                "multipart"
+              ],
+              [
+                "Raw JSON request body",
+                "raw"
+              ],
+              [
+                "XML request body",
+                "xml"
+              ],
+              [
+                "Plain text",
+                "text"
+              ],
+              [
+                "Raw request body",
+                "rawdata"
+              ]
+            ],
+            "sticky": false,
+            "type": "string"
+          },
+          {
+            "control_type": "select",
+            "default": "json",
+            "extends_schema": true,
+            "label": "Response type",
+            "name": "response_type",
+            "optional": true,
+            "pick_list": [
+              [
+                "JSON response",
+                "json"
+              ],
+              [
+                "Raw JSON Response",
+                "raw"
+              ],
+              [
+                "XML Response",
+                "xml2"
+              ],
+              [
+                "Raw response",
+                "text"
+              ]
+            ],
+            "sticky": false,
+            "type": "string"
+          },
+          {
+            "label": "Input",
+            "name": "input",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "schema-designer",
+                "label": "Request body parameters",
+                "extends_schema": true,
+                "schema_neutral": true,
+                "sample_data_type": "json_input",
+                "sticky": false,
+                "add_field_label": "Add request body parameter",
+                "optional": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "name": "requests",
+                    "type": "array",
+                    "of": "object",
+                    "label": "Requests",
+                    "details": {
+                      "real_name": "requests"
+                    },
+                    "sticky": true,
+                    "optional": true,
+                    "properties": [
+                      {
+                        "properties": [
+                          {
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Sheet ID",
+                                "details": {
+                                  "real_name": "sheetId"
+                                },
+                                "optional": true,
+                                "type": "string",
+                                "name": "sheetId"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Dimension",
+                                "details": {
+                                  "real_name": "dimension"
+                                },
+                                "optional": true,
+                                "type": "string",
+                                "name": "dimension"
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "Start index",
+                                "parse_output": "float_conversion",
+                                "details": {
+                                  "real_name": "startIndex"
+                                },
+                                "optional": true,
+                                "type": "number",
+                                "name": "startIndex"
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "End index",
+                                "parse_output": "float_conversion",
+                                "details": {
+                                  "real_name": "endIndex"
+                                },
+                                "optional": true,
+                                "type": "number",
+                                "name": "endIndex"
+                              }
+                            ],
+                            "label": "Range",
+                            "details": {
+                              "real_name": "range"
+                            },
+                            "optional": true,
+                            "type": "object",
+                            "name": "range"
+                          }
+                        ],
+                        "label": "Delete dimension",
+                        "details": {
+                          "real_name": "deleteDimension"
+                        },
+                        "optional": true,
+                        "type": "object",
+                        "name": "deleteDimension"
+                      }
+                    ]
+                  }
+                ],
+                "label": "Data",
+                "optional": true,
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          },
+          {
+            "control_type": "key_value",
+            "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+            "empty_list_title": "Does this HTTP request require headers?",
+            "item_label": "Header",
+            "label": "Request headers",
+            "name": "request_headers",
+            "of": "object",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Name",
+                "optional": true,
+                "type": "string",
+                "name": "name"
+              },
+              {
+                "control_type": "text",
+                "label": "Value",
+                "optional": true,
+                "type": "string",
+                "name": "value"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "control_type": "schema-designer",
+            "extends_schema": true,
+            "label": "Response body",
+            "name": "output",
+            "optional": true,
+            "sample_data_type": "json_http",
+            "sticky": true,
+            "type": "string",
+            "schema_neutral": true
+          },
+          {
+            "control_type": "schema-designer",
+            "extends_schema": true,
+            "label": "Response headers",
+            "name": "response_headers",
+            "optional": true,
+            "sample_data_type": "json_http",
+            "sticky": false,
+            "type": "string",
+            "schema_neutral": true
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Inspect",
+            "name": "inspect",
+            "ngIf": "false",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "type": "number"
+          }
+        ],
+        "uuid": "c33ed7bf-6f5d-408d-84fd-b98cce188982",
+        "wizardFinished": true,
+        "skip": false
+      },
+      {
+        "number": 2,
+        "provider": "google_sheets",
+        "name": "__adhoc_http_action",
+        "as": "49b2f33d",
+        "title": "AddRows",
+        "description": "<span class=\"provider\">AddRows</span> in <span class=\"provider\">Google Sheets</span> (Custom)",
+        "keyword": "action",
+        "input": {
+          "mnemonic": "AddRows",
+          "verb": "post",
+          "request_type": "json",
+          "response_type": "json",
+          "path": "spreadsheets/1deuvhZOlgSAYp6xs8tkrgV8uFTjSNCYAjTMLjk2E2a8:batchUpdate",
+          "input": {
+            "schema": "[{\"name\":\"requests\",\"type\":\"array\",\"of\":\"object\",\"label\":\"Requests\",\"properties\":[{\"properties\":[{\"control_type\":\"text\",\"label\":\"Sheet ID\",\"type\":\"string\",\"name\":\"sheetId\",\"details\":{\"real_name\":\"sheetId\"}},{\"control_type\":\"text\",\"label\":\"Dimension\",\"type\":\"string\",\"name\":\"dimension\",\"details\":{\"real_name\":\"dimension\"}},{\"control_type\":\"number\",\"label\":\"Length\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"length\",\"details\":{\"real_name\":\"length\"}}],\"label\":\"Append dimension\",\"type\":\"object\",\"name\":\"appendDimension\",\"details\":{\"real_name\":\"appendDimension\"}}],\"details\":{\"real_name\":\"requests\"}}]",
+            "data": {
+              "requests": [
+                {
+                  "appendDimension": {
+                    "sheetId": "0",
+                    "dimension": "ROWS",
+                    "length": 1000
+                  }
+                }
+              ]
+            }
+          },
+          "output": "[{\"control_type\":\"text\",\"label\":\"Spreadsheet ID\",\"type\":\"string\",\"name\":\"spreadsheetId\"}]",
+          "response_headers": "[{\"control_type\":\"text\",\"label\":\"Content type\",\"type\":\"string\",\"name\":\"content_type\"},{\"control_type\":\"text\",\"label\":\"Vary\",\"type\":\"string\",\"name\":\"vary\"},{\"control_type\":\"text\",\"label\":\"Date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"date\"},{\"control_type\":\"text\",\"label\":\"Server\",\"type\":\"string\",\"name\":\"server\"},{\"control_type\":\"text\",\"label\":\"X xss protection\",\"type\":\"string\",\"name\":\"x_xss_protection\"},{\"control_type\":\"text\",\"label\":\"X frame options\",\"type\":\"string\",\"name\":\"x_frame_options\"},{\"control_type\":\"text\",\"label\":\"X content type options\",\"type\":\"string\",\"name\":\"x_content_type_options\"},{\"control_type\":\"text\",\"label\":\"Alt svc\",\"type\":\"string\",\"name\":\"alt_svc\"},{\"control_type\":\"text\",\"label\":\"X l 2 request path\",\"type\":\"string\",\"name\":\"x_l2_request_path\"},{\"control_type\":\"text\",\"label\":\"Transfer encoding\",\"type\":\"string\",\"name\":\"transfer_encoding\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Body",
+            "name": "body",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Spreadsheet ID",
+                "optional": true,
+                "type": "string",
+                "name": "spreadsheetId"
+              }
+            ],
+            "type": "object"
+          },
+          {
+            "label": "Headers",
+            "name": "headers",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Content type",
+                "optional": true,
+                "type": "string",
+                "name": "content_type"
+              },
+              {
+                "control_type": "text",
+                "label": "Vary",
+                "optional": true,
+                "type": "string",
+                "name": "vary"
+              },
+              {
+                "control_type": "text",
+                "label": "Date",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "date"
+              },
+              {
+                "control_type": "text",
+                "label": "Server",
+                "optional": true,
+                "type": "string",
+                "name": "server"
+              },
+              {
+                "control_type": "text",
+                "label": "X xss protection",
+                "optional": true,
+                "type": "string",
+                "name": "x_xss_protection"
+              },
+              {
+                "control_type": "text",
+                "label": "X frame options",
+                "optional": true,
+                "type": "string",
+                "name": "x_frame_options"
+              },
+              {
+                "control_type": "text",
+                "label": "X content type options",
+                "optional": true,
+                "type": "string",
+                "name": "x_content_type_options"
+              },
+              {
+                "control_type": "text",
+                "label": "Alt svc",
+                "optional": true,
+                "type": "string",
+                "name": "alt_svc"
+              },
+              {
+                "control_type": "text",
+                "label": "X l 2 request path",
+                "optional": true,
+                "type": "string",
+                "name": "x_l2_request_path"
+              },
+              {
+                "control_type": "text",
+                "label": "Transfer encoding",
+                "optional": true,
+                "type": "string",
+                "name": "transfer_encoding"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "hint": "Base URI is <b>https://sheets.googleapis.com/v4/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+            "label": "Path",
+            "name": "path",
+            "optional": false,
+            "type": "string"
+          },
+          {
+            "control_type": "select",
+            "default": "json",
+            "extends_schema": true,
+            "label": "Request type",
+            "name": "request_type",
+            "optional": true,
+            "pick_list": [
+              [
+                "JSON request body",
+                "json"
+              ],
+              [
+                "URL encoded form",
+                "urlencoded"
+              ],
+              [
+                "Multipart form",
+                "multipart"
+              ],
+              [
+                "Raw JSON request body",
+                "raw"
+              ],
+              [
+                "XML request body",
+                "xml"
+              ],
+              [
+                "Plain text",
+                "text"
+              ],
+              [
+                "Raw request body",
+                "rawdata"
+              ]
+            ],
+            "sticky": false,
+            "type": "string"
+          },
+          {
+            "control_type": "select",
+            "default": "json",
+            "extends_schema": true,
+            "label": "Response type",
+            "name": "response_type",
+            "optional": true,
+            "pick_list": [
+              [
+                "JSON response",
+                "json"
+              ],
+              [
+                "Raw JSON Response",
+                "raw"
+              ],
+              [
+                "XML Response",
+                "xml2"
+              ],
+              [
+                "Raw response",
+                "text"
+              ]
+            ],
+            "sticky": false,
+            "type": "string"
+          },
+          {
+            "label": "Input",
+            "name": "input",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "schema-designer",
+                "label": "Request body parameters",
+                "extends_schema": true,
+                "schema_neutral": true,
+                "sample_data_type": "json_input",
+                "sticky": false,
+                "add_field_label": "Add request body parameter",
+                "optional": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "name": "requests",
+                    "type": "array",
+                    "of": "object",
+                    "label": "Requests",
+                    "details": {
+                      "real_name": "requests"
+                    },
+                    "sticky": true,
+                    "optional": true,
+                    "properties": [
+                      {
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Sheet ID",
+                            "details": {
+                              "real_name": "sheetId"
+                            },
+                            "optional": true,
+                            "type": "string",
+                            "name": "sheetId"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Dimension",
+                            "details": {
+                              "real_name": "dimension"
+                            },
+                            "optional": true,
+                            "type": "string",
+                            "name": "dimension"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "Length",
+                            "parse_output": "float_conversion",
+                            "details": {
+                              "real_name": "length"
+                            },
+                            "optional": true,
+                            "type": "number",
+                            "name": "length"
+                          }
+                        ],
+                        "label": "Append dimension",
+                        "details": {
+                          "real_name": "appendDimension"
+                        },
+                        "optional": true,
+                        "type": "object",
+                        "name": "appendDimension"
+                      }
+                    ]
+                  }
+                ],
+                "label": "Data",
+                "optional": true,
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          },
+          {
+            "control_type": "key_value",
+            "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+            "empty_list_title": "Does this HTTP request require headers?",
+            "item_label": "Header",
+            "label": "Request headers",
+            "name": "request_headers",
+            "of": "object",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Name",
+                "optional": true,
+                "type": "string",
+                "name": "name"
+              },
+              {
+                "control_type": "text",
+                "label": "Value",
+                "optional": true,
+                "type": "string",
+                "name": "value"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "control_type": "schema-designer",
+            "extends_schema": true,
+            "label": "Response body",
+            "name": "output",
+            "optional": true,
+            "sample_data_type": "json_http",
+            "sticky": true,
+            "type": "string",
+            "schema_neutral": true
+          },
+          {
+            "control_type": "schema-designer",
+            "extends_schema": true,
+            "label": "Response headers",
+            "name": "response_headers",
+            "optional": true,
+            "sample_data_type": "json_http",
+            "sticky": false,
+            "type": "string",
+            "schema_neutral": true
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Inspect",
+            "name": "inspect",
+            "ngIf": "false",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "type": "number"
+          }
+        ],
+        "uuid": "94ddb404-8d6a-4557-84c7-ae5cd73c11a3",
+        "wizardFinished": true
+      },
+      {
+        "number": 3,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 4,
+            "provider": "clock",
+            "name": "wait_for_interval",
+            "as": "2bd17845",
+            "keyword": "action",
+            "toggleCfg": {
+              "interval": true
+            },
+            "input": {
+              "interval": "300"
+            },
+            "uuid": "f2fcbe91-b71d-46fd-bd44-2906dcdd1903"
+          },
+          {
+            "number": 5,
+            "provider": "rest",
+            "name": "make_request_v2",
+            "as": "25a0ffa6",
+            "title": "AntiCorruption",
+            "description": "<span class=\"provider\">Anticorruption and wait for response</span> via <span class=\"provider\">HTTP</span> <span class=\"step-statement\">BETA</span>",
+            "keyword": "action",
+            "toggleCfg": {
+              "response.ignore_http_errors": true
+            },
+            "input": {
+              "request_name": "AntiCorruption",
+              "request": {
+                "method": "POST",
+                "content_type": "application/json",
+                "url": "https://externalapi.gan-prod.systems/redhat/tprm/anti-corruption-records/list",
+                "body": "{\n  \"filters\": {\n        \"responseFields\":\n            [\"created-at\", \n            \"third-party-name-system-used\", \n            \"location\", \n            \"status\", \n            \"date-eq-completed\", \n            \"external-contact-full-name-from-account\", \n            \"external-questionnaire-expiration-date\",\n            \"external-contact-email\", \n            \"vetting-status-from-account\"],\n    \"conditions\": [\n    {\n        \"field\": \"status\",\n        \"value\": [\n         \"screening-review\",\"pending-external-questionnaire\",\"ibm-legal-review\",\"bratislava-review\",\"redhat-legal-final-evaluation\",\"evaluate-external-questionnaire\",\"pending-external-questionnaire-response\"\n        ]\n      }\n    ]\n  },\n  \"page\": 1,\n  \"limit\": 1000\n}",
+                "headers": [
+                  {
+                    "header": "accept",
+                    "value": "application/json"
+                  },
+                  {
+                    "header": "Content-Type",
+                    "value": "application/json"
+                  }
+                ]
+              },
+              "response": {
+                "output_type": "json",
+                "expected_encoding": "UTF-8",
+                "ignore_http_errors": "false",
+                "response_schema": "[{\"control_type\":\"number\",\"label\":\"Total\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"total\"},{\"control_type\":\"number\",\"label\":\"Page count\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"pageCount\"},{\"control_type\":\"number\",\"label\":\"Page\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"page\"},{\"control_type\":\"number\",\"label\":\"Total pages\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"totalPages\"},{\"name\":\"entities\",\"type\":\"array\",\"of\":\"object\",\"label\":\"Entities\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Uuid\",\"type\":\"string\",\"name\":\"uuid\"},{\"control_type\":\"text\",\"label\":\"Created at\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"createdAt\"},{\"control_type\":\"text\",\"label\":\"Updated at\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"updatedAt\"},{\"control_type\":\"text\",\"label\":\"URL\",\"type\":\"string\",\"name\":\"url\"},{\"properties\":[{\"name\":\"location\",\"type\":\"array\",\"of\":\"object\",\"label\":\"Location\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Uuid\",\"type\":\"string\",\"name\":\"uuid\"},{\"control_type\":\"number\",\"label\":\"Weight\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"weight\"},{\"control_type\":\"text\",\"label\":\"Color\",\"type\":\"string\",\"name\":\"color\"},{\"control_type\":\"text\",\"label\":\"Icon\",\"type\":\"string\",\"name\":\"icon\"},{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"name\"},{\"control_type\":\"text\",\"label\":\"Value\",\"type\":\"string\",\"name\":\"value\"},{\"control_type\":\"text\",\"label\":\"Has value\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Has value\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"hasValue\"},\"type\":\"boolean\",\"name\":\"hasValue\"},{\"control_type\":\"text\",\"label\":\"Has score\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Has score\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"hasScore\"},\"type\":\"boolean\",\"name\":\"hasScore\"},{\"control_type\":\"text\",\"label\":\"Has flag\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Has flag\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"hasFlag\"},\"type\":\"boolean\",\"name\":\"hasFlag\"},{\"control_type\":\"text\",\"label\":\"Locale\",\"type\":\"string\",\"name\":\"locale\"}]},{\"control_type\":\"text\",\"label\":\"External-contact-email\",\"type\":\"string\",\"name\":\"external-contact-email\"},{\"control_type\":\"text\",\"label\":\"Created-at\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"created-at\"},{\"properties\":[{\"control_type\":\"text\",\"label\":\"Value\",\"type\":\"string\",\"name\":\"value\"},{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"name\"}],\"label\":\"Status\",\"type\":\"object\",\"name\":\"status\"},{\"control_type\":\"text\",\"label\":\"Third-party-name-system-used\",\"type\":\"string\",\"name\":\"third-party-name-system-used\"},{\"control_type\":\"text\",\"label\":\"External-contact-full-name-from-account\",\"type\":\"string\",\"name\":\"external-contact-full-name-from-account\"},{\"control_type\":\"text\",\"label\":\"External-questionnaire-expiration-date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"external-questionnaire-expiration-date\"},{\"control_type\":\"text\",\"label\":\"Date-eq-completed\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"date-eq-completed\"},{\"name\":\"vetting-status-from-account\",\"type\":\"array\",\"of\":\"object\",\"label\":\"Vetting-status-from-account\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Uuid\",\"type\":\"string\",\"name\":\"uuid\"},{\"control_type\":\"text\",\"label\":\"Color\",\"type\":\"string\",\"name\":\"color\"},{\"control_type\":\"text\",\"label\":\"Icon\",\"type\":\"string\",\"name\":\"icon\"},{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"name\"},{\"control_type\":\"text\",\"label\":\"Value\",\"type\":\"string\",\"name\":\"value\"},{\"control_type\":\"text\",\"label\":\"Has value\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Has value\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"hasValue\"},\"type\":\"boolean\",\"name\":\"hasValue\"},{\"control_type\":\"text\",\"label\":\"Has score\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Has score\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"hasScore\"},\"type\":\"boolean\",\"name\":\"hasScore\"},{\"control_type\":\"text\",\"label\":\"Has flag\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Has flag\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"hasFlag\"},\"type\":\"boolean\",\"name\":\"hasFlag\"},{\"control_type\":\"text\",\"label\":\"Locale\",\"type\":\"string\",\"name\":\"locale\"}]}],\"label\":\"Values\",\"type\":\"object\",\"name\":\"values\"}]}]"
+              },
+              "wait_for_response": "true"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Headers",
+                "name": "headers",
+                "properties": [
+
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Response",
+                "name": "response",
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "Total",
+                    "parse_output": "float_conversion",
+                    "type": "number",
+                    "name": "total"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "Page count",
+                    "parse_output": "float_conversion",
+                    "type": "number",
+                    "name": "pageCount"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "Page",
+                    "parse_output": "float_conversion",
+                    "type": "number",
+                    "name": "page"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "Total pages",
+                    "parse_output": "float_conversion",
+                    "type": "number",
+                    "name": "totalPages"
+                  },
+                  {
+                    "name": "entities",
+                    "type": "array",
+                    "of": "object",
+                    "label": "Entities",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Uuid",
+                        "type": "string",
+                        "name": "uuid"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Created at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "type": "date_time",
+                        "name": "createdAt"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Updated at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "type": "date_time",
+                        "name": "updatedAt"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "URL",
+                        "type": "string",
+                        "name": "url"
+                      },
+                      {
+                        "properties": [
+                          {
+                            "name": "location",
+                            "type": "array",
+                            "of": "object",
+                            "label": "Location",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Uuid",
+                                "type": "string",
+                                "name": "uuid"
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "Weight",
+                                "parse_output": "float_conversion",
+                                "type": "number",
+                                "name": "weight"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Color",
+                                "type": "string",
+                                "name": "color"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Icon",
+                                "type": "string",
+                                "name": "icon"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Name",
+                                "type": "string",
+                                "name": "name"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Value",
+                                "type": "string",
+                                "name": "value"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Has value",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Has value",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "type": "boolean",
+                                  "name": "hasValue"
+                                },
+                                "type": "boolean",
+                                "name": "hasValue"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Has score",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Has score",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "type": "boolean",
+                                  "name": "hasScore"
+                                },
+                                "type": "boolean",
+                                "name": "hasScore"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Has flag",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Has flag",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "type": "boolean",
+                                  "name": "hasFlag"
+                                },
+                                "type": "boolean",
+                                "name": "hasFlag"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Locale",
+                                "type": "string",
+                                "name": "locale"
+                              }
+                            ]
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "External-contact-email",
+                            "type": "string",
+                            "name": "external-contact-email"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Created-at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "created-at"
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Value",
+                                "type": "string",
+                                "name": "value"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Name",
+                                "type": "string",
+                                "name": "name"
+                              }
+                            ],
+                            "label": "Status",
+                            "type": "object",
+                            "name": "status"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Third-party-name-system-used",
+                            "type": "string",
+                            "name": "third-party-name-system-used"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "External-contact-full-name-from-account",
+                            "type": "string",
+                            "name": "external-contact-full-name-from-account"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "External-questionnaire-expiration-date",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "external-questionnaire-expiration-date"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Date-eq-completed",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "date-eq-completed"
+                          },
+                          {
+                            "name": "vetting-status-from-account",
+                            "type": "array",
+                            "of": "object",
+                            "label": "Vetting-status-from-account",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Uuid",
+                                "type": "string",
+                                "name": "uuid"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Color",
+                                "type": "string",
+                                "name": "color"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Icon",
+                                "type": "string",
+                                "name": "icon"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Name",
+                                "type": "string",
+                                "name": "name"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Value",
+                                "type": "string",
+                                "name": "value"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Has value",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Has value",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "type": "boolean",
+                                  "name": "hasValue"
+                                },
+                                "type": "boolean",
+                                "name": "hasValue"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Has score",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Has score",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "type": "boolean",
+                                  "name": "hasScore"
+                                },
+                                "type": "boolean",
+                                "name": "hasScore"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Has flag",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Has flag",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "type": "boolean",
+                                  "name": "hasFlag"
+                                },
+                                "type": "boolean",
+                                "name": "hasFlag"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Locale",
+                                "type": "string",
+                                "name": "locale"
+                              }
+                            ]
+                          }
+                        ],
+                        "label": "Values",
+                        "type": "object",
+                        "name": "values"
+                      }
+                    ]
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Response",
+                "name": "response",
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "select",
+                    "label": "Response content type",
+                    "pick_list": [
+                      [
+                        "Text",
+                        "rawdatatxt"
+                      ],
+                      [
+                        "Binary",
+                        "rawdata"
+                      ],
+                      [
+                        "JSON",
+                        "json"
+                      ],
+                      [
+                        "XML",
+                        "xml2"
+                      ]
+                    ],
+                    "hint": "Select expected format of data response type, e.g. JSON or XML. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "default": "json",
+                    "extends_schema": true,
+                    "type": "string",
+                    "name": "output_type"
+                  },
+                  {
+                    "control_type": "select",
+                    "label": "Encoding",
+                    "pick_list": "supported_encodings_without_binary_global_pick_list",
+                    "pick_list_connection_less": true,
+                    "optional": true,
+                    "default": "UTF-8",
+                    "hint": "Default encoding type is set to UTF-8, and typically doesn't need to be changed. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "type": "string",
+                    "name": "expected_encoding"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Response schema",
+                    "sample_data_type": "json_http",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all fields in your response.",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "response_schema"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "HTTP response headers",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all the response headers",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "headers_schema"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Mark non-2xx response codes as success?",
+                    "default": "false",
+                    "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                    "optional": true,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Mark non-2xx response codes as success?",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "default": false,
+                      "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                      "optional": true,
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "ignore_http_errors"
+                    },
+                    "type": "boolean",
+                    "name": "ignore_http_errors"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "579d5193-c8a9-4458-bcc1-9809dae958d4",
+            "wizardFinished": true
+          },
+          {
+            "number": 6,
+            "as": "0baad04e",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "2",
+              "retry_interval": "10"
+            },
+            "filter": {
+              "conditions": [
+                {
+                  "operand": "not_equals_to",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"25a0ffa6\",\"path\":[\"status_code\"]}')}",
+                  "rhs": "200",
+                  "uuid": "8404d80a-5343-4fa5-af67-24f8a2bfa9dc"
+                }
+              ],
+              "operand": "and",
+              "type": "compound"
+            },
+            "block": [
+              {
+                "number": 7,
+                "provider": "email",
+                "name": "send_mail",
+                "as": "44e79a2b",
+                "title": null,
+                "description": null,
+                "keyword": "action",
+                "input": {
+                  "email_type": "html",
+                  "to": "kgopalak@redhat.com",
+                  "subject": "GAN API Calls Failed",
+                  "body": "GAN API Call failed"
+                },
+                "uuid": "9ee6539d-5c43-41cb-9ce6-80ca28806ade"
+              }
+            ],
+            "uuid": "05b03381-7f8f-4cef-a2d5-3771849d8153"
+          }
+        ],
+        "uuid": "ca631bd2-c9fc-453e-860c-5d47537c117e"
+      },
+      {
+        "number": 8,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "ab0c9342",
+        "title": "  Create variables totalPages, page",
+        "description": "Create variables <span class=\"provider\">totalPages</span>, <span class=\"provider\">page</span>",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"control_type\":\"number\",\"label\":\"totalPages\",\"parse_output\":\"float_conversion\",\"name\":\"totalPages\",\"type\":\"number\",\"optional\":true,\"details\":{\"real_name\":\"totalPages\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true},{\"name\":\"page\",\"type\":\"number\",\"optional\":true,\"label\":\"page\",\"details\":{\"real_name\":\"page\"},\"control_type\":\"number\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "totalPages": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"25a0ffa6\",\"path\":[\"response\",\"totalPages\"]}')}",
+              "page": "1"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "number",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "totalPages",
+            "name": "totalPages",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "sticky": true,
+            "type": "number",
+            "details": {
+              "real_name": "totalPages"
+            }
+          },
+          {
+            "control_type": "number",
+            "label": "page",
+            "name": "page",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "type": "number",
+            "details": {
+              "real_name": "page"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "totalPages",
+                    "parse_output": "float_conversion",
+                    "name": "totalPages",
+                    "type": "number",
+                    "optional": true,
+                    "details": {
+                      "real_name": "totalPages"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "page",
+                    "parse_output": "float_conversion",
+                    "name": "page",
+                    "type": "number",
+                    "optional": true,
+                    "details": {
+                      "real_name": "page"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.totalPages",
+          "variables",
+          "variables.schema",
+          "variables.data",
+          "variables.data.page"
+        ],
+        "uuid": "42c79403-692e-4181-8032-eff7c3db1a80"
+      },
+      {
+        "number": 9,
+        "as": "42c4c346",
+        "keyword": "repeat",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 10,
+            "keyword": "try",
+            "input": {
+            },
+            "block": [
+              {
+                "number": 11,
+                "provider": "rest",
+                "name": "make_request_v2",
+                "as": "c1c02c7e",
+                "title": "AntiCorruption",
+                "description": "<span class=\"provider\">Anticorruption and wait for response</span> via <span class=\"provider\">HTTP</span> <span class=\"step-statement\">BETA</span>",
+                "keyword": "action",
+                "toggleCfg": {
+                  "response.ignore_http_errors": true
+                },
+                "input": {
+                  "request_name": "AntiCorruption",
+                  "request": {
+                    "method": "POST",
+                    "content_type": "application/json",
+                    "url": "https://externalapi.gan-prod.systems/redhat/tprm/anti-corruption-records/list",
+                    "body": "{\n  \"filters\": {\n        \"responseFields\":\n            [\"created-at\", \n            \"third-party-name-system-used\", \n            \"location\", \n            \"status\", \n            \"date-eq-completed\", \n            \"external-contact-full-name-from-account\", \n            \"external-questionnaire-expiration-date\",\n            \"external-contact-email\", \n            \"vetting-status-from-account\"],\n    \"conditions\": [\n    {\n        \"field\": \"status\",\n        \"value\": [\n         \"screening-review\",\"pending-external-questionnaire\",\"ibm-legal-review\",\"bratislava-review\",\"redhat-legal-final-evaluation\",\"evaluate-external-questionnaire\",\"pending-external-questionnaire-response\"\n        ]\n      }\n    ]\n  },\n  \"page\": #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"ab0c9342\",\"path\":[\"page\"]}')},\n  \"limit\": 1000\n}",
+                    "headers": [
+                      {
+                        "header": "accept",
+                        "value": "application/json"
+                      },
+                      {
+                        "header": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ]
+                  },
+                  "response": {
+                    "output_type": "json",
+                    "expected_encoding": "UTF-8",
+                    "ignore_http_errors": "false",
+                    "response_schema": "[{\"control_type\":\"number\",\"label\":\"Total\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"total\"},{\"control_type\":\"number\",\"label\":\"Page count\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"pageCount\"},{\"control_type\":\"number\",\"label\":\"Page\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"page\"},{\"control_type\":\"number\",\"label\":\"Total pages\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"totalPages\"},{\"name\":\"entities\",\"type\":\"array\",\"of\":\"object\",\"label\":\"Entities\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Uuid\",\"type\":\"string\",\"name\":\"uuid\"},{\"control_type\":\"text\",\"label\":\"Created at\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"createdAt\"},{\"control_type\":\"text\",\"label\":\"Updated at\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"updatedAt\"},{\"control_type\":\"text\",\"label\":\"URL\",\"type\":\"string\",\"name\":\"url\"},{\"properties\":[{\"name\":\"location\",\"type\":\"array\",\"of\":\"object\",\"label\":\"Location\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Uuid\",\"type\":\"string\",\"name\":\"uuid\"},{\"control_type\":\"number\",\"label\":\"Weight\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"weight\"},{\"control_type\":\"text\",\"label\":\"Color\",\"type\":\"string\",\"name\":\"color\"},{\"control_type\":\"text\",\"label\":\"Icon\",\"type\":\"string\",\"name\":\"icon\"},{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"name\"},{\"control_type\":\"text\",\"label\":\"Value\",\"type\":\"string\",\"name\":\"value\"},{\"control_type\":\"text\",\"label\":\"Has value\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Has value\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"hasValue\"},\"type\":\"boolean\",\"name\":\"hasValue\"},{\"control_type\":\"text\",\"label\":\"Has score\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Has score\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"hasScore\"},\"type\":\"boolean\",\"name\":\"hasScore\"},{\"control_type\":\"text\",\"label\":\"Has flag\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Has flag\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"hasFlag\"},\"type\":\"boolean\",\"name\":\"hasFlag\"},{\"control_type\":\"text\",\"label\":\"Locale\",\"type\":\"string\",\"name\":\"locale\"}]},{\"control_type\":\"text\",\"label\":\"External-contact-email\",\"type\":\"string\",\"name\":\"external-contact-email\"},{\"control_type\":\"text\",\"label\":\"Created-at\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"created-at\"},{\"properties\":[{\"control_type\":\"text\",\"label\":\"Value\",\"type\":\"string\",\"name\":\"value\"},{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"name\"}],\"label\":\"Status\",\"type\":\"object\",\"name\":\"status\"},{\"control_type\":\"text\",\"label\":\"Third-party-name-system-used\",\"type\":\"string\",\"name\":\"third-party-name-system-used\"},{\"control_type\":\"text\",\"label\":\"External-contact-full-name-from-account\",\"type\":\"string\",\"name\":\"external-contact-full-name-from-account\"},{\"control_type\":\"text\",\"label\":\"External-questionnaire-expiration-date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"external-questionnaire-expiration-date\"},{\"control_type\":\"text\",\"label\":\"Date-eq-completed\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"date-eq-completed\"},{\"name\":\"vetting-status-from-account\",\"type\":\"array\",\"of\":\"object\",\"label\":\"Vetting-status-from-account\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Uuid\",\"type\":\"string\",\"name\":\"uuid\"},{\"control_type\":\"text\",\"label\":\"Color\",\"type\":\"string\",\"name\":\"color\"},{\"control_type\":\"text\",\"label\":\"Icon\",\"type\":\"string\",\"name\":\"icon\"},{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"name\"},{\"control_type\":\"text\",\"label\":\"Value\",\"type\":\"string\",\"name\":\"value\"},{\"control_type\":\"text\",\"label\":\"Has value\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Has value\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"hasValue\"},\"type\":\"boolean\",\"name\":\"hasValue\"},{\"control_type\":\"text\",\"label\":\"Has score\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Has score\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"hasScore\"},\"type\":\"boolean\",\"name\":\"hasScore\"},{\"control_type\":\"text\",\"label\":\"Has flag\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Has flag\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"hasFlag\"},\"type\":\"boolean\",\"name\":\"hasFlag\"},{\"control_type\":\"text\",\"label\":\"Locale\",\"type\":\"string\",\"name\":\"locale\"}]}],\"label\":\"Values\",\"type\":\"object\",\"name\":\"values\"}]}]"
+                  },
+                  "wait_for_response": "true"
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Headers",
+                    "name": "headers",
+                    "properties": [
+
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "label": "Response",
+                    "name": "response",
+                    "properties": [
+                      {
+                        "control_type": "number",
+                        "label": "Total",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "total"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Page count",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "pageCount"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Page",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "page"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Total pages",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "totalPages"
+                      },
+                      {
+                        "name": "entities",
+                        "type": "array",
+                        "of": "object",
+                        "label": "Entities",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Uuid",
+                            "type": "string",
+                            "name": "uuid"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Created at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "createdAt"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Updated at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "updatedAt"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "URL",
+                            "type": "string",
+                            "name": "url"
+                          },
+                          {
+                            "properties": [
+                              {
+                                "name": "location",
+                                "type": "array",
+                                "of": "object",
+                                "label": "Location",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Uuid",
+                                    "type": "string",
+                                    "name": "uuid"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Weight",
+                                    "parse_output": "float_conversion",
+                                    "type": "number",
+                                    "name": "weight"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Color",
+                                    "type": "string",
+                                    "name": "color"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Icon",
+                                    "type": "string",
+                                    "name": "icon"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Name",
+                                    "type": "string",
+                                    "name": "name"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "type": "string",
+                                    "name": "value"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Has value",
+                                    "render_input": "boolean_conversion",
+                                    "parse_output": "boolean_conversion",
+                                    "toggle_hint": "Select from option list",
+                                    "toggle_field": {
+                                      "label": "Has value",
+                                      "control_type": "text",
+                                      "toggle_hint": "Use custom value",
+                                      "type": "boolean",
+                                      "name": "hasValue"
+                                    },
+                                    "type": "boolean",
+                                    "name": "hasValue"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Has score",
+                                    "render_input": "boolean_conversion",
+                                    "parse_output": "boolean_conversion",
+                                    "toggle_hint": "Select from option list",
+                                    "toggle_field": {
+                                      "label": "Has score",
+                                      "control_type": "text",
+                                      "toggle_hint": "Use custom value",
+                                      "type": "boolean",
+                                      "name": "hasScore"
+                                    },
+                                    "type": "boolean",
+                                    "name": "hasScore"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Has flag",
+                                    "render_input": "boolean_conversion",
+                                    "parse_output": "boolean_conversion",
+                                    "toggle_hint": "Select from option list",
+                                    "toggle_field": {
+                                      "label": "Has flag",
+                                      "control_type": "text",
+                                      "toggle_hint": "Use custom value",
+                                      "type": "boolean",
+                                      "name": "hasFlag"
+                                    },
+                                    "type": "boolean",
+                                    "name": "hasFlag"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Locale",
+                                    "type": "string",
+                                    "name": "locale"
+                                  }
+                                ]
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "External-contact-email",
+                                "type": "string",
+                                "name": "external-contact-email"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Created-at",
+                                "render_input": "date_time_conversion",
+                                "parse_output": "date_time_conversion",
+                                "type": "date_time",
+                                "name": "created-at"
+                              },
+                              {
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "type": "string",
+                                    "name": "value"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Name",
+                                    "type": "string",
+                                    "name": "name"
+                                  }
+                                ],
+                                "label": "Status",
+                                "type": "object",
+                                "name": "status"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Third-party-name-system-used",
+                                "type": "string",
+                                "name": "third-party-name-system-used"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "External-contact-full-name-from-account",
+                                "type": "string",
+                                "name": "external-contact-full-name-from-account"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "External-questionnaire-expiration-date",
+                                "render_input": "date_time_conversion",
+                                "parse_output": "date_time_conversion",
+                                "type": "date_time",
+                                "name": "external-questionnaire-expiration-date"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Date-eq-completed",
+                                "render_input": "date_time_conversion",
+                                "parse_output": "date_time_conversion",
+                                "type": "date_time",
+                                "name": "date-eq-completed"
+                              },
+                              {
+                                "name": "vetting-status-from-account",
+                                "type": "array",
+                                "of": "object",
+                                "label": "Vetting-status-from-account",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Uuid",
+                                    "type": "string",
+                                    "name": "uuid"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Color",
+                                    "type": "string",
+                                    "name": "color"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Icon",
+                                    "type": "string",
+                                    "name": "icon"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Name",
+                                    "type": "string",
+                                    "name": "name"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "type": "string",
+                                    "name": "value"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Has value",
+                                    "render_input": "boolean_conversion",
+                                    "parse_output": "boolean_conversion",
+                                    "toggle_hint": "Select from option list",
+                                    "toggle_field": {
+                                      "label": "Has value",
+                                      "control_type": "text",
+                                      "toggle_hint": "Use custom value",
+                                      "type": "boolean",
+                                      "name": "hasValue"
+                                    },
+                                    "type": "boolean",
+                                    "name": "hasValue"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Has score",
+                                    "render_input": "boolean_conversion",
+                                    "parse_output": "boolean_conversion",
+                                    "toggle_hint": "Select from option list",
+                                    "toggle_field": {
+                                      "label": "Has score",
+                                      "control_type": "text",
+                                      "toggle_hint": "Use custom value",
+                                      "type": "boolean",
+                                      "name": "hasScore"
+                                    },
+                                    "type": "boolean",
+                                    "name": "hasScore"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Has flag",
+                                    "render_input": "boolean_conversion",
+                                    "parse_output": "boolean_conversion",
+                                    "toggle_hint": "Select from option list",
+                                    "toggle_field": {
+                                      "label": "Has flag",
+                                      "control_type": "text",
+                                      "toggle_hint": "Use custom value",
+                                      "type": "boolean",
+                                      "name": "hasFlag"
+                                    },
+                                    "type": "boolean",
+                                    "name": "hasFlag"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Locale",
+                                    "type": "string",
+                                    "name": "locale"
+                                  }
+                                ]
+                              }
+                            ],
+                            "label": "Values",
+                            "type": "object",
+                            "name": "values"
+                          }
+                        ]
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Response",
+                    "name": "response",
+                    "override": true,
+                    "properties": [
+                      {
+                        "control_type": "select",
+                        "label": "Response content type",
+                        "pick_list": [
+                          [
+                            "Text",
+                            "rawdatatxt"
+                          ],
+                          [
+                            "Binary",
+                            "rawdata"
+                          ],
+                          [
+                            "JSON",
+                            "json"
+                          ],
+                          [
+                            "XML",
+                            "xml2"
+                          ]
+                        ],
+                        "hint": "Select expected format of data response type, e.g. JSON or XML. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                        "default": "json",
+                        "extends_schema": true,
+                        "type": "string",
+                        "name": "output_type"
+                      },
+                      {
+                        "control_type": "select",
+                        "label": "Encoding",
+                        "pick_list": "supported_encodings_without_binary_global_pick_list",
+                        "pick_list_connection_less": true,
+                        "optional": true,
+                        "default": "UTF-8",
+                        "hint": "Default encoding type is set to UTF-8, and typically doesn't need to be changed. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                        "type": "string",
+                        "name": "expected_encoding"
+                      },
+                      {
+                        "control_type": "schema-designer",
+                        "label": "Response schema",
+                        "sample_data_type": "json_http",
+                        "extends_schema": true,
+                        "empty_schema_title": "Describe all fields in your response.",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "response_schema"
+                      },
+                      {
+                        "control_type": "schema-designer",
+                        "label": "HTTP response headers",
+                        "extends_schema": true,
+                        "empty_schema_title": "Describe all the response headers",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "headers_schema"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Mark non-2xx response codes as success?",
+                        "default": "false",
+                        "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                        "optional": true,
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Mark non-2xx response codes as success?",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "default": false,
+                          "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                          "optional": true,
+                          "render_input": null,
+                          "parse_output": null,
+                          "type": "boolean",
+                          "name": "ignore_http_errors"
+                        },
+                        "type": "boolean",
+                        "name": "ignore_http_errors"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "4feddb44-4e84-43c5-98cd-cd23170f46a5",
+                "wizardFinished": true
+              },
+              {
+                "number": 12,
+                "as": "d6176b0b",
+                "keyword": "catch",
+                "input": {
+                  "max_retry_count": "3",
+                  "retry_interval": "10"
+                },
+                "filter": {
+                  "conditions": [
+                    {
+                      "operand": "not_equals_to",
+                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"c1c02c7e\",\"path\":[\"status_code\"]}')}",
+                      "rhs": "200",
+                      "uuid": "a689ce46-e07b-4298-af95-c5b9df8a6cbf"
+                    }
+                  ],
+                  "operand": "and",
+                  "type": "compound"
+                },
+                "block": [
+                  {
+                    "number": 13,
+                    "provider": "email",
+                    "name": "send_mail",
+                    "as": "7750f2ce",
+                    "title": null,
+                    "description": null,
+                    "keyword": "action",
+                    "input": {
+                      "email_type": "html",
+                      "to": "kgopalak@redhat.com",
+                      "subject": "GAN API Data Fetch failed",
+                      "body": "GAN API Data Fetch failed"
+                    },
+                    "uuid": "caa5fcbe-efef-42ef-b03c-6a0ad49fbff1"
+                  }
+                ],
+                "uuid": "a5def32c-c18b-4c70-bb01-9475f1f0afc9"
+              }
+            ],
+            "uuid": "fb16c2eb-06ef-40d2-9f19-0ac57482d35b"
+          },
+          {
+            "number": 14,
+            "provider": "google_sheets",
+            "name": "add_row_v4_bulk",
+            "as": "eacef973",
+            "title": null,
+            "description": null,
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "team_drives": "RHSC Automated Data"
+            },
+            "toggleCfg": {
+              "is_top_left": true
+            },
+            "input": {
+              "team_drives": "0AH9nVkMvJ1qrUk9PVA/0AH9nVkMvJ1qrUk9PVA",
+              "is_top_left": "false",
+              "spreadsheet_id": "1deuvhZOlgSAYp6xs8tkrgV8uFTjSNCYAjTMLjk2E2a8",
+              "rows": {
+                "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"c1c02c7e\",\"path\":[\"response\",\"entities\"]}')}",
+                "col_External Contact Email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"c1c02c7e\",\"path\":[\"response\",\"entities\",{\"path_element_type\":\"current_item\"},\"values\",\"external-contact-email\"]}')}",
+                "col_EQ Questionaire Expiry Date": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"c1c02c7e\",\"path\":[\"response\",\"entities\",{\"path_element_type\":\"current_item\"},\"values\",\"external-questionnaire-expiration-date\"]}')}",
+                "col_UUID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"c1c02c7e\",\"path\":[\"response\",\"entities\",{\"path_element_type\":\"current_item\"},\"uuid\"]}')}",
+                "col_Created At": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"c1c02c7e\",\"path\":[\"response\",\"entities\",{\"path_element_type\":\"current_item\"},\"createdAt\"]}')}",
+                "col_Location": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"c1c02c7e\",\"path\":[\"response\",\"entities\",{\"path_element_type\":\"current_item\"},\"values\",\"location\",{\"path_element_type\":\"current_item\"},\"name\"]}')}",
+                "col_Status": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"c1c02c7e\",\"path\":[\"response\",\"entities\",{\"path_element_type\":\"current_item\"},\"values\",\"status\",\"name\"]}')}",
+                "col_EQ Completed": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"c1c02c7e\",\"path\":[\"response\",\"entities\",{\"path_element_type\":\"current_item\"},\"values\",\"date-eq-completed\"]}')}",
+                "col_External Contact": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"c1c02c7e\",\"path\":[\"response\",\"entities\",{\"path_element_type\":\"current_item\"},\"values\",\"external-contact-full-name-from-account\"]}')}",
+                "col_Third Party System Used": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"c1c02c7e\",\"path\":[\"response\",\"entities\",{\"path_element_type\":\"current_item\"},\"values\",\"third-party-name-system-used\"]}')}"
+              },
+              "sheet": "Sheet1"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "select",
+                "extends_schema": true,
+                "hint": "Select a sheet to add row to. The sheet must have at least one header row. <a href='https://docs.workato.com/connectors/google-sheets/action-add-row.html#setting-up-the-google-sheet' target='_blank'>Learn more</a>",
+                "label": "Sheet",
+                "name": "sheet",
+                "optional": false,
+                "pick_list": [
+                  [
+                    "Sheet1",
+                    "Sheet1"
+                  ]
+                ],
+                "toggle_field": {
+                  "control_type": "text",
+                  "label": "Sheet name",
+                  "toggle_hint": "Use sheet name",
+                  "extends_schema": true,
+                  "change_on_blur": true,
+                  "toggle_to_secondary_hint": "Use sheet name",
+                  "toggle_to_primary_hint": "Select a sheet",
+                  "hint": "Use <b>Sheet name</b> pill from the output of other Google Sheets’ triggers/actions. Or enter sheet name manually. The sheet must have at least 1 header row in input field.",
+                  "type": "string",
+                  "name": "sheet_name"
+                },
+                "toggle_hint": "Select a sheet",
+                "type": "string"
+              },
+              {
+                "hint": "Input row values into the fields below.",
+                "label": "Rows",
+                "name": "rows",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "UUID",
+                    "old_name": "col_UUID",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_UUID"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Created At",
+                    "old_name": "col_Created_At",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_Created At"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Third Party System Used",
+                    "old_name": "col_Third_Party_System_Used",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_Third Party System Used"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Location",
+                    "old_name": "col_Location",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_Location"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Status",
+                    "old_name": "col_Status",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_Status"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "EQ Completed",
+                    "old_name": "col_EQ_Completed",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_EQ Completed"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "EQ Questionaire Expiry Date",
+                    "old_name": "col_EQ_Questionaire_Expiry_Date",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_EQ Questionaire Expiry Date"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "External Contact",
+                    "old_name": "col_External_Contact",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_External Contact"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "External Contact Email",
+                    "old_name": "col_External_Contact_Email",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_External Contact Email"
+                  }
+                ],
+                "sticky": true,
+                "type": "array"
+              }
+            ],
+            "uuid": "4543e5ea-df2d-42d0-81f9-5100d346de2b",
+            "skip": false
+          },
+          {
+            "number": 15,
+            "provider": "workato_variable",
+            "name": "update_variables",
+            "as": "ef49841a",
+            "title": null,
+            "description": "Update variables <span class=\"provider\">page</span>",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": [
+                {
+                  "label": "page (step 4)",
+                  "value": "42c79403-692e-4181-8032-eff7c3db1a80:ab0c9342:page"
+                }
+              ]
+            },
+            "input": {
+              "name": "42c79403-692e-4181-8032-eff7c3db1a80:ab0c9342:page",
+              "page": "=_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"c1c02c7e\",\"path\":[\"response\",\"page\"]}') + 1"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "number",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "page",
+                "name": "page",
+                "optional": true,
+                "parse_output": "float_conversion",
+                "sticky": true,
+                "type": "number",
+                "strip_interpolation": true
+              }
+            ],
+            "uuid": "532f5f0d-6dce-4099-8ede-0057eb4f1281"
+          },
+          {
+            "number": 16,
+            "keyword": "while_condition",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "greater_than",
+                  "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"ab0c9342\",\"path\":[\"totalPages\"]}') + 1",
+                  "rhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"ab0c9342\",\"path\":[\"page\"]}')}",
+                  "uuid": "3c542496-667b-46e9-89ad-b6b88a612fd8"
+                }
+              ]
+            },
+            "uuid": "c619e692-af32-4f32-932d-74c4d23852aa"
+          }
+        ],
+        "uuid": "65f242fd-fc48-4b39-b225-3e493fb5ae31"
+      },
+      {
+        "number": 17,
+        "provider": "logger",
+        "name": "log_message",
+        "as": "4be97cf1",
+        "title": null,
+        "description": "Log <span class=\"provider\">message</span> to <span class=\"provider\">Job report</span> <span class=\"provider\">and Workato Logs</span>",
+        "keyword": "action",
+        "input": {
+          "user_logs_enabled": true,
+          "message": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"25a0ffa6\",\"path\":[\"response\",\"total\"]}')} #{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"25a0ffa6\",\"path\":[\"response\",\"pageCount\"]}')} #{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"25a0ffa6\",\"path\":[\"response\",\"page\"]}')} #{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"25a0ffa6\",\"path\":[\"response\",\"totalPages\"]}')} ",
+          "log_level": "INFO"
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "select",
+            "default": "INFO",
+            "disable_formula": true,
+            "hint": "Flag your message with a log level to easily find the right entry in the Workato logs.",
+            "label": "Log level",
+            "name": "log_level",
+            "ngIf": "input.user_logs_enabled == true",
+            "optional": false,
+            "pick_list": [
+              [
+                "INFO",
+                "INFO"
+              ],
+              [
+                "WARN",
+                "WARN"
+              ],
+              [
+                "ERROR",
+                "ERROR"
+              ]
+            ],
+            "type": "string"
+          },
+          {
+            "control_type": "switch",
+            "default": false,
+            "disable_formula": true,
+            "extends_schema": true,
+            "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+            "label": "Send to Workato log service",
+            "name": "user_logs_enabled",
+            "optional": true,
+            "type": "string"
+          }
+        ],
+        "uuid": "6558a194-27eb-471e-a4a6-eb930240b3d5"
+      }
+    ],
+    "uuid": "32c4b711-8177-4a84-b0c2-1c727345286b",
+    "unfinished": false
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "rest",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "GAN Dashboard/gan_external.connection.json",
+        "name": "GAN External",
+        "folder": "GAN Dashboard"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "google_sheets",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "GAN Dashboard/con_google_sheet_kishore.connection.json",
+        "name": "CON|Google sheet|Kishore",
+        "folder": "GAN Dashboard"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "logger",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "email",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
