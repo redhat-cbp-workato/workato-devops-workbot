@@ -1,7 +1,7 @@
 {
   "name": "REC|RHSC Compliance| Load Permission Mappings - Step 00",
   "description": "",
-  "version": 1,
+  "version": 6
   "private": true,
   "concurrency": 1,
   "code": {
@@ -184,7 +184,8 @@
             "type": "string"
           }
         ],
-        "uuid": "bc6e76bd-91bc-4e57-87ca-a03448b7e89f"
+        "uuid": "bc6e76bd-91bc-4e57-87ca-a03448b7e89f",
+        "skip": false
       },
       {
         "number": 2,
@@ -307,6 +308,169 @@
         ],
         "uuid": "834ed5aa-53e6-485f-b291-69d4f9db3796",
         "skip": false
+      },
+      {
+        "number": 3,
+        "provider": "google_sheets",
+        "name": "get_spreadsheet_rows_v4",
+        "as": "91134049",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "spreadsheet": "personas"
+        },
+        "input": {
+          "team_drives": "my_drive",
+          "spreadsheet": "11-puT4z7IpenmBw1uF2YYQH16BtWcRmqXF-1Hop6Vd8",
+          "sheet": "Sheet1",
+          "range": "2:60"
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "label": "Spreadsheet ID",
+            "name": "spreadsheet_id",
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "label": "Spreadsheet name",
+            "name": "spreadsheet_name",
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "label": "Sheet name",
+            "name": "sheet",
+            "type": "string"
+          },
+          {
+            "label": "Rows",
+            "name": "rows",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Row number",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "row_number"
+              },
+              {
+                "control_type": "text",
+                "label": "Provisioning Personas",
+                "old_name": "col_Provisioning_Personas",
+                "custom_attribute": 1,
+                "type": "string",
+                "name": "col_Provisioning Personas"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "select",
+            "extends_schema": true,
+            "hint": "Select a sheet to retrieve rows. The sheet must have at least one header row. <a href='https://docs.workato.com/connectors/google-sheets/action-add-row.html#setting-up-the-google-sheet' target='_blank'>Learn more</a>",
+            "label": "Sheet",
+            "name": "sheet",
+            "optional": false,
+            "pick_list": [
+              [
+                "Sheet1",
+                "Sheet1"
+              ]
+            ],
+            "toggle_field": {
+              "control_type": "text",
+              "label": "Sheet name",
+              "toggle_hint": "Use sheet name",
+              "extends_schema": true,
+              "change_on_blur": true,
+              "toggle_to_secondary_hint": "Use sheet name",
+              "toggle_to_primary_hint": "Select a sheet",
+              "hint": "Use <b>Sheet name</b> pill from the output of other Google Sheets’ triggers/actions. Or enter sheet name manually. The sheet must have at least 1 header row in input field.",
+              "type": "string",
+              "name": "sheet_name"
+            },
+            "toggle_hint": "Select a sheet",
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "hint": "Provide range to retrieve rows from Sheet in the format <b>Start row:End row</b>. i.e. <b>2:2000</b> Note: Range should start from second row. Since first row is the header row.",
+            "label": "Range",
+            "name": "range",
+            "optional": true,
+            "sticky": true,
+            "type": "string"
+          }
+        ],
+        "uuid": "324ff4f4-3a87-4e3c-9596-58ea21973581"
+      },
+      {
+        "number": 4,
+        "provider": "oracle",
+        "name": "insert_rows_batch",
+        "as": "8ffcf229",
+        "title": "Insert rows in XXRHFIN.XXRH_RHSC_PERSONAS",
+        "description": "Insert <span class=\"provider\">batch of rows</span> in <span class=\"provider\">XXRHFIN.XXRH_RHSC_PERSONAS</span> table in <span class=\"provider\">Oracle</span>",
+        "keyword": "action",
+        "toggleCfg": {
+          "table": false
+        },
+        "input": {
+          "table": "XXRHFIN.XXRH_RHSC_PERSONAS",
+          "rows": {
+            "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_sheets\",\"line\":\"91134049\",\"path\":[\"rows\"]}')}",
+            "persona_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_sheets\",\"line\":\"91134049\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"col_Provisioning Personas\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Keys",
+            "name": "keys",
+            "of": "object",
+            "properties": [
+
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Rows",
+            "name": "rows",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "PERSONA_NAME",
+                "details": {
+                  "primary_key": false,
+                  "data_type": "varchar2",
+                  "column_name": "PERSONA_NAME",
+                  "length": 200,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "optional": true,
+                "hint": "varchar2, max length 200",
+                "type": "string",
+                "name": "persona_name"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "visible_config_fields": [
+          "table",
+          "rows.persona_name"
+        ],
+        "uuid": "70812558-a99a-4785-8cd7-eff89c96ba45"
       }
     ],
     "uuid": "61015cb0-ccea-43f6-bef2-f7a4ece8a75f",
@@ -324,9 +488,9 @@
       "provider": "oracle",
       "skip_validation": false,
       "account_id": {
-        "zip_name": "RHSC Platform Operation - Release/RHSC User Compliance/Connections/con_ebsdev1_workato_user.connection.json",
-        "name": "CON|EBSDEV1|Workato User",
-        "folder": "RHSC Platform Operation - Release/RHSC User Compliance/Connections"
+      "zip_name": "RHSC Platform Operation - Release/Kishore POC/con_dev2_workato_user.connection.json",
+        "name": "CON|DEV2|Workato User",
+        "folder": "RHSC Platform Operation - Release/Kishore POC"
       }
     },
     {
@@ -334,9 +498,9 @@
       "provider": "google_sheets",
       "skip_validation": false,
       "account_id": {
-        "zip_name": "RHSC Platform Operation - Release/RHSC User Compliance/Connections/con_google_sheet_kishore.connection.json",
+      "zip_name": "RHSC Platform Operation - Release/GAN Dashboard/con_google_sheet_kishore.connection.json",
         "name": "CON|Google sheet|Kishore",
-        "folder": "RHSC Platform Operation - Release/RHSC User Compliance/Connections"
+        "folder": "RHSC Platform Operation - Release/GAN Dashboard"
       }
     }
   ]
