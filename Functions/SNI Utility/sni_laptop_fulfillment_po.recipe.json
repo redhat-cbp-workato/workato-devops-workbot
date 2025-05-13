@@ -1,0 +1,2555 @@
+{
+  "name": "SNI | Laptop Fulfillment - PO",
+  "description": "",
+  "version": 4,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "clock",
+    "name": "scheduled_event",
+    "as": "41051a87",
+    "title": null,
+    "description": "<span class=\"provider\">Trigger</span> every 1 days at <span class=\"provider\">09:00:00 AM</span>",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "time_unit": "Days",
+      "timezone": "America/New_York (-05:00)"
+    },
+    "input": {
+      "time_unit": "days",
+      "trigger_every": "1",
+      "trigger_at": "09:00:00",
+      "timezone": "America/New_York"
+    },
+    "extended_input_schema": [
+      {
+        "control_type": "integer",
+        "default": "5",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Define repeating schedule. Enter whole numbers only.\n                        This field can be set to a minimum of 5 minutes.",
+        "label": "Trigger every",
+        "name": "trigger_every",
+        "optional": false,
+        "suffix": {
+          "text": "days"
+        },
+        "type": "string"
+      },
+      {
+        "change_on_blur": true,
+        "control_type": "time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set a time to schedule the job.",
+        "label": "Trigger at",
+        "name": "trigger_at",
+        "optional": false,
+        "type": "string"
+      },
+      {
+        "control_type": "select",
+        "hint": "Select the timezone to use. Leave it blank to use <b>{{authUser.account_timezone}}</b>",
+        "label": "Timezone",
+        "name": "timezone",
+        "optional": true,
+        "pick_list": "timezone_id_global_pick_list",
+        "pick_list_connection_less": true,
+        "type": "string"
+      },
+      {
+        "control_type": "date_time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set date and time to start or leave blank to start immediately. <b>Once recipe has been run or tested, value cannot be changed.</b>",
+        "label": "Start after",
+        "name": "start_after",
+        "optional": true,
+        "parse_output": "date_time_conversion",
+        "since_field": true,
+        "type": "date_time",
+        "ignore_timezone": true,
+        "render_input": "date_time_conversion"
+      }
+    ],
+    "visible_config_fields": [
+      "time_unit",
+      "trigger_every",
+      "trigger_at",
+      "timezone"
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "6d4fffd5",
+        "title": "  Create variable P_NO_DAYS",
+        "description": "Create variable <span class=\"provider\">P_NO_DAYS</span>",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"name\":\"P_NO_DAYS\",\"type\":\"number\",\"optional\":true,\"label\":\"P_NO_DAYS\",\"details\":{\"real_name\":\"P_NO_DAYS\"},\"control_type\":\"number\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "P_NO_DAYS": "30"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "number",
+            "label": "P_NO_DAYS",
+            "name": "P_NO_DAYS",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "type": "number",
+            "details": {
+              "real_name": "P_NO_DAYS"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "P_NO_DAYS",
+                    "parse_output": "float_conversion",
+                    "name": "P_NO_DAYS",
+                    "type": "number",
+                    "optional": true,
+                    "details": {
+                      "real_name": "P_NO_DAYS"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.P_NO_DAYS"
+        ],
+        "uuid": "3e3c3196-a33f-4934-9501-6d9cf5a82898"
+      },
+      {
+        "number": 2,
+        "provider": "oracle",
+        "name": "search_rows_sql",
+        "as": "888f30b3",
+        "title": "Select rows using custom SQL",
+        "description": "Select <span class=\"provider\">rows</span> using <span class=\"provider\">custom SQL</span> in <span class=\"provider\">Oracle</span>",
+        "keyword": "action",
+        "input": {
+
+          "sql": "--  Code developed by SIPAWAR\n-- Reference code: \"XXRH_ERP_LAPTOP_FULL_PKG\"\nSELECT SNOW_TICKET_NUM,\n             SNOW_BUSINESS_GROUP,\n             OU_NAME,\n             PR_LINE_NUMBER,\n             PR_NUMBER,\n             PR_CREATION_DATE,\n             PR_AMOUNT,\n             PR_CURRENCY,\n             PR_STATUS,\n             PR_DESCRIPTION,\n             PR_COMPANY_CODE,\n             PR_ACCOUNT_CODE,\n             PR_LOCATION_CODE,\n             PR_COST_CENTER,\n             PR_PROJECT_CODE,\n             VENDOR_NAME,\n             PR_APPROVED_BY,\n             APPROVED_DATE,\n             PO_NUMBER,\n             PO_DATE,\n             PO_AMOUNT,\n             RECPT_NUM, \n             RECPT_DATE,\n             RECPT_AMOUNT, \n             INVOICE_NUM,\n             INVOICE_DATE,\n             INVOICE_AMOUNT,\n             INV_CREATION_DATE,\n             INV_PAY_DATE, \n             INV_STATUS \n        FROM (SELECT XXLFS.SNOW_TICKET_NUM,\n                     XXLFS.SNOW_BUSINESS_GROUP,\n                     XXLFS.OU_NAME,\n                     XXLFS.PR_LINE_NUMBER,\n                     XXLFS.PR_NUMBER PR_NUMBER,\n                     TO_CHAR(XXLFS.PR_CREATION_DATE,\n                             'DD-MON-YYYY HH24:MI:SS') PR_CREATION_DATE,\n                     XXLFS.PR_AMOUNT PR_AMOUNT,\n                     XXLFS.PR_CURRENCY PR_CURRENCY,\n                     XXLFS.PR_STATUS PR_STATUS,\n                     TRIM(XXLFS.PR_DESCRIPTION) PR_DESCRIPTION,\n                     XXLFS.PR_COMPANY_CODE PR_COMPANY_CODE,\n                     XXLFS.PR_ACCOUNT_CODE PR_ACCOUNT_CODE,\n                     XXLFS.PR_LOCATION_CODE PR_LOCATION_CODE,\n                     XXLFS.PR_COST_CENTER PR_COST_CENTER,\n                     XXLFS.PR_PROJECT_CODE PR_PROJECT_CODE,\n                     NVL(XXLFS.PR_VENDOR_NAME, XXLFS.PO_VENDOR_NAME) VENDOR_NAME,\n                     XXLFS.PR_APPROVED_BY PR_APPROVED_BY,\n                     TO_CHAR(XXLFS.PR_APPROVED_DATE,\n                             'DD-MON-YYYY HH24:MI:SS') APPROVED_DATE,\n                     XXLFS.PO_NUMBER PO_NUMBER,\n                     TO_CHAR(XXLFS.PO_CREATION_DATE,\n                             'DD-MON-YYYY HH24:MI:SS') PO_DATE,\n                     XXLFS.PO_AMOUNT PO_AMOUNT, -- Added by SAWASTHI for US305536 \n                     XXLFS.RECPT_NUM RECPT_NUM, -- Added by SAWASTHI for US305536\n                     TO_CHAR(XXLFS.RECPT_DATE, 'DD-MON-YYYY HH24:MI:SS') RECPT_DATE, \n                     XXLFS.RECPT_AMOUNT RECPT_AMOUNT,    \n                     XXLFS.INVOICE_NUM INVOICE_NUM,\n                     TO_CHAR(XXLFS.INVOICE_DATE, 'DD-MON-YYYY HH24:MI:SS') INVOICE_DATE,\n                     XXLFS.INVOICE_AMOUNT INVOICE_AMOUNT,\n                     TO_CHAR(XXLFS.INV_CREATION_DATE,\n                             'DD-MON-YYYY HH24:MI:SS') INV_CREATION_DATE,\n                     TO_CHAR(XXLFS.INV_PAY_DATE, 'DD-MON-YYYY HH24:MI:SS') INV_PAY_DATE, \n                     XXLFS.INV_STATUS INV_STATUS         \n                FROM XXRHFIN.XXRHFIN_LAPTOP_FULFILL_SNOW XXLFS\n               WHERE 1 = 1\n                 AND (XXLFS.PR_CREATION_DATE BETWEEN SYSDATE - :P_NO_DAYS AND\n                     SYSDATE OR XXLFS.PR_LAST_UPDATE_DATE BETWEEN\n                     SYSDATE - :P_NO_DAYS AND SYSDATE OR\n                     XXLFS.PO_CREATION_DATE BETWEEN SYSDATE - :P_NO_DAYS AND\n                     SYSDATE OR XXLFS.INV_CREATION_DATE BETWEEN\n                     SYSDATE - :P_NO_DAYS AND SYSDATE)\n                 AND EXISTS (SELECT XXLFS2.REQUISITION_LINE_ID\n                        FROM XXRHFIN.XXRHFIN_LAPTOP_FULFILL_SNOW XXLFS2\n                       WHERE 1 = 1\n                         AND ((XXLFS2.INV_CREATION_DATE BETWEEN\n                             SYSDATE - :P_NO_DAYS AND SYSDATE) OR\n                             XXLFS.INV_CREATION_DATE IS NULL)\n                         AND XXLFS2.REQUISITION_LINE_ID =\n                             XXLFS.REQUISITION_LINE_ID))\n               ORDER BY PR_NUMBER, PR_LINE_NUMBER",
+
+          "limit": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_laptop_fulfillment_po_max_limit\"}')}",
+          "parameters": {
+            "schema": "[{\"name\":\"P_NO_DAYS\",\"type\":\"number\",\"optional\":true,\"label\":\"P_NO_DAYS\",\"details\":{\"real_name\":\"P_NO_DAYS\"},\"control_type\":\"number\"}]",
+            "data": {
+              "P_NO_DAYS": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"6d4fffd5\",\"path\":[\"P_NO_DAYS\"]}')}"
+            }
+          },
+          "output_schema": "[{\"name\":\"SNOW_TICKET_NUM\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"SNOW TICKET NUM\"},{\"name\":\"SNOW_BUSINESS_GROUP\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"SNOW BUSINESS GROUP\"},{\"name\":\"OU_NAME\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"OU NAME\"},{\"name\":\"PR_LINE_NUMBER\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PR LINE NUMBER\"},{\"name\":\"PR_NUMBER\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PR NUMBER\"},{\"name\":\"PR_CREATION_DATE\",\"type\":\"date_time\",\"optional\":false,\"control_type\":\"date\",\"label\":\"PR CREATION DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\"},{\"name\":\"PR_AMOUNT\",\"type\":\"number\",\"optional\":false,\"control_type\":\"number\",\"label\":\"PR AMOUNT\",\"parse_output\":\"float_conversion\"},{\"name\":\"PR_CURRENCY\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PR CURRENCY\"},{\"name\":\"PR_STATUS\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PR STATUS\"},{\"name\":\"PR_DESCRIPTION\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PR DESCRIPTION\"},{\"name\":\"PR_COMPANY_CODE\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PR COMPANY CODE\"},{\"name\":\"PR_ACCOUNT_CODE\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PR ACCOUNT CODE\"},{\"name\":\"PR_LOCATION_CODE\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PR LOCATION CODE\"},{\"name\":\"PR_COST_CENTER\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PR COST CENTER\"},{\"name\":\"PR_PROJECT_CODE\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PR PROJECT CODE\"},{\"name\":\"VENDOR_NAME\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"VENDOR NAME\"},{\"name\":\"PR_APPROVED_BY\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PR APPROVED BY\"},{\"name\":\"APPROVED_DATE\",\"type\":\"date_time\",\"optional\":false,\"control_type\":\"date\",\"label\":\"APPROVED DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\"},{\"name\":\"PO_NUMBER\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PO NUMBER\"},{\"name\":\"PO_DATE\",\"type\":\"date_time\",\"optional\":false,\"control_type\":\"date\",\"label\":\"PO DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\"},{\"name\":\"PO_AMOUNT\",\"type\":\"number\",\"optional\":false,\"control_type\":\"number\",\"label\":\"PO AMOUNT\",\"parse_output\":\"float_conversion\"},{\"name\":\"RECPT_NUM\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"RECPT NUM\"},{\"name\":\"RECPT_DATE\",\"type\":\"date_time\",\"optional\":false,\"control_type\":\"date\",\"label\":\"RECPT DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\"},{\"name\":\"RECPT_AMOUNT\",\"type\":\"number\",\"optional\":false,\"control_type\":\"number\",\"label\":\"RECPT AMOUNT\",\"parse_output\":\"float_conversion\"},{\"name\":\"INVOICE_NUM\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"INVOICE NUM\"},{\"name\":\"INVOICE_DATE\",\"type\":\"date_time\",\"optional\":false,\"control_type\":\"date\",\"label\":\"INVOICE DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\"},{\"name\":\"INVOICE_AMOUNT\",\"type\":\"number\",\"optional\":false,\"control_type\":\"number\",\"label\":\"INVOICE AMOUNT\",\"parse_output\":\"float_conversion\"},{\"name\":\"INV_CREATION_DATE\",\"type\":\"date_time\",\"optional\":false,\"control_type\":\"date\",\"label\":\"INV CREATION DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\"},{\"name\":\"INV_PAY_DATE\",\"type\":\"date_time\",\"optional\":false,\"control_type\":\"date\",\"label\":\"INV PAY DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\"},{\"name\":\"INV_STATUS\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"INV STATUS\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Rows",
+            "name": "rows",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "SNOW_TICKET_NUM",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "SNOW_TICKET_NUM",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "snow_ticket_num"
+              },
+              {
+                "control_type": "text",
+                "label": "SNOW_BUSINESS_GROUP",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "SNOW_BUSINESS_GROUP",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "snow_business_group"
+              },
+              {
+                "control_type": "text",
+                "label": "OU_NAME",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "OU_NAME",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "ou_name"
+              },
+              {
+                "control_type": "text",
+                "label": "PR_LINE_NUMBER",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "PR_LINE_NUMBER",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "pr_line_number"
+              },
+              {
+                "control_type": "text",
+                "label": "PR_NUMBER",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "PR_NUMBER",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "pr_number"
+              },
+              {
+                "control_type": "text",
+                "label": "PR_CREATION_DATE",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "date_time",
+                  "column_name": "PR_CREATION_DATE",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "date_time",
+                "optional": true,
+                "type": "string",
+                "name": "pr_creation_date"
+              },
+              {
+                "control_type": "number",
+                "label": "PR_AMOUNT",
+                "parse_output": "parse_numeric_output",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "number",
+                  "column_name": "PR_AMOUNT",
+                  "length": null,
+                  "precision": null,
+                  "scale": 1,
+                  "element_type": null
+                },
+                "hint": "number",
+                "optional": true,
+                "type": "number",
+                "name": "pr_amount"
+              },
+              {
+                "control_type": "text",
+                "label": "PR_CURRENCY",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "PR_CURRENCY",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "pr_currency"
+              },
+              {
+                "control_type": "text",
+                "label": "PR_STATUS",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "PR_STATUS",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "pr_status"
+              },
+              {
+                "control_type": "text",
+                "label": "PR_DESCRIPTION",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "PR_DESCRIPTION",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "pr_description"
+              },
+              {
+                "control_type": "text",
+                "label": "PR_COMPANY_CODE",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "PR_COMPANY_CODE",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "pr_company_code"
+              },
+              {
+                "control_type": "text",
+                "label": "PR_ACCOUNT_CODE",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "PR_ACCOUNT_CODE",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "pr_account_code"
+              },
+              {
+                "control_type": "text",
+                "label": "PR_LOCATION_CODE",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "PR_LOCATION_CODE",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "pr_location_code"
+              },
+              {
+                "control_type": "text",
+                "label": "PR_COST_CENTER",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "PR_COST_CENTER",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "pr_cost_center"
+              },
+              {
+                "control_type": "text",
+                "label": "PR_PROJECT_CODE",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "PR_PROJECT_CODE",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "pr_project_code"
+              },
+              {
+                "control_type": "text",
+                "label": "VENDOR_NAME",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "VENDOR_NAME",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "vendor_name"
+              },
+              {
+                "control_type": "text",
+                "label": "PR_APPROVED_BY",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "PR_APPROVED_BY",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "pr_approved_by"
+              },
+              {
+                "control_type": "text",
+                "label": "APPROVED_DATE",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "date_time",
+                  "column_name": "APPROVED_DATE",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "date_time",
+                "optional": true,
+                "type": "string",
+                "name": "approved_date"
+              },
+              {
+                "control_type": "text",
+                "label": "PO_NUMBER",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "PO_NUMBER",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "po_number"
+              },
+              {
+                "control_type": "text",
+                "label": "PO_DATE",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "date_time",
+                  "column_name": "PO_DATE",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "date_time",
+                "optional": true,
+                "type": "string",
+                "name": "po_date"
+              },
+              {
+                "control_type": "number",
+                "label": "PO_AMOUNT",
+                "parse_output": "parse_numeric_output",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "number",
+                  "column_name": "PO_AMOUNT",
+                  "length": null,
+                  "precision": null,
+                  "scale": 1,
+                  "element_type": null
+                },
+                "hint": "number",
+                "optional": true,
+                "type": "number",
+                "name": "po_amount"
+              },
+              {
+                "control_type": "text",
+                "label": "RECPT_NUM",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "RECPT_NUM",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "recpt_num"
+              },
+              {
+                "control_type": "text",
+                "label": "RECPT_DATE",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "date_time",
+                  "column_name": "RECPT_DATE",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "date_time",
+                "optional": true,
+                "type": "string",
+                "name": "recpt_date"
+              },
+              {
+                "control_type": "number",
+                "label": "RECPT_AMOUNT",
+                "parse_output": "parse_numeric_output",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "number",
+                  "column_name": "RECPT_AMOUNT",
+                  "length": null,
+                  "precision": null,
+                  "scale": 1,
+                  "element_type": null
+                },
+                "hint": "number",
+                "optional": true,
+                "type": "number",
+                "name": "recpt_amount"
+              },
+              {
+                "control_type": "text",
+                "label": "INVOICE_NUM",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "INVOICE_NUM",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "invoice_num"
+              },
+              {
+                "control_type": "text",
+                "label": "INVOICE_DATE",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "date_time",
+                  "column_name": "INVOICE_DATE",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "date_time",
+                "optional": true,
+                "type": "string",
+                "name": "invoice_date"
+              },
+              {
+                "control_type": "number",
+                "label": "INVOICE_AMOUNT",
+                "parse_output": "parse_numeric_output",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "number",
+                  "column_name": "INVOICE_AMOUNT",
+                  "length": null,
+                  "precision": null,
+                  "scale": 1,
+                  "element_type": null
+                },
+                "hint": "number",
+                "optional": true,
+                "type": "number",
+                "name": "invoice_amount"
+              },
+              {
+                "control_type": "text",
+                "label": "INV_CREATION_DATE",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "date_time",
+                  "column_name": "INV_CREATION_DATE",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "date_time",
+                "optional": true,
+                "type": "string",
+                "name": "inv_creation_date"
+              },
+              {
+                "control_type": "text",
+                "label": "INV_PAY_DATE",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "date_time",
+                  "column_name": "INV_PAY_DATE",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "date_time",
+                "optional": true,
+                "type": "string",
+                "name": "inv_pay_date"
+              },
+              {
+                "control_type": "text",
+                "label": "INV_STATUS",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "INV_STATUS",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "inv_status"
+              }
+            ],
+            "type": "array",
+            "order_by_hint": false
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "form-schema-builder",
+            "hint": "First provide the full name assigned to your bind variable in the WHERE condition. e.g. <b>id</b>\n                    Second, provide the actual parameter value. Parameter values can be static or datapills.\n                    Select the <b>closest corresponding data type</b> that your database is expecting for the bind variable\n                    ",
+            "label": "Parameters",
+            "name": "parameters",
+            "optional": true,
+            "override": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "P_NO_DAYS",
+                    "parse_output": "float_conversion",
+                    "name": "P_NO_DAYS",
+                    "type": "number",
+                    "optional": true,
+                    "details": {
+                      "real_name": "P_NO_DAYS"
+                    }
+                  }
+                ],
+                "label": "Data",
+                "optional": true,
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "sticky": true,
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "sql",
+          "parameters",
+          "limit",
+          "parameters.data.P_NO_DAYS",
+          "parameters.schema",
+          "parameters.data",
+          "output_schema"
+        ],
+        "uuid": "486ba5ab-2f3c-44e7-a7d9-86d56b7c70f4",
+        "skip": false
+      },
+      {
+        "number": 3,
+        "provider": "workato_variable",
+        "name": "declare_list",
+        "as": "3c682cef",
+        "title": " Create Error List list",
+        "description": "Create <span class=\"provider\">Error List</span> list",
+        "keyword": "action",
+        "input": {
+          "name": "Error List",
+          "list_item_schema_json": "[{\"control_type\":\"text\",\"label\":\"SNOW TICKET NUM\",\"name\":\"SNOW_TICKET_NUM\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"SNOW BUSINESS GROUP\",\"name\":\"SNOW_BUSINESS_GROUP\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"OU NAME\",\"name\":\"OU_NAME\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"PR LINE NUMBER\",\"name\":\"PR_LINE_NUMBER\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"PR NUMBER\",\"name\":\"PR_NUMBER\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"date\",\"label\":\"PR CREATION DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\",\"name\":\"PR_CREATION_DATE\",\"type\":\"date_time\",\"optional\":false},{\"control_type\":\"number\",\"label\":\"PR AMOUNT\",\"parse_output\":\"float_conversion\",\"name\":\"PR_AMOUNT\",\"type\":\"number\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"PR CURRENCY\",\"name\":\"PR_CURRENCY\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"PR STATUS\",\"name\":\"PR_STATUS\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"PR DESCRIPTION\",\"name\":\"PR_DESCRIPTION\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"PR COMPANY CODE\",\"name\":\"PR_COMPANY_CODE\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"PR ACCOUNT CODE\",\"name\":\"PR_ACCOUNT_CODE\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"PR LOCATION CODE\",\"name\":\"PR_LOCATION_CODE\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"PR COST CENTER\",\"name\":\"PR_COST_CENTER\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"PR PROJECT CODE\",\"name\":\"PR_PROJECT_CODE\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"VENDOR NAME\",\"name\":\"VENDOR_NAME\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"PR APPROVED BY\",\"name\":\"PR_APPROVED_BY\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"date\",\"label\":\"APPROVED DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\",\"name\":\"APPROVED_DATE\",\"type\":\"date_time\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"PO NUMBER\",\"name\":\"PO_NUMBER\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"date\",\"label\":\"PO DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\",\"name\":\"PO_DATE\",\"type\":\"date_time\",\"optional\":false},{\"control_type\":\"number\",\"label\":\"PO AMOUNT\",\"parse_output\":\"float_conversion\",\"name\":\"PO_AMOUNT\",\"type\":\"number\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"RECPT NUM\",\"name\":\"RECPT_NUM\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"date\",\"label\":\"RECPT DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\",\"name\":\"RECPT_DATE\",\"type\":\"date_time\",\"optional\":false},{\"control_type\":\"number\",\"label\":\"RECPT AMOUNT\",\"parse_output\":\"float_conversion\",\"name\":\"RECPT_AMOUNT\",\"type\":\"number\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"INVOICE NUM\",\"name\":\"INVOICE_NUM\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"date\",\"label\":\"INVOICE DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\",\"name\":\"INVOICE_DATE\",\"type\":\"date_time\",\"optional\":false},{\"control_type\":\"number\",\"label\":\"INVOICE AMOUNT\",\"parse_output\":\"float_conversion\",\"name\":\"INVOICE_AMOUNT\",\"type\":\"number\",\"optional\":false},{\"control_type\":\"date\",\"label\":\"INV CREATION DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\",\"name\":\"INV_CREATION_DATE\",\"type\":\"date_time\",\"optional\":false},{\"control_type\":\"date\",\"label\":\"INV PAY DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\",\"name\":\"INV_PAY_DATE\",\"type\":\"date_time\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"INV STATUS\",\"name\":\"INV_STATUS\",\"type\":\"string\",\"optional\":false}]",
+          "list_items": {
+            "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\"]}')}",
+            "SNOW_TICKET_NUM": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"snow_ticket_num\"]}')}",
+            "SNOW_BUSINESS_GROUP": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"snow_business_group\"]}')}",
+            "OU_NAME": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"ou_name\"]}')}",
+            "PR_LINE_NUMBER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"pr_line_number\"]}')}",
+            "PR_NUMBER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"pr_number\"]}')}",
+            "PR_CREATION_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"pr_creation_date\"]}')}",
+            "PR_AMOUNT": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"pr_amount\"]}')}",
+            "PR_CURRENCY": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"pr_currency\"]}')}",
+            "PR_STATUS": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"pr_status\"]}')}",
+            "PR_DESCRIPTION": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"pr_description\"]}')}",
+            "PR_COMPANY_CODE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"pr_company_code\"]}')}",
+            "PR_ACCOUNT_CODE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"pr_account_code\"]}')}",
+            "PR_LOCATION_CODE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"pr_location_code\"]}')}",
+            "PR_COST_CENTER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"pr_cost_center\"]}')}",
+            "PR_PROJECT_CODE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"pr_project_code\"]}')}",
+            "VENDOR_NAME": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"vendor_name\"]}')}",
+            "PR_APPROVED_BY": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"pr_approved_by\"]}')}",
+            "APPROVED_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"approved_date\"]}')}",
+            "PO_NUMBER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"po_number\"]}')}",
+            "PO_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"po_date\"]}')}",
+            "PO_AMOUNT": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"po_amount\"]}')}",
+            "RECPT_NUM": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"recpt_num\"]}')}",
+            "RECPT_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"recpt_date\"]}')}",
+            "RECPT_AMOUNT": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"recpt_amount\"]}')}",
+            "INVOICE_NUM": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"invoice_num\"]}')}",
+            "INVOICE_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"invoice_date\"]}')}",
+            "INVOICE_AMOUNT": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"invoice_amount\"]}')}",
+            "INV_CREATION_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"inv_creation_date\"]}')}",
+            "INV_PAY_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"inv_pay_date\"]}')}",
+            "INV_STATUS": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"inv_status\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "hint": "",
+            "label": "Error List",
+            "name": "list_items",
+            "of": "object",
+            "optional": false,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "SNOW TICKET NUM",
+                "name": "SNOW_TICKET_NUM",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "SNOW BUSINESS GROUP",
+                "name": "SNOW_BUSINESS_GROUP",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "OU NAME",
+                "name": "OU_NAME",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR LINE NUMBER",
+                "name": "PR_LINE_NUMBER",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR NUMBER",
+                "name": "PR_NUMBER",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "PR CREATION DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "PR_CREATION_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "number",
+                "label": "PR AMOUNT",
+                "parse_output": "float_conversion",
+                "name": "PR_AMOUNT",
+                "type": "number",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR CURRENCY",
+                "name": "PR_CURRENCY",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR STATUS",
+                "name": "PR_STATUS",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR DESCRIPTION",
+                "name": "PR_DESCRIPTION",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR COMPANY CODE",
+                "name": "PR_COMPANY_CODE",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR ACCOUNT CODE",
+                "name": "PR_ACCOUNT_CODE",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR LOCATION CODE",
+                "name": "PR_LOCATION_CODE",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR COST CENTER",
+                "name": "PR_COST_CENTER",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR PROJECT CODE",
+                "name": "PR_PROJECT_CODE",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "VENDOR NAME",
+                "name": "VENDOR_NAME",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR APPROVED BY",
+                "name": "PR_APPROVED_BY",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "APPROVED DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "APPROVED_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PO NUMBER",
+                "name": "PO_NUMBER",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "PO DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "PO_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "number",
+                "label": "PO AMOUNT",
+                "parse_output": "float_conversion",
+                "name": "PO_AMOUNT",
+                "type": "number",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "RECPT NUM",
+                "name": "RECPT_NUM",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "RECPT DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "RECPT_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "number",
+                "label": "RECPT AMOUNT",
+                "parse_output": "float_conversion",
+                "name": "RECPT_AMOUNT",
+                "type": "number",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "INVOICE NUM",
+                "name": "INVOICE_NUM",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "INVOICE DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "INVOICE_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "number",
+                "label": "INVOICE AMOUNT",
+                "parse_output": "float_conversion",
+                "name": "INVOICE_AMOUNT",
+                "type": "number",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "INV CREATION DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "INV_CREATION_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "INV PAY DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "INV_PAY_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "INV STATUS",
+                "name": "INV_STATUS",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Set the initial items in the list. Defaults to an empty list if not supplied.",
+            "label": "Items",
+            "name": "list_items",
+            "of": "object",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "SNOW TICKET NUM",
+                "name": "SNOW_TICKET_NUM",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "SNOW BUSINESS GROUP",
+                "name": "SNOW_BUSINESS_GROUP",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "OU NAME",
+                "name": "OU_NAME",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR LINE NUMBER",
+                "name": "PR_LINE_NUMBER",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR NUMBER",
+                "name": "PR_NUMBER",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "PR CREATION DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "PR_CREATION_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "number",
+                "label": "PR AMOUNT",
+                "parse_output": "float_conversion",
+                "name": "PR_AMOUNT",
+                "type": "number",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR CURRENCY",
+                "name": "PR_CURRENCY",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR STATUS",
+                "name": "PR_STATUS",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR DESCRIPTION",
+                "name": "PR_DESCRIPTION",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR COMPANY CODE",
+                "name": "PR_COMPANY_CODE",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR ACCOUNT CODE",
+                "name": "PR_ACCOUNT_CODE",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR LOCATION CODE",
+                "name": "PR_LOCATION_CODE",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR COST CENTER",
+                "name": "PR_COST_CENTER",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR PROJECT CODE",
+                "name": "PR_PROJECT_CODE",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "VENDOR NAME",
+                "name": "VENDOR_NAME",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR APPROVED BY",
+                "name": "PR_APPROVED_BY",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "APPROVED DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "APPROVED_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PO NUMBER",
+                "name": "PO_NUMBER",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "PO DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "PO_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "number",
+                "label": "PO AMOUNT",
+                "parse_output": "float_conversion",
+                "name": "PO_AMOUNT",
+                "type": "number",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "RECPT NUM",
+                "name": "RECPT_NUM",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "RECPT DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "RECPT_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "number",
+                "label": "RECPT AMOUNT",
+                "parse_output": "float_conversion",
+                "name": "RECPT_AMOUNT",
+                "type": "number",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "INVOICE NUM",
+                "name": "INVOICE_NUM",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "INVOICE DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "INVOICE_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "number",
+                "label": "INVOICE AMOUNT",
+                "parse_output": "float_conversion",
+                "name": "INVOICE_AMOUNT",
+                "type": "number",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "INV CREATION DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "INV_CREATION_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "INV PAY DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "INV_PAY_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "INV STATUS",
+                "name": "INV_STATUS",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "uuid": "e318f16e-7a12-49bf-ada8-2ec15aea7f01"
+      },
+      {
+        "number": 4,
+        "as": "08d6aeee",
+        "keyword": "foreach",
+        "repeat_mode": "simple",
+        "clear_scope": "false",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 5,
+            "keyword": "try",
+            "input": {
+            },
+            "block": [
+              {
+                "number": 6,
+                "provider": "service_now",
+                "name": "create_object",
+                "as": "582d0d2d",
+                "title": "Create record in u_oracle_pr_import ",
+                "description": "Create <span class=\"provider\">record</span> in <span class=\"provider\">u_oracle_pr_import</span> table  in <span class=\"provider\">ServiceNow</span>",
+                "keyword": "action",
+                "toggleCfg": {
+                  "table": false
+                },
+                "input": {
+                  "table": "u_oracle_pr_import",
+                  "row": {
+                    "u_account_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_account_code\"]}')}",
+                    "u_company_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_company_code\"]}')}",
+                    "u_cost_center": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_cost_center\"]}')}",
+                    "u_currency": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_currency\"]}')}",
+                    "u_description": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_description\"]}')}",
+                    "u_invoice_amount": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"invoice_amount\"]}')}",
+                    "u_invoice_creation_date": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"inv_creation_date\"]}')}",
+                    "u_invoice_date": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"invoice_date\"]}')}",
+                    "u_invoice_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"invoice_num\"]}')}",
+                    "u_invoice_payment_date": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"inv_pay_date\"]}')}",
+                    "u_invoice_status": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"inv_status\"]}')}",
+                    "u_location_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_location_code\"]}')}",
+                    "u_ou_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"ou_name\"]}')}",
+                    "u_po_amount": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"po_amount\"]}')}",
+                    "u_po_creation_date": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"po_date\"]}')}",
+                    "u_po_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"po_number\"]}')}",
+                    "u_project_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_project_code\"]}')}",
+                    "u_pr_approved_by": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_approved_by\"]}')}",
+                    "u_pr_approved_date": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"approved_date\"]}')}",
+                    "u_pr_creation_date": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_creation_date\"]}')}",
+                    "u_pr_line_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_line_number\"]}')}",
+                    "u_pr_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_number\"]}')}",
+                    "u_pr_status": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_status\"]}')}",
+                    "u_receipt_amount": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"recpt_amount\"]}')}",
+                    "u_receipt_date": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"recpt_date\"]}')}",
+                    "u_receipt_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"recpt_num\"]}')}",
+                    "u_service_now_ticket_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"snow_ticket_num\"]}')}",
+                    "u_vendor_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"vendor_name\"]}')}"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Sys ID",
+                    "name": "sys_id",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Account Code",
+                    "name": "u_account_code",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Amount $",
+                    "name": "u_amount__",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Business Group",
+                    "name": "u_business_group",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Company Code",
+                    "name": "u_company_code",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Cost Center",
+                    "name": "u_cost_center",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Currency",
+                    "name": "u_currency",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Description",
+                    "name": "u_description",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Invoice Amount",
+                    "name": "u_invoice_amount",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Invoice Creation Date",
+                    "name": "u_invoice_creation_date",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Invoice Date",
+                    "name": "u_invoice_date",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Invoice Number",
+                    "name": "u_invoice_number",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Invoice Payment date",
+                    "name": "u_invoice_payment_date",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Invoice Status",
+                    "name": "u_invoice_status",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Location Code",
+                    "name": "u_location_code",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "OU Name",
+                    "name": "u_ou_name",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "PO Amount",
+                    "name": "u_po_amount",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "PO Creation Date",
+                    "name": "u_po_creation_date",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "PO number",
+                    "name": "u_po_number",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Project Code",
+                    "name": "u_project_code",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "PR Approved by",
+                    "name": "u_pr_approved_by",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "PR Approved Date",
+                    "name": "u_pr_approved_date",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "PR Creation Date",
+                    "name": "u_pr_creation_date",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "PR Line Number",
+                    "name": "u_pr_line_number",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "PR Number",
+                    "name": "u_pr_number",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "PR Status",
+                    "name": "u_pr_status",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Receipt Amount",
+                    "name": "u_receipt_amount",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Receipt Date",
+                    "name": "u_receipt_date",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Receipt Number",
+                    "name": "u_receipt_number",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Service Now Ticket Number",
+                    "name": "u_service_now_ticket_number",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Vendor Name",
+                    "name": "u_vendor_name",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "custom": false,
+                    "label": "Import set run",
+                    "name": "import_set_run",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "url",
+                        "label": "Link",
+                        "optional": true,
+                        "type": "string",
+                        "name": "link"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "optional": true,
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Type",
+                    "name": "sys_class_name",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Created by",
+                    "name": "sys_created_by",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Created",
+                    "name": "sys_created_on",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Row",
+                    "name": "sys_import_row",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "custom": false,
+                    "label": "Set",
+                    "name": "sys_import_set",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "url",
+                        "label": "Link",
+                        "optional": true,
+                        "type": "string",
+                        "name": "link"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "optional": true,
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "State",
+                    "name": "sys_import_state",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Comment",
+                    "name": "sys_import_state_comment",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Updates",
+                    "name": "sys_mod_count",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "custom": false,
+                    "label": "Error",
+                    "name": "sys_row_error",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "url",
+                        "label": "Link",
+                        "optional": true,
+                        "type": "string",
+                        "name": "link"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "optional": true,
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Target record",
+                    "name": "sys_target_sys_id",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Target table",
+                    "name": "sys_target_table",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "custom": false,
+                    "label": "Transform Map",
+                    "name": "sys_transform_map",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "url",
+                        "label": "Link",
+                        "optional": true,
+                        "type": "string",
+                        "name": "link"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "optional": true,
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Updated by",
+                    "name": "sys_updated_by",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Updated",
+                    "name": "sys_updated_on",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "custom": false,
+                    "label": "Template Import Log",
+                    "name": "template_import_log",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "url",
+                        "label": "Link",
+                        "optional": true,
+                        "type": "string",
+                        "name": "link"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "optional": true,
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "New record values",
+                    "name": "row",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Account Code",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_account_code"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Amount $",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_amount__"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Company Code",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_company_code"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Cost Center",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_cost_center"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Currency",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_currency"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Description",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_description"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Invoice Amount",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_invoice_amount"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Invoice Creation Date",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_invoice_creation_date"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Invoice Date",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_invoice_date"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Invoice Number",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_invoice_number"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Invoice Payment date",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_invoice_payment_date"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Invoice Status",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_invoice_status"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Location Code",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_location_code"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "OU Name",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_ou_name"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PO Amount",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_po_amount"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PO Creation Date",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_po_creation_date"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PO number",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_po_number"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Project Code",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_project_code"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PR Approved by",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_pr_approved_by"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PR Approved Date",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_pr_approved_date"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PR Creation Date",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_pr_creation_date"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PR Line Number",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_pr_line_number"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PR Number",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_pr_number"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PR Status",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_pr_status"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Receipt Amount",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_receipt_amount"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Receipt Date",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_receipt_date"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Receipt Number",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_receipt_number"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Service Now Ticket Number",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_service_now_ticket_number"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Vendor Name",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_vendor_name"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Import set run",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "import_set_run"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Type",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_class_name"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Created by",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_created_by"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Created",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_created_on"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Row",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_import_row"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Set",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_import_set"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "State",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_import_state"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Comment",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_import_state_comment"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Updates",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_mod_count"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_row_error"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Target record",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_target_sys_id"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Target table",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_target_table"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Transform Map",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_transform_map"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Updated by",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_updated_by"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Updated",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_updated_on"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Template Import Log",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "template_import_log"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "table",
+                  "row.u_vendor_name",
+                  "row.u_service_now_ticket_number",
+                  "row.u_receipt_number",
+                  "row.u_receipt_date",
+                  "row.u_receipt_amount",
+                  "row.u_pr_status",
+                  "row.u_pr_number",
+                  "row.u_pr_line_number",
+                  "row.u_pr_creation_date",
+                  "row.u_pr_approved_date",
+                  "row.u_pr_approved_by",
+                  "row.u_project_code",
+                  "row.u_po_number",
+                  "row.u_po_creation_date",
+                  "row.u_po_amount",
+                  "row.u_ou_name",
+                  "row.u_location_code",
+                  "row.u_invoice_status",
+                  "row.u_invoice_payment_date",
+                  "row.u_invoice_number",
+                  "row.u_invoice_date",
+                  "row.u_invoice_creation_date",
+                  "row.u_invoice_amount",
+                  "row.u_description",
+                  "row.u_currency",
+                  "row.u_cost_center",
+                  "row.u_company_code",
+                  "row.u_amount__",
+                  "row.u_account_code"
+                ],
+                "uuid": "28ebd101-51d4-419c-82e7-16d98aa79f29",
+                "skip": false
+              },
+              {
+                "number": 7,
+                "as": "4ef0e145",
+                "keyword": "catch",
+                "input": {
+                  "max_retry_count": "0",
+                  "retry_interval": "2"
+                },
+                "block": [
+                  {
+                    "number": 8,
+                    "provider": "workato_variable",
+                    "name": "insert_to_list_batch",
+                    "as": "c546fa23",
+                    "title": "Add items to Error List list",
+                    "description": "Add <span class=\"provider\">items</span> to <span class=\"provider\">Error List</span> list",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": "Error List (step 4)"
+                    },
+                    "input": {
+                      "location": "end",
+                      "name": "e318f16e-7a12-49bf-ada8-2ec15aea7f01:3c682cef",
+                      "list_items": {
+                        "SNOW_TICKET_NUM": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"snow_ticket_num\"]}')}",
+                        "SNOW_BUSINESS_GROUP": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"snow_business_group\"]}')}",
+                        "OU_NAME": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"ou_name\"]}')}",
+                        "PR_LINE_NUMBER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_line_number\"]}')}",
+                        "PR_NUMBER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_number\"]}')}",
+                        "PR_CREATION_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_creation_date\"]}')}",
+                        "PR_AMOUNT": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_amount\"]}')}",
+                        "PR_CURRENCY": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_currency\"]}')}",
+                        "PR_STATUS": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_status\"]}')}",
+                        "PR_DESCRIPTION": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_description\"]}')}",
+                        "PR_COMPANY_CODE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_company_code\"]}')}",
+                        "PR_ACCOUNT_CODE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_account_code\"]}')}",
+                        "PR_LOCATION_CODE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_location_code\"]}')}",
+                        "PR_COST_CENTER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_cost_center\"]}')}",
+                        "PR_PROJECT_CODE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_project_code\"]}')}",
+                        "VENDOR_NAME": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"vendor_name\"]}')}",
+                        "PR_APPROVED_BY": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_approved_by\"]}')}",
+                        "APPROVED_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"approved_date\"]}')}",
+                        "PO_NUMBER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"po_number\"]}')}",
+                        "PO_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"po_date\"]}')}",
+                        "PO_AMOUNT": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"po_amount\"]}')}",
+                        "RECPT_NUM": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"recpt_num\"]}')}",
+                        "RECPT_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"recpt_date\"]}')}",
+                        "RECPT_AMOUNT": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"recpt_amount\"]}')}",
+                        "INVOICE_NUM": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"invoice_num\"]}')}",
+                        "INVOICE_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"invoice_date\"]}')}",
+                        "INVOICE_AMOUNT": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"invoice_amount\"]}')}",
+                        "INV_CREATION_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"inv_creation_date\"]}')}",
+                        "INV_PAY_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"inv_pay_date\"]}')}",
+                        "INV_STATUS": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"inv_status\"]}')}"
+                      }
+                    },
+                    "extended_input_schema": [
+                      {
+                        "hint": "",
+                        "label": "List items",
+                        "name": "list_items",
+                        "of": "object",
+                        "optional": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "SNOW TICKET NUM",
+                            "name": "SNOW_TICKET_NUM",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "SNOW BUSINESS GROUP",
+                            "name": "SNOW_BUSINESS_GROUP",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "OU NAME",
+                            "name": "OU_NAME",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "PR LINE NUMBER",
+                            "name": "PR_LINE_NUMBER",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "PR NUMBER",
+                            "name": "PR_NUMBER",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "date",
+                            "label": "PR CREATION DATE",
+                            "render_input": "date_conversion",
+                            "parse_output": "date_conversion",
+                            "name": "PR_CREATION_DATE",
+                            "type": "date_time",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "PR AMOUNT",
+                            "parse_output": "float_conversion",
+                            "name": "PR_AMOUNT",
+                            "type": "number",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "PR CURRENCY",
+                            "name": "PR_CURRENCY",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "PR STATUS",
+                            "name": "PR_STATUS",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "PR DESCRIPTION",
+                            "name": "PR_DESCRIPTION",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "PR COMPANY CODE",
+                            "name": "PR_COMPANY_CODE",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "PR ACCOUNT CODE",
+                            "name": "PR_ACCOUNT_CODE",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "PR LOCATION CODE",
+                            "name": "PR_LOCATION_CODE",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "PR COST CENTER",
+                            "name": "PR_COST_CENTER",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "PR PROJECT CODE",
+                            "name": "PR_PROJECT_CODE",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "VENDOR NAME",
+                            "name": "VENDOR_NAME",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "PR APPROVED BY",
+                            "name": "PR_APPROVED_BY",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "date",
+                            "label": "APPROVED DATE",
+                            "render_input": "date_conversion",
+                            "parse_output": "date_conversion",
+                            "name": "APPROVED_DATE",
+                            "type": "date_time",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "PO NUMBER",
+                            "name": "PO_NUMBER",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "date",
+                            "label": "PO DATE",
+                            "render_input": "date_conversion",
+                            "parse_output": "date_conversion",
+                            "name": "PO_DATE",
+                            "type": "date_time",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "PO AMOUNT",
+                            "parse_output": "float_conversion",
+                            "name": "PO_AMOUNT",
+                            "type": "number",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "RECPT NUM",
+                            "name": "RECPT_NUM",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "date",
+                            "label": "RECPT DATE",
+                            "render_input": "date_conversion",
+                            "parse_output": "date_conversion",
+                            "name": "RECPT_DATE",
+                            "type": "date_time",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "RECPT AMOUNT",
+                            "parse_output": "float_conversion",
+                            "name": "RECPT_AMOUNT",
+                            "type": "number",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "INVOICE NUM",
+                            "name": "INVOICE_NUM",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "date",
+                            "label": "INVOICE DATE",
+                            "render_input": "date_conversion",
+                            "parse_output": "date_conversion",
+                            "name": "INVOICE_DATE",
+                            "type": "date_time",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "INVOICE AMOUNT",
+                            "parse_output": "float_conversion",
+                            "name": "INVOICE_AMOUNT",
+                            "type": "number",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "date",
+                            "label": "INV CREATION DATE",
+                            "render_input": "date_conversion",
+                            "parse_output": "date_conversion",
+                            "name": "INV_CREATION_DATE",
+                            "type": "date_time",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "date",
+                            "label": "INV PAY DATE",
+                            "render_input": "date_conversion",
+                            "parse_output": "date_conversion",
+                            "name": "INV_PAY_DATE",
+                            "type": "date_time",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "INV STATUS",
+                            "name": "INV_STATUS",
+                            "type": "string",
+                            "optional": false
+                          }
+                        ],
+                        "type": "array"
+                      }
+                    ],
+                    "uuid": "f0f22ef7-7d46-40e4-8305-454667374554"
+                  }
+                ],
+                "uuid": "5ba5f14e-23e4-49b5-8c52-7a1d4b1490ab"
+              }
+            ],
+            "uuid": "79ebee30-9ac7-4cf3-a02d-31c4785549fa"
+          }
+        ],
+        "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\"]}')}",
+        "uuid": "d070715c-c160-4336-98a7-982fd6f82df1"
+      }
+    ],
+    "uuid": "6e8b87ee-d5bc-4342-bd0e-c610b6b024a4",
+    "unfinished": false
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "oracle",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/s2p_con_finsig.connection.json",
+        "name": "S2P | CON | FINSIG",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "service_now",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/s2p_con_snow_traditional.connection.json",
+        "name": "S2P | CON | SNOW Traditional",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
