@@ -1,0 +1,1545 @@
+{
+  "name": "SNI | Laptop Fulfillment - FA",
+  "description": "",
+
+  "version": 4,
+
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "clock",
+    "name": "scheduled_event",
+    "as": "41051a87",
+    "title": null,
+    "description": "<span class=\"provider\">Trigger</span> every 1 days at <span class=\"provider\">09:00:00 AM</span>",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "time_unit": "Days",
+      "timezone": "America/New_York (-05:00)"
+    },
+    "input": {
+      "time_unit": "days",
+      "trigger_every": "1",
+      "trigger_at": "09:00:00",
+      "timezone": "America/New_York"
+    },
+    "extended_input_schema": [
+      {
+        "control_type": "integer",
+        "default": "5",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Define repeating schedule. Enter whole numbers only.\n                        This field can be set to a minimum of 5 minutes.",
+        "label": "Trigger every",
+        "name": "trigger_every",
+        "optional": false,
+        "suffix": {
+          "text": "days"
+        },
+        "type": "string"
+      },
+      {
+        "change_on_blur": true,
+        "control_type": "time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set a time to schedule the job.",
+        "label": "Trigger at",
+        "name": "trigger_at",
+        "optional": false,
+        "type": "string"
+      },
+      {
+        "control_type": "select",
+        "hint": "Select the timezone to use. Leave it blank to use <b>{{authUser.account_timezone}}</b>",
+        "label": "Timezone",
+        "name": "timezone",
+        "optional": true,
+        "pick_list": "timezone_id_global_pick_list",
+        "pick_list_connection_less": true,
+        "type": "string"
+      },
+      {
+        "control_type": "date_time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set date and time to start or leave blank to start immediately. <b>Once recipe has been run or tested, value cannot be changed.</b>",
+        "label": "Start after",
+        "name": "start_after",
+        "optional": true,
+        "parse_output": "date_time_conversion",
+        "since_field": true,
+        "type": "date_time",
+        "ignore_timezone": true,
+        "render_input": "date_time_conversion"
+      }
+    ],
+    "visible_config_fields": [
+      "time_unit",
+      "trigger_every",
+      "trigger_at",
+      "timezone"
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "6d4fffd5",
+        "title": "  Create variable P_NO_DAYS",
+        "description": "Create variable <span class=\"provider\">P_NO_DAYS</span>",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"name\":\"P_NO_DAYS\",\"type\":\"number\",\"optional\":true,\"label\":\"P_NO_DAYS\",\"details\":{\"real_name\":\"P_NO_DAYS\"},\"control_type\":\"number\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+
+              "P_NO_DAYS": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_sni_days_max_limit\"}')}"
+
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "number",
+            "label": "P_NO_DAYS",
+            "name": "P_NO_DAYS",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "type": "number",
+            "details": {
+              "real_name": "P_NO_DAYS"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "P_NO_DAYS",
+                    "parse_output": "float_conversion",
+                    "name": "P_NO_DAYS",
+                    "type": "number",
+                    "optional": true,
+                    "details": {
+                      "real_name": "P_NO_DAYS"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.P_NO_DAYS"
+        ],
+        "uuid": "3e3c3196-a33f-4934-9501-6d9cf5a82898"
+      },
+      {
+        "number": 2,
+        "provider": "oracle",
+        "name": "search_rows_sql",
+        "as": "888f30b3",
+        "title": "Select rows using custom SQL",
+        "description": "Select <span class=\"provider\">rows</span> using <span class=\"provider\">custom SQL</span> in <span class=\"provider\">Oracle</span>",
+        "keyword": "action",
+        "input": {
+          "sql": "--  Code developed by SIPAWAR\n-- Reference code: \"XXRH_ERP_LAPTOP_FULL_PKG\"\nSELECT SNOW_TICKET_NUM,\n             OU_NAME,\n             SNOW_BUSINESS_GROUP,\n             PO_NUMBER,\n             SHIP_TO_COUNTRY,\n             MATCH_SN,\n             ASSET_NUMBER,\n             INVOICE_NUM,\n             ASSET_COST,\n             CREATION_DATE,\n             PR_NUMBER,\n             INVOICE_LINE_NUMBER,\n             GL_ACCOUNT,\n             COST_CENTER,\n             Depreciation_Amount,\n             Depreciation_Period \n        FROM (SELECT XXLFS.SNOW_TICKET_NUM,\n                     XXLFS.OU_NAME,\n                     XXLFS.SNOW_BUSINESS_GROUP, \n                     XXLFS.PO_NUMBER,\n                     XXLFS.SHIP_TO_COUNTRY,\n                     XXLFS.MATCH_SN,\n                     XXLFS.ASSET_NUMBER,\n                     XXLFS.INVOICE_NUM,\n                     XXLFS.ASSET_COST,\n                     TO_CHAR(XXLFS.FA_CREATION_DATE, 'DD-MON-YYYY') CREATION_DATE,\n                     XXLFS.PR_NUMBER,\n                     XXLFS.INVOICE_LINE_NUMBER,\n                     XXLFS.GL_ACCOUNT,\n                     XXLFS.COST_CENTER,\n                     XXLFS.Depreciation_Amount,\n                     XXLFS.Depreciation_Period \n                FROM XXRHFIN.XXRHFIN_LAPTOP_FULFILL_FA_SNOW XXLFS\n               WHERE 1 = 1\n                 AND XXLFS.FA_CREATION_DATE BETWEEN SYSDATE - :P_NO_DAYS AND SYSDATE)\n       ORDER BY INVOICE_NUM, INVOICE_LINE_NUMBER",
+          "limit": "20000",
+          "parameters": {
+            "schema": "[{\"name\":\"P_NO_DAYS\",\"type\":\"number\",\"optional\":true,\"label\":\"P_NO_DAYS\",\"details\":{\"real_name\":\"P_NO_DAYS\"},\"control_type\":\"number\",\"parent\":[\"parameters\",\"data\"]}]",
+            "data": {
+              "P_NO_DAYS": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"6d4fffd5\",\"path\":[\"P_NO_DAYS\"]}')}"
+            }
+          },
+          "output_schema": "[{\"name\":\"COST_CENTER\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"COST CENTER\"},{\"name\":\"ASSET_COST\",\"type\":\"number\",\"optional\":false,\"control_type\":\"number\",\"label\":\"ASSET COST\",\"parse_output\":\"float_conversion\"},{\"name\":\"CREATION_DATE\",\"type\":\"date_time\",\"optional\":false,\"control_type\":\"date\",\"label\":\"CREATION DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\"},{\"name\":\"GL_ACCOUNT\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"GL ACCOUNT\"},{\"name\":\"INVOICE_NUM\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"INVOICE NUM\"},{\"name\":\"MATCH_SN\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"MATCH SN\"},{\"name\":\"OU_NAME\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"OU NAME\"},{\"name\":\"PO_NUMBER\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PO NUMBER\"},{\"name\":\"INVOICE_LINE_NUMBER\",\"type\":\"number\",\"optional\":false,\"control_type\":\"number\",\"label\":\"INVOICE LINE NUMBER\",\"parse_output\":\"float_conversion\"},{\"name\":\"PR_NUMBER\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PR NUMBER\"},{\"name\":\"SNOW_TICKET_NUM\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"SNOW TICKET NUM\"},{\"name\":\"SHIP_TO_COUNTRY\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"SHIP TO COUNTRY\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Rows",
+            "name": "rows",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "COST_CENTER",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "COST_CENTER",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "cost_center"
+              },
+              {
+                "control_type": "number",
+                "label": "ASSET_COST",
+                "parse_output": "parse_numeric_output",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "number",
+                  "column_name": "ASSET_COST",
+                  "length": null,
+                  "precision": null,
+                  "scale": 1,
+                  "element_type": null
+                },
+                "hint": "number",
+                "optional": true,
+                "type": "number",
+                "name": "asset_cost"
+              },
+              {
+                "control_type": "text",
+                "label": "CREATION_DATE",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "date_time",
+                  "column_name": "CREATION_DATE",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "date_time",
+                "optional": true,
+                "type": "string",
+                "name": "creation_date"
+              },
+              {
+                "control_type": "text",
+                "label": "GL_ACCOUNT",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "GL_ACCOUNT",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "gl_account"
+              },
+              {
+                "control_type": "text",
+                "label": "INVOICE_NUM",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "INVOICE_NUM",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "invoice_num"
+              },
+              {
+                "control_type": "text",
+                "label": "MATCH_SN",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "MATCH_SN",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "match_sn"
+              },
+              {
+                "control_type": "text",
+                "label": "OU_NAME",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "OU_NAME",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "ou_name"
+              },
+              {
+                "control_type": "text",
+                "label": "PO_NUMBER",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "PO_NUMBER",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "po_number"
+              },
+              {
+                "control_type": "number",
+                "label": "INVOICE_LINE_NUMBER",
+                "parse_output": "parse_numeric_output",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "number",
+                  "column_name": "INVOICE_LINE_NUMBER",
+                  "length": null,
+                  "precision": null,
+                  "scale": 1,
+                  "element_type": null
+                },
+                "hint": "number",
+                "optional": true,
+                "type": "number",
+                "name": "invoice_line_number"
+              },
+              {
+                "control_type": "text",
+                "label": "PR_NUMBER",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "PR_NUMBER",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "pr_number"
+              },
+              {
+                "control_type": "text",
+                "label": "SNOW_TICKET_NUM",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "SNOW_TICKET_NUM",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "snow_ticket_num"
+              },
+              {
+                "control_type": "text",
+                "label": "SHIP_TO_COUNTRY",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "SHIP_TO_COUNTRY",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "ship_to_country"
+              }
+            ],
+            "type": "array",
+            "order_by_hint": false
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "form-schema-builder",
+            "hint": "First provide the full name assigned to your bind variable in the WHERE condition. e.g. <b>id</b>\n                    Second, provide the actual parameter value. Parameter values can be static or datapills.\n                    Select the <b>closest corresponding data type</b> that your database is expecting for the bind variable\n                    ",
+            "label": "Parameters",
+            "name": "parameters",
+            "optional": true,
+            "override": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "P_NO_DAYS",
+                    "parse_output": "float_conversion",
+                    "name": "P_NO_DAYS",
+                    "type": "number",
+                    "optional": true,
+                    "details": {
+                      "real_name": "P_NO_DAYS"
+                    },
+                    "parent": [
+                      "parameters",
+                      "data"
+                    ]
+                  }
+                ],
+                "label": "Data",
+                "optional": true,
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "sticky": true,
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "sql",
+          "parameters",
+          "limit",
+          "parameters.data.P_NO_DAYS",
+          "parameters.schema",
+          "parameters.data",
+          "output_schema",
+          "parameters.data.COST_CENTER"
+        ],
+        "uuid": "486ba5ab-2f3c-44e7-a7d9-86d56b7c70f4",
+        "skip": false
+      },
+      {
+        "number": 3,
+        "provider": "workato_variable",
+        "name": "declare_list",
+        "as": "aefbb68f",
+        "title": " Create Error List list",
+        "description": "Create <span class=\"provider\">Error List</span> list",
+        "keyword": "action",
+        "input": {
+          "name": "Error List",
+          "list_item_schema_json": "[{\"name\":\"COST_CENTER\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"COST CENTER\"},{\"name\":\"ASSET_COST\",\"type\":\"number\",\"optional\":false,\"control_type\":\"number\",\"label\":\"ASSET COST\",\"parse_output\":\"float_conversion\"},{\"name\":\"CREATION_DATE\",\"type\":\"date_time\",\"optional\":false,\"control_type\":\"date\",\"label\":\"CREATION DATE\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\"},{\"name\":\"GL_ACCOUNT\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"GL ACCOUNT\"},{\"name\":\"INVOICE_NUM\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"INVOICE NUM\"},{\"name\":\"MATCH_SN\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"MATCH SN\"},{\"name\":\"OU_NAME\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"OU NAME\"},{\"name\":\"PO_NUMBER\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PO NUMBER\"},{\"name\":\"INVOICE_LINE_NUMBER\",\"type\":\"number\",\"optional\":false,\"control_type\":\"number\",\"label\":\"INVOICE LINE NUMBER\",\"parse_output\":\"float_conversion\"},{\"name\":\"PR_NUMBER\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"PR NUMBER\"},{\"name\":\"SNOW_TICKET_NUM\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"SNOW TICKET NUM\"},{\"name\":\"SHIP_TO_COUNTRY\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"SHIP TO COUNTRY\"}]",
+          "list_items": {
+            "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\"]}')}",
+            "COST_CENTER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"cost_center\"]}')}",
+            "ASSET_COST": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"asset_cost\"]}')}",
+            "CREATION_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"creation_date\"]}')}",
+            "GL_ACCOUNT": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"gl_account\"]}')}",
+            "INVOICE_NUM": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"invoice_num\"]}')}",
+            "MATCH_SN": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"match_sn\"]}')}",
+            "OU_NAME": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"ou_name\"]}')}",
+            "PO_NUMBER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"po_number\"]}')}",
+            "INVOICE_LINE_NUMBER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"invoice_line_number\"]}')}",
+            "PR_NUMBER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"pr_number\"]}')}",
+            "SNOW_TICKET_NUM": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"snow_ticket_num\"]}')}",
+            "SHIP_TO_COUNTRY": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"ship_to_country\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "hint": "",
+            "label": "Error List",
+            "name": "list_items",
+            "of": "object",
+            "optional": false,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "COST CENTER",
+                "name": "COST_CENTER",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "number",
+                "label": "ASSET COST",
+                "parse_output": "float_conversion",
+                "name": "ASSET_COST",
+                "type": "number",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "CREATION DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "CREATION_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "GL ACCOUNT",
+                "name": "GL_ACCOUNT",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "INVOICE NUM",
+                "name": "INVOICE_NUM",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "MATCH SN",
+                "name": "MATCH_SN",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "OU NAME",
+                "name": "OU_NAME",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PO NUMBER",
+                "name": "PO_NUMBER",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "number",
+                "label": "INVOICE LINE NUMBER",
+                "parse_output": "float_conversion",
+                "name": "INVOICE_LINE_NUMBER",
+                "type": "number",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR NUMBER",
+                "name": "PR_NUMBER",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "SNOW TICKET NUM",
+                "name": "SNOW_TICKET_NUM",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "SHIP TO COUNTRY",
+                "name": "SHIP_TO_COUNTRY",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Set the initial items in the list. Defaults to an empty list if not supplied.",
+            "label": "Items",
+            "name": "list_items",
+            "of": "object",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "COST CENTER",
+                "name": "COST_CENTER",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "number",
+                "label": "ASSET COST",
+                "parse_output": "float_conversion",
+                "name": "ASSET_COST",
+                "type": "number",
+                "optional": false
+              },
+              {
+                "control_type": "date",
+                "label": "CREATION DATE",
+                "render_input": "date_conversion",
+                "parse_output": "date_conversion",
+                "name": "CREATION_DATE",
+                "type": "date_time",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "GL ACCOUNT",
+                "name": "GL_ACCOUNT",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "INVOICE NUM",
+                "name": "INVOICE_NUM",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "MATCH SN",
+                "name": "MATCH_SN",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "OU NAME",
+                "name": "OU_NAME",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PO NUMBER",
+                "name": "PO_NUMBER",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "number",
+                "label": "INVOICE LINE NUMBER",
+                "parse_output": "float_conversion",
+                "name": "INVOICE_LINE_NUMBER",
+                "type": "number",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "PR NUMBER",
+                "name": "PR_NUMBER",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "SNOW TICKET NUM",
+                "name": "SNOW_TICKET_NUM",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "SHIP TO COUNTRY",
+                "name": "SHIP_TO_COUNTRY",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "uuid": "0168ecfd-18c8-4674-b579-de46fcb26f07",
+        "skip": false
+      },
+      {
+        "number": 4,
+        "as": "08d6aeee",
+        "keyword": "foreach",
+        "repeat_mode": "simple",
+        "clear_scope": "false",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 5,
+            "keyword": "try",
+            "input": {
+            },
+            "block": [
+              {
+                "number": 6,
+                "provider": "service_now",
+                "name": "create_object",
+                "as": "3bb2e4f1",
+                "title": "Create record in u_oracle_fixed_assets_import ",
+                "description": "Create <span class=\"provider\">record</span> in <span class=\"provider\">u_oracle_fixed_assets_import</span> table  in <span class=\"provider\">ServiceNow</span>",
+                "keyword": "action",
+                "toggleCfg": {
+                  "table": false
+                },
+                "input": {
+                  "table": "u_oracle_fixed_assets_import",
+                  "row": {
+                    "u_cost_center": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"cost_center\"]}')}",
+                    "u_fa_creation_date": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"creation_date\"]}')}",
+                    "u_gl_account": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"gl_account\"]}')}",
+                    "u_invoice_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"invoice_num\"]}')}",
+                    "u_match_to_serial_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"match_sn\"]}')}",
+                    "u_ou_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"ou_name\"]}')}",
+                    "u_po_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"po_number\"]}')}",
+                    "u_pr_line_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"invoice_line_number\"]}')}",
+                    "u_pr_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_number\"]}')}",
+                    "u_service_now_ticket_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"snow_ticket_num\"]}')}",
+                    "u_ship_to_country": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"ship_to_country\"]}')}"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Sys ID",
+                    "name": "sys_id",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "B",
+                    "name": "u_b",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Cost Center",
+                    "name": "u_cost_center",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "FA Cost",
+                    "name": "u_fa_cost",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "FA Creation Date",
+                    "name": "u_fa_creation_date",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "GL Account",
+                    "name": "u_gl_account",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Invoice Number",
+                    "name": "u_invoice_number",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Match to Serial Number ",
+                    "name": "u_match_to_serial_number",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "OU Name",
+                    "name": "u_ou_name",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "PO Number",
+                    "name": "u_po_number",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "PR Line Number",
+                    "name": "u_pr_line_number",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "PR Number",
+                    "name": "u_pr_number",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Service Now Ticket Number",
+                    "name": "u_service_now_ticket_number",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Ship To Country",
+                    "name": "u_ship_to_country",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Version",
+                    "name": "u_version",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "custom": false,
+                    "label": "Import set run",
+                    "name": "import_set_run",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "url",
+                        "label": "Link",
+                        "optional": true,
+                        "type": "string",
+                        "name": "link"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "optional": true,
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Type",
+                    "name": "sys_class_name",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Created by",
+                    "name": "sys_created_by",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Created",
+                    "name": "sys_created_on",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Row",
+                    "name": "sys_import_row",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "custom": false,
+                    "label": "Set",
+                    "name": "sys_import_set",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "url",
+                        "label": "Link",
+                        "optional": true,
+                        "type": "string",
+                        "name": "link"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "optional": true,
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "State",
+                    "name": "sys_import_state",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Comment",
+                    "name": "sys_import_state_comment",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Updates",
+                    "name": "sys_mod_count",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "custom": false,
+                    "label": "Error",
+                    "name": "sys_row_error",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "url",
+                        "label": "Link",
+                        "optional": true,
+                        "type": "string",
+                        "name": "link"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "optional": true,
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Target record",
+                    "name": "sys_target_sys_id",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Target table",
+                    "name": "sys_target_table",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "custom": false,
+                    "label": "Transform Map",
+                    "name": "sys_transform_map",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "url",
+                        "label": "Link",
+                        "optional": true,
+                        "type": "string",
+                        "name": "link"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "optional": true,
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Updated by",
+                    "name": "sys_updated_by",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": false,
+                    "label": "Updated",
+                    "name": "sys_updated_on",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "custom": false,
+                    "label": "Template Import Log",
+                    "name": "template_import_log",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "url",
+                        "label": "Link",
+                        "optional": true,
+                        "type": "string",
+                        "name": "link"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "optional": true,
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "New record values",
+                    "name": "row",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "B",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_b"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Cost Center",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_cost_center"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "FA Cost",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_fa_cost"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "FA Creation Date",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_fa_creation_date"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "GL Account",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_gl_account"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Invoice Number",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_invoice_number"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Match to Serial Number ",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_match_to_serial_number"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "OU Name",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_ou_name"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PO Number",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_po_number"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PR Line Number",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_pr_line_number"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "PR Number",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_pr_number"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Service Now Ticket Number",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_service_now_ticket_number"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Ship To Country",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_ship_to_country"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Version",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_version"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Import set run",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "import_set_run"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Type",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_class_name"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Created by",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_created_by"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Created",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_created_on"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Row",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_import_row"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Set",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_import_set"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "State",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_import_state"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Comment",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_import_state_comment"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Updates",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_mod_count"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_row_error"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Target record",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_target_sys_id"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Target table",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_target_table"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Transform Map",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_transform_map"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Updated by",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_updated_by"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Updated",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "sys_updated_on"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Template Import Log",
+                        "custom": false,
+                        "optional": true,
+                        "type": "string",
+                        "name": "template_import_log"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "table",
+                  "row.u_version",
+                  "row.u_ship_to_country",
+                  "row.u_service_now_ticket_number",
+                  "row.u_pr_number",
+                  "row.u_pr_line_number",
+                  "row.u_po_number",
+                  "row.u_ou_name",
+                  "row.u_match_to_serial_number",
+                  "row.u_invoice_number",
+                  "row.u_gl_account",
+                  "row.u_fa_creation_date",
+                  "row.u_fa_cost",
+                  "row.u_cost_center",
+                  "row.u_b"
+                ],
+                "uuid": "7f123308-04e6-4cb0-86cd-bba110577435",
+                "skip": false
+              },
+              {
+                "number": 7,
+                "as": "4ef0e145",
+                "keyword": "catch",
+                "input": {
+                  "max_retry_count": "0",
+                  "retry_interval": "2"
+                },
+                "block": [
+                  {
+                    "number": 8,
+                    "provider": "workato_variable",
+                    "name": "insert_to_list_batch",
+                    "as": "c546fa23",
+                    "title": "Add items to Error List list",
+                    "description": "Add <span class=\"provider\">items</span> to <span class=\"provider\">Error List</span> list",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": "Error List (step 4)"
+                    },
+                    "input": {
+                      "location": "end",
+                      "list_items": {
+                        "SNOW_TICKET_NUM": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"snow_ticket_num\"]}')}",
+                        "OU_NAME": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"ou_name\"]}')}",
+                        "PR_NUMBER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"pr_number\"]}')}",
+                        "PO_NUMBER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"po_number\"]}')}",
+                        "INVOICE_NUM": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"invoice_num\"]}')}",
+                        "COST_CENTER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"cost_center\"]}')}",
+                        "ASSET_COST": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"asset_cost\"]}')}",
+                        "CREATION_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"creation_date\"]}')}",
+                        "GL_ACCOUNT": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"gl_account\"]}')}",
+                        "MATCH_SN": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"match_sn\"]}')}",
+                        "INVOICE_LINE_NUMBER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"invoice_line_number\"]}')}",
+                        "SHIP_TO_COUNTRY": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"ship_to_country\"]}')}"
+                      },
+                      "name": "0168ecfd-18c8-4674-b579-de46fcb26f07:aefbb68f"
+                    },
+                    "extended_input_schema": [
+                      {
+                        "hint": "",
+                        "label": "List items",
+                        "name": "list_items",
+                        "of": "object",
+                        "optional": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "COST CENTER",
+                            "name": "COST_CENTER",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "ASSET COST",
+                            "parse_output": "float_conversion",
+                            "name": "ASSET_COST",
+                            "type": "number",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "date",
+                            "label": "CREATION DATE",
+                            "render_input": "date_conversion",
+                            "parse_output": "date_conversion",
+                            "name": "CREATION_DATE",
+                            "type": "date_time",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "GL ACCOUNT",
+                            "name": "GL_ACCOUNT",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "INVOICE NUM",
+                            "name": "INVOICE_NUM",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "MATCH SN",
+                            "name": "MATCH_SN",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "OU NAME",
+                            "name": "OU_NAME",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "PO NUMBER",
+                            "name": "PO_NUMBER",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "INVOICE LINE NUMBER",
+                            "parse_output": "float_conversion",
+                            "name": "INVOICE_LINE_NUMBER",
+                            "type": "number",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "PR NUMBER",
+                            "name": "PR_NUMBER",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "SNOW TICKET NUM",
+                            "name": "SNOW_TICKET_NUM",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "SHIP TO COUNTRY",
+                            "name": "SHIP_TO_COUNTRY",
+                            "type": "string",
+                            "optional": false
+                          }
+                        ],
+                        "type": "array"
+                      }
+                    ],
+                    "uuid": "f0f22ef7-7d46-40e4-8305-454667374554",
+                    "skip": false
+                  },
+                  {
+                    "number": 9,
+                    "provider": "email",
+                    "name": "send_mail",
+                    "as": "fb9144c5",
+                    "title": null,
+                    "description": null,
+                    "keyword": "action",
+                    "input": {
+                      "email_type": "plain_text",
+                      "to": "sipawar@redhat.com, jgayam@redhat.com",
+                      "subject": "Workato Error - Instance: #{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')} - Development Failed - Laptop Fulfillment FA",
+                      "body": "Hi Team,\n\nThis email is to notify you of a failed development process in the Workato platform for the instance: #{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')}.\n\nPlease find the details of the failure below:\n\nPlatform: Workato\nInstance Name: #{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')}\nRecipe Name: #{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_url\"]}')}\nTimestamp of Failure: #{_dp('{\"pill_type\":\"output\",\"provider\":\"clock\",\"line\":\"41051a87\",\"path\":[\"scheduled_time\"]}')}\nRecipe Job ID: #{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_url\"]}')}\nError Message: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"4ef0e145\",\"path\":[\"message\"]}')}\nDeveloper/Owner: Kindly reach out (sipawar@redhat.com), (jgayam@redhat.com)\n\nPlease investigate this issue at your earliest convenience to resolve the failure and ensure the stability of the integration/automation.\n\nThanks!"
+                    },
+                    "uuid": "55eee998-4438-4293-b377-a54ecd7cfe0f"
+                  }
+                ],
+                "uuid": "5ba5f14e-23e4-49b5-8c52-7a1d4b1490ab",
+                "skip": false
+              }
+            ],
+            "uuid": "79ebee30-9ac7-4cf3-a02d-31c4785549fa",
+            "skip": false
+          }
+        ],
+        "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"888f30b3\",\"path\":[\"rows\"]}')}",
+        "uuid": "d070715c-c160-4336-98a7-982fd6f82df1",
+        "skip": false
+      }
+    ],
+    "uuid": "6e8b87ee-d5bc-4342-bd0e-c610b6b024a4",
+    "unfinished": false
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "oracle",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/s2p_con_finsig.connection.json",
+        "name": "S2P | CON | FINSIG",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "service_now",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/s2p_con_snow_traditional.connection.json",
+        "name": "S2P | CON | SNOW Traditional",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "email",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
