@@ -1,0 +1,674 @@
+{
+  "name": "Snowflake bookingsmaster get data",
+  "description": "",
+  "version": 24,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "1ad66ea7",
+    "title": null,
+    "description": null,
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"Snowflake_close_date_from\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Snowflake close date from\"},{\"name\":\"Snowflake_close_date_to\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Snowflake close date to\"},{\"name\":\"Snowflake_snapshot_date\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Snowflake snapshot date\"}]",
+      "result_schema_json": "[{\"name\":\"Snowflake\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Snowflake\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Snowflake close date from",
+            "name": "Snowflake_close_date_from",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Snowflake close date to",
+            "name": "Snowflake_close_date_to",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Snowflake snapshot date",
+            "name": "Snowflake_snapshot_date",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_files",
+        "name": "delete_file",
+        "as": "9de4cacd",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "file_path": {
+            "ids": [
+              "/",
+              "/CompareSnowflakeICM",
+              "/CompareSnowflakeICM/Snowflake_sandbox.csv"
+            ],
+            "titles": [
+              "Root directory",
+              "CompareSnowflakeICM",
+              "Snowflake_sandbox.csv"
+            ]
+          }
+        },
+        "toggleCfg": {
+          "file_path": false
+        },
+        "input": {
+          "file_path": "/CompareSnowflakeICM/Snowflake_sandbox.csv"
+        },
+        "uuid": "8cbfbacb-8986-4b11-91c6-903a9c033f85",
+        "skip": false
+      },
+      {
+        "number": 2,
+        "provider": "snowflake",
+        "name": "export_csv_v2",
+        "as": "da819e1a",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "input": {
+          "sql": "select A.OpportunityID, A.CORPCURRENCYCODE,B.Original_Close_Date,SUM(ACV) as TotalACV,SUM(ARR) as TotalARR,SUM(TCV) as TotalTCV,SUM(TCV_SEAP) as TotalTCV_SEAP, Count(*)\nas numberofOpps from \"BOOKINGSMASTER_DB\".\"MARTS\".\"ICM_DTBOOKINGS_SNAPSHOT\" A\nleft join \"BOOKINGSMASTER_DB\".\"MARTS\".\"ICM_DTOPPORTUNITY_SNAPSHOT\" B\non A.OPPORTUNITYID = B.OPPORTUNITYID\nand A.SNAPSHOT_DATE = B.SNAPSHOT_DATE\nWhere A.CloseDate between date('#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1ad66ea7\",\"path\":[\"parameters\",\"Snowflake_close_date_from\"]}')}') and date('#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1ad66ea7\",\"path\":[\"parameters\",\"Snowflake_close_date_to\"]}')}')\nand A.ActiveRecordFlag ='Y'\nand A.Pipeline ='N'\nand A.snapshot_date = date('#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1ad66ea7\",\"path\":[\"parameters\",\"Snowflake_snapshot_date\"]}')}')\ngroup by A.OpportunityID,A.CORPCURRENCYCODE,B.Original_Close_Date",
+          "_action_version": "2",
+          "timeout": "5",
+          "delimiter": "comma"
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "string",
+            "label": "File content",
+            "name": "file_content",
+            "optional": false,
+            "type": "string"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "integer",
+            "default": 60,
+            "hint": "Set an upper limit for this wait action. If one or more of the async\njobs take longer than this, proceed to the next step without waiting.\nMaximum is 120 minutes.\n",
+            "label": "Timeout limit (minutes)",
+            "name": "timeout",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "sticky": false,
+            "type": "integer"
+          }
+        ],
+        "uuid": "f35d8501-169c-4397-8c08-d9dcc4854bab"
+      },
+      {
+        "number": 3,
+        "provider": "workato_files",
+        "name": "store_file",
+        "as": "c7e9178a",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "file_path": {
+            "ids": [
+              "/"
+            ],
+            "titles": [
+              "Root directory"
+            ]
+          }
+        },
+        "toggleCfg": {
+          "is_csv_file": true,
+          "file_path": false,
+          "csv_has_header": true
+        },
+        "input": {
+          "is_csv_file": "true",
+          "schema_type": "auto",
+          "csv_has_header": "true",
+          "csv_delimiter": "comma",
+          "csv_quote": "double",
+          "encoding": "UTF-8",
+          "file_name": "Snowflake_sandbox.csv",
+          "content": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"da819e1a\",\"path\":[\"file_content\"]}')}",
+          "file_path": "/CompareSnowflakeICM/"
+        },
+        "uuid": "e28166ae-ec5e-455d-bbe5-c1d21ded68a3",
+        "skip": false
+      },
+      {
+        "number": 4,
+        "provider": "google_drive",
+        "name": "search_file_or_folder",
+        "as": "eaf4225f",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "folderId": {
+            "ids": [
+              "0AGyq8pBBaRmrUk9PVA",
+              "1aRf0Es6Sqa773t7pBUsWw6juiefvDhdH"
+            ],
+            "titles": [
+              "My Drive",
+              "ICM_DIFF"
+            ]
+          }
+        },
+        "toggleCfg": {
+          "folderId": true
+        },
+        "input": {
+          "kind": "Files",
+          "folderId": "1aRf0Es6Sqa773t7pBUsWw6juiefvDhdH",
+          "name": "Snowflake_sandbox",
+          "trashed": "false"
+        },
+        "visible_config_fields": [
+          "kind",
+          "folderId",
+          "name",
+          "query",
+          "pageToken",
+          "pageSize",
+          "trashed"
+        ],
+        "uuid": "2221c987-3e71-4973-b48c-fe1dc7338ff4",
+        "skip": false
+      },
+      {
+        "number": 5,
+        "provider": "google_drive",
+        "name": "delete_file",
+        "as": "22e3e4aa",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "fileId": {
+            "ids": [
+              "0AERg_XSQXtHMUk9PVA/0AERg_XSQXtHMUk9PVA",
+              "1J8LGp5d9A0_lUmT3RsQhk1SDL39r4qRi/0AERg_XSQXtHMUk9PVA",
+              "14gMznDD05goZt0H4wp8ztRQ5wIg9lZnaXmwpEpugVpA/0AERg_XSQXtHMUk9PVA"
+            ],
+            "titles": [
+              "workato",
+              "ICM_CMP",
+              "ICM_CMP_DIFF_copy"
+            ]
+          }
+        },
+        "toggleCfg": {
+          "fileId": true
+        },
+        "input": {
+          "fileId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_drive\",\"line\":\"eaf4225f\",\"path\":[\"files\",{\"path_element_type\":\"current_item\"},\"id\"]}')}"
+        },
+        "uuid": "a2b446e3-d50e-4cb6-9e78-284eae12e8b8",
+        "skip": false
+      },
+      {
+        "number": 6,
+        "provider": "workato_files",
+        "name": "get_file_contents",
+        "as": "f9722517",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "file_path": {
+            "ids": [
+              "/",
+              "/CompareSnowflakeICM",
+              "/CompareSnowflakeICM/Snowflake_sandbox.csv"
+            ],
+            "titles": [
+              "Root directory",
+              "CompareSnowflakeICM",
+              "Snowflake_sandbox.csv"
+            ]
+          }
+        },
+        "toggleCfg": {
+          "file_path": false
+        },
+        "input": {
+          "file_path": "/CompareSnowflakeICM/Snowflake_sandbox.csv"
+        },
+        "uuid": "0b28eb7d-11aa-410f-910f-97d580030118",
+        "skip": false
+      },
+      {
+        "number": 7,
+        "provider": "google_drive",
+        "name": "__adhoc_http_action",
+        "as": "0c3c572c",
+        "title": "CSV TO Gsheet",
+        "description": "CSV <span class=\"provider\">TO Gsheet</span> in <span class=\"provider\">Google Drive</span> (Custom)",
+        "keyword": "action",
+        "input": {
+          "mnemonic": "CSV TO Gsheet",
+          "request_type": "raw",
+          "response_type": "json",
+          "verb": "post",
+          "path": "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
+          "request_headers": [
+            {
+              "name": "Content-Type",
+              "value": "multipart/related; boundary=foo_bar_baz"
+            }
+          ],
+          "input": {
+            "data": "--foo_bar_baz\nContent-Type: application/json; charset=UTF-8\n\n{\n  \"name\": \"Snowflake_sandbox\",\n  \"mimeType\": \"application/vnd.google-apps.spreadsheet\",\n  \"parents\": [\"#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_drive\",\"line\":\"eaf4225f\",\"path\":[\"files\",{\"path_element_type\":\"current_item\"},\"parents\",{\"path_element_type\":\"current_item\"},\"id\"]}')}\"]\n}\n\n--foo_bar_baz\nContent-Type: text/csv\n\n#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"f9722517\",\"path\":[\"content\"]}')}\n\n--foo_bar_baz--"
+          },
+          "output": "[{\"control_type\":\"text\",\"label\":\"Kind\",\"type\":\"string\",\"name\":\"kind\"},{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"id\"},{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"name\"},{\"control_type\":\"text\",\"label\":\"Mime type\",\"type\":\"string\",\"name\":\"mimeType\"}]",
+          "response_headers": "[{\"control_type\":\"text\",\"label\":\"Content type\",\"type\":\"string\",\"name\":\"content_type\"},{\"control_type\":\"text\",\"label\":\"X guploader uploadid\",\"type\":\"string\",\"name\":\"x_guploader_uploadid\"},{\"control_type\":\"text\",\"label\":\"Access control allow credentials\",\"type\":\"string\",\"name\":\"access_control_allow_credentials\"},{\"control_type\":\"text\",\"label\":\"Cache control\",\"type\":\"string\",\"name\":\"cache_control\"},{\"control_type\":\"text\",\"label\":\"Date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"date\"},{\"control_type\":\"text\",\"label\":\"Expires\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"expires\"},{\"control_type\":\"text\",\"label\":\"Pragma\",\"type\":\"string\",\"name\":\"pragma\"},{\"control_type\":\"text\",\"label\":\"Server\",\"type\":\"string\",\"name\":\"server\"},{\"control_type\":\"text\",\"label\":\"Vary\",\"type\":\"string\",\"name\":\"vary\"},{\"control_type\":\"text\",\"label\":\"X content type options\",\"type\":\"string\",\"name\":\"x_content_type_options\"},{\"control_type\":\"text\",\"label\":\"X frame options\",\"type\":\"string\",\"name\":\"x_frame_options\"},{\"control_type\":\"text\",\"label\":\"X xss protection\",\"type\":\"string\",\"name\":\"x_xss_protection\"},{\"control_type\":\"text\",\"label\":\"Content length\",\"type\":\"string\",\"name\":\"content_length\"},{\"control_type\":\"text\",\"label\":\"Alt svc\",\"type\":\"string\",\"name\":\"alt_svc\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Body",
+            "name": "body",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Kind",
+                "optional": true,
+                "type": "string",
+                "name": "kind"
+              },
+              {
+                "control_type": "text",
+                "label": "ID",
+                "optional": true,
+                "type": "string",
+                "name": "id"
+              },
+              {
+                "control_type": "text",
+                "label": "Name",
+                "optional": true,
+                "type": "string",
+                "name": "name"
+              },
+              {
+                "control_type": "text",
+                "label": "Mime type",
+                "optional": true,
+                "type": "string",
+                "name": "mimeType"
+              }
+            ],
+            "type": "object"
+          },
+          {
+            "label": "Headers",
+            "name": "headers",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Content type",
+                "optional": true,
+                "type": "string",
+                "name": "content_type"
+              },
+              {
+                "control_type": "text",
+                "label": "X guploader uploadid",
+                "optional": true,
+                "type": "string",
+                "name": "x_guploader_uploadid"
+              },
+              {
+                "control_type": "text",
+                "label": "Access control allow credentials",
+                "optional": true,
+                "type": "string",
+                "name": "access_control_allow_credentials"
+              },
+              {
+                "control_type": "text",
+                "label": "Cache control",
+                "optional": true,
+                "type": "string",
+                "name": "cache_control"
+              },
+              {
+                "control_type": "text",
+                "label": "Date",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "date"
+              },
+              {
+                "control_type": "text",
+                "label": "Expires",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "expires"
+              },
+              {
+                "control_type": "text",
+                "label": "Pragma",
+                "optional": true,
+                "type": "string",
+                "name": "pragma"
+              },
+              {
+                "control_type": "text",
+                "label": "Server",
+                "optional": true,
+                "type": "string",
+                "name": "server"
+              },
+              {
+                "control_type": "text",
+                "label": "Vary",
+                "optional": true,
+                "type": "string",
+                "name": "vary"
+              },
+              {
+                "control_type": "text",
+                "label": "X content type options",
+                "optional": true,
+                "type": "string",
+                "name": "x_content_type_options"
+              },
+              {
+                "control_type": "text",
+                "label": "X frame options",
+                "optional": true,
+                "type": "string",
+                "name": "x_frame_options"
+              },
+              {
+                "control_type": "text",
+                "label": "X xss protection",
+                "optional": true,
+                "type": "string",
+                "name": "x_xss_protection"
+              },
+              {
+                "control_type": "text",
+                "label": "Content length",
+                "optional": true,
+                "type": "string",
+                "name": "content_length"
+              },
+              {
+                "control_type": "text",
+                "label": "Alt svc",
+                "optional": true,
+                "type": "string",
+                "name": "alt_svc"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "hint": "Base URI is <b>https://www.googleapis.com/drive/v3/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+            "label": "Path",
+            "name": "path",
+            "optional": false,
+            "type": "string"
+          },
+          {
+            "control_type": "select",
+            "default": "json",
+            "extends_schema": true,
+            "label": "Request type",
+            "name": "request_type",
+            "optional": true,
+            "pick_list": [
+              [
+                "JSON request body",
+                "json"
+              ],
+              [
+                "URL encoded form",
+                "urlencoded"
+              ],
+              [
+                "Multipart form",
+                "multipart"
+              ],
+              [
+                "Raw JSON request body",
+                "raw"
+              ],
+              [
+                "XML request body",
+                "xml"
+              ],
+              [
+                "Plain text",
+                "text"
+              ],
+              [
+                "Raw request body",
+                "rawdata"
+              ]
+            ],
+            "sticky": false,
+            "type": "string"
+          },
+          {
+            "control_type": "select",
+            "default": "json",
+            "extends_schema": true,
+            "label": "Response type",
+            "name": "response_type",
+            "optional": true,
+            "pick_list": [
+              [
+                "JSON response",
+                "json"
+              ],
+              [
+                "Raw JSON Response",
+                "raw"
+              ],
+              [
+                "XML Response",
+                "xml2"
+              ],
+              [
+                "Raw response",
+                "text"
+              ]
+            ],
+            "sticky": false,
+            "type": "string"
+          },
+          {
+            "label": "Input",
+            "name": "input",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text-area",
+                "label": "Data",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          },
+          {
+            "control_type": "key_value",
+            "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+            "empty_list_title": "Does this HTTP request require headers?",
+            "item_label": "Header",
+            "label": "Request headers",
+            "name": "request_headers",
+            "of": "object",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Name",
+                "optional": true,
+                "type": "string",
+                "name": "name"
+              },
+              {
+                "control_type": "text",
+                "label": "Value",
+                "optional": true,
+                "type": "string",
+                "name": "value"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "control_type": "schema-designer",
+            "extends_schema": true,
+            "label": "Response body",
+            "name": "output",
+            "optional": true,
+            "sample_data_type": "json_http",
+            "sticky": true,
+            "type": "string",
+            "schema_neutral": true
+          },
+          {
+            "control_type": "schema-designer",
+            "extends_schema": true,
+            "label": "Response headers",
+            "name": "response_headers",
+            "optional": true,
+            "sample_data_type": "json_http",
+            "sticky": false,
+            "type": "string",
+            "schema_neutral": true
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Inspect",
+            "name": "inspect",
+            "ngIf": "false",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "type": "number"
+          }
+        ],
+        "uuid": "85bd8850-e7ba-4483-ae9b-f54f39f631a4",
+        "wizardFinished": true,
+        "skip": false
+      },
+      {
+        "number": 8,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "34df8618",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "input": {
+          "result": {
+            "Snowflake": "Done"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Snowflake",
+                "name": "Snowflake",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Snowflake",
+                "name": "Snowflake",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "75d716ed-3cdd-4c1d-bd0c-82256115af1e"
+      }
+    ],
+    "uuid": "e11d2a71-7453-481d-aaef-0c1918bf10bd",
+    "unfinished": false
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "snowflake",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/snowflake_bookingsmaster_workato_prod_appuser.connection.json",
+        "name": "Snowflake bookingsmaster_workato_prod_appuser",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_files",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "google_drive",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Saurabh_POC/suhas_google_drive.connection.json",
+        "name": "Suhas Google Drive",
+        "folder": "Saurabh_POC"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
