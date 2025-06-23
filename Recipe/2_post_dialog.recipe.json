@@ -1,0 +1,270 @@
+{
+  "name": "2. Post dialog",
+  "description": "When there is a new command to Slack Workbot, do action",
+  "version": 15,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "slack_bot",
+    "name": "bot_command_v2",
+    "as": "bot_command_v2",
+    "title": null,
+    "description": "New <span class=\"provider\">Snowflake ICM Comparison_dialog</span> command to <span class=\"provider\">Slack Workbot</span>",
+    "keyword": "trigger",
+    "toggleCfg": {
+      "domain": false,
+      "name": false,
+      "scope": false
+    },
+    "input": {
+      "domain": "Snowflake",
+      "name": "ICM",
+      "scope": "Comparison_dialog",
+      "parameters": "[\n\n]",
+      "description": "This recipe configures your invoked dialog.",
+      "allow_dialog": "true"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "slack_bot",
+        "name": "post_bot_reply_v2",
+        "as": "post_bot_reply_v2",
+        "keyword": "action",
+        "input": {
+          "text": "Tell me more about your issue."
+        },
+        "comment": "Feedback reply to the user before dialog is posted",
+        "uuid": "f68290e4-bf2f-4178-848f-c046fac41ef9",
+        "skip": true
+      },
+      {
+        "number": 2,
+        "provider": "slack_bot",
+        "name": "open_bot_dialog",
+        "as": "open_bot_dialog",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "bot_command": "github new issue"
+        },
+        "toggleCfg": {
+          "bot_command": true
+        },
+        "input": {
+          "trigger_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"bot_command_v2\",\"path\":[\"context\",\"trigger_id\"]}')}",
+          "title": "Enter issue details",
+          "elements": "[\n    {\n      \"type\": \"text\",\n      \"label\": \"Start Date\",\n      \"name\": \"start_date\",\n      \"placeholder\": \"E.g. 2025-01-01\"\n    },\n    {\n      \"type\": \"text\",\n      \"label\": \"End Date\",\n      \"name\": \"end_date\",\n      \"placeholder\": \"E.g. 2025-03-31\"\n    },\n    {\n      \"type\": \"text\",\n      \"label\": \"Snapshot Date\",\n      \"name\": \"snapshot_date\",\n      \"placeholder\": \"E.g. 2025-02-15\"\n    }\n  ]",
+          "bot_command": "63354488",
+          "submit_label": "Submit"
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "text-area",
+            "default": "=[\n  {\n    \"type\": \"text\",\n    \"name\": \"issue_title\",\n    \"label\": \"Issue title\",\n    \"hint\": \"Key in the issue title\",\n    \"optional\": false\n  },\n  {\n    \"type\": \"text\",\n    \"name\": \"description\",\n    \"label\": \"Description\",\n    \"hint\": \"Key in description of issue\",\n    \"optional\": false\n  },\n  {\n    \"type\": \"text\",\n    \"name\": \"assignee\",\n    \"label\": \"Assignee\",\n    \"hint\": \"Who to assign this to? Enter the github handle\",\n    \"optional\": false\n  }\n]",
+            "hint": "                    JSON is generated from the input parameters of the <b>Submit</b> button command recipe.\n                    Modify this to include hints, error handling, picklist options, etc. for your dialog.\n                    {{#if input.bot_command}}<a href='/recipes/{{urlParam(63354488)}}' target='_blank'>View <b>Submit</b> button command recipe</a>.{{/if}} \n                    Do not change the form fields' internal names as they should match that of the <b>Submit</b> button command recipe.\n                    Max 10 fields. <a href='https://api.slack.com/dialogs' target='_blank'>Learn more</a>\n",
+            "label": "Dialog form fields",
+            "name": "elements",
+            "type": "string"
+          }
+        ],
+        "visible_config_fields": [
+          "trigger_id",
+          "callback_id",
+          "title",
+          "bot_command",
+          "elements",
+          "submit_label"
+        ],
+        "comment": "Configuration of the post dialog action. Also posts the dialog to the user on Slack.",
+        "uuid": "b4aa5ee8-46f4-4f41-bc4b-604cfad2fc1f",
+        "skip": true
+      },
+      {
+        "number": 3,
+        "provider": "slack_bot",
+        "name": "block_kit_modals",
+        "as": "0bc0c2d5",
+        "title": null,
+        "description": "Open a <span class=\"provider\">modal view</span> as <span class=\"provider\">Slack Workbot</span>",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "view.submit_view.bot_command": "snowflake icm comparison_sync"
+        },
+        "toggleCfg": {
+          "modal_action_type": true,
+          "view.submit_view.bot_command": true
+        },
+        "input": {
+          "trigger_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"bot_command_v2\",\"path\":[\"context\",\"trigger_id\"]}')}",
+          "modal_action_type": "open",
+          "view": {
+            "modal_title": "Snowflake ICM Comparison",
+            "submit_view": {
+              "bot_command": {
+                "zip_name": "Recipe/snowflake_and_icm_comparison_synchronize_job.recipe.json",
+                "name": "Snowflake and ICM Comparison synchronize job",
+                "folder": "Recipe"
+              },
+              "submit_text": "Submit",
+              "close_text": "Close",
+              "continue_flow": "false"
+            },
+            "blocks": [
+              {
+                "block_type": "datepicker_input",
+                "section_text": "entervalue",
+                "label_text": "Close Date From",
+                "block_id": "close_date_from",
+                "initial_date": "2025-06-15",
+                "optional": "false"
+              },
+              {
+                "block_type": "datepicker_input",
+                "label_text": "Close Date To",
+                "optional": "false",
+                "block_id": "close_date_to",
+                "initial_date": "2025-06-15"
+              },
+              {
+                "block_type": "datepicker_input",
+                "label_text": "Snapshot Date",
+                "optional": "false",
+                "block_id": "snapshot_date",
+                "initial_date": "2025-06-15"
+              }
+            ]
+          }
+        },
+        "visible_config_fields": [
+          "view_id",
+          "view.blocks",
+          "view.blocks.block_type",
+          "view.blocks.section_text",
+          "view.blocks.image_url",
+          "view.blocks.alt_text",
+          "view.blocks.button_title",
+          "view.blocks.url",
+          "view.blocks.bot_command",
+          "view.blocks.params",
+          "view.blocks.style",
+          "view.blocks.attachment_fields",
+          "view.blocks.attachment_fields.value",
+          "view.blocks.placeholder_text",
+          "view.blocks.menu_type",
+          "view.blocks.dynamic_menu_recipe",
+          "view.blocks.field_name",
+          "view.blocks.options",
+          "view.blocks.options.title",
+          "view.blocks.options.bot_command",
+          "view.blocks.options.params",
+          "view.blocks.options.init_value",
+          "view.blocks.init_option",
+          "view.blocks.options.value",
+          "view.blocks.init_options",
+          "view.blocks.initial_date",
+          "view.blocks.image_title",
+          "view.blocks.elements",
+          "view.blocks.elements.type",
+          "view.blocks.elements.text",
+          "view.blocks.elements.image_url",
+          "view.blocks.elements.alt_text",
+          "view.blocks.actions",
+          "view.blocks.actions.type",
+          "view.blocks.actions.button_title",
+          "view.blocks.actions.url",
+          "view.blocks.actions.bot_command",
+          "view.blocks.actions.params",
+          "view.blocks.actions.style",
+          "view.blocks.actions.placeholder_text",
+          "view.blocks.actions.initial_date",
+          "view.blocks.actions.field_name",
+          "view.blocks.actions.options",
+          "view.blocks.actions.options.params",
+          "view.blocks.actions.menu_type",
+          "view.blocks.actions.dynamic_menu_recipe",
+          "view.blocks.label_text",
+          "view.blocks.hint_text",
+          "view.blocks.optional",
+          "view.blocks.initial_value",
+          "view.blocks.objects",
+          "view.blocks.objects.blocks",
+          "view.blocks.objects.blocks.block_type",
+          "view.blocks.objects.blocks.section_text",
+          "view.blocks.objects.blocks.image_url",
+          "view.blocks.objects.blocks.alt_text",
+          "view.blocks.objects.blocks.button_title",
+          "view.blocks.objects.blocks.url",
+          "view.blocks.objects.blocks.bot_command",
+          "view.blocks.objects.blocks.params",
+          "view.blocks.objects.blocks.style",
+          "view.blocks.objects.blocks.attachment_fields",
+          "view.blocks.objects.blocks.attachment_fields.value",
+          "view.blocks.objects.blocks.placeholder_text",
+          "view.blocks.objects.blocks.menu_type",
+          "view.blocks.objects.blocks.dynamic_menu_recipe",
+          "view.blocks.objects.blocks.field_name",
+          "view.blocks.objects.blocks.options",
+          "view.blocks.objects.blocks.options.title",
+          "view.blocks.objects.blocks.options.bot_command",
+          "view.blocks.objects.blocks.options.params",
+          "view.blocks.objects.blocks.options.init_value",
+          "view.blocks.objects.blocks.init_option",
+          "view.blocks.objects.blocks.initial_date",
+          "view.blocks.objects.blocks.image_title",
+          "view.blocks.objects.blocks.elements",
+          "view.blocks.objects.blocks.elements.type",
+          "view.blocks.objects.blocks.elements.text",
+          "view.blocks.objects.blocks.elements.image_url",
+          "view.blocks.objects.blocks.elements.alt_text",
+          "view.blocks.objects.blocks.actions",
+          "view.blocks.objects.blocks.actions.type",
+          "view.blocks.objects.blocks.actions.button_title",
+          "view.blocks.objects.blocks.actions.url",
+          "view.blocks.objects.blocks.actions.bot_command",
+          "view.blocks.objects.blocks.actions.params",
+          "view.blocks.objects.blocks.actions.style",
+          "view.blocks.objects.blocks.actions.placeholder_text",
+          "view.blocks.objects.blocks.actions.initial_date",
+          "view.blocks.objects.blocks.actions.field_name",
+          "view.blocks.objects.blocks.actions.options",
+          "view.blocks.objects.blocks.actions.options.params",
+          "view.blocks.objects.blocks.actions.menu_type",
+          "view.blocks.objects.blocks.actions.dynamic_menu_recipe",
+          "view.submit_view.continue_flow",
+          "view.submit_view.bot_command",
+          "view.submit_view.params",
+          "view.submit_view.submit_text",
+          "view.submit_view.close_text",
+          "trigger_id"
+        ],
+        "uuid": "97eeeab7-3b03-4d35-be60-b2b3f339d1a9"
+      }
+    ],
+    "comment": "Receives the command from 1. Trigger recipe from the button or menu option click",
+    "uuid": "433937c2-a9dc-4007-a32b-b6b62b41ee82",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "slack_bot",
+      "account_id": {
+        "zip_name": "Connections/order_con_workbot_slack_stage.connection.json",
+        "name": "Order | CON | workbot-slack-stage",
+        "folder": "Connections"
+      },
+      "skip_validation": false
+    }
+  ]
+}
