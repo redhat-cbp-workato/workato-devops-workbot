@@ -1,0 +1,703 @@
+{
+  "name": "Snowflake and ICM Comparison synchronize job",
+  "description": "",
+  "version": 30,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "slack_bot",
+    "name": "bot_command_v2",
+    "as": "bot_command_v2",
+    "title": null,
+    "description": "New <span class=\"provider\">Snowflake ICM Comparison_sync</span> command to <span class=\"provider\">Slack Workbot</span>",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "domain": "GitHub"
+    },
+    "toggleCfg": {
+      "domain": false,
+      "name": false,
+      "scope": false
+    },
+    "input": {
+      "parameters": "[\n  {\n    \"name\": \"close_date_from\",\n    \"type\": \"string\",\n    \"optional\": false,\n    \"hint\": \"Key in the issue title\",\n    \"sample\": \"Cat is on fire\",\n    \"control_type\": \"text\",\n    \"label\": \"Close Date From\"\n  },\n  {\n    \"name\": \"close_date_to\",\n    \"type\": \"string\",\n    \"optional\": false,\n    \"hint\": \"Key in description of issue\",\n    \"sample\": \"Cat was dancing in fire and caught fire.\",\n    \"control_type\": \"text\",\n    \"label\": \"Close Date To\"\n  },\n  {\n    \"name\": \"snapshot_date\",\n    \"type\": \"string\",\n    \"optional\": false,\n    \"hint\": \"Who to assign this to? Enter the github handle\",\n    \"sample\": \"jandonyada\",\n    \"control_type\": \"text\",\n    \"label\": \"Snapshot Date\"\n  }\n]",
+      "description": "Creates an issue in Github based on the user input from the dialog.",
+      "name": "ICM",
+      "scope": "Comparison_sync",
+      "allow_dialog": "true",
+      "domain": "Snowflake"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Close Date From",
+            "name": "close_date_from",
+            "type": "string",
+            "optional": false,
+            "hint": "Key in the issue title",
+            "sample": "Cat is on fire"
+          },
+          {
+            "control_type": "text",
+            "label": "Close Date To",
+            "name": "close_date_to",
+            "type": "string",
+            "optional": false,
+            "hint": "Key in description of issue",
+            "sample": "Cat was dancing in fire and caught fire."
+          },
+          {
+            "control_type": "text",
+            "label": "Snapshot Date",
+            "name": "snapshot_date",
+            "type": "string",
+            "optional": false,
+            "hint": "Who to assign this to? Enter the github handle",
+            "sample": "jandonyada"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_app",
+        "name": "list_jobs",
+        "as": "ab809167",
+        "title": null,
+        "description": null,
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "recipe_id": "Snowflake and ICM Comparison"
+        },
+        "toggleCfg": {
+          "recipe_id": true
+        },
+        "input": {
+          "status": "pending",
+          "recipe_id": [
+            {
+              "zip_name": "Recipe/snowflake_and_icm_comparison_flow.recipe.json",
+              "name": "Snowflake and ICM Comparison flow",
+              "folder": "Recipe"
+            }
+          ],
+          "started_at_from": "=today"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Jobs",
+            "name": "jobs",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Job ID",
+                "type": "string",
+                "name": "id"
+              },
+              {
+                "control_type": "text",
+                "label": "Original Job ID",
+                "type": "string",
+                "name": "master_job_id"
+              },
+              {
+                "control_type": "text",
+                "label": "Recipe ID",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "recipe_id"
+              },
+              {
+                "control_type": "text",
+                "label": "Calling job ID",
+                "type": "string",
+                "name": "calling_job_id"
+              },
+              {
+                "control_type": "text",
+                "label": "Calling recipe ID",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "calling_recipe_id"
+              },
+              {
+                "control_type": "text",
+                "label": "Root recipe ID",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "root_recipe_id"
+              },
+              {
+                "control_type": "text",
+                "label": "Root job ID",
+                "type": "string",
+                "name": "root_job_id"
+              },
+              {
+                "control_type": "text",
+                "label": "Title",
+                "type": "string",
+                "name": "title"
+              },
+              {
+                "control_type": "text",
+                "label": "Status",
+                "type": "string",
+                "name": "status"
+              },
+              {
+                "control_type": "text",
+                "label": "Is repeat",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Is repeat",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "type": "boolean",
+                  "name": "is_repeat"
+                },
+                "type": "boolean",
+                "name": "is_repeat"
+              },
+              {
+                "control_type": "text",
+                "label": "Is test",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Is test",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "type": "boolean",
+                  "name": "is_test"
+                },
+                "type": "boolean",
+                "name": "is_test"
+              },
+              {
+                "control_type": "text",
+                "label": "Started at",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "type": "date_time",
+                "name": "started_at"
+              },
+              {
+                "control_type": "text",
+                "label": "Completed at",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "type": "date_time",
+                "name": "completed_at"
+              },
+              {
+                "control_type": "text",
+                "label": "Repeat count",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "repeat_count"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Error ID",
+                    "type": "string",
+                    "name": "error_id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Error type",
+                    "type": "string",
+                    "name": "error_type"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Error at",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "type": "date_time",
+                    "name": "error_at"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Errored app",
+                    "type": "string",
+                    "name": "adapter"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Errored action",
+                    "type": "string",
+                    "name": "action"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Errored step number",
+                    "parse_output": "integer_conversion",
+                    "type": "integer",
+                    "name": "line_number"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Error message",
+                    "type": "string",
+                    "name": "message"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Inner message",
+                    "type": "string",
+                    "name": "inner_message"
+                  }
+                ],
+                "label": "Error",
+                "type": "object",
+                "name": "error"
+              },
+              {
+                "control_type": "text",
+                "label": "Flow ID",
+                "parse_output": "integer_conversion",
+                "deprecated": true,
+                "type": "integer",
+                "name": "flow_id"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "uuid": "17fce4c0-4223-4225-a57e-41f6e94c61ef"
+      },
+      {
+        "number": 2,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "71d4b6e6",
+        "title": "  Create variables total_job, call_url",
+        "description": "Create variables <span class=\"provider\">total_job</span>, <span class=\"provider\">call_url</span>",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"control_type\":\"integer\",\"label\":\"total_job\",\"parse_output\":\"integer_conversion\",\"name\":\"total_job\",\"type\":\"integer\",\"optional\":true,\"details\":{\"real_name\":\"total_job\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"name\":\"call_url\",\"type\":\"string\",\"optional\":true,\"label\":\"call_url\",\"details\":{\"real_name\":\"call_url\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "total_job": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_app\",\"line\":\"ab809167\",\"path\":[\"jobs\",{\"path_element_type\":\"size\"}]}')}",
+              "call_url": "https://webhooks.workato.com/webhooks/rest/5f034a9f-bbdb-4f4b-b41e-7fbce7ea7000/snowflake-and-icm-comparison-synchronize?close_date_from=01-01-2025&close_date_to=03-31-2025&snapshot_date=04-10-2025"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "integer",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "total_job",
+            "name": "total_job",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "sticky": true,
+            "type": "integer",
+            "details": {
+              "real_name": "total_job"
+            }
+          },
+          {
+            "control_type": "text",
+            "label": "call_url",
+            "name": "call_url",
+            "optional": true,
+            "type": "string",
+            "details": {
+              "real_name": "call_url"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "integer",
+                    "label": "total_job",
+                    "parse_output": "integer_conversion",
+                    "name": "total_job",
+                    "type": "integer",
+                    "optional": true,
+                    "details": {
+                      "real_name": "total_job"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "call_url",
+                    "name": "call_url",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "call_url"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.t_job",
+          "variables",
+          "variables.schema",
+          "variables.data",
+          "variables.data.total_job",
+          "variables.data.call_url"
+        ],
+        "uuid": "1668c14c-4ea6-40f6-b0ee-b2ebb86a8090"
+      },
+      {
+        "number": 3,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "greater_than",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"71d4b6e6\",\"path\":[\"total_job\"]}')}",
+              "rhs": "0",
+              "uuid": "b179ef47-9a21-46cf-b0d7-b0e1068a6896"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 4,
+            "provider": "workato_variable",
+            "name": "declare_variable",
+            "as": "81aab9e0",
+            "title": "  Create variable running_job",
+            "description": "Create variable <span class=\"provider\">running_job</span>",
+            "keyword": "action",
+            "input": {
+              "variables": {
+                "schema": "[{\"name\":\"running_job\",\"type\":\"string\",\"optional\":true,\"label\":\"running_job\",\"details\":{\"real_name\":\"running_job\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
+                "data": {
+                  "running_job": "https://app.workato.com/recipes/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_app\",\"line\":\"ab809167\",\"path\":[\"jobs\",{\"path_element_type\":\"current_item\"},\"recipe_id\"]}')}/job/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_app\",\"line\":\"ab809167\",\"path\":[\"jobs\",{\"path_element_type\":\"current_item\"},\"id\"]}')}"
+                }
+              }
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "text",
+                "label": "running_job",
+                "name": "running_job",
+                "optional": true,
+                "type": "string",
+                "details": {
+                  "real_name": "running_job"
+                }
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "add_field_label": "Add a variable",
+                "control_type": "form-schema-builder",
+                "empty_schema_title": "Add variables by giving them a name, type and default value",
+                "exclude_fields": [
+                  "hint"
+                ],
+                "item_label": "variable",
+                "label": "Variables",
+                "mark_as_required": true,
+                "name": "variables",
+                "ngIf": "!input.name",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Schema",
+                    "extends_schema": true,
+                    "broadcast_change_event": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "running_job",
+                        "name": "running_job",
+                        "type": "string",
+                        "optional": true,
+                        "details": {
+                          "real_name": "running_job"
+                        },
+                        "parent": [
+                          "variables",
+                          "data"
+                        ],
+                        "hint": "Defaults to nil if not supplied.",
+                        "sticky": true
+                      }
+                    ],
+                    "label": "Data",
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "variables.data.running_job"
+            ],
+            "uuid": "b61f4298-fdda-4cbb-80cc-40a08032ee87",
+            "skip": false
+          },
+          {
+            "number": 5,
+            "provider": "slack",
+            "name": "post_message_to_channel",
+            "as": "a15bb5dc",
+            "title": null,
+            "description": null,
+            "keyword": "action",
+            "toggleCfg": {
+              "channel": false
+            },
+            "input": {
+              "parse": "false",
+              "text": "Job #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"81aab9e0\",\"path\":[\"running_job\"]}')} already running please wait for 15 min",
+              "username": "workato-admin",
+              "channel": "C090ZKGN7J6"
+            },
+            "uuid": "c122a0e6-4b40-410a-bfc1-20d43dfd5c0d",
+            "skip": true
+          },
+          {
+            "number": 6,
+            "provider": "slack_bot",
+            "name": "post_bot_reply_v2",
+            "as": "1c97d6d2",
+            "title": null,
+            "description": "Post <span class=\"provider\">command reply</span> as <span class=\"provider\">Slack Workbot</span>",
+            "keyword": "action",
+            "toggleCfg": {
+              "message.color": true
+            },
+            "input": {
+              "text": "Status",
+              "message": {
+                "title": "Job URL",
+                "title_link": "https://app.workato.com/recipes/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_app\",\"line\":\"ab809167\",\"path\":[\"jobs\",{\"path_element_type\":\"current_item\"},\"recipe_id\"]}')}/job/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_app\",\"line\":\"ab809167\",\"path\":[\"jobs\",{\"path_element_type\":\"current_item\"},\"id\"]}')}",
+                "attachment_text": "Job already running please wait for 15 min",
+                "color": "warning"
+              }
+            },
+            "uuid": "32c6539f-0d0e-4510-9391-fc0222523897"
+          },
+          {
+            "number": 7,
+            "as": "8fbc4274",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "false"
+            },
+            "uuid": "b54289c8-9696-4006-8b93-879e987d2885",
+            "skip": false
+          }
+        ],
+        "uuid": "91fa3d2a-9763-483b-b45d-24d38678c005",
+        "skip": false
+      },
+      {
+        "number": 8,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe_async",
+        "as": "af3c77c7",
+        "title": null,
+        "description": "Call <span class=\"provider\">Snowflake and ICM Comparison flow</span> (async)",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "Snowflake and ICM Comparison"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Recipe/snowflake_and_icm_comparison_flow.recipe.json",
+            "name": "Snowflake and ICM Comparison flow",
+            "folder": "Recipe"
+          },
+          "parameters": {
+            "close_date_from": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"bot_command_v2\",\"path\":[\"parameters\",\"close_date_from\"]}')}",
+            "close_date_to": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"bot_command_v2\",\"path\":[\"parameters\",\"close_date_to\"]}')}",
+            "snapshot_date": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"bot_command_v2\",\"path\":[\"parameters\",\"snapshot_date\"]}')}"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Close date from",
+                "name": "close_date_from",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Close date to",
+                "name": "close_date_to",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Snapshot date",
+                "name": "snapshot_date",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "5401ce73-e5b5-4719-9e10-54e3e6fd4558",
+        "skip": false
+      },
+      {
+        "number": 9,
+        "provider": "slack",
+        "name": "post_message_to_channel",
+        "as": "5f03bcab",
+        "keyword": "action",
+        "toggleCfg": {
+          "channel": false
+        },
+        "input": {
+          "parse": "false",
+          "channel": "C090ZKGN7J6",
+          "text": "Tiggered job #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"af3c77c7\",\"path\":[\"job_url\"]}')}",
+          "username": "workato-admin"
+        },
+        "uuid": "250bea0e-efeb-4174-b0d5-6080083c3554",
+        "skip": true
+      },
+      {
+        "number": 10,
+        "provider": "slack_bot",
+        "name": "post_bot_reply_v2",
+        "as": "b532a0a1",
+        "title": null,
+        "description": "Post <span class=\"provider\">command reply</span> as <span class=\"provider\">Slack Workbot</span>",
+        "keyword": "action",
+        "toggleCfg": {
+          "message.color": true
+        },
+        "input": {
+          "text": "Status",
+          "message": {
+            "title": "Job URL",
+            "title_link": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"af3c77c7\",\"path\":[\"job_url\"]}')}",
+            "attachment_text": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"slack_bot\",\"line\":\"bot_command_v2\",\"path\":[\"context\",\"user_email\"]}')} Trigged Job  ",
+            "color": "good"
+          }
+        },
+        "uuid": "7a20f2fe-cfdb-49c5-9811-190501983ea1"
+      }
+    ],
+    "comment": "Command should match the dialog 'Submit button command' in the previous recipe's Post dialog.",
+    "uuid": "2f6b9525-f816-4ec6-abc7-4a50f17c5a37",
+    "format_version": 2
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_app",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/con_recipeops_icm.connection.json",
+        "name": "CON | RecipeOps ICM",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "slack",
+      "skip_validation": true,
+      "account_id": {
+        "zip_name": "Connections/suhas_slack_account.connection.json",
+        "name": "Suhas Slack account",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "slack_bot",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/order_con_workbot_slack_stage.connection.json",
+        "name": "Order | CON | workbot-slack-stage",
+        "folder": "Connections"
+      }
+    }
+  ]
+}
