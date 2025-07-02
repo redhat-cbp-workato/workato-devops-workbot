@@ -1,9 +1,7 @@
 {
   "name": "SNI | Laptop Fulfillment - PO",
   "description": "",
-
-  "version": 7,
-
+  "version": 11,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -11,8 +9,6 @@
     "provider": "clock",
     "name": "scheduled_event",
     "as": "41051a87",
-    "title": null,
-    "description": "<span class=\"provider\">Trigger</span> every 1 days at <span class=\"provider\">09:00:00 AM</span>",
     "keyword": "trigger",
     "dynamicPickListSelection": {
       "time_unit": "Days",
@@ -87,16 +83,12 @@
         "provider": "workato_variable",
         "name": "declare_variable",
         "as": "6d4fffd5",
-        "title": "  Create variable P_NO_DAYS",
-        "description": "Create variable <span class=\"provider\">P_NO_DAYS</span>",
         "keyword": "action",
         "input": {
           "variables": {
             "schema": "[{\"name\":\"P_NO_DAYS\",\"type\":\"number\",\"optional\":true,\"label\":\"P_NO_DAYS\",\"details\":{\"real_name\":\"P_NO_DAYS\"},\"control_type\":\"number\",\"parent\":[\"variables\",\"data\"]}]",
             "data": {
-
               "P_NO_DAYS": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_sni_days_max_limit\"}')}"
-
             }
           }
         },
@@ -174,8 +166,6 @@
         "provider": "oracle",
         "name": "search_rows_sql",
         "as": "888f30b3",
-        "title": "Select rows using custom SQL",
-        "description": "Select <span class=\"provider\">rows</span> using <span class=\"provider\">custom SQL</span> in <span class=\"provider\">Oracle</span>",
         "keyword": "action",
         "input": {
           "sql": "--  Code developed by SIPAWAR\n-- Reference code: \"XXRH_ERP_LAPTOP_FULL_PKG\"\nSELECT SNOW_TICKET_NUM,\n             SNOW_BUSINESS_GROUP,\n             OU_NAME,\n             PR_LINE_NUMBER,\n             PR_NUMBER,\n             PR_CREATION_DATE,\n             PR_AMOUNT,\n             PR_CURRENCY,\n             PR_STATUS,\n             PR_DESCRIPTION,\n             PR_COMPANY_CODE,\n             PR_ACCOUNT_CODE,\n             PR_LOCATION_CODE,\n             PR_COST_CENTER,\n             PR_PROJECT_CODE,\n             VENDOR_NAME,\n             PR_APPROVED_BY,\n             APPROVED_DATE,\n             PO_NUMBER,\n             PO_DATE,\n             PO_AMOUNT,\n             RECPT_NUM, \n             RECPT_DATE,\n             RECPT_AMOUNT, \n             INVOICE_NUM,\n             INVOICE_DATE,\n             INVOICE_AMOUNT,\n             INV_CREATION_DATE,\n             INV_PAY_DATE, \n             INV_STATUS \n        FROM (SELECT XXLFS.SNOW_TICKET_NUM,\n                     XXLFS.SNOW_BUSINESS_GROUP,\n                     XXLFS.OU_NAME,\n                     XXLFS.PR_LINE_NUMBER,\n                     XXLFS.PR_NUMBER PR_NUMBER,\n                     TO_CHAR(XXLFS.PR_CREATION_DATE,\n                             'DD-MON-YYYY HH24:MI:SS') PR_CREATION_DATE,\n                     XXLFS.PR_AMOUNT PR_AMOUNT,\n                     XXLFS.PR_CURRENCY PR_CURRENCY,\n                     XXLFS.PR_STATUS PR_STATUS,\n                     TRIM(XXLFS.PR_DESCRIPTION) PR_DESCRIPTION,\n                     XXLFS.PR_COMPANY_CODE PR_COMPANY_CODE,\n                     XXLFS.PR_ACCOUNT_CODE PR_ACCOUNT_CODE,\n                     XXLFS.PR_LOCATION_CODE PR_LOCATION_CODE,\n                     XXLFS.PR_COST_CENTER PR_COST_CENTER,\n                     XXLFS.PR_PROJECT_CODE PR_PROJECT_CODE,\n                     NVL(XXLFS.PR_VENDOR_NAME, XXLFS.PO_VENDOR_NAME) VENDOR_NAME,\n                     XXLFS.PR_APPROVED_BY PR_APPROVED_BY,\n                     TO_CHAR(XXLFS.PR_APPROVED_DATE,\n                             'DD-MON-YYYY HH24:MI:SS') APPROVED_DATE,\n                     XXLFS.PO_NUMBER PO_NUMBER,\n                     TO_CHAR(XXLFS.PO_CREATION_DATE,\n                             'DD-MON-YYYY HH24:MI:SS') PO_DATE,\n                     XXLFS.PO_AMOUNT PO_AMOUNT,\n                     XXLFS.RECPT_NUM RECPT_NUM, \n                     TO_CHAR(XXLFS.RECPT_DATE, 'DD-MON-YYYY HH24:MI:SS') RECPT_DATE, \n                     XXLFS.RECPT_AMOUNT RECPT_AMOUNT,    \n                     XXLFS.INVOICE_NUM INVOICE_NUM,\n                     TO_CHAR(XXLFS.INVOICE_DATE, 'DD-MON-YYYY HH24:MI:SS') INVOICE_DATE,\n                     XXLFS.INVOICE_AMOUNT INVOICE_AMOUNT,\n                     TO_CHAR(XXLFS.INV_CREATION_DATE,\n                             'DD-MON-YYYY HH24:MI:SS') INV_CREATION_DATE,\n                     TO_CHAR(XXLFS.INV_PAY_DATE, 'DD-MON-YYYY HH24:MI:SS') INV_PAY_DATE, \n                     XXLFS.INV_STATUS INV_STATUS         \n                FROM XXRHFIN.XXRHFIN_LAPTOP_FULFILL_SNOW XXLFS\n               WHERE 1 = 1\n                 AND (XXLFS.PR_CREATION_DATE BETWEEN SYSDATE - :P_NO_DAYS AND\n                     SYSDATE OR XXLFS.PR_LAST_UPDATE_DATE BETWEEN\n                     SYSDATE - :P_NO_DAYS AND SYSDATE OR\n                     XXLFS.PO_CREATION_DATE BETWEEN SYSDATE - :P_NO_DAYS AND\n                     SYSDATE OR XXLFS.INV_CREATION_DATE BETWEEN\n                     SYSDATE - :P_NO_DAYS AND SYSDATE)\n                 AND EXISTS (SELECT XXLFS2.REQUISITION_LINE_ID\n                        FROM XXRHFIN.XXRHFIN_LAPTOP_FULFILL_SNOW XXLFS2\n                       WHERE 1 = 1\n                         AND ((XXLFS2.INV_CREATION_DATE BETWEEN\n                             SYSDATE - :P_NO_DAYS AND SYSDATE) OR\n                             XXLFS.INV_CREATION_DATE IS NULL)\n                         AND XXLFS2.REQUISITION_LINE_ID =\n                             XXLFS.REQUISITION_LINE_ID))\n               ORDER BY PR_NUMBER, PR_LINE_NUMBER",
@@ -770,8 +760,6 @@
         "provider": "workato_variable",
         "name": "declare_list",
         "as": "3c682cef",
-        "title": " Create Error List list",
-        "description": "Create <span class=\"provider\">Error List</span> list",
         "keyword": "action",
         "input": {
           "name": "Error List",
@@ -1312,8 +1300,6 @@
                 "provider": "service_now",
                 "name": "create_object",
                 "as": "582d0d2d",
-                "title": "Create record in u_oracle_pr_import ",
-                "description": "Create <span class=\"provider\">record</span> in <span class=\"provider\">u_oracle_pr_import</span> table  in <span class=\"provider\">ServiceNow</span>",
                 "keyword": "action",
                 "toggleCfg": {
                   "table": false
@@ -1348,7 +1334,8 @@
                     "u_receipt_date": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"recpt_date\"]}')}",
                     "u_receipt_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"recpt_num\"]}')}",
                     "u_service_now_ticket_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"snow_ticket_num\"]}')}",
-                    "u_vendor_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"vendor_name\"]}')}"
+                    "u_vendor_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"vendor_name\"]}')}",
+                    "u_business_group": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"08d6aeee\",\"path\":[\"snow_business_group\"]}')}"
                   }
                 },
                 "extended_output_schema": [
@@ -1827,6 +1814,14 @@
                       },
                       {
                         "control_type": "text",
+                        "label": "Business Group",
+                        "custom": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "u_business_group"
+                      },
+                      {
+                        "control_type": "text",
                         "label": "Company Code",
                         "custom": true,
                         "optional": true,
@@ -2203,7 +2198,9 @@
                   "row.u_cost_center",
                   "row.u_company_code",
                   "row.u_amount__",
-                  "row.u_account_code"
+                  "row.u_account_code",
+                  "row",
+                  "row.u_business_group"
                 ],
                 "uuid": "28ebd101-51d4-419c-82e7-16d98aa79f29",
                 "skip": false
@@ -2213,7 +2210,7 @@
                 "as": "4ef0e145",
                 "keyword": "catch",
                 "input": {
-                  "max_retry_count": "0",
+                  "max_retry_count": "1",
                   "retry_interval": "2"
                 },
                 "block": [
@@ -2222,8 +2219,6 @@
                     "provider": "workato_variable",
                     "name": "insert_to_list_batch",
                     "as": "c546fa23",
-                    "title": "Add items to Error List list",
-                    "description": "Add <span class=\"provider\">items</span> to <span class=\"provider\">Error List</span> list",
                     "keyword": "action",
                     "dynamicPickListSelection": {
                       "name": "Error List (step 4)"
@@ -2511,8 +2506,6 @@
                     "provider": "email",
                     "name": "send_mail",
                     "as": "32573330",
-                    "title": null,
-                    "description": null,
                     "keyword": "action",
                     "input": {
                       "email_type": "plain_text",
