@@ -1,9 +1,7 @@
 {
   "name": "SNI | VRM | Days",
   "description": "",
-
-  "version": 8,
-
+  "version": 10,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -11,8 +9,6 @@
     "provider": "clock",
     "name": "scheduled_event",
     "as": "8c27b4bc",
-    "title": null,
-    "description": "<span class=\"provider\">Trigger</span> every 1 days at <span class=\"provider\">09:00:00 AM</span>",
     "keyword": "trigger",
     "dynamicPickListSelection": {
       "time_unit": "Days",
@@ -87,16 +83,12 @@
         "provider": "workato_variable",
         "name": "declare_variable",
         "as": "94ef2c3e",
-        "title": "  Create variable p_date_value",
-        "description": "Create variable <span class=\"provider\">p_date_value</span>",
         "keyword": "action",
         "input": {
           "variables": {
             "schema": "[{\"control_type\":\"number\",\"label\":\"p_date_value\",\"parse_output\":\"float_conversion\",\"name\":\"p_date_value\",\"type\":\"number\",\"optional\":true,\"details\":{\"real_name\":\"p_date Value\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]",
             "data": {
-
               "p_date_value": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_sni_days_max_limit\"}')}"
-
             }
           }
         },
@@ -176,8 +168,6 @@
         "provider": "oracle",
         "name": "search_rows_sql",
         "as": "137866fb",
-        "title": "Select rows using custom SQL",
-        "description": "Select <span class=\"provider\">rows</span> using <span class=\"provider\">custom SQL</span> in <span class=\"provider\">Oracle</span>",
         "keyword": "action",
         "input": {
           "sql": "--  Code developer by SIPAWAR\n-- Reference code: \"XXRH_ERP_VRM_PKG\"\n Select aps.creation_date,\n             aps.last_update_date,\n             aps.vendor_name,\n             aps.segment1,\n             aps.vendor_type_lookup_code,\n             aps.vat_registration_num,\n             CASE\n               WHEN end_date_active IS NULL THEN\n                'Yes'\n               WHEN (end_date_active IS NOT NULL AND\n                    end_date_active > SYSDATE) THEN\n                'Yes'\n               ELSE\n                'No'\n             END Supplier_Active, \n             aps.attribute1,\n             aps.attribute2,\n             aps.attribute3,\n             aps.attribute9,\n             aps.attribute10,\n             aps.attribute4,\n             aps.attribute5,\n             aps.attribute6,\n             aps.attribute7,\n             aps.attribute8,\n             aps.vendor_id,\n             apss.address_line1, \n             apss.city,\n             apss.state, \n             apss.zip, \n             apss.country \n        FROM apps.ap_suppliers          aps, \n             apps.ap_supplier_sites_all apss \n       WHERE 1 = 1\n         AND aps.vendor_id = apss.vendor_id\n         AND (apss.inactive_date is null or apss.inactive_date > sysdate)\n         AND apss.vendor_site_id =\n             (SELECT vendor_site_id\n                FROM apps.ap_supplier_sites_all\n               WHERE vendor_id = aps.vendor_id\n                 AND (inactive_date is null or inactive_date > sysdate)\n                 AND ROWNUM = 1) \n         AND (aps.vendor_type_lookup_code NOT IN\n             ('EMPLOYEE', 'EMPLOYEE REIMBURSEMENT', 'CANDIDATE') OR\n             aps.vendor_type_lookup_code is null)\n         AND TRUNC(aps.last_update_date) >= TRUNC(sysdate - :p_days)",
@@ -686,8 +676,6 @@
         "provider": "workato_variable",
         "name": "declare_list",
         "as": "1e2fa003",
-        "title": " Create EBC Vendor Error List list",
-        "description": "Create <span class=\"provider\">EBC Vendor Error List</span> list",
         "keyword": "action",
         "input": {
           "name": "EBC Vendor Error List",
@@ -1125,8 +1113,6 @@
                 "provider": "service_now",
                 "name": "create_object",
                 "as": "9436c956",
-                "title": "Create record in u_ebc_vendor_list ",
-                "description": "Create <span class=\"provider\">record</span> in <span class=\"provider\">u_ebc_vendor_list</span> table  in <span class=\"provider\">ServiceNow</span>",
                 "keyword": "action",
                 "toggleCfg": {
                   "table": false
@@ -1996,7 +1982,7 @@
                 "as": "9c8b9b3a",
                 "keyword": "catch",
                 "input": {
-                  "max_retry_count": "0",
+                  "max_retry_count": "1",
                   "retry_interval": "2"
                 },
                 "block": [
@@ -2005,8 +1991,6 @@
                     "provider": "workato_variable",
                     "name": "insert_to_list_batch",
                     "as": "f64c504a",
-                    "title": "Add items to EBC Vendor Error List list",
-                    "description": "Add <span class=\"provider\">items</span> to <span class=\"provider\">EBC Vendor Error List</span> list",
                     "keyword": "action",
                     "dynamicPickListSelection": {
                       "name": "EBC Vendor List (step 4)"
@@ -2241,8 +2225,6 @@
                     "provider": "email",
                     "name": "send_mail",
                     "as": "e0de1561",
-                    "title": null,
-                    "description": null,
                     "keyword": "action",
                     "input": {
                       "email_type": "plain_text",
@@ -2272,8 +2254,8 @@
       "provider": "oracle",
       "skip_validation": false,
       "account_id": {
-        "zip_name": "Connections/s2p_con_dev1_workato.connection.json",
-        "name": "S2P | CON | DEV1 | Workato",
+        "zip_name": "Connections/s2p_con_finsig.connection.json",
+        "name": "S2P | CON | FINSIG",
         "folder": "Connections"
       }
     },

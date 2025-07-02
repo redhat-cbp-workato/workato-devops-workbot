@@ -1,9 +1,7 @@
 {
   "name": "SNI | Laptop Fulfillment - FA",
   "description": "",
-
-  "version": 4,
-
+  "version": 7,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -11,8 +9,6 @@
     "provider": "clock",
     "name": "scheduled_event",
     "as": "41051a87",
-    "title": null,
-    "description": "<span class=\"provider\">Trigger</span> every 1 days at <span class=\"provider\">09:00:00 AM</span>",
     "keyword": "trigger",
     "dynamicPickListSelection": {
       "time_unit": "Days",
@@ -87,16 +83,12 @@
         "provider": "workato_variable",
         "name": "declare_variable",
         "as": "6d4fffd5",
-        "title": "  Create variable P_NO_DAYS",
-        "description": "Create variable <span class=\"provider\">P_NO_DAYS</span>",
         "keyword": "action",
         "input": {
           "variables": {
             "schema": "[{\"name\":\"P_NO_DAYS\",\"type\":\"number\",\"optional\":true,\"label\":\"P_NO_DAYS\",\"details\":{\"real_name\":\"P_NO_DAYS\"},\"control_type\":\"number\",\"parent\":[\"variables\",\"data\"]}]",
             "data": {
-
               "P_NO_DAYS": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_sni_days_max_limit\"}')}"
-
             }
           }
         },
@@ -174,8 +166,6 @@
         "provider": "oracle",
         "name": "search_rows_sql",
         "as": "888f30b3",
-        "title": "Select rows using custom SQL",
-        "description": "Select <span class=\"provider\">rows</span> using <span class=\"provider\">custom SQL</span> in <span class=\"provider\">Oracle</span>",
         "keyword": "action",
         "input": {
           "sql": "--  Code developed by SIPAWAR\n-- Reference code: \"XXRH_ERP_LAPTOP_FULL_PKG\"\nSELECT SNOW_TICKET_NUM,\n             OU_NAME,\n             SNOW_BUSINESS_GROUP,\n             PO_NUMBER,\n             SHIP_TO_COUNTRY,\n             MATCH_SN,\n             ASSET_NUMBER,\n             INVOICE_NUM,\n             ASSET_COST,\n             CREATION_DATE,\n             PR_NUMBER,\n             INVOICE_LINE_NUMBER,\n             GL_ACCOUNT,\n             COST_CENTER,\n             Depreciation_Amount,\n             Depreciation_Period \n        FROM (SELECT XXLFS.SNOW_TICKET_NUM,\n                     XXLFS.OU_NAME,\n                     XXLFS.SNOW_BUSINESS_GROUP, \n                     XXLFS.PO_NUMBER,\n                     XXLFS.SHIP_TO_COUNTRY,\n                     XXLFS.MATCH_SN,\n                     XXLFS.ASSET_NUMBER,\n                     XXLFS.INVOICE_NUM,\n                     XXLFS.ASSET_COST,\n                     TO_CHAR(XXLFS.FA_CREATION_DATE, 'DD-MON-YYYY') CREATION_DATE,\n                     XXLFS.PR_NUMBER,\n                     XXLFS.INVOICE_LINE_NUMBER,\n                     XXLFS.GL_ACCOUNT,\n                     XXLFS.COST_CENTER,\n                     XXLFS.Depreciation_Amount,\n                     XXLFS.Depreciation_Period \n                FROM XXRHFIN.XXRHFIN_LAPTOP_FULFILL_FA_SNOW XXLFS\n               WHERE 1 = 1\n                 AND XXLFS.FA_CREATION_DATE BETWEEN SYSDATE - :P_NO_DAYS AND SYSDATE)\n       ORDER BY INVOICE_NUM, INVOICE_LINE_NUMBER",
@@ -467,8 +457,6 @@
         "provider": "workato_variable",
         "name": "declare_list",
         "as": "aefbb68f",
-        "title": " Create Error List list",
-        "description": "Create <span class=\"provider\">Error List</span> list",
         "keyword": "action",
         "input": {
           "name": "Error List",
@@ -712,8 +700,6 @@
                 "provider": "service_now",
                 "name": "create_object",
                 "as": "3bb2e4f1",
-                "title": "Create record in u_oracle_fixed_assets_import ",
-                "description": "Create <span class=\"provider\">record</span> in <span class=\"provider\">u_oracle_fixed_assets_import</span> table  in <span class=\"provider\">ServiceNow</span>",
                 "keyword": "action",
                 "toggleCfg": {
                   "table": false
@@ -1333,7 +1319,7 @@
                 "as": "4ef0e145",
                 "keyword": "catch",
                 "input": {
-                  "max_retry_count": "0",
+                  "max_retry_count": "1",
                   "retry_interval": "2"
                 },
                 "block": [
@@ -1342,8 +1328,6 @@
                     "provider": "workato_variable",
                     "name": "insert_to_list_batch",
                     "as": "c546fa23",
-                    "title": "Add items to Error List list",
-                    "description": "Add <span class=\"provider\">items</span> to <span class=\"provider\">Error List</span> list",
                     "keyword": "action",
                     "dynamicPickListSelection": {
                       "name": "Error List (step 4)"
@@ -1474,8 +1458,6 @@
                     "provider": "email",
                     "name": "send_mail",
                     "as": "fb9144c5",
-                    "title": null,
-                    "description": null,
                     "keyword": "action",
                     "input": {
                       "email_type": "plain_text",
