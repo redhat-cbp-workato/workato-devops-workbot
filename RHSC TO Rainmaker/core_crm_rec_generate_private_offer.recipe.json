@@ -1,0 +1,2459 @@
+{
+  "name": "[Core CRM] REC | Generate Private Offer",
+  "description": "[ECM-93708/ECM-90533/ECM-74297] - This Workato recipe listens to a Salesforce platform event for private offer generation and publishes the data to the Rainmaker Kafka topic.",
+  "version": 3,
+  "private": true,
+  "concurrency": 1,
+  "version_comment": "[ECM-93708/ECM-90533/ECM-74297] - Create the Workato Recipe to pull data out of RHSC",
+  "code": {
+    "number": 0,
+    "provider": "salesforce",
+    "name": "new_platform_event",
+    "as": "e99ccd04",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "event_name": "Generate Private Offer Platform Event"
+    },
+    "input": {
+      "event_name": "Generate_Private_Offer_Platform_Event__e"
+    },
+    "extended_output_schema": [
+      {
+        "control_type": "text",
+        "custom": false,
+        "fetch_with": "get_custom_object(id, sobject_name: User)",
+        "label": "Created By ID",
+        "name": "CreatedById",
+        "optional": true,
+        "type": "string",
+        "foreign_key": "User",
+        "join_point_label": "Created  by",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "fetch_with": "get_custom_object(CreatedById>id, sobject_name: User)",
+        "join_point": true,
+        "label": "Created  by",
+        "name": "get_custom_object+CreatedById",
+        "properties": [
+
+        ],
+        "type": "object"
+      },
+      {
+        "control_type": "date_time",
+        "custom": false,
+        "label": "Created Date",
+        "name": "CreatedDate",
+        "optional": true,
+        "parse_output": "parse_iso8601_timestamp",
+        "type": "date_time",
+        "render_input": "render_iso8601_timestamp",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": false,
+        "label": "Event UUID",
+        "name": "EventUuid",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": false,
+        "label": "Replay ID",
+        "name": "ReplayId",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "label": "Sales Assistance Record Id",
+        "name": "Sales_Assistance_Record_Id__c",
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "1ee2db5f",
+        "keyword": "action",
+        "toggleCfg": {
+          "variables.data.allowRetries": true
+        },
+        "input": {
+          "variables": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"message\",\"name\":\"message\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"message\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true},{\"control_type\":\"text\",\"label\":\"status\",\"name\":\"status\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"status\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true},{\"control_type\":\"checkbox\",\"label\":\"allowRetries\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"float_conversion\",\"name\":\"allowRetries\",\"type\":\"boolean\",\"optional\":true,\"details\":{\"real_name\":\"allowRetries\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"allowRetries\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"parse_output\":\"float_conversion\",\"name\":\"allowRetries\",\"type\":\"boolean\",\"optional\":true,\"details\":{\"real_name\":\"allowRetries\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true}},{\"control_type\":\"text\",\"label\":\"MarketplaceRenewalType\",\"name\":\"MarketplaceRenewalType\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"MarketplaceRenewalType\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true}]",
+            "data": {
+              "message": "Published message successfully into the Kafka topic.",
+              "status": "Complete",
+              "allowRetries": "false"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "message",
+            "name": "message",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "message"
+            }
+          },
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "status",
+            "name": "status",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "status"
+            }
+          },
+          {
+            "control_type": "checkbox",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "allowRetries",
+            "name": "allowRetries",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "sticky": true,
+            "toggle_field": {
+              "label": "allowRetries",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "parse_output": "float_conversion",
+              "name": "allowRetries",
+              "type": "boolean",
+              "optional": true,
+              "details": {
+                "real_name": "allowRetries"
+              },
+              "parent": [
+                "variables",
+                "data"
+              ],
+              "hint": "Defaults to nil if not supplied.",
+              "sticky": true
+            },
+            "toggle_hint": "Select from option list",
+            "type": "boolean",
+            "details": {
+              "real_name": "allowRetries"
+            },
+            "render_input": "boolean_conversion"
+          },
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "MarketplaceRenewalType",
+            "name": "MarketplaceRenewalType",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "MarketplaceRenewalType"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "message",
+                    "name": "message",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "message"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "status",
+                    "name": "status",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "status"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "allowRetries",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "float_conversion",
+                    "name": "allowRetries",
+                    "type": "boolean",
+                    "optional": true,
+                    "details": {
+                      "real_name": "allowRetries"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "allowRetries",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "parse_output": "float_conversion",
+                      "name": "allowRetries",
+                      "type": "boolean",
+                      "optional": true,
+                      "details": {
+                        "real_name": "allowRetries"
+                      },
+                      "parent": [
+                        "variables",
+                        "data"
+                      ],
+                      "hint": "Defaults to nil if not supplied.",
+                      "sticky": true
+                    }
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "MarketplaceRenewalType",
+                    "name": "MarketplaceRenewalType",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "MarketplaceRenewalType"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.message",
+          "variables",
+          "variables.schema",
+          "variables.data.status",
+          "variables.data",
+          "variables.data.allowRetries",
+          "variables.data.opportunityId",
+          "variables.data.quote_line_items",
+          "variables.data.quoteLine",
+          "variables.data.quoteLine.dimension",
+          "variables.data.quoteLine.quantity",
+          "variables.data.quoteLine.description",
+          "variables.data.quoteLine.msrp",
+          "variables.data.quoteLine.proratedCost",
+          "variables.data.quoteLine.subtotal",
+          "variables.data.quoteLineItemsList",
+          "variables.data.quoteId",
+          "variables.data.MarketplaceRenewalType"
+        ],
+        "uuid": "c09b43e0-c047-4248-ba00-99baa343b6f8"
+      },
+      {
+        "number": 2,
+        "provider": "salesforce",
+        "name": "search_sobjects_soql_v2",
+        "as": "d58d9c7c",
+        "keyword": "action",
+        "input": {
+          "limit": "1",
+          "query": "SELECT \nId,\nAccount__r.Name,\nAssociate_Name__r.Email,\nCreatedBy.Name,\nCustomer_Hyperscaler_ID__c,\nOpportunity_Number__c,\nOpportunity__r.HCS_Contract__c,\nOpportunity__r.Marketplace_Renewal_Type__c,\nGeo_Country__c,\nProposal__c,\nProposal__r.SBQQ__ExpirationDate__c,\nProposal__r.CurrencyIsoCode,\nProposal__r.SBQQ__NetAmount__c \nfrom Sales_Assistance__c \nWHERE Id = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"e99ccd04\",\"path\":[\"Sales_Assistance_Record_Id__c\"]}')}'",
+          "output_schema": "[{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"Id\"},{\"properties\":[{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"Name\",\"optional\":false}],\"label\":\"Account\",\"type\":\"object\",\"name\":\"Account__r\",\"optional\":false},{\"properties\":[{\"control_type\":\"text\",\"label\":\"Email\",\"type\":\"string\",\"name\":\"Email\",\"optional\":false}],\"label\":\"Associate\",\"type\":\"object\",\"name\":\"Associate_Name__r\",\"optional\":false},{\"properties\":[{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"Name\",\"optional\":false}],\"label\":\"Created by\",\"type\":\"object\",\"name\":\"CreatedBy\"},{\"control_type\":\"text\",\"label\":\"Customer Hyperscaler ID\",\"type\":\"string\",\"name\":\"Customer_Hyperscaler_ID__c\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Opportunity Number\",\"type\":\"string\",\"name\":\"Opportunity_Number__c\",\"optional\":false},{\"properties\":[{\"name\":\"HCS_Contract__c\",\"type\":\"string\",\"optional\":false,\"label\":\"HCS Contract\",\"control_type\":\"text\"},{\"control_type\":\"text\",\"label\":\"Marketplace Renewal Type\",\"type\":\"string\",\"name\":\"Marketplace_Renewal_Type__c\",\"optional\":false}],\"label\":\"Opportunity\",\"type\":\"object\",\"name\":\"Opportunity__r\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Geo Country\",\"type\":\"string\",\"name\":\"Geo_Country__c\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Quote Id\",\"type\":\"string\",\"name\":\"Proposal__c\",\"optional\":false},{\"label\":\"Proposal/Quote\",\"type\":\"object\",\"name\":\"Proposal__r\",\"optional\":false,\"properties\":[{\"control_type\":\"number\",\"label\":\"Quote NetAmount\",\"name\":\"SBQQ__NetAmount__c\",\"type\":\"number\",\"optional\":false,\"parse_output\":\"float_conversion\"},{\"control_type\":\"text\",\"label\":\"Quote Currency Code\",\"name\":\"CurrencyIsoCode\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"date\",\"label\":\"Quote Expiration Date\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\",\"name\":\"SBQQ__ExpirationDate__c\",\"type\":\"date_time\",\"optional\":false}]}]"
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "checkbox",
+            "label": "Done",
+            "name": "done",
+            "toggle_field": {
+              "label": "Done",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "render_input": null,
+              "parse_output": null,
+              "type": "boolean",
+              "name": "done"
+            },
+            "toggle_hint": "Select from option list",
+            "type": "boolean"
+          },
+          {
+            "control_type": "integer",
+            "label": "Total size",
+            "name": "totalSize",
+            "parse_output": "integer_conversion",
+            "type": "integer"
+          },
+          {
+            "label": "Records",
+            "name": "records",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "ID",
+                "type": "string",
+                "name": "Id"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "type": "string",
+                    "name": "Name",
+                    "optional": false
+                  }
+                ],
+                "label": "Account",
+                "type": "object",
+                "name": "Account__r",
+                "optional": false
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Email",
+                    "type": "string",
+                    "name": "Email",
+                    "optional": false
+                  }
+                ],
+                "label": "Associate",
+                "type": "object",
+                "name": "Associate_Name__r",
+                "optional": false
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "type": "string",
+                    "name": "Name",
+                    "optional": false
+                  }
+                ],
+                "label": "Created by",
+                "type": "object",
+                "name": "CreatedBy"
+              },
+              {
+                "control_type": "text",
+                "label": "Customer Hyperscaler ID",
+                "type": "string",
+                "name": "Customer_Hyperscaler_ID__c",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Opportunity Number",
+                "type": "string",
+                "name": "Opportunity_Number__c",
+                "optional": false
+              },
+              {
+                "properties": [
+                  {
+                    "name": "HCS_Contract__c",
+                    "type": "string",
+                    "optional": false,
+                    "label": "HCS Contract",
+                    "control_type": "text"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Marketplace Renewal Type",
+                    "type": "string",
+                    "name": "Marketplace_Renewal_Type__c",
+                    "optional": false
+                  }
+                ],
+                "label": "Opportunity",
+                "type": "object",
+                "name": "Opportunity__r",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Geo Country",
+                "type": "string",
+                "name": "Geo_Country__c",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Quote Id",
+                "type": "string",
+                "name": "Proposal__c",
+                "optional": false
+              },
+              {
+                "label": "Proposal/Quote",
+                "type": "object",
+                "name": "Proposal__r",
+                "optional": false,
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "Quote NetAmount",
+                    "name": "SBQQ__NetAmount__c",
+                    "type": "number",
+                    "optional": false,
+                    "parse_output": "float_conversion"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Quote Currency Code",
+                    "name": "CurrencyIsoCode",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "date",
+                    "label": "Quote Expiration Date",
+                    "render_input": "date_conversion",
+                    "parse_output": "date_conversion",
+                    "name": "SBQQ__ExpirationDate__c",
+                    "type": "date_time",
+                    "optional": false
+                  }
+                ]
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "uuid": "a29e6552-28b7-499a-9c28-3e53b6011b3a"
+      },
+      {
+        "number": 3,
+        "provider": "workato_variable",
+        "name": "update_variables",
+        "as": "89c3e196",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "name": [
+            {
+              "label": "MarketplaceRenewalType (step 2)",
+              "value": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:MarketplaceRenewalType"
+            }
+          ]
+        },
+        "input": {
+          "name": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:MarketplaceRenewalType",
+          "MarketplaceRenewalType": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Opportunity__r\",\"Marketplace_Renewal_Type__c\"]}') == 'Renewal - This is a renewal for existing products not on the selected Hyperscaler' ? 'External' :\n_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Opportunity__r\",\"Marketplace_Renewal_Type__c\"]}') == 'Renewal - This is a renewal for existing products on the Hyperscaler' ? 'AwsMarketplace' :\nnull"
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+            "label": "MarketplaceRenewalType",
+            "name": "MarketplaceRenewalType",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "strip_interpolation": true
+          }
+        ],
+        "uuid": "5157f202-cef0-411a-a16a-f6d9f0c9f579"
+      },
+      {
+        "number": 4,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "present",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__c\"]}')}",
+              "rhs": "",
+              "uuid": "bb73d8d0-69cb-4f9b-8143-23e17f899ff8"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 5,
+            "provider": "salesforce",
+            "name": "search_sobjects_soql",
+            "as": "bcb5abdc",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "sobject_name": "Quote Line",
+              "field_list": [
+                {
+                  "label": "Customer Unit Price",
+                  "value": "SBQQ__CustomerPrice__c"
+                },
+                {
+                  "label": "Description",
+                  "value": "SBQQ__Description__c"
+                },
+                {
+                  "label": "Start Date",
+                  "value": "SBQQ__StartDate__c"
+                },
+                {
+                  "label": "End Date",
+                  "value": "SBQQ__EndDate__c"
+                },
+                {
+                  "label": "List Unit Price",
+                  "value": "SBQQ__ListPrice__c"
+                },
+                {
+                  "label": "Product Code",
+                  "value": "SBQQ__ProductCode__c"
+                },
+                {
+                  "label": "Quote",
+                  "value": "SBQQ__Quote__c"
+                },
+                {
+                  "label": "Quantity",
+                  "value": "SBQQ__Quantity__c"
+                },
+                {
+                  "label": "Net Total",
+                  "value": "SBQQ__NetTotal__c"
+                }
+              ]
+            },
+            "input": {
+              "query": "SBQQ__Quote__c = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__c\"]}')}'",
+              "limit": "2000",
+              "sobject_name": "SBQQ__QuoteLine__c",
+              "field_list": "SBQQ__CustomerPrice__c\nSBQQ__Description__c\nSBQQ__StartDate__c\nSBQQ__EndDate__c\nSBQQ__ListPrice__c\nSBQQ__ProductCode__c\nSBQQ__Quote__c\nSBQQ__Quantity__c\nSBQQ__NetTotal__c"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Quote Lines",
+                "name": "SBQQ__QuoteLine__c",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "Customer Unit Price",
+                    "parse_output": "float_conversion",
+                    "optional": true,
+                    "custom": true,
+                    "hint": "Customer unit price for the product quoted by this line item. This is the Net Unit Price excluding any partner discounts.",
+                    "sfdc_createable": false,
+                    "sfdc_updateable": false,
+                    "type": "number",
+                    "name": "SBQQ__CustomerPrice__c"
+                  },
+                  {
+                    "control_type": "text-area",
+                    "label": "Description",
+                    "optional": true,
+                    "custom": true,
+                    "hint": "Description for this line item.",
+                    "sfdc_createable": false,
+                    "sfdc_updateable": false,
+                    "type": "string",
+                    "name": "SBQQ__Description__c"
+                  },
+                  {
+                    "control_type": "date",
+                    "label": "End Date",
+                    "render_input": "render_iso8601_date",
+                    "parse_output": "parse_iso8601_date",
+                    "optional": true,
+                    "custom": true,
+                    "hint": "Date the service represented by this line item will end (only applies if product is a subscription).",
+                    "sfdc_createable": false,
+                    "sfdc_updateable": false,
+                    "type": "date_time",
+                    "name": "SBQQ__EndDate__c"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "List Unit Price",
+                    "parse_output": "float_conversion",
+                    "optional": true,
+                    "custom": true,
+                    "hint": "List unit price for the product quoted by this line item. List Price originates from the price book.",
+                    "sfdc_createable": false,
+                    "sfdc_updateable": false,
+                    "type": "number",
+                    "name": "SBQQ__ListPrice__c"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "Net Total",
+                    "parse_output": "float_conversion",
+                    "optional": true,
+                    "custom": true,
+                    "hint": "Net total price for this quote line item.",
+                    "sfdc_createable": false,
+                    "sfdc_updateable": false,
+                    "type": "number",
+                    "name": "SBQQ__NetTotal__c"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Product Code",
+                    "optional": true,
+                    "custom": true,
+                    "hint": "Code for the product referenced by this line.",
+                    "sfdc_createable": false,
+                    "sfdc_updateable": false,
+                    "type": "string",
+                    "name": "SBQQ__ProductCode__c"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "Quantity",
+                    "parse_output": "float_conversion",
+                    "optional": true,
+                    "custom": true,
+                    "hint": "Quantity being quoted.",
+                    "sfdc_createable": false,
+                    "sfdc_updateable": false,
+                    "type": "number",
+                    "name": "SBQQ__Quantity__c"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Quote",
+                    "custom": true,
+                    "hint": "Quote to which this line item belongs.",
+                    "sfdc_createable": false,
+                    "sfdc_updateable": false,
+                    "type": "string",
+                    "name": "SBQQ__Quote__c"
+                  },
+                  {
+                    "control_type": "date",
+                    "label": "Start Date",
+                    "render_input": "render_iso8601_date",
+                    "parse_output": "parse_iso8601_date",
+                    "optional": true,
+                    "custom": true,
+                    "hint": "The date the subscription for this product begins.",
+                    "sfdc_createable": false,
+                    "sfdc_updateable": false,
+                    "type": "date_time",
+                    "name": "SBQQ__StartDate__c"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "number",
+                        "label": "Total size",
+                        "parse_output": "integer_conversion",
+                        "type": "integer",
+                        "name": "totalSize"
+                      },
+                      {
+                        "name": "records",
+                        "type": "array",
+                        "of": "object",
+                        "label": "Files",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "ID",
+                            "type": "string",
+                            "name": "Id"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "Content size",
+                            "parse_output": "integer_conversion",
+                            "type": "integer",
+                            "name": "ContentSize"
+                          },
+                          {
+                            "control_type": "url",
+                            "label": "Content URL",
+                            "type": "string",
+                            "name": "ContentUrl"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "File extension",
+                            "type": "string",
+                            "name": "FileExtension"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "File type",
+                            "type": "string",
+                            "name": "FileType"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Parent ID",
+                            "type": "string",
+                            "name": "ParentId"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Record type",
+                            "type": "string",
+                            "name": "RecordType"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Title",
+                            "type": "string",
+                            "name": "Title"
+                          }
+                        ]
+                      }
+                    ],
+                    "label": "Combined attachments",
+                    "sfdc_field_type": "CombinedAttachment",
+                    "type": "object",
+                    "name": "CombinedAttachments"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "number",
+                "label": "List size",
+                "name": "list_size",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Processed all records?",
+                "name": "done",
+                "toggle_field": {
+                  "label": "Processed all records?",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "type": "boolean",
+                  "render_input": null,
+                  "parse_output": null,
+                  "name": "done"
+                },
+                "toggle_hint": "Select from option list",
+                "type": "boolean"
+              },
+              {
+                "control_type": "integer",
+                "label": "Total records",
+                "name": "total_records",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              },
+              {
+                "control_type": "url",
+                "label": "Next page URL",
+                "name": "next_page_url",
+                "type": "string"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "checkbox",
+                "disable_formula": true,
+                "extends_schema": true,
+                "hint": "Select <b>Yes</b> to obtain data from notes, attachments and files associated to the queried records. Default value is <b>Yes</b>.",
+                "label": "Select combined attachments",
+                "name": "include_combined_attachments",
+                "optional": true,
+                "support_pills": false,
+                "type": "boolean"
+              }
+            ],
+            "uuid": "86545576-a14c-4f45-9785-56324056016d"
+          },
+          {
+            "number": 6,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "greater_than",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"size\"}]}')}",
+                  "rhs": "0",
+                  "uuid": "85bec7ae-833a-495d-bf91-346b98725007"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 7,
+                "provider": "workato_variable",
+                "name": "declare_list",
+                "as": "54c0ddc3",
+                "keyword": "action",
+                "input": {
+                  "name": "quoteLineItems",
+                  "list_item_schema_json": "[{\"control_type\":\"text\",\"label\":\"Dimension\",\"type\":\"string\",\"name\":\"dimension\"},{\"control_type\":\"integer\",\"label\":\"Quantity\",\"type\":\"integer\",\"name\":\"quantity\",\"optional\":false,\"parse_output\":\"integer_conversion\"},{\"control_type\":\"text\",\"label\":\"Description\",\"type\":\"string\",\"name\":\"description\",\"optional\":true},{\"control_type\":\"number\",\"label\":\"Msrp\",\"type\":\"number\",\"name\":\"msrp\",\"optional\":true,\"parse_output\":\"float_conversion\"},{\"control_type\":\"number\",\"label\":\"Prorated cost\",\"type\":\"number\",\"name\":\"proratedCost\",\"optional\":true,\"parse_output\":\"float_conversion\"},{\"control_type\":\"number\",\"label\":\"Subtotal\",\"type\":\"number\",\"name\":\"subtotal\",\"optional\":true,\"parse_output\":\"float_conversion\"}]"
+                },
+                "extended_output_schema": [
+                  {
+                    "hint": "",
+                    "label": "quoteLineItems",
+                    "name": "list_items",
+                    "of": "object",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Dimension",
+                        "type": "string",
+                        "name": "dimension"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Quantity",
+                        "parse_output": "integer_conversion",
+                        "type": "integer",
+                        "name": "quantity",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Description",
+                        "type": "string",
+                        "name": "description",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Msrp",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "msrp",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Prorated cost",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "proratedCost",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Subtotal",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "subtotal",
+                        "optional": true
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "hint": "Set the initial items in the list. Defaults to an empty list if not supplied.",
+                    "label": "Items",
+                    "name": "list_items",
+                    "of": "object",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Dimension",
+                        "type": "string",
+                        "name": "dimension"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Quantity",
+                        "parse_output": "integer_conversion",
+                        "type": "integer",
+                        "name": "quantity",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Description",
+                        "type": "string",
+                        "name": "description",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Msrp",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "msrp",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Prorated cost",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "proratedCost",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Subtotal",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "subtotal",
+                        "optional": true
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "uuid": "e0caf59e-afcc-41c2-81a5-55385f17343d"
+              },
+              {
+                "number": 8,
+                "as": "7761abbc",
+                "keyword": "foreach",
+                "repeat_mode": "simple",
+                "clear_scope": "false",
+                "input": {
+                },
+                "block": [
+                  {
+                    "number": 9,
+                    "provider": "workato_variable",
+                    "name": "insert_to_list_batch",
+                    "as": "5dd43d1e",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": "quoteLineItems (step 8)"
+                    },
+                    "input": {
+                      "location": "end",
+                      "name": "e0caf59e-afcc-41c2-81a5-55385f17343d:54c0ddc3",
+                      "list_items": {
+                        "dimension": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7761abbc\",\"path\":[\"SBQQ__ProductCode__c\"]}')}",
+                        "quantity": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7761abbc\",\"path\":[\"SBQQ__Quantity__c\"]}')}",
+                        "description": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7761abbc\",\"path\":[\"SBQQ__Description__c\"]}')}",
+                        "msrp": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7761abbc\",\"path\":[\"SBQQ__ListPrice__c\"]}')}",
+                        "subtotal": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7761abbc\",\"path\":[\"SBQQ__NetTotal__c\"]}')}",
+                        "proratedCost": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7761abbc\",\"path\":[\"SBQQ__CustomerPrice__c\"]}')}"
+                      }
+                    },
+                    "extended_input_schema": [
+                      {
+                        "hint": "",
+                        "label": "List items",
+                        "name": "list_items",
+                        "of": "object",
+                        "optional": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Dimension",
+                            "type": "string",
+                            "name": "dimension"
+                          },
+                          {
+                            "control_type": "integer",
+                            "label": "Quantity",
+                            "parse_output": "integer_conversion",
+                            "type": "integer",
+                            "name": "quantity",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Description",
+                            "type": "string",
+                            "name": "description",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "Msrp",
+                            "parse_output": "float_conversion",
+                            "type": "number",
+                            "name": "msrp",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "Prorated cost",
+                            "parse_output": "float_conversion",
+                            "type": "number",
+                            "name": "proratedCost",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "Subtotal",
+                            "parse_output": "float_conversion",
+                            "type": "number",
+                            "name": "subtotal",
+                            "optional": true
+                          }
+                        ],
+                        "type": "array"
+                      }
+                    ],
+                    "uuid": "60b71a86-c03b-4c66-b25b-99d7ed4b3a4b"
+                  }
+                ],
+                "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\"]}')}",
+                "uuid": "1f65ce2d-99a7-47fe-9eba-aa7625a5e159"
+              },
+              {
+                "number": 10,
+                "keyword": "else",
+                "input": {
+                },
+                "block": [
+                  {
+                    "number": 11,
+                    "provider": "workato_variable",
+                    "name": "update_variables",
+                    "as": "b9abb37d",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": [
+                        {
+                          "label": "status (step 2)",
+                          "value": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:status"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "name": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:status",
+                      "status": "Error"
+                    },
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "status",
+                        "name": "status",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      }
+                    ],
+                    "uuid": "593e7e77-f5c6-4c63-814e-4c1438e7ba1b"
+                  },
+                  {
+                    "number": 12,
+                    "provider": "workato_variable",
+                    "name": "update_variables",
+                    "as": "a104adfc",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": [
+                        {
+                          "label": "message (step 2)",
+                          "value": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:message"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "name": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:message",
+                      "message": "No Quote Line Items found."
+                    },
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "message",
+                        "name": "message",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      }
+                    ],
+                    "uuid": "afbb2a18-1e03-4682-b43e-8a146fb60e3e"
+                  }
+                ],
+                "uuid": "a62f29ae-6e65-4434-a61d-cac1821920c2"
+              }
+            ],
+            "uuid": "b67c475d-3415-4155-a236-4200c1a78658"
+          },
+          {
+            "number": 13,
+            "keyword": "else",
+            "input": {
+            },
+            "block": [
+              {
+                "number": 14,
+                "provider": "workato_variable",
+                "name": "update_variables",
+                "as": "e45512bc",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": [
+                    {
+                      "label": "status (step 2)",
+                      "value": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:status"
+                    }
+                  ]
+                },
+                "input": {
+                  "name": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:status",
+                  "status": "Error"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                    "label": "status",
+                    "name": "status",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "strip_interpolation": true
+                  }
+                ],
+                "uuid": "e0279f2b-655e-405d-8eee-56e24392b4f0"
+              },
+              {
+                "number": 15,
+                "provider": "workato_variable",
+                "name": "update_variables",
+                "as": "df1efda6",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": [
+                    {
+                      "label": "message (step 2)",
+                      "value": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:message"
+                    }
+                  ]
+                },
+                "input": {
+                  "name": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:message",
+                  "message": "Could not identify Quote Id"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                    "label": "message",
+                    "name": "message",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "strip_interpolation": true
+                  }
+                ],
+                "uuid": "770dcf43-fee5-45db-a7fe-d105776d6358"
+              }
+            ],
+            "uuid": "c1b596b5-675d-4ffd-a44c-17d6a5d6a267"
+          }
+        ],
+        "uuid": "1f6bda2e-7921-4f03-a605-080e3ff8311c"
+      },
+      {
+        "number": 16,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "not_equals_to",
+              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1ee2db5f\",\"path\":[\"status\"]}').presence.upcase",
+              "rhs": "ERROR",
+              "uuid": "631c2d01-d92a-4b52-8d35-c8d95c9c1990"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 17,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "blank",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1ee2db5f\",\"path\":[\"MarketplaceRenewalType\"]}')}",
+                  "rhs": "",
+                  "uuid": "28a850c9-5d73-4366-b37a-dfd439139af9"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 18,
+                "keyword": "try",
+                "input": {
+                },
+                "block": [
+                  {
+                    "number": 19,
+                    "provider": "kafka",
+                    "name": "publish_to_topic",
+                    "as": "31a6ff5a",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "topic": "dev.stratosphere.rainmaker.private-offers.events.protected",
+                      "workato_schema_id": "Workato Rainmaker Model"
+                    },
+                    "toggleCfg": {
+                      "topic": false,
+                      "message.customer.commitment.hcs": false
+                    },
+                    "input": {
+                      "workato_schema_id": {
+                        "zip_name": "core_crm_generate_private_offer.workato_schema.json",
+                        "name": "[Core CRM] : Generate Private Offer ",
+                        "folder": ""
+                      },
+                      "message": {
+                        "$schema": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"SCHEMA_URL_CREATE_RAINMAKER\"}')}",
+                        "hyperscaler": "AWS",
+                        "countryCode": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Geo_Country__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Geo_Country__c\"]}') : clear",
+                        "user": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"CreatedBy\",\"Name\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"CreatedBy\",\"Name\"]}') : clear",
+                        "customer": {
+                          "name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Account__r\",\"Name\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Account__r\",\"Name\"]}') : clear",
+                          "commitment": {
+                            "hcs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Opportunity__r\",\"HCS_Contract__c\"]}').present? ? true : false"
+                          },
+                          "accountIDs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Customer_Hyperscaler_ID__c\"]}').present? ? [_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Customer_Hyperscaler_ID__c\"]}')] : []"
+                        },
+                        "requesterEmail": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Associate_Name__r\",\"Email\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Associate_Name__r\",\"Email\"]}') : clear",
+                        "sfdcOpportunityNumber": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Opportunity_Number__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Opportunity_Number__c\"]}') : clear",
+                        "privateOffers": {
+                          "$schema": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"SCHEMA_URL_PRIVATE_OFFERS\"}')}",
+                          "acceptanceDeadline": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__ExpirationDate__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__ExpirationDate__c\"]}') : clear",
+                          "offerType": "contract",
+                          "startDate": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__StartDate__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__StartDate__c\"]}') : clear",
+                          "paymentSchedule": {
+                            "currency": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"CurrencyIsoCode\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"CurrencyIsoCode\"]}') : clear",
+                            "installments": {
+                              "date": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__ExpirationDate__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__ExpirationDate__c\"]}') : clear",
+                              "amount": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__NetAmount__c\"]}').present? ?_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__NetAmount__c\"]}').to_s : clear"
+                            }
+                          },
+                          "endDate": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__EndDate__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__EndDate__c\"]}') : clear",
+                          "quantityPerDimension": {
+                            "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\"]}')}",
+                            "dimension": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"dimension\"]}')}",
+                            "quantity": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"quantity\"]}').to_i",
+                            "description": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"description\"]}')}",
+                            "msrp": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"msrp\"]}').to_s",
+                            "proratedCost": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"proratedCost\"]}').to_s",
+                            "subtotal": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"subtotal\"]}').to_s"
+                          },
+                          "description": "Red Hat Private Offer"
+                        }
+                      },
+                      "headers": [
+                        {
+                          "key": "X-Event-Type",
+                          "value": "RainmakerRequestInitiated"
+                        },
+                        {
+                          "key": "X-Correlation-ID",
+                          "value": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"e99ccd04\",\"path\":[\"Sales_Assistance_Record_Id__c\"]}')+\"-\"+_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"e99ccd04\",\"path\":[\"EventUuid\"]}')"
+                        }
+                      ],
+                      "schema_source": "workato",
+                      "key_schema_type": "plaintext",
+                      "topic": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"KAFKA_TOPIC_NAME\"}')}"
+                    },
+                    "extended_input_schema": [
+                      {
+                        "label": "Message",
+                        "name": "message",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "$schema",
+                            "type": "string",
+                            "name": "$schema"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "hyperscaler",
+                            "type": "string",
+                            "name": "hyperscaler",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "countryCode",
+                            "type": "string",
+                            "name": "countryCode",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "user",
+                            "type": "string",
+                            "name": "user",
+                            "optional": false
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "name",
+                                "type": "string",
+                                "name": "name",
+                                "optional": false
+                              },
+                              {
+                                "properties": [
+                                  {
+                                    "control_type": "checkbox",
+                                    "label": "hcs",
+                                    "render_input": "boolean_conversion",
+                                    "parse_output": "boolean_conversion",
+                                    "name": "hcs",
+                                    "type": "boolean",
+                                    "optional": false,
+                                    "toggle_hint": "Select from option list",
+                                    "toggle_field": {
+                                      "label": "hcs",
+                                      "control_type": "text",
+                                      "toggle_hint": "Use custom value",
+                                      "name": "hcs",
+                                      "type": "boolean",
+                                      "optional": false
+                                    }
+                                  }
+                                ],
+                                "label": "commitment",
+                                "type": "object",
+                                "name": "commitment",
+                                "optional": false
+                              },
+                              {
+                                "name": "accountIDs",
+                                "type": "array",
+                                "of": "string",
+                                "label": "accountIDs",
+                                "optional": false
+                              }
+                            ],
+                            "label": "customer",
+                            "type": "object",
+                            "name": "customer",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "requesterEmail",
+                            "type": "string",
+                            "name": "requesterEmail",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "sfdcOpportunityNumber",
+                            "type": "string",
+                            "name": "sfdcOpportunityNumber",
+                            "optional": false
+                          },
+                          {
+                            "name": "privateOffers",
+                            "type": "array",
+                            "of": "object",
+                            "label": "privateOffers",
+                            "optional": false,
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "description",
+                                "name": "description",
+                                "type": "string",
+                                "optional": false
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "$schema",
+                                "type": "string",
+                                "name": "$schema"
+                              },
+                              {
+                                "control_type": "date",
+                                "label": "acceptanceDeadline",
+                                "render_input": "date_conversion",
+                                "parse_output": "date_conversion",
+                                "type": "date_time",
+                                "name": "acceptanceDeadline",
+                                "optional": false
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "offerType",
+                                "type": "string",
+                                "name": "offerType",
+                                "optional": false
+                              },
+                              {
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "unit",
+                                    "name": "unit",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "value",
+                                    "parse_output": "float_conversion",
+                                    "type": "number",
+                                    "name": "value",
+                                    "optional": true,
+                                    "render_input": "float_conversion"
+                                  }
+                                ],
+                                "label": "contractDuration",
+                                "type": "object",
+                                "name": "contractDuration",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "date",
+                                "label": "startDate",
+                                "render_input": "date_conversion",
+                                "parse_output": "date_conversion",
+                                "type": "date_time",
+                                "name": "startDate",
+                                "optional": false
+                              },
+                              {
+                                "control_type": "date",
+                                "label": "endDate",
+                                "render_input": "date_conversion",
+                                "parse_output": "date_conversion",
+                                "name": "endDate",
+                                "type": "date_time",
+                                "optional": false
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "preExistingAgreementAcquisitionChannel",
+                                "type": "string",
+                                "name": "preExistingAgreementAcquisitionChannel",
+                                "optional": true
+                              },
+                              {
+                                "name": "quantityPerDimension",
+                                "type": "array",
+                                "of": "object",
+                                "label": "quantityPerDimension",
+                                "optional": false,
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "dimension",
+                                    "name": "dimension",
+                                    "type": "string",
+                                    "optional": false
+                                  },
+                                  {
+                                    "control_type": "integer",
+                                    "label": "quantity",
+                                    "parse_output": "integer_conversion",
+                                    "name": "quantity",
+                                    "type": "integer",
+                                    "optional": false,
+                                    "render_input": "integer_conversion"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "description",
+                                    "name": "description",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "msrp",
+                                    "name": "msrp",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "proratedCost",
+                                    "name": "proratedCost",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "subtotal",
+                                    "name": "subtotal",
+                                    "type": "string",
+                                    "optional": true
+                                  }
+                                ]
+                              },
+                              {
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "currency",
+                                    "type": "string",
+                                    "name": "currency",
+                                    "optional": true
+                                  },
+                                  {
+                                    "name": "installments",
+                                    "type": "array",
+                                    "of": "object",
+                                    "label": "installments",
+                                    "optional": true,
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "date",
+                                        "type": "string",
+                                        "name": "date",
+                                        "optional": true
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "amount",
+                                        "type": "string",
+                                        "name": "amount",
+                                        "optional": true
+                                      }
+                                    ]
+                                  }
+                                ],
+                                "label": "paymentSchedule",
+                                "type": "object",
+                                "name": "paymentSchedule",
+                                "optional": false
+                              }
+                            ]
+                          }
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "control_type": "integer",
+                        "hint": "You can explicitly publish message to the specific topic partition\n                    (index starts from 0). Otherwise Kafka will select partition automatically.",
+                        "label": "Partition",
+                        "name": "partition",
+                        "optional": true,
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "text",
+                        "hint": "Message key, to be stored with the message.\n                A key can be used by Kafka for selecting an appropriate topic partition\n                (when partition is not assigned explicitly).",
+                        "label": "Key",
+                        "name": "key",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string"
+                      },
+                      {
+                        "add_item_label": "Add header",
+                        "control_type": "key_value",
+                        "empty_list_title": "Headers are empty",
+                        "enforce_template_mode": true,
+                        "hint": "A list of key-value pairs, to be stored with the message.\n                 Headers' keys may be duplicated.",
+                        "item_label": "Header",
+                        "label": "Message headers",
+                        "list_mode": "static",
+                        "name": "headers",
+                        "of": "object",
+                        "optional": true,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Key",
+                            "type": "string",
+                            "name": "key"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Value",
+                            "type": "string",
+                            "name": "value"
+                          }
+                        ],
+                        "type": "array"
+                      }
+                    ],
+                    "visible_config_fields": [
+                      "topic",
+                      "workato_schema_id",
+                      "key_schema_id",
+                      "key",
+                      "headers",
+                      "message",
+                      "message.$schema",
+                      "message.hyperscaler",
+                      "message.countryCode",
+                      "message.user",
+                      "message.customer",
+                      "message.customer.name",
+                      "message.customer.commitment",
+                      "message.customer.commitment.hcs",
+                      "message.customer.accountIDs",
+                      "message.requesterEmail",
+                      "message.sfdcOpportunityNumber",
+                      "message.privateOffers",
+                      "message.privateOffers.$schema",
+                      "message.privateOffers.acceptanceDeadline",
+                      "message.privateOffers.description",
+                      "message.privateOffers.offerType",
+                      "message.privateOffers.contractDuration",
+                      "message.privateOffers.startDate",
+                      "message.privateOffers.endDate",
+                      "message.privateOffers.quantityPerDimension",
+                      "message.privateOffers.quantityPerDimension.dimension",
+                      "message.privateOffers.quantityPerDimension.quantity",
+                      "message.privateOffers.quantityPerDimension.description",
+                      "message.privateOffers.quantityPerDimension.msrp",
+                      "message.privateOffers.quantityPerDimension.proratedCost",
+                      "message.privateOffers.quantityPerDimension.subtotal",
+                      "message.privateOffers.paymentSchedule",
+                      "message.privateOffers.paymentSchedule.currency",
+                      "message.privateOffers.paymentSchedule.installments",
+                      "message.privateOffers.paymentSchedule.installments.date",
+                      "message.privateOffers.paymentSchedule.installments.amount"
+                    ],
+                    "hidden_config_fields": [
+                      "schema_source",
+                      "key_schema_type"
+                    ],
+                    "uuid": "b8196cc9-bcee-4d2b-818b-51a6ce29f3b3"
+                  },
+                  {
+                    "number": 20,
+                    "as": "e2ed8234",
+                    "keyword": "catch",
+                    "input": {
+                      "max_retry_count": "3",
+                      "retry_interval": "5"
+                    },
+                    "block": [
+                      {
+                        "number": 21,
+                        "provider": "workato_variable",
+                        "name": "update_variables",
+                        "as": "1f8fc24d",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "name": [
+                            {
+                              "label": "message (step 2)",
+                              "value": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:message"
+                            }
+                          ]
+                        },
+                        "input": {
+                          "name": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:message",
+                          "message": "An error occurred while processing the private offer with Kafka topic"
+                        },
+                        "extended_input_schema": [
+                          {
+                            "control_type": "text",
+                            "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                            "label": "message",
+                            "name": "message",
+                            "optional": true,
+                            "sticky": true,
+                            "type": "string",
+                            "strip_interpolation": true
+                          }
+                        ],
+                        "uuid": "2fb25200-eebe-45eb-87a0-8fb38fbefb11"
+                      },
+                      {
+                        "number": 22,
+                        "provider": "workato_variable",
+                        "name": "update_variables",
+                        "as": "0144cbe7",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "name": [
+                            {
+                              "label": "status (step 2)",
+                              "value": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:status"
+                            }
+                          ]
+                        },
+                        "input": {
+                          "status": "Error",
+                          "name": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:status"
+                        },
+                        "extended_input_schema": [
+                          {
+                            "control_type": "text",
+                            "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                            "label": "status",
+                            "name": "status",
+                            "optional": true,
+                            "sticky": true,
+                            "type": "string",
+                            "strip_interpolation": true
+                          }
+                        ],
+                        "uuid": "24b2595f-f772-4df6-bcb4-325b3f59de3c"
+                      },
+                      {
+                        "number": 23,
+                        "provider": "workato_variable",
+                        "name": "update_variables",
+                        "as": "75a6d861",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "name": [
+                            {
+                              "label": "allowRetries (step 2)",
+                              "value": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:allowRetries"
+                            }
+                          ]
+                        },
+                        "toggleCfg": {
+                          "allowRetries": true
+                        },
+                        "input": {
+                          "name": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:allowRetries",
+                          "allowRetries": "true"
+                        },
+                        "extended_input_schema": [
+                          {
+                            "control_type": "checkbox",
+                            "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                            "label": "allowRetries",
+                            "name": "allowRetries",
+                            "optional": true,
+                            "parse_output": "boolean_conversion",
+                            "sticky": true,
+                            "toggle_field": {
+                              "label": "allowRetries",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                              "strip_interpolation": true,
+                              "sticky": true,
+                              "optional": true,
+                              "type": "boolean",
+                              "name": "allowRetries"
+                            },
+                            "toggle_hint": "Select from option list",
+                            "type": "boolean",
+                            "render_input": "boolean_conversion",
+                            "strip_interpolation": true
+                          }
+                        ],
+                        "uuid": "2f54cff9-642f-4530-a39d-58e21325cce7"
+                      }
+                    ],
+                    "uuid": "3cd906f4-d53b-407c-8e1e-badfb8d6f0f7"
+                  }
+                ],
+                "uuid": "bcb505d1-56fb-48e5-a131-191ad0148fb8"
+              },
+              {
+                "number": 24,
+                "as": "12584dc5",
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "false"
+                },
+                "uuid": "b3e76bbc-984a-431a-80e5-0e6f13768dac"
+              }
+            ],
+            "uuid": "80ab8971-5967-4dc8-b3e0-b20ad9f1f792"
+          },
+          {
+            "number": 25,
+            "keyword": "try",
+            "input": {
+            },
+            "block": [
+              {
+                "number": 26,
+                "provider": "kafka",
+                "name": "publish_to_topic",
+                "as": "f46bbb8d",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "topic": "dev.stratosphere.rainmaker.private-offers.events.protected",
+                  "workato_schema_id": "Workato Rainmaker Model"
+                },
+                "toggleCfg": {
+                  "topic": false,
+                  "message.customer.commitment.hcs": false
+                },
+                "input": {
+                  "schema_source": "workato",
+                  "key_schema_type": "plaintext",
+                  "workato_schema_id": {
+                    "zip_name": "core_crm_generate_private_offer.workato_schema.json",
+                    "name": "[Core CRM] : Generate Private Offer ",
+                    "folder": ""
+                  },
+                  "message": {
+                    "$schema": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"SCHEMA_URL_CREATE_RAINMAKER\"}')}",
+                    "hyperscaler": "AWS",
+                    "countryCode": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Geo_Country__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Geo_Country__c\"]}') : clear",
+                    "user": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"CreatedBy\",\"Name\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"CreatedBy\",\"Name\"]}') : clear",
+                    "customer": {
+                      "name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Account__r\",\"Name\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Account__r\",\"Name\"]}') : clear",
+                      "commitment": {
+                        "hcs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Opportunity__r\",\"HCS_Contract__c\"]}').present? ? true : false"
+                      },
+                      "accountIDs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Customer_Hyperscaler_ID__c\"]}').present? ? [_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Customer_Hyperscaler_ID__c\"]}')] : []"
+                    },
+                    "requesterEmail": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Associate_Name__r\",\"Email\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Associate_Name__r\",\"Email\"]}') : clear",
+                    "sfdcOpportunityNumber": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Opportunity_Number__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Opportunity_Number__c\"]}') : clear",
+                    "privateOffers": {
+                      "$schema": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"SCHEMA_URL_PRIVATE_OFFERS\"}')}",
+                      "acceptanceDeadline": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__ExpirationDate__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__ExpirationDate__c\"]}') : clear",
+                      "offerType": "contract",
+                      "startDate": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__StartDate__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__StartDate__c\"]}') : clear",
+                      "preExistingAgreementAcquisitionChannel": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1ee2db5f\",\"path\":[\"MarketplaceRenewalType\"]}')",
+                      "paymentSchedule": {
+                        "currency": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"CurrencyIsoCode\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"CurrencyIsoCode\"]}') : clear",
+                        "installments": {
+                          "date": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__ExpirationDate__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__ExpirationDate__c\"]}') : clear",
+                          "amount": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__NetAmount__c\"]}').present? ?_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__NetAmount__c\"]}').to_s : clear"
+                        }
+                      },
+                      "endDate": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__EndDate__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__EndDate__c\"]}') : clear",
+                      "quantityPerDimension": {
+                        "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\"]}')}",
+                        "dimension": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"dimension\"]}')}",
+                        "quantity": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"quantity\"]}').to_i",
+                        "description": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"description\"]}')}",
+                        "msrp": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"msrp\"]}').to_s",
+                        "proratedCost": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"proratedCost\"]}').to_s",
+                        "subtotal": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"subtotal\"]}').to_s"
+                      },
+                      "description": "Red Hat Private Offer"
+                    }
+                  },
+                  "headers": [
+                    {
+                      "key": "X-Event-Type",
+                      "value": "RainmakerRequestInitiated"
+                    },
+                    {
+                      "key": "X-Correlation-ID",
+                      "value": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"e99ccd04\",\"path\":[\"Sales_Assistance_Record_Id__c\"]}')+\"-\"+_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"e99ccd04\",\"path\":[\"EventUuid\"]}')"
+                    }
+                  ],
+                  "topic": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"KAFKA_TOPIC_NAME\"}')}"
+                },
+                "extended_input_schema": [
+                  {
+                    "label": "Message",
+                    "name": "message",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "$schema",
+                        "type": "string",
+                        "name": "$schema"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "hyperscaler",
+                        "type": "string",
+                        "name": "hyperscaler",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "countryCode",
+                        "type": "string",
+                        "name": "countryCode",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "user",
+                        "type": "string",
+                        "name": "user",
+                        "optional": false
+                      },
+                      {
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "name",
+                            "type": "string",
+                            "name": "name",
+                            "optional": false
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "checkbox",
+                                "label": "hcs",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "name": "hcs",
+                                "type": "boolean",
+                                "optional": false,
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "hcs",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "name": "hcs",
+                                  "type": "boolean",
+                                  "optional": false
+                                }
+                              }
+                            ],
+                            "label": "commitment",
+                            "type": "object",
+                            "name": "commitment",
+                            "optional": false
+                          },
+                          {
+                            "name": "accountIDs",
+                            "type": "array",
+                            "of": "string",
+                            "label": "accountIDs",
+                            "optional": false
+                          }
+                        ],
+                        "label": "customer",
+                        "type": "object",
+                        "name": "customer",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "requesterEmail",
+                        "type": "string",
+                        "name": "requesterEmail",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "sfdcOpportunityNumber",
+                        "type": "string",
+                        "name": "sfdcOpportunityNumber",
+                        "optional": false
+                      },
+                      {
+                        "name": "privateOffers",
+                        "type": "array",
+                        "of": "object",
+                        "label": "privateOffers",
+                        "optional": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "description",
+                            "name": "description",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "$schema",
+                            "type": "string",
+                            "name": "$schema"
+                          },
+                          {
+                            "control_type": "date",
+                            "label": "acceptanceDeadline",
+                            "render_input": "date_conversion",
+                            "parse_output": "date_conversion",
+                            "type": "date_time",
+                            "name": "acceptanceDeadline",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "offerType",
+                            "type": "string",
+                            "name": "offerType",
+                            "optional": false
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "unit",
+                                "name": "unit",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "value",
+                                "parse_output": "float_conversion",
+                                "type": "number",
+                                "name": "value",
+                                "optional": true,
+                                "render_input": "float_conversion"
+                              }
+                            ],
+                            "label": "contractDuration",
+                            "type": "object",
+                            "name": "contractDuration",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "date",
+                            "label": "startDate",
+                            "render_input": "date_conversion",
+                            "parse_output": "date_conversion",
+                            "type": "date_time",
+                            "name": "startDate",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "date",
+                            "label": "endDate",
+                            "render_input": "date_conversion",
+                            "parse_output": "date_conversion",
+                            "name": "endDate",
+                            "type": "date_time",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "preExistingAgreementAcquisitionChannel",
+                            "type": "string",
+                            "name": "preExistingAgreementAcquisitionChannel",
+                            "optional": true
+                          },
+                          {
+                            "name": "quantityPerDimension",
+                            "type": "array",
+                            "of": "object",
+                            "label": "quantityPerDimension",
+                            "optional": false,
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "dimension",
+                                "name": "dimension",
+                                "type": "string",
+                                "optional": false
+                              },
+                              {
+                                "control_type": "integer",
+                                "label": "quantity",
+                                "parse_output": "integer_conversion",
+                                "name": "quantity",
+                                "type": "integer",
+                                "optional": false,
+                                "render_input": "integer_conversion"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "description",
+                                "name": "description",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "msrp",
+                                "name": "msrp",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "proratedCost",
+                                "name": "proratedCost",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "subtotal",
+                                "name": "subtotal",
+                                "type": "string",
+                                "optional": true
+                              }
+                            ]
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "currency",
+                                "type": "string",
+                                "name": "currency",
+                                "optional": true
+                              },
+                              {
+                                "name": "installments",
+                                "type": "array",
+                                "of": "object",
+                                "label": "installments",
+                                "optional": true,
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "date",
+                                    "type": "string",
+                                    "name": "date",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "amount",
+                                    "type": "string",
+                                    "name": "amount",
+                                    "optional": true
+                                  }
+                                ]
+                              }
+                            ],
+                            "label": "paymentSchedule",
+                            "type": "object",
+                            "name": "paymentSchedule",
+                            "optional": false
+                          }
+                        ]
+                      }
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "control_type": "integer",
+                    "hint": "You can explicitly publish message to the specific topic partition\n                    (index starts from 0). Otherwise Kafka will select partition automatically.",
+                    "label": "Partition",
+                    "name": "partition",
+                    "optional": true,
+                    "parse_output": "integer_conversion",
+                    "type": "integer"
+                  },
+                  {
+                    "control_type": "text",
+                    "hint": "Message key, to be stored with the message.\n                A key can be used by Kafka for selecting an appropriate topic partition\n                (when partition is not assigned explicitly).",
+                    "label": "Key",
+                    "name": "key",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string"
+                  },
+                  {
+                    "add_item_label": "Add header",
+                    "control_type": "key_value",
+                    "empty_list_title": "Headers are empty",
+                    "enforce_template_mode": true,
+                    "hint": "A list of key-value pairs, to be stored with the message.\n                 Headers' keys may be duplicated.",
+                    "item_label": "Header",
+                    "label": "Message headers",
+                    "list_mode": "static",
+                    "name": "headers",
+                    "of": "object",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Key",
+                        "type": "string",
+                        "name": "key"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "visible_config_fields": [
+                  "topic",
+                  "schema_source",
+                  "workato_schema_id",
+                  "key_schema_type",
+                  "key_schema_id",
+                  "key",
+                  "headers",
+                  "message",
+                  "message.$schema",
+                  "message.hyperscaler",
+                  "message.countryCode",
+                  "message.user",
+                  "message.customer",
+                  "message.customer.name",
+                  "message.customer.commitment",
+                  "message.customer.commitment.hcs",
+                  "message.customer.accountIDs",
+                  "message.requesterEmail",
+                  "message.sfdcOpportunityNumber",
+                  "message.privateOffers",
+                  "message.privateOffers.$schema",
+                  "message.privateOffers.acceptanceDeadline",
+                  "message.privateOffers.description",
+                  "message.privateOffers.offerType",
+                  "message.privateOffers.contractDuration",
+                  "message.privateOffers.startDate",
+                  "message.privateOffers.endDate",
+                  "message.privateOffers.preExistingAgreementAcquisitionChannel",
+                  "message.privateOffers.quantityPerDimension",
+                  "message.privateOffers.quantityPerDimension.dimension",
+                  "message.privateOffers.quantityPerDimension.quantity",
+                  "message.privateOffers.quantityPerDimension.description",
+                  "message.privateOffers.quantityPerDimension.msrp",
+                  "message.privateOffers.quantityPerDimension.proratedCost",
+                  "message.privateOffers.quantityPerDimension.subtotal",
+                  "message.privateOffers.paymentSchedule",
+                  "message.privateOffers.paymentSchedule.currency",
+                  "message.privateOffers.paymentSchedule.installments",
+                  "message.privateOffers.paymentSchedule.installments.date",
+                  "message.privateOffers.paymentSchedule.installments.amount"
+                ],
+                "uuid": "eb9c2b37-f279-421c-a30b-659b9b0938fc"
+              },
+              {
+                "number": 27,
+                "as": "31169a1a",
+                "keyword": "catch",
+                "input": {
+                  "max_retry_count": "3",
+                  "retry_interval": "5"
+                },
+                "block": [
+                  {
+                    "number": 28,
+                    "provider": "workato_variable",
+                    "name": "update_variables",
+                    "as": "d72bc87f",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": [
+                        {
+                          "label": "message (step 2)",
+                          "value": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:message"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "name": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:message",
+                      "message": "An error occurred while processing the private offer with Kafka topic"
+                    },
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "message",
+                        "name": "message",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      }
+                    ],
+                    "uuid": "d4678768-6e23-4702-b589-607e335af345"
+                  },
+                  {
+                    "number": 29,
+                    "provider": "workato_variable",
+                    "name": "update_variables",
+                    "as": "9314f84b",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": [
+                        {
+                          "label": "status (step 2)",
+                          "value": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:status"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "status": "Error",
+                      "name": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:status"
+                    },
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "status",
+                        "name": "status",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      }
+                    ],
+                    "uuid": "59d46ab1-cf41-40f8-be46-25ed71335582"
+                  },
+                  {
+                    "number": 30,
+                    "provider": "workato_variable",
+                    "name": "update_variables",
+                    "as": "288e6f1b",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": [
+                        {
+                          "label": "allowRetries (step 2)",
+                          "value": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:allowRetries"
+                        }
+                      ]
+                    },
+                    "toggleCfg": {
+                      "allowRetries": true
+                    },
+                    "input": {
+                      "name": "c09b43e0-c047-4248-ba00-99baa343b6f8:1ee2db5f:allowRetries",
+                      "allowRetries": "true"
+                    },
+                    "extended_input_schema": [
+                      {
+                        "control_type": "checkbox",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "allowRetries",
+                        "name": "allowRetries",
+                        "optional": true,
+                        "parse_output": "boolean_conversion",
+                        "sticky": true,
+                        "toggle_field": {
+                          "label": "allowRetries",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                          "strip_interpolation": true,
+                          "sticky": true,
+                          "optional": true,
+                          "type": "boolean",
+                          "name": "allowRetries"
+                        },
+                        "toggle_hint": "Select from option list",
+                        "type": "boolean",
+                        "render_input": "boolean_conversion",
+                        "strip_interpolation": true
+                      }
+                    ],
+                    "uuid": "47727f26-c20b-4684-bbc6-612b8df15b60"
+                  }
+                ],
+                "uuid": "67f4b152-0779-480a-94a7-c1ccbf052dbc"
+              }
+            ],
+            "uuid": "ed6e04ff-b1be-4889-a0fb-7ea28fd35040"
+          }
+        ],
+        "uuid": "e067bb3f-c0eb-4fb6-a4d6-df76beeec9d6"
+      },
+      {
+        "number": 31,
+        "as": "323a5256",
+        "keyword": "stop",
+        "input": {
+          "stop_with_error": "false"
+        },
+        "uuid": "999ffafa-350f-43cd-87fd-c2037acb8eb4"
+      }
+    ],
+    "uuid": "1b30ce44-76b6-4ad9-a602-77153a64ab80",
+    "unfinished": false
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/core_crm_con_salesforce_workatomsg.connection.json",
+        "name": "[Core CRM] CON | Salesforce | workatomsg",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "kafka",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/core_crm_con_kafka_generate_private_offer_event.connection.json",
+        "name": "[Core CRM] CON | Kafka | generate-private-offer-event",
+        "folder": "Connections"
+      }
+    }
+  ]
+}
