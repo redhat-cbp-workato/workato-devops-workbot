@@ -1,0 +1,442 @@
+{
+  "name": "Monitor Recipe",
+  "description": "",
+  "version": 6,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_app",
+    "name": "stop_error",
+    "as": "2d2b0905",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "mode": "All"
+    },
+    "input": {
+      "mode": "all"
+    },
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_app",
+        "name": "get_recipe",
+        "as": "1051854e",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "recipe_id": "Monitor Connection"
+        },
+        "toggleCfg": {
+          "recipe_id": false
+        },
+        "input": {
+          "recipe_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_app\",\"line\":\"2d2b0905\",\"path\":[\"id\"]}')}"
+        },
+        "uuid": "178cb72f-70de-4bc0-a143-745f96abe72e"
+      },
+      {
+        "number": 2,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "abca56a2",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"name\":\"Project_Name\",\"type\":\"string\",\"optional\":true,\"label\":\"Project_Name\",\"details\":{\"real_name\":\"Project_Name\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "Project_Name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_app\",\"line\":\"1051854e\",\"path\":[\"folder\",\"path\"]}').split('/')[1]"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "label": "Project_Name",
+            "name": "Project_Name",
+            "optional": true,
+            "type": "string",
+            "details": {
+              "real_name": "Project_Name"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Project_Name",
+                    "name": "Project_Name",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Project_Name"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.Project_Name"
+        ],
+        "uuid": "b6cefb24-f913-4e9e-931d-ed882482edf2"
+      },
+      {
+        "number": 3,
+        "provider": "workato_db_table",
+        "name": "get_records",
+        "as": "fee9e835",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "table_id": "Projects details",
+          "filters.0.field_id": "Project name"
+        },
+        "input": {
+          "order_direction": "asc",
+          "limit": "100",
+          "table_id": "23388",
+          "7e510526-c21f-474b-b10c-7dd4ea630df3": "string",
+          "256df702-a578-4236-9d8e-71bae09e32e9": "string",
+          "4d4e644c-0244-4150-bba8-60a4d17a9b73": "string",
+          "b901efac-93e8-4741-8dcb-868e2cf69056": "string",
+          "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+          "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+          "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+          "filters": [
+            {
+              "field_id": "7e510526-c21f-474b-b10c-7dd4ea630df3",
+              "op_default": "starts_with",
+              "value_default": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"abca56a2\",\"path\":[\"Project_Name\"]}')}"
+            }
+          ],
+          "1a0d6105-6707-4f29-93fc-ee26334d80ba": "string"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Records",
+            "name": "records",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Record ID",
+                "type": "string",
+                "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+              },
+              {
+                "control_type": "text",
+                "label": "Project name",
+                "type": "string",
+                "name": "7e510526_c21f_474b_b10c_7dd4ea630df3"
+              },
+              {
+                "control_type": "text",
+                "label": "Rover group",
+                "type": "string",
+                "name": "256df702_a578_4236_9d8e_71bae09e32e9"
+              },
+              {
+                "control_type": "text",
+                "label": "Group owner",
+                "type": "string",
+                "name": "4d4e644c_0244_4150_bba8_60a4d17a9b73"
+              },
+              {
+                "control_type": "text",
+                "label": "Leader",
+                "type": "string",
+                "name": "b901efac_93e8_4741_8dcb_868e2cf69056"
+              },
+              {
+                "control_type": "text",
+                "label": "Email",
+                "type": "string",
+                "name": "1a0d6105_6707_4f29_93fc_ee26334d80ba"
+              },
+              {
+                "control_type": "date_time",
+                "label": "Created at",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "type": "date_time",
+                "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+              },
+              {
+                "control_type": "date_time",
+                "label": "Updated at",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "type": "date_time",
+                "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "control_type": "text",
+            "label": "Next Page Token",
+            "name": "continuation_token",
+            "type": "string"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_7e510526-c21f-474b-b10c-7dd4ea630df3",
+            "name": "7e510526-c21f-474b-b10c-7dd4ea630df3",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_256df702-a578-4236-9d8e-71bae09e32e9",
+            "name": "256df702-a578-4236-9d8e-71bae09e32e9",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_4d4e644c-0244-4150-bba8-60a4d17a9b73",
+            "name": "4d4e644c-0244-4150-bba8-60a4d17a9b73",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_b901efac-93e8-4741-8dcb-868e2cf69056",
+            "name": "b901efac-93e8-4741-8dcb-868e2cf69056",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_1a0d6105-6707-4f29-93fc-ee26334d80ba",
+            "name": "1a0d6105-6707-4f29-93fc-ee26334d80ba",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "id",
+            "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+            "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          }
+        ],
+        "uuid": "b0d0de65-e729-4f18-b02e-ee58c58d83fa",
+        "skip": true
+      },
+      {
+        "number": 4,
+        "provider": "lookup_table",
+        "name": "search_entries",
+        "as": "86c24e81",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "lookup_table_id": "RecipeOps | Recipes"
+        },
+        "input": {
+          "lookup_table_id": {
+            "zip_name": "recipeops_recipes.lookup_table.json",
+            "name": "RecipeOps | Recipes",
+            "folder": ""
+          },
+          "parameters": {
+            "col1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"abca56a2\",\"path\":[\"Project_Name\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Entries",
+            "name": "entries",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Entry ID",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "id"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Project",
+                    "name": "col1",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Email",
+                    "name": "col3",
+                    "type": "string",
+                    "sticky": true
+                  }
+                ],
+                "label": "Entry",
+                "type": "object",
+                "name": "entry"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Provide one or more entry fields to search the entry",
+            "label": "Search by",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Project",
+                "name": "col1",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Email",
+                "name": "col3",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "ca49d385-176c-4848-be11-53e402c8ce8d",
+        "skip": false
+      },
+      {
+        "number": 5,
+        "provider": "email",
+        "name": "send_mail",
+        "as": "aefaa90b",
+        "keyword": "action",
+        "input": {
+          "email_type": "html",
+          "to": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"86c24e81\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"entry\",\"col3\"]}')}",
+          "subject": "Recipes stopped by Workato as a result of errors.",
+          "body": "<!DOCTYPE html>\n<html>\n  <body style=\"font-family: Arial, sans-serif; line-height: 1.5; color: #333;\">\n    <p>Hi <strong>Red Hat Account (Production)</strong>,</p>\n\n    <p>We detected <strong>action errors</strong> in your recipe:</p>\n\n    <ul>\n      <li><strong>Recipe Name:</strong> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_app\",\"line\":\"1051854e\",\"path\":[\"name\"]}')}</li>\n      <li><strong>Project Name:</strong> #{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"86c24e81\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"entry\",\"col1\"]}')}</li>\n    </ul>\n\n    <p>Please review the recipe’s job history to identify and resolve the underlying issues.</p>\n\n    <p>\n      You can access the recipe here:<br>\n      <a href=\"https://app.workato.com/recipes/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_app\",\"line\":\"2d2b0905\",\"path\":[\"id\"]}')}#jobs\">\n        https://app.workato.com/recipes/65062987#jobs\n      </a>\n    </p>\n\n    <p>If you require assistance, kindly contact the support team with the recipe name and error details.</p>\n\n    <p>Regards,<br>\n    Workato Monitoring Team</p>\n\n  </body>\n</html>\n",
+          "cc": "workatoahq@redhat.com"
+        },
+        "visible_config_fields": [
+          "to",
+          "subject",
+          "email_type",
+          "body",
+          "cc"
+        ],
+        "uuid": "893df4ec-a58b-40aa-b468-f8ec4841003a",
+        "skip": false
+      }
+    ],
+    "comment": "Build a recipe to monitor/ manage other recipes, jobs, or this account",
+    "uuid": "b702ca87-b3f9-4ea4-a6dd-2f6ca33fb4ea"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_app",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/cicd_con_recipeops.connection.json",
+        "name": "CICD | CON | RecipeOps",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "lookup_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "email",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_db_table",
+      "skip_validation": true,
+      "account_id": null
+    }
+  ]
+}
