@@ -1,0 +1,194 @@
+{
+  "name": "Monitor Connection",
+  "description": "",
+  "version": 6,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_app",
+    "name": "shared_account_disconnected",
+    "as": "2d2b0905",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "apps": [
+        {
+          "label": "RecipeOps | http",
+          "value": "17886601"
+        }
+      ]
+    },
+    "input": {
+      "apps": [
+        {
+          "zip_name": "recipeops_http.connection.json",
+          "name": "RecipeOps | http",
+          "folder": ""
+        }
+      ]
+    },
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_app",
+        "name": "search_connections",
+        "as": "7023f510",
+        "keyword": "action",
+        "input": {
+          "name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_app\",\"line\":\"2d2b0905\",\"path\":[\"name\"]}')}"
+        },
+        "uuid": "ffb67a31-27f3-47f5-abbd-71fe57ae4600"
+      },
+      {
+        "number": 2,
+        "provider": "lookup_table",
+        "name": "search_entries",
+        "as": "86c24e81",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "lookup_table_id": "RecipeOps | Connection"
+        },
+        "input": {
+          "lookup_table_id": {
+            "zip_name": "recipeops_connection.lookup_table.json",
+            "name": "RecipeOps | Connection",
+            "folder": ""
+          },
+          "parameters": {
+            "col2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_app\",\"line\":\"2d2b0905\",\"path\":[\"name\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Entries",
+            "name": "entries",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Entry ID",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "id"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Project",
+                    "name": "col1",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Connection",
+                    "name": "col2",
+                    "type": "string",
+                    "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Email",
+                    "name": "col3",
+                    "type": "string",
+                    "sticky": true
+                  }
+                ],
+                "label": "Entry",
+                "type": "object",
+                "name": "entry"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Provide one or more entry fields to search the entry",
+            "label": "Search by",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Project",
+                "name": "col1",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Connection",
+                "name": "col2",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Email",
+                "name": "col3",
+                "type": "string",
+                "sticky": true,
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "ca49d385-176c-4848-be11-53e402c8ce8d",
+        "skip": false
+      },
+      {
+        "number": 3,
+        "provider": "email",
+        "name": "send_mail",
+        "as": "aefaa90b",
+        "keyword": "action",
+        "input": {
+          "email_type": "html",
+          "to": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"86c24e81\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"entry\",\"col3\"]}')}",
+          "subject": "Connection Lost",
+          "body": "<!DOCTYPE html>\n<html>\n  <body style=\"font-family: Arial, sans-serif; line-height: 1.5; color: #333;\">\n    <p>Hi <strong>Red Hat Account (Production)</strong>,</p>\n\n    <p>We detected <strong>action errors</strong> in your Connection:</p>\n\n    <ul>\n      <li><strong>Connection Name:</strong> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_app\",\"line\":\"2d2b0905\",\"path\":[\"name\"]}')}</li>\n      <li><strong>Project Name:</strong> #{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"86c24e81\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"entry\",\"col1\"]}')}</li>\n    </ul>\n\n    <p>Please review the Connection and resolve the underlying issues.</p>\n\n    <p>\n      You can access the connection here:<br>\n      <a href=\"https://app.workato.com/connections/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_app\",\"line\":\"2d2b0905\",\"path\":[\"id\"]}')}\">\n        https://app.workato.com/connections/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_app\",\"line\":\"2d2b0905\",\"path\":[\"id\"]}')}\n      </a>\n    </p>\n\n    <p>If you require assistance, kindly contact the support team with the recipe name and error details.</p>\n\n    <p>Regards,<br>\n    Workato Monitoring Team</p>\n\n  </body>\n</html>\n",
+          "cc": "workatoahq@redhat.com"
+        },
+        "visible_config_fields": [
+          "to",
+          "subject",
+          "email_type",
+          "body",
+          "cc"
+        ],
+        "uuid": "893df4ec-a58b-40aa-b468-f8ec4841003a",
+        "skip": false
+      }
+    ],
+    "comment": "Build a recipe to monitor/ manage other recipes, jobs, or this account",
+    "uuid": "b702ca87-b3f9-4ea4-a6dd-2f6ca33fb4ea"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_app",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/cicd_con_recipeops.connection.json",
+        "name": "CICD | CON | RecipeOps",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "lookup_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "email",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
