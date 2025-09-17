@@ -1,0 +1,1197 @@
+{
+  "name": "S2P | 260100 Report Scheduling & Storage",
+  "description": "",
+  "version": 2,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "amazon_s3",
+    "name": "new_updated_file",
+    "as": "ce8f7fa8",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "prefix": {
+        "ids": [
+          "fileUpload/"
+        ],
+        "titles": [
+          "fileUpload/"
+        ]
+      }
+    },
+    "toggleCfg": {
+      "prefix": true,
+      "___poll_interval": true
+    },
+    "input": {
+      "include_subfolders": "true",
+      "prefix": "fileUpload/",
+      "___poll_interval": "5"
+    },
+    "extended_input_schema": [
+      {
+        "control_type": "text",
+        "label": "Region",
+        "name": "region",
+        "ngIf": "false",
+        "optional": true,
+        "override": true,
+        "type": "string"
+      },
+      {
+        "control_type": "tree",
+        "hint": "Choose the folder path to monitor. Leave it blank if all files/objects are to be monitored.",
+        "label": "Folder",
+        "name": "prefix",
+        "optional": true,
+        "pick_list": "folders_tree",
+        "pick_list_unlinked_params": {
+          "bucket": "bucket",
+          "region": "region"
+        },
+        "sticky": true,
+        "toggle_field": {
+          "name": "prefix",
+          "optional": true,
+          "label": "Folder name",
+          "toggle_hint": "Enter folder name",
+          "type": "string",
+          "control_type": "text",
+          "hint": "Enter the path to monitor. Specify a folder or sub-folder path with a “/” at the end. For ex. <b>folder/subfolder1/</b>."
+        },
+        "toggle_hint": "Select a folder",
+        "tree_options": {
+          "selectable_folder": true
+        },
+        "type": "string"
+      },
+      {
+        "control_type": "checkbox",
+        "default": true,
+        "hint": "Select this option if you wish to monitor files/objects of sub-folders present in the source folder. Defaults to <b>No</b> if <b>Restrict to Path</b> is specified in connection. Otherwise, defaults to <b>Yes</b>.",
+        "label": "Include Sub-Folders?",
+        "name": "include_subfolders",
+        "optional": true,
+        "parse_output": "boolean_conversion",
+        "type": "number",
+        "render_input": "boolean_conversion"
+      },
+      {
+        "control_type": "number",
+        "hint": "Download this many kilobytes at a time. Default is <b>1024 (1MB)</b>, minimum is <b>32 (KB)</b>",
+        "label": "Download chunk size in kilobytes",
+        "name": "chunk_size",
+        "ngIf": "!!input.chunk_size",
+        "optional": true,
+        "parse_output": "integer_conversion",
+        "type": "integer"
+      }
+    ],
+    "visible_config_fields": [
+      "prefix",
+      "include_subfolders",
+      "___poll_interval"
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "amazon_s3",
+        "name": "list_bucket",
+        "as": "74366d9b",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "prefix": {
+            "ids": [
+              "fileUpload/"
+            ],
+            "titles": [
+              "fileUpload/"
+            ]
+          }
+        },
+        "toggleCfg": {
+          "fetch_owner": true,
+          "prefix": true
+        },
+        "input": {
+          "include_subfolders": "true",
+          "max_keys": "1000",
+          "fetch_owner": "false",
+          "prefix": "fileUpload/"
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "label": "Region",
+            "name": "region",
+            "ngIf": "false",
+            "optional": true,
+            "override": true,
+            "type": "string"
+          },
+          {
+            "control_type": "tree",
+            "hint": "Choose the folder path to monitor. Leave it blank if all files/objects are to be monitored.",
+            "label": "Folder",
+            "name": "prefix",
+            "optional": true,
+            "pick_list": "folders_tree",
+            "pick_list_unlinked_params": {
+              "bucket": "bucket",
+              "region": "region"
+            },
+            "sticky": true,
+            "toggle_field": {
+              "name": "prefix",
+              "optional": true,
+              "label": "Folder name",
+              "toggle_hint": "Enter folder name",
+              "type": "string",
+              "control_type": "text",
+              "hint": "Enter the path to monitor. Specify a folder or sub-folder path with a “/” at the end. For ex. <b>folder/subfolder1/</b>."
+            },
+            "toggle_hint": "Select a folder",
+            "tree_options": {
+              "selectable_folder": true
+            },
+            "type": "string"
+          },
+          {
+            "control_type": "checkbox",
+            "default": true,
+            "hint": "Select this option if you wish to monitor files/objects of sub-folders present in the source folder. Defaults to <b>No</b> if <b>Restrict to Path</b> is specified in connection. Otherwise, defaults to <b>Yes</b>.",
+            "label": "Include Sub-Folders?",
+            "name": "include_subfolders",
+            "optional": true,
+            "parse_output": "boolean_conversion",
+            "type": "number",
+            "render_input": "boolean_conversion"
+          },
+          {
+            "control_type": "integer",
+            "default": 1000,
+            "hint": "Set maximum number of objects to be retrieved. If left unspecified, this value defaults to <b>1000</b>. Maximum allowed size is <b>1000<b>.",
+            "label": "Response size",
+            "name": "max_keys",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "sticky": false,
+            "type": "integer",
+            "render_input": "integer_conversion"
+          },
+          {
+            "control_type": "text",
+            "hint": "Set this to any key in the specified bucket. Only objects after this key will be returned in the response. Note that for objects within sub-folders, the key value should include the path from the bucket root. For example, if <b>Folder</b> input is set to <b>test_dir/inner_dir/</b>, then this value should be set to <b>test_dir/inner_dir/<key-name></b>",
+            "label": "Start after",
+            "name": "start_after",
+            "optional": true,
+            "sticky": false,
+            "type": "string"
+          },
+          {
+            "control_type": "checkbox",
+            "default": false,
+            "hint": "Set this field to <b>Yes</b> to retrieve the owner information for each object in the response. Defaults to <b>No</b>.",
+            "label": "Fetch owner?",
+            "name": "fetch_owner",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "sticky": false,
+            "toggle_field": {
+              "name": "fetch_owner",
+              "optional": true,
+              "label": "Fetch owner?",
+              "sticky": false,
+              "type": "string",
+              "control_type": "text",
+              "render_input": "boolean_conversion",
+              "toggle_hint": "Enter custom value",
+              "hint": "Set this field to <b>true</b> to retrieve the owner info for each object in the response. Defaults to <b>false</b>."
+            },
+            "toggle_hint": "Select from list",
+            "type": "number",
+            "render_input": "boolean_conversion"
+          },
+          {
+            "control_type": "text",
+            "hint": "Specify the <b>Next page token</b> from the output of a previous <b>List files in bucket</b> action to retrieve the next set of objects.",
+            "label": "Next page token",
+            "name": "continuation_token",
+            "optional": true,
+            "sticky": false,
+            "type": "string"
+          }
+        ],
+        "comment": "Check all Files",
+        "uuid": "a5f36c69-c1c5-488c-9b35-576013119f43"
+      },
+      {
+        "number": 2,
+        "provider": "workato_variable",
+        "name": "declare_list",
+        "as": "2cc2dd52",
+        "keyword": "action",
+        "input": {
+          "name": "Error List for 260100 Report Files",
+          "list_item_schema_json": "[{\"name\":\"Error_260100_Report_Name\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Error 260100 report name\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "hint": "",
+            "label": "Error List for 260100 Report Files",
+            "name": "list_items",
+            "of": "object",
+            "optional": false,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Error 260100 report name",
+                "name": "Error_260100_Report_Name",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Set the initial items in the list. Defaults to an empty list if not supplied.",
+            "label": "Items",
+            "name": "list_items",
+            "of": "object",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Error 260100 report name",
+                "name": "Error_260100_Report_Name",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "uuid": "b95bc497-d150-458a-b68a-26b580b829c7"
+      },
+      {
+        "number": 3,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 4,
+            "provider": "amazon_s3",
+            "name": "get_file",
+            "as": "12f8f5af",
+            "keyword": "action",
+            "input": {
+              "accelerate": "false",
+              "object_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}')}"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Folder path of the object from the bucket to monitor. For example, <b>subfolder001/subfolder002/subfolder003/</b>. Ensure this to be exact, as name of object/file is case-sensitive. Refer to <a href='https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-prefixes.html' target='_blank'>AWS prefix docs</a> for more information.",
+                "label": "Object name",
+                "name": "object_name",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "hint": "Specify the encoding of the file to set it explicitly. By default, encoding will be set to <b>UTF-8</b> if left blank.\n Click <a href=\"https://en.wikibooks.org/wiki/Ruby_Programming/Encoding\" target=\"_blank\">here</a> to know more about the different encodings supported.\n",
+                "label": "Encoding of the file content",
+                "name": "encoding",
+                "optional": true,
+                "pick_list": "supported_encodings_without_binary_global_pick_list",
+                "pick_list_connection_less": true,
+                "toggle_field": {
+                  "name": "encoding",
+                  "optional": true,
+                  "type": "string",
+                  "label": "Encoding of the file content",
+                  "control_type": "text",
+                  "toggle_hint": "Provide encoding format",
+                  "hint": "Specify the encoding of the file to set it explicitly. By default, encoding will be set to <b>UTF-8</b> if left blank.\n Click <a href=\"https://en.wikibooks.org/wiki/Ruby_Programming/Encoding\" target=\"_blank\">here</a> to know more about the different encodings supported.\n"
+                },
+                "toggle_hint": "Select encoding format",
+                "type": "string"
+              },
+              {
+                "control_type": "number",
+                "label": "Offset",
+                "name": "offset",
+                "optional": true,
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              },
+              {
+                "control_type": "number",
+                "hint": "Limit of how many bytes to retrieve",
+                "label": "Size",
+                "name": "size",
+                "optional": true,
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              },
+              {
+                "control_type": "number",
+                "default": "false",
+                "hint": "                Default is <b>false</b>. Enter <b>true</b> to use accelerated endpoint.\n                Go to <b>Bucket</b>><b>Properties</b>><b>Transfer acceleration</b> to check if accelerated endpoint is enabled\n",
+                "label": "Use accelerated endpoint",
+                "name": "accelerate",
+                "optional": true,
+                "parse_output": "float_conversion",
+                "sticky": true,
+                "type": "number"
+              },
+              {
+                "control_type": "number",
+                "hint": "Download this many kilobytes at a time. Default is <b>1024 (1MB)</b>, minimum is <b>32 (KB)</b>",
+                "label": "Download chunk size in kilobytes",
+                "name": "chunk_size",
+                "ngIf": "!!input.chunk_size",
+                "optional": true,
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              }
+            ],
+            "uuid": "22d20ea3-d771-4d64-a356-59bc9225fa44",
+            "skip": false
+          },
+          {
+            "number": 5,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "contains",
+                  "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}').split(\"/\").last",
+                  "rhs": "='NA'",
+                  "uuid": "faeddec7-ae55-4492-877e-d7955ce6bd5c"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 6,
+                "provider": "google_drive",
+                "name": "upload_file_stream",
+                "as": "e59b1606",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "parents": {
+                    "ids": [
+                      "0AI4Du3TAH2cgUk9PVA/0AI4Du3TAH2cgUk9PVA",
+                      "12RInLGYwVigU7HjK0_69d7ojSpjpg5VR/0AI4Du3TAH2cgUk9PVA",
+                      "1tUg1gC-jekR6hZHKNyQuhMSqFJpRC78b/0AI4Du3TAH2cgUk9PVA"
+                    ],
+                    "titles": [
+                      "S2R Shared Drive",
+                      "260100 GCCC Clearing Account",
+                      "NA_260100 Reconcilations"
+                    ]
+                  }
+                },
+                "toggleCfg": {
+                  "parents": true
+                },
+                "input": {
+                  "name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}').split(\"/\").last ",
+                  "fileContent": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"file_content\"]}')}",
+                  "parents": "1tUg1gC-jekR6hZHKNyQuhMSqFJpRC78b/0AI4Du3TAH2cgUk9PVA"
+                },
+                "comment": "Upload Files to 'NA_260100 Reconciliations'",
+                "uuid": "f6886b09-1088-4280-847a-57635e46cb12",
+                "skip": false
+              },
+              {
+                "number": 7,
+                "keyword": "elsif",
+                "input": {
+                  "type": "compound",
+                  "operand": "and",
+                  "conditions": [
+                    {
+                      "operand": "contains",
+                      "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}').split(\"/\").last",
+                      "rhs": "='LATAM'",
+                      "uuid": "5e19dace-6a52-473a-80b6-cd7913ef906a"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "number": 8,
+                    "provider": "google_drive",
+                    "name": "upload_file_stream",
+                    "as": "57bf5b8d",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "parents": {
+                        "ids": [
+                          "0AI4Du3TAH2cgUk9PVA/0AI4Du3TAH2cgUk9PVA",
+                          "12RInLGYwVigU7HjK0_69d7ojSpjpg5VR/0AI4Du3TAH2cgUk9PVA",
+                          "1kuu37blmwXjSY-XIMsyEBc2MNvbtmtdk/0AI4Du3TAH2cgUk9PVA"
+                        ],
+                        "titles": [
+                          "S2R Shared Drive",
+                          "260100 GCCC Clearing Account",
+                          "LATAM_260100 Reconciliations"
+                        ]
+                      }
+                    },
+                    "toggleCfg": {
+                      "parents": true
+                    },
+                    "input": {
+                      "name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}').split(\"/\").last ",
+                      "fileContent": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"file_content\"]}')}",
+                      "parents": "1kuu37blmwXjSY-XIMsyEBc2MNvbtmtdk/0AI4Du3TAH2cgUk9PVA"
+                    },
+                    "comment": "Upload Files to 'LATAM_260100 Reconciliations'",
+                    "uuid": "a016915e-194f-4868-bb50-19dfdd783185",
+                    "skip": false
+                  }
+                ],
+                "comment": "Upload Files to LATAM",
+                "uuid": "ca40939a-a845-41f9-82b1-4daa65c95fe5"
+              },
+              {
+                "number": 9,
+                "keyword": "elsif",
+                "input": {
+                  "type": "compound",
+                  "operand": "and",
+                  "conditions": [
+                    {
+                      "operand": "contains",
+                      "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}').split(\"/\").last",
+                      "rhs": "='EMEA'",
+                      "uuid": "68636800-7a4d-460c-a9a1-03ce0fec255d"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "number": 10,
+                    "provider": "google_drive",
+                    "name": "upload_file_stream",
+                    "as": "f47064b5",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "parents": {
+                        "ids": [
+                          "0AI4Du3TAH2cgUk9PVA/0AI4Du3TAH2cgUk9PVA",
+                          "12RInLGYwVigU7HjK0_69d7ojSpjpg5VR/0AI4Du3TAH2cgUk9PVA",
+                          "1NjDliQG8o2eonAJp1rVWISMiAI-5Dz1H/0AI4Du3TAH2cgUk9PVA"
+                        ],
+                        "titles": [
+                          "S2R Shared Drive",
+                          "260100 GCCC Clearing Account",
+                          "EMEA_260100 Reconciliations"
+                        ]
+                      }
+                    },
+                    "toggleCfg": {
+                      "parents": true
+                    },
+                    "input": {
+                      "name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}').split(\"/\").last ",
+                      "fileContent": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"file_content\"]}')}",
+                      "parents": "1NjDliQG8o2eonAJp1rVWISMiAI-5Dz1H/0AI4Du3TAH2cgUk9PVA"
+                    },
+                    "comment": "Upload Files to 'EMEA_260100 Reconciliations'",
+                    "uuid": "8a9a8bc9-807b-4ca4-9be0-45ede71ba9ed",
+                    "skip": false
+                  }
+                ],
+                "comment": "Upload Files to EMEA",
+                "uuid": "a7467829-017c-4971-9b63-1b656243c792"
+              },
+              {
+                "number": 11,
+                "keyword": "elsif",
+                "input": {
+                  "type": "compound",
+                  "operand": "and",
+                  "conditions": [
+                    {
+                      "operand": "contains",
+                      "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}').split(\"/\").last",
+                      "rhs": "='APAC'",
+                      "uuid": "ee092693-3ea4-47c1-bfbe-c53aa168a48f"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "number": 12,
+                    "provider": "google_drive",
+                    "name": "upload_file_stream",
+                    "as": "77d6626b",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "parents": {
+                        "ids": [
+                          "0AI4Du3TAH2cgUk9PVA/0AI4Du3TAH2cgUk9PVA",
+                          "12RInLGYwVigU7HjK0_69d7ojSpjpg5VR/0AI4Du3TAH2cgUk9PVA",
+                          "1hjs3EYH862RrxM3bXdaZlJRcBJMzNsDH/0AI4Du3TAH2cgUk9PVA"
+                        ],
+                        "titles": [
+                          "S2R Shared Drive",
+                          "260100 GCCC Clearing Account",
+                          "APAC_260100 Reconciliations"
+                        ]
+                      }
+                    },
+                    "toggleCfg": {
+                      "parents": true
+                    },
+                    "input": {
+                      "name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}').split(\"/\").last ",
+                      "fileContent": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"file_content\"]}')}",
+                      "parents": "1hjs3EYH862RrxM3bXdaZlJRcBJMzNsDH/0AI4Du3TAH2cgUk9PVA"
+                    },
+                    "comment": "Upload Files to 'APAC_260100 Reconciliations'",
+                    "uuid": "09898570-e6d4-4ae0-a6d2-2068ee830173",
+                    "skip": false
+                  }
+                ],
+                "comment": "Upload Files to APAC",
+                "uuid": "01e3004f-62f5-4cf6-bd54-e0ee1c40659d"
+              },
+              {
+                "number": 13,
+                "keyword": "else",
+                "input": {
+                },
+                "block": [
+                  {
+                    "number": 14,
+                    "provider": "google_drive",
+                    "name": "upload_file_stream",
+                    "as": "f62f0691",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "parents": {
+                        "ids": [
+                          "0AI4Du3TAH2cgUk9PVA/0AI4Du3TAH2cgUk9PVA",
+                          "12RInLGYwVigU7HjK0_69d7ojSpjpg5VR/0AI4Du3TAH2cgUk9PVA"
+                        ],
+                        "titles": [
+                          "S2R Shared Drive",
+                          "260100 GCCC Clearing Account"
+                        ]
+                      }
+                    },
+                    "toggleCfg": {
+                      "parents": true
+                    },
+                    "input": {
+                      "name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}').split(\"/\").last ",
+                      "fileContent": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"file_content\"]}')}",
+                      "parents": "12RInLGYwVigU7HjK0_69d7ojSpjpg5VR/0AI4Du3TAH2cgUk9PVA"
+                    },
+                    "comment": "Upload Files to Default",
+                    "uuid": "876c877a-abd5-4bf4-8a8f-22abec6edb15",
+                    "skip": false
+                  }
+                ],
+                "comment": "Upload Files to Default Location",
+                "uuid": "34c75f9b-9ef1-435b-a029-dbefa2f97756"
+              }
+            ],
+            "comment": "Upload Files to NA",
+            "uuid": "2e5038f6-a117-4e08-961a-34354810e030"
+          },
+          {
+            "number": 15,
+            "as": "9a0bc222",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "3",
+              "retry_interval": "3"
+            },
+            "block": [
+              {
+                "number": 16,
+                "provider": "workato_variable",
+                "name": "insert_to_list_batch",
+                "as": "d168618a",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": "Error List for 260100 Report Files (step 3)"
+                },
+                "input": {
+                  "location": "end",
+                  "name": "b95bc497-d150-458a-b68a-26b580b829c7:2cc2dd52",
+                  "list_items": {
+                    "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"74366d9b\",\"path\":[\"files\"]}')}",
+                    "Error_260100_Report_Name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}')}"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "hint": "",
+                    "label": "List items",
+                    "name": "list_items",
+                    "of": "object",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Error 260100 report name",
+                        "name": "Error_260100_Report_Name",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "uuid": "ae216018-cdcf-4a86-8f06-e22a856631c0"
+              }
+            ],
+            "uuid": "4a4da8fd-11e5-4f55-9b84-349e34be7a8f"
+          }
+        ],
+        "uuid": "a642d58b-7705-4e84-aa43-0aaf1588450d"
+      },
+      {
+        "number": 17,
+        "provider": "amazon_s3",
+        "name": "list_bucket",
+        "as": "84f14b77",
+        "keyword": "action",
+        "toggleCfg": {
+          "fetch_owner": true
+        },
+        "input": {
+          "include_subfolders": "true",
+          "max_keys": "1000",
+          "fetch_owner": "false"
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "label": "Region",
+            "name": "region",
+            "ngIf": "false",
+            "optional": true,
+            "override": true,
+            "type": "string"
+          },
+          {
+            "control_type": "tree",
+            "hint": "Choose the folder path to monitor. Leave it blank if all files/objects are to be monitored.",
+            "label": "Folder",
+            "name": "prefix",
+            "optional": true,
+            "pick_list": "folders_tree",
+            "pick_list_unlinked_params": {
+              "bucket": "bucket",
+              "region": "region"
+            },
+            "sticky": true,
+            "toggle_field": {
+              "name": "prefix",
+              "optional": true,
+              "label": "Folder name",
+              "toggle_hint": "Enter folder name",
+              "type": "string",
+              "control_type": "text",
+              "hint": "Enter the path to monitor. Specify a folder or sub-folder path with a “/” at the end. For ex. <b>folder/subfolder1/</b>."
+            },
+            "toggle_hint": "Select a folder",
+            "tree_options": {
+              "selectable_folder": true
+            },
+            "type": "string"
+          },
+          {
+            "control_type": "checkbox",
+            "default": true,
+            "hint": "Select this option if you wish to monitor files/objects of sub-folders present in the source folder. Defaults to <b>No</b> if <b>Restrict to Path</b> is specified in connection. Otherwise, defaults to <b>Yes</b>.",
+            "label": "Include Sub-Folders?",
+            "name": "include_subfolders",
+            "optional": true,
+            "parse_output": "boolean_conversion",
+            "type": "number",
+            "render_input": "boolean_conversion"
+          },
+          {
+            "control_type": "integer",
+            "default": 1000,
+            "hint": "Set maximum number of objects to be retrieved. If left unspecified, this value defaults to <b>1000</b>. Maximum allowed size is <b>1000<b>.",
+            "label": "Response size",
+            "name": "max_keys",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "sticky": false,
+            "type": "integer",
+            "render_input": "integer_conversion"
+          },
+          {
+            "control_type": "text",
+            "hint": "Set this to any key in the specified bucket. Only objects after this key will be returned in the response. Note that for objects within sub-folders, the key value should include the path from the bucket root. For example, if <b>Folder</b> input is set to <b>test_dir/inner_dir/</b>, then this value should be set to <b>test_dir/inner_dir/<key-name></b>",
+            "label": "Start after",
+            "name": "start_after",
+            "optional": true,
+            "sticky": false,
+            "type": "string"
+          },
+          {
+            "control_type": "checkbox",
+            "default": false,
+            "hint": "Set this field to <b>Yes</b> to retrieve the owner information for each object in the response. Defaults to <b>No</b>.",
+            "label": "Fetch owner?",
+            "name": "fetch_owner",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "sticky": false,
+            "toggle_field": {
+              "name": "fetch_owner",
+              "optional": true,
+              "label": "Fetch owner?",
+              "sticky": false,
+              "type": "string",
+              "control_type": "text",
+              "render_input": "boolean_conversion",
+              "toggle_hint": "Enter custom value",
+              "hint": "Set this field to <b>true</b> to retrieve the owner info for each object in the response. Defaults to <b>false</b>."
+            },
+            "toggle_hint": "Select from list",
+            "type": "number",
+            "render_input": "boolean_conversion"
+          },
+          {
+            "control_type": "text",
+            "hint": "Specify the <b>Next page token</b> from the output of a previous <b>List files in bucket</b> action to retrieve the next set of objects.",
+            "label": "Next page token",
+            "name": "continuation_token",
+            "optional": true,
+            "sticky": false,
+            "type": "string"
+          }
+        ],
+        "uuid": "3ff73e47-a5c0-4193-a483-4d610d75f5c0"
+      },
+      {
+        "number": 18,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 19,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "contains",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}')}",
+                  "rhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"2cc2dd52\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"Error_260100_Report_Name\"]}')}",
+                  "uuid": "d794e49d-017c-4c78-acad-9e1f99e8c56f"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 20,
+                "provider": "email",
+                "name": "send_mail",
+                "as": "a39da372",
+                "keyword": "action",
+                "input": {
+                  "email_type": "plain_text",
+                  "to": "it-ebs-support-tickets@redhat.com",
+                  "subject": "URGENT: Workato Recipe Failed - #{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_name\"]}')}",
+                  "body": "Workato Process Failure Notification!\n\nA critical error occurred in the  Workato environment. Please investigate immediately to ensure the stability of the integration.\n\nFailure Details:\nInstance: #{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')}\nRecipe: #{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_name\"]}')}\nJob ID: #{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_id\"]}')}\nJob Link: #{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_url\"]}')}\nTimestamp of Failure: #{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_created_at\"]}')}\nTriggering File: #{_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}')}\nError Type: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"9a0bc222\",\"path\":[\"type\"]}')}\nError Message: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"9a0bc222\",\"path\":[\"message\"]}')}\nContact / Owner: Please reach out to S2P/R2R Team.\n\nThanks!"
+                },
+                "visible_config_fields": [
+                  "to",
+                  "subject",
+                  "email_type",
+                  "body"
+                ],
+                "uuid": "378e0f44-9228-49f8-b6f8-0f323f4ed073",
+                "skip": false
+              },
+              {
+                "number": 21,
+                "keyword": "else",
+                "input": {
+                },
+                "block": [
+                  {
+                    "number": 22,
+                    "keyword": "try",
+                    "input": {
+                    },
+                    "block": [
+                      {
+                        "number": 23,
+                        "provider": "amazon_s3",
+                        "name": "copy_object",
+                        "as": "18227a83",
+                        "keyword": "action",
+                        "input": {
+                          "object_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}')",
+                          "destination_object_name": "=\"archive/\" + _dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}').split(\"/\").last"
+                        },
+                        "extended_input_schema": [
+                          {
+                            "control_type": "text",
+                            "hint": "File path of the object from the bucket to copy. For example, <b>subfolder001/filename.csv</b> for copying <b>file</b>. Ensure this to be exact, as name of object/file is case-sensitive. Refer to <a href='https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-prefixes.html' target='_blank'>AWS prefix docs</a> for more information.",
+                            "label": "Object name",
+                            "name": "object_name",
+                            "optional": false,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "hint": "File path of the object to copy to. For example, <b>subfolder001/filename.csv</b> for copying <b>file</b> to subfolder001/file.csv. Ensure this to be exact, as name of object/file is case-sensitive. Refer to <a href='https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-prefixes.html' target='_blank'>AWS prefix docs</a> for more information.",
+                            "label": "Destination object name",
+                            "name": "destination_object_name",
+                            "optional": false,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Region",
+                            "name": "region",
+                            "ngIf": "false",
+                            "optional": true,
+                            "override": true,
+                            "sticky": false,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "select",
+                            "hint": "                Learn more about canned ACL\n                <a href=\"https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl\" target=\"_blank\">here</a>.\n",
+                            "label": "Canned ACL",
+                            "name": "canned_permission",
+                            "optional": true,
+                            "pick_list": [
+                              [
+                                "Private",
+                                "private"
+                              ],
+                              [
+                                "Public  read",
+                                "public-read"
+                              ],
+                              [
+                                "Public  read  write",
+                                "public-read-write"
+                              ],
+                              [
+                                "AW s  exec  read",
+                                "aws-exec-read"
+                              ],
+                              [
+                                "Authenticated  read",
+                                "authenticated-read"
+                              ],
+                              [
+                                "Bucket  owner  read",
+                                "bucket-owner-read"
+                              ],
+                              [
+                                "Bucket  owner  full  control",
+                                "bucket-owner-full-control"
+                              ],
+                              [
+                                "Log  delivery  write",
+                                "log-delivery-write"
+                              ]
+                            ],
+                            "sticky": true,
+                            "toggle_field": {
+                              "type": "array",
+                              "name": "explicit_permissions",
+                              "label": "Explicit permissions",
+                              "control_type": "key_value",
+                              "optional": true,
+                              "toggle_hint": "Use explicit permissions",
+                              "empty_list_title": "Does this HTTP request require headers?",
+                              "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                              "item_label": "Header",
+                              "properties": [
+                                {
+                                  "name": "name",
+                                  "label": "Permission name"
+                                },
+                                {
+                                  "name": "value",
+                                  "label": "Grantee",
+                                  "placeholder": "Email, user ID or group URI"
+                                }
+                              ],
+                              "hint": "                  Learn more about Access Control List (ACL) specific request headers\n                  <a href=\"https://docs.aws.amazon.com/AmazonS3/latest/API/archive-RESTObjectPUTacl.html\" target=\"_blank\">here</a>.\n"
+                            },
+                            "toggle_hint": "Select canned ACL",
+                            "type": "string"
+                          }
+                        ],
+                        "comment": "Copy Files in Archive Folder",
+                        "uuid": "e029cbce-e2a8-4337-a052-f2b47132fee8",
+                        "skip": false
+                      },
+                      {
+                        "number": 24,
+                        "as": "17d27dbf",
+                        "keyword": "catch",
+                        "input": {
+                          "max_retry_count": "3",
+                          "retry_interval": "3"
+                        },
+                        "block": [
+
+                        ],
+                        "uuid": "2eef8501-ce0b-45da-963a-d7997adef0ed"
+                      }
+                    ],
+                    "comment": "Delete Uploaded files from \"FileUpload\" Folder",
+                    "uuid": "cdf563af-3237-4f9f-92ba-792cb6843a96"
+                  },
+                  {
+                    "number": 25,
+                    "provider": "amazon_s3",
+                    "name": "delete_file",
+                    "as": "4c6dcadd",
+                    "keyword": "action",
+                    "input": {
+                      "object_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"amazon_s3\",\"line\":\"ce8f7fa8\",\"path\":[\"Key\"]}')}"
+                    },
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "hint": "Folder path of the object from the bucket to monitor. For example, <b>subfolder001/subfolder002/subfolder003/</b>. Ensure this to be exact, as name of object/file is case-sensitive. Refer to <a href='https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-prefixes.html' target='_blank'>AWS prefix docs</a> for more information.",
+                        "label": "Object name",
+                        "name": "object_name",
+                        "optional": false,
+                        "type": "string"
+                      }
+                    ],
+                    "comment": "Delete Files which are uploaded in Google Drive",
+                    "uuid": "99e61486-c6f9-4b57-8202-a1b5c9e27d04",
+                    "skip": false
+                  }
+                ],
+                "uuid": "2886dd07-7955-41e1-b018-6aff895263ac",
+                "skip": false
+              }
+            ],
+            "uuid": "bff42391-a1ab-48b8-b1b0-f7b5d19e3514",
+            "skip": false
+          },
+          {
+            "number": 26,
+            "as": "0a38f0df",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "3",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 27,
+                "provider": "email",
+                "name": "send_mail",
+                "as": "0ba533a8",
+                "keyword": "action",
+                "input": {
+                  "email_type": "plain_text",
+                  "to": "it-ebs-support-tickets@redhat.com",
+                  "subject": "URGENT: Workato Recipe Failed - #{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_name\"]}')}",
+                  "body": "Workato Process Failure Notification\n\nA critical error occurred in the  Workato environment. Please investigate immediately to ensure the stability of the integration.\n\nFailure Details:\nInstance: #{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')}\nRecipe: #{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_name\"]}')}\nJob ID: #{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_id\"]}')}\nJob Link: #{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_url\"]}')}\nTimestamp of Failure: #{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_created_at\"]}')}\nError Type: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"0a38f0df\",\"path\":[\"type\"]}')}\nError Message: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"0a38f0df\",\"path\":[\"message\"]}')}\nContact / Owner: Please reach out to S2P/R2R Team.\n\nThanks!"
+                },
+                "visible_config_fields": [
+                  "to",
+                  "subject",
+                  "email_type",
+                  "body"
+                ],
+                "uuid": "76aa478d-6785-47a9-8434-4f5443c96b5f",
+                "skip": false
+              }
+            ],
+            "uuid": "830e4570-2245-45a9-9dbc-e84bfd0680ab",
+            "skip": false
+          }
+        ],
+        "comment": "Move Uploaded Files to Archive",
+        "uuid": "01736a41-f3b7-48cc-bc17-68cd32d92288",
+        "skip": false
+      },
+      {
+        "number": 28,
+        "provider": "amazon_s3",
+        "name": "list_bucket",
+        "as": "c0e3298a",
+        "keyword": "action",
+        "toggleCfg": {
+          "fetch_owner": true
+        },
+        "input": {
+          "include_subfolders": "true",
+          "max_keys": "1000",
+          "fetch_owner": "false"
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "label": "Region",
+            "name": "region",
+            "ngIf": "false",
+            "optional": true,
+            "override": true,
+            "type": "string"
+          },
+          {
+            "control_type": "tree",
+            "hint": "Choose the folder path to monitor. Leave it blank if all files/objects are to be monitored.",
+            "label": "Folder",
+            "name": "prefix",
+            "optional": true,
+            "pick_list": "folders_tree",
+            "pick_list_unlinked_params": {
+              "bucket": "bucket",
+              "region": "region"
+            },
+            "sticky": true,
+            "toggle_field": {
+              "name": "prefix",
+              "optional": true,
+              "label": "Folder name",
+              "toggle_hint": "Enter folder name",
+              "type": "string",
+              "control_type": "text",
+              "hint": "Enter the path to monitor. Specify a folder or sub-folder path with a “/” at the end. For ex. <b>folder/subfolder1/</b>."
+            },
+            "toggle_hint": "Select a folder",
+            "tree_options": {
+              "selectable_folder": true
+            },
+            "type": "string"
+          },
+          {
+            "control_type": "checkbox",
+            "default": true,
+            "hint": "Select this option if you wish to monitor files/objects of sub-folders present in the source folder. Defaults to <b>No</b> if <b>Restrict to Path</b> is specified in connection. Otherwise, defaults to <b>Yes</b>.",
+            "label": "Include Sub-Folders?",
+            "name": "include_subfolders",
+            "optional": true,
+            "parse_output": "boolean_conversion",
+            "type": "number",
+            "render_input": "boolean_conversion"
+          },
+          {
+            "control_type": "integer",
+            "default": 1000,
+            "hint": "Set maximum number of objects to be retrieved. If left unspecified, this value defaults to <b>1000</b>. Maximum allowed size is <b>1000<b>.",
+            "label": "Response size",
+            "name": "max_keys",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "sticky": false,
+            "type": "integer",
+            "render_input": "integer_conversion"
+          },
+          {
+            "control_type": "text",
+            "hint": "Set this to any key in the specified bucket. Only objects after this key will be returned in the response. Note that for objects within sub-folders, the key value should include the path from the bucket root. For example, if <b>Folder</b> input is set to <b>test_dir/inner_dir/</b>, then this value should be set to <b>test_dir/inner_dir/<key-name></b>",
+            "label": "Start after",
+            "name": "start_after",
+            "optional": true,
+            "sticky": false,
+            "type": "string"
+          },
+          {
+            "control_type": "checkbox",
+            "default": false,
+            "hint": "Set this field to <b>Yes</b> to retrieve the owner information for each object in the response. Defaults to <b>No</b>.",
+            "label": "Fetch owner?",
+            "name": "fetch_owner",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "sticky": false,
+            "toggle_field": {
+              "name": "fetch_owner",
+              "optional": true,
+              "label": "Fetch owner?",
+              "sticky": false,
+              "type": "string",
+              "control_type": "text",
+              "render_input": "boolean_conversion",
+              "toggle_hint": "Enter custom value",
+              "hint": "Set this field to <b>true</b> to retrieve the owner info for each object in the response. Defaults to <b>false</b>."
+            },
+            "toggle_hint": "Select from list",
+            "type": "number",
+            "render_input": "boolean_conversion"
+          },
+          {
+            "control_type": "text",
+            "hint": "Specify the <b>Next page token</b> from the output of a previous <b>List files in bucket</b> action to retrieve the next set of objects.",
+            "label": "Next page token",
+            "name": "continuation_token",
+            "optional": true,
+            "sticky": false,
+            "type": "string"
+          }
+        ],
+        "uuid": "b2432214-7a2a-444a-aae7-82e659d30268"
+      }
+    ],
+    "comment": "Check for new files in Amazon S3",
+    "uuid": "0d0d270c-d1b5-4628-b02d-6fc728eb6f16"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "amazon_s3",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/s2p_con_finsig_260100_report.connection.json",
+        "name": "S2P | CON | FINSIG | 260100 Report",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "google_drive",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/s2p_con_260100_report.connection.json",
+        "name": "S2P | CON | 260100 Report",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "email",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ],
+  "tags": [
+    "PROD"
+  ]
+}
