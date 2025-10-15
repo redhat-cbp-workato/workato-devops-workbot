@@ -1,0 +1,1230 @@
+{
+  "name": "Auto Opp (New CRM)",
+  "description": "",
+  "version": 19,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "google_sheets",
+    "name": "new_polling_spreadsheet_row_v4",
+    "as": "f677bcec",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "team_drives": "Workato Files",
+      "spreadsheet": "Google sheet Trigger New CRM"
+    },
+    "toggleCfg": {
+      "spreadsheet": true,
+      "sheet": true
+    },
+    "input": {
+      "spreadsheet": "1K4L547C9XegqaUR1U0zLb1Qo9siqmwIs0D_BpvW-C3c",
+      "sheet": "Sheet1"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Columns",
+        "name": "columns",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Opportunity Number",
+            "optional": true,
+            "type": "string",
+            "name": "col_1"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "extended_input_schema": [
+      {
+        "control_type": "select",
+        "extends_schema": true,
+        "hint": "Select a sheet to monitor for a new row. The sheet must have at least one header row.",
+        "label": "Sheet",
+        "name": "sheet",
+        "optional": false,
+        "pick_list": [
+          [
+            "Sheet1",
+            "Sheet1"
+          ]
+        ],
+        "toggle_field": {
+          "control_type": "text",
+          "label": "Sheet",
+          "toggle_hint": "Use sheet name",
+          "extends_schema": true,
+          "change_on_blur": true,
+          "toggle_to_secondary_hint": "Use sheet name",
+          "toggle_to_primary_hint": "Select a sheet",
+          "hint": "Enter the sheet name. The sheet must have at least one header row.",
+          "type": "string",
+          "name": "sheet"
+        },
+        "toggle_hint": "Select a sheet",
+        "type": "string"
+      },
+      {
+        "control_type": "checkbox",
+        "extends_schema": true,
+        "hint": "Default is <b>No</b>.<br>If <b>Yes</b>, add column names manually in the input field below.<br>If <b>No</b>, Workato will automatically get the first row in your sheet as column names.<br>",
+        "label": "Add column names manually?",
+        "name": "header_fl",
+        "optional": true,
+        "toggle_field": {
+          "label": "Add column names manually?",
+          "control_type": "text",
+          "toggle_hint": "Use custom value",
+          "extends_schema": true,
+          "hint": "Default is <b>No</b>.<br>If <b>Yes</b>, add column names manually in the input field below.<br>If <b>No</b>, Workato will automatically get the first row in your sheet as column names.<br>",
+          "optional": true,
+          "toggle_field": null,
+          "render_input": null,
+          "parse_output": null,
+          "type": "boolean",
+          "name": "header_fl"
+        },
+        "toggle_hint": "Select from option list",
+        "type": "boolean"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_variable",
+        "name": "declare_list",
+        "as": "a98114d1",
+        "keyword": "action",
+        "input": {
+          "name": "Opportunity",
+          "list_item_schema_json": "[{\"name\":\"OppNumber\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Opp number\"},{\"name\":\"Stage\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Stage\"}]",
+          "list_items": {
+            "OppNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_sheets\",\"line\":\"f677bcec\",\"path\":[\"columns\",\"col_1\"]}')}",
+            "Stage": "Stage"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "hint": "",
+            "label": "Opportunity",
+            "name": "list_items",
+            "of": "object",
+            "optional": false,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Opp number",
+                "name": "OppNumber",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Stage",
+                "name": "Stage",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Set the initial items in the list. Defaults to an empty list if not supplied.",
+            "label": "Items",
+            "name": "list_items",
+            "of": "object",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Opp number",
+                "name": "OppNumber",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Stage",
+                "name": "Stage",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "uuid": "4cc08e33-ab05-4c5f-9394-35a8226d89f5",
+        "skip": false
+      },
+      {
+        "number": 2,
+        "provider": "salesforce",
+        "name": "search_sobjects_soql",
+        "as": "d8c6e1ac",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "sobject_name": "Opportunity",
+          "field_list": [
+            {
+              "label": "Opportunity ID",
+              "value": "Id"
+            },
+            {
+              "label": "Opportunity Number",
+              "value": "OpportunityNumber__c"
+            },
+            {
+              "label": "# of expiring products",
+              "value": "of_expiring_products__c"
+            },
+            {
+              "label": "Renewal Source Opportunity",
+              "value": "Source_Opportunity__c"
+            },
+            {
+              "label": "Stage",
+              "value": "StageName"
+            }
+          ]
+        },
+        "input": {
+          "limit": "1",
+          "sobject_name": "Opportunity",
+          "query": "opportunitynumber__c in ('#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_sheets\",\"line\":\"f677bcec\",\"path\":[\"columns\",\"col_1\"]}')}')",
+          "field_list": "Id\nOpportunityNumber__c\nof_expiring_products__c\nSource_Opportunity__c\nStageName"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Opportunities",
+            "name": "Opportunity",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Opportunity ID",
+                "optional": true,
+                "custom": false,
+                "sfdc_createable": false,
+                "sfdc_updateable": false,
+                "type": "string",
+                "name": "Id"
+              },
+              {
+                "control_type": "select",
+                "label": "Stage",
+                "pick_list": "sobject_field_values_list",
+                "pick_list_params": {
+                  "sobject_name": "\"Opportunity\"",
+                  "field_name": "\"StageName\""
+                },
+                "toggle_hint": "Select from list",
+                "toggle_field": {
+                  "control_type": "text",
+                  "label": "Stage",
+                  "toggle_hint": "Enter custom value",
+                  "custom": false,
+                  "sfdc_createable": true,
+                  "sfdc_updateable": true,
+                  "type": "string",
+                  "name": "StageName"
+                },
+                "custom": false,
+                "sfdc_createable": true,
+                "sfdc_updateable": true,
+                "type": "string",
+                "name": "StageName"
+              },
+              {
+                "control_type": "number",
+                "label": "# of expiring products",
+                "parse_output": "float_conversion",
+                "optional": true,
+                "custom": true,
+                "sfdc_createable": false,
+                "sfdc_updateable": false,
+                "type": "number",
+                "name": "of_expiring_products__c"
+              },
+              {
+                "control_type": "text",
+                "label": "Opportunity Number",
+                "optional": true,
+                "custom": true,
+                "sfdc_createable": false,
+                "sfdc_updateable": false,
+                "type": "string",
+                "name": "OpportunityNumber__c"
+              },
+              {
+                "control_type": "text",
+                "label": "Renewal Source Opportunity",
+                "optional": true,
+                "custom": true,
+                "sfdc_createable": true,
+                "sfdc_updateable": true,
+                "type": "string",
+                "name": "Source_Opportunity__c"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "Total size",
+                    "parse_output": "integer_conversion",
+                    "type": "integer",
+                    "name": "totalSize"
+                  },
+                  {
+                    "label": "Files",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "ID",
+                        "type": "string",
+                        "name": "Id"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Content size",
+                        "parse_output": "integer_conversion",
+                        "type": "integer",
+                        "name": "ContentSize"
+                      },
+                      {
+                        "control_type": "url",
+                        "label": "Content URL",
+                        "type": "string",
+                        "name": "ContentUrl"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "File extension",
+                        "type": "string",
+                        "name": "FileExtension"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "File type",
+                        "type": "string",
+                        "name": "FileType"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Parent ID",
+                        "type": "string",
+                        "name": "ParentId"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Record type",
+                        "type": "string",
+                        "name": "RecordType"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Title",
+                        "type": "string",
+                        "name": "Title"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "records"
+                  }
+                ],
+                "label": "Combined attachments",
+                "sfdc_field_type": "CombinedAttachment",
+                "type": "object",
+                "name": "CombinedAttachments"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "control_type": "number",
+            "label": "List size",
+            "name": "list_size",
+            "parse_output": "integer_conversion",
+            "type": "integer"
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Processed all records?",
+            "name": "done",
+            "toggle_field": {
+              "label": "Processed all records?",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "type": "boolean",
+              "render_input": null,
+              "parse_output": null,
+              "name": "done"
+            },
+            "toggle_hint": "Select from option list",
+            "type": "boolean"
+          },
+          {
+            "control_type": "integer",
+            "label": "Total records",
+            "name": "total_records",
+            "parse_output": "integer_conversion",
+            "type": "integer"
+          },
+          {
+            "control_type": "url",
+            "label": "Next page URL",
+            "name": "next_page_url",
+            "type": "string"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "checkbox",
+            "disable_formula": true,
+            "extends_schema": true,
+            "hint": "Select <b>Yes</b> to obtain data from notes, attachments and files associated to the queried records. Default value is <b>Yes</b>.",
+            "label": "Select combined attachments",
+            "name": "include_combined_attachments",
+            "optional": true,
+            "support_pills": false,
+            "type": "boolean"
+          }
+        ],
+        "uuid": "793ec184-ba1a-4bb4-8500-2d649f60c734"
+      },
+      {
+        "number": 3,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "contains",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d8c6e1ac\",\"path\":[\"Opportunity\",{\"path_element_type\":\"current_item\"},\"StageName\"]}')}",
+              "rhs": "Closed",
+              "uuid": "fbefe26d-bc4e-4fee-a9d0-c30330a9aa9b"
+            },
+            {
+              "operand": "not_equals_to",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d8c6e1ac\",\"path\":[\"Opportunity\",{\"path_element_type\":\"current_item\"},\"StageName\"]}')}",
+              "rhs": "Closed Lost",
+              "uuid": "d53d7cfa-74fc-45b2-a10a-3864763db1a0"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 4,
+            "provider": "workato_recipe_function",
+            "name": "call_recipe",
+            "as": "d7de0f20",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "flow_id": "Closed Opp Legacy Function (New CRM)"
+            },
+            "input": {
+              "flow_id": {
+                "zip_name": "One Off/main/recipes/RHSC/closed_opp_legacy_function_new_crm.recipe.json",
+                "name": "Closed Opp Legacy Function (New CRM)",
+                "folder": "One Off/main/recipes/RHSC"
+              },
+              "parameters": {
+                "List": {
+                  "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"a98114d1\",\"path\":[\"list_items\"]}')}",
+                  "OppNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"a98114d1\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"OppNumber\"]}')}",
+                  "RowNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_sheets\",\"line\":\"f677bcec\",\"path\":[\"row\"]}')}"
+                }
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "name": "List",
+                    "type": "array",
+                    "of": "object",
+                    "label": "List",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Ship to contact last name",
+                        "name": "ShipToContactLastName",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Ship to contact first name",
+                        "name": "ShipToContactFirstName",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Ship to account",
+                        "name": "ShipToAccount",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Ship to contact email",
+                        "name": "ShipToContactEmail",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Bill to account",
+                        "name": "BillToAccount",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Pricebookid",
+                        "name": "Pricebookid",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Probablity",
+                        "name": "Probablity",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Currency",
+                        "name": "Currency",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Forecast cateogry",
+                        "name": "ForecastCateogry",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Amount",
+                        "name": "Amount",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Name",
+                        "name": "Name",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Close date",
+                        "name": "CloseDate",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "RTM",
+                        "name": "RTM",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Super region",
+                        "name": "SuperRegion",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "One year payment term",
+                        "name": "OneYearPaymentTerm",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Record type ID",
+                        "name": "RecordTypeId",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Price book ID",
+                        "name": "PriceBookId",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Owner ID",
+                        "name": "OwnerId",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Account ID",
+                        "name": "AccountId",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Opp number",
+                        "name": "OppNumber",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ]
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Parameters",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "name": "List",
+                    "type": "array",
+                    "of": "object",
+                    "label": "List",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Row number",
+                        "name": "RowNumber",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Opp number",
+                        "name": "OppNumber",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ]
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "341fea80-a1cb-4a45-8f38-f8afc807dc79",
+            "skip": false
+          },
+          {
+            "number": 5,
+            "keyword": "elsif",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "greater_than",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d8c6e1ac\",\"path\":[\"Opportunity\",{\"path_element_type\":\"current_item\"},\"of_expiring_products__c\"]}')}",
+                  "rhs": "0",
+                  "uuid": "9e90d59a-88bf-410f-b627-8b50709e10fd"
+                },
+                {
+                  "operand": "present",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d8c6e1ac\",\"path\":[\"Opportunity\",{\"path_element_type\":\"current_item\"},\"Source_Opportunity__c\"]}')}",
+                  "rhs": "",
+                  "uuid": "d342a447-0c3e-427a-b7b6-3f4cde1ba7aa"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 6,
+                "provider": "workato_variable",
+                "name": "declare_variable",
+                "as": "1bfb3356",
+                "keyword": "action",
+                "input": {
+                  "variables": {
+                    "schema": "[{\"name\":\"OppType\",\"type\":\"string\",\"optional\":true,\"label\":\"OppType\",\"details\":{\"real_name\":\"OppType\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
+                    "data": {
+                      "OppType": "Renewal"
+                    }
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "control_type": "text",
+                    "label": "OppType",
+                    "name": "OppType",
+                    "optional": true,
+                    "type": "string",
+                    "details": {
+                      "real_name": "OppType"
+                    }
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "add_field_label": "Add a variable",
+                    "control_type": "form-schema-builder",
+                    "empty_schema_title": "Add variables by giving them a name, type and default value",
+                    "exclude_fields": [
+                      "hint"
+                    ],
+                    "item_label": "variable",
+                    "label": "Variables",
+                    "mark_as_required": true,
+                    "name": "variables",
+                    "ngIf": "!input.name",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Schema",
+                        "extends_schema": true,
+                        "broadcast_change_event": true,
+                        "type": "string",
+                        "name": "schema"
+                      },
+                      {
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "OppType",
+                            "name": "OppType",
+                            "type": "string",
+                            "optional": true,
+                            "details": {
+                              "real_name": "OppType"
+                            },
+                            "parent": [
+                              "variables",
+                              "data"
+                            ],
+                            "hint": "Defaults to nil if not supplied.",
+                            "sticky": true
+                          }
+                        ],
+                        "label": "Data",
+                        "type": "object",
+                        "name": "data"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "variables.data.OppType"
+                ],
+                "uuid": "c9d4f5a8-a7f3-4d45-9520-77caa6f7f1a3",
+                "skip": false
+              },
+              {
+                "number": 7,
+                "provider": "workato_recipe_function",
+                "name": "call_recipe",
+                "as": "e599def2",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "flow_id": "Open Renewal Opp Legacy Function(New CRM)"
+                },
+                "input": {
+                  "flow_id": {
+                    "zip_name": "One Off/main/recipes/RHSC/open_renewal_opp_legacy_function_new_crm.recipe.json",
+                    "name": "Open Renewal Opp Legacy Function(New CRM)",
+                    "folder": "One Off/main/recipes/RHSC"
+                  },
+                  "parameters": {
+                    "List": {
+                      "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"a98114d1\",\"path\":[\"list_items\"]}')}",
+                      "OppNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"a98114d1\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"OppNumber\"]}')}",
+                      "RowNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_sheets\",\"line\":\"f677bcec\",\"path\":[\"row\"]}')}"
+                    }
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "name": "List",
+                        "type": "array",
+                        "of": "object",
+                        "label": "List",
+                        "optional": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Ship to contact last name",
+                            "name": "ShipToContactLastName",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Ship to contact first name",
+                            "name": "ShipToContactFirstName",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Ship to account",
+                            "name": "ShipToAccount",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Ship to contact email",
+                            "name": "ShipToContactEmail",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Bill to account",
+                            "name": "BillToAccount",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Pricebookid",
+                            "name": "Pricebookid",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Probablity",
+                            "name": "Probablity",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Currency",
+                            "name": "Currency",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Forecast cateogry",
+                            "name": "ForecastCateogry",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Amount",
+                            "name": "Amount",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Name",
+                            "name": "Name",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Close date",
+                            "name": "CloseDate",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "RTM",
+                            "name": "RTM",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Super region",
+                            "name": "SuperRegion",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "One year payment term",
+                            "name": "OneYearPaymentTerm",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Record type ID",
+                            "name": "RecordTypeId",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Price book ID",
+                            "name": "PriceBookId",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Owner ID",
+                            "name": "OwnerId",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Account ID",
+                            "name": "AccountId",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Opp number",
+                            "name": "OppNumber",
+                            "type": "string",
+                            "optional": false
+                          }
+                        ]
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Parameters",
+                    "name": "parameters",
+                    "properties": [
+                      {
+                        "name": "List",
+                        "type": "array",
+                        "of": "object",
+                        "label": "List",
+                        "optional": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Row number",
+                            "name": "RowNumber",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Opp number",
+                            "name": "OppNumber",
+                            "type": "string",
+                            "optional": false
+                          }
+                        ]
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "9b3053d7-11e3-4b51-9567-c83f4aee22a6",
+                "skip": false
+              }
+            ],
+            "uuid": "d5240274-4554-4797-b501-fefd27685b1c",
+            "skip": false
+          },
+          {
+            "number": 8,
+            "keyword": "else",
+            "input": {
+            },
+            "block": [
+              {
+                "number": 9,
+                "provider": "workato_recipe_function",
+                "name": "call_recipe",
+                "as": "862808be",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "flow_id": "Open Non Renewal Opp Legacy Function(New CRM)"
+                },
+                "input": {
+                  "flow_id": {
+                    "zip_name": "One Off/main/recipes/RHSC/open_non_renewal_opp_legacy_function_new_crm.recipe.json",
+                    "name": "Open Non Renewal Opp Legacy Function(New CRM)",
+                    "folder": "One Off/main/recipes/RHSC"
+                  },
+                  "parameters": {
+                    "List": {
+                      "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"a98114d1\",\"path\":[\"list_items\"]}')}",
+                      "OppNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"a98114d1\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"OppNumber\"]}')}",
+                      "RowNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_sheets\",\"line\":\"f677bcec\",\"path\":[\"row\"]}')}"
+                    }
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "name": "List",
+                        "type": "array",
+                        "of": "object",
+                        "label": "List",
+                        "optional": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Ship to contact last name",
+                            "name": "ShipToContactLastName",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Ship to contact first name",
+                            "name": "ShipToContactFirstName",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Ship to account",
+                            "name": "ShipToAccount",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Ship to contact email",
+                            "name": "ShipToContactEmail",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Bill to account",
+                            "name": "BillToAccount",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Pricebookid",
+                            "name": "Pricebookid",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Probablity",
+                            "name": "Probablity",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Currency",
+                            "name": "Currency",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Forecast cateogry",
+                            "name": "ForecastCateogry",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Amount",
+                            "name": "Amount",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Name",
+                            "name": "Name",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Close date",
+                            "name": "CloseDate",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "RTM",
+                            "name": "RTM",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Super region",
+                            "name": "SuperRegion",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "One year payment term",
+                            "name": "OneYearPaymentTerm",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Record type ID",
+                            "name": "RecordTypeId",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Price book ID",
+                            "name": "PriceBookId",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Owner ID",
+                            "name": "OwnerId",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Account ID",
+                            "name": "AccountId",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Opp number",
+                            "name": "OppNumber",
+                            "type": "string",
+                            "optional": false
+                          }
+                        ]
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Parameters",
+                    "name": "parameters",
+                    "properties": [
+                      {
+                        "name": "List",
+                        "type": "array",
+                        "of": "object",
+                        "label": "List",
+                        "optional": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Row number",
+                            "name": "RowNumber",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Opp number",
+                            "name": "OppNumber",
+                            "type": "string",
+                            "optional": false
+                          }
+                        ]
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "9171b0d3-9e1b-4f73-9a76-f898529fab92",
+                "skip": false
+              }
+            ],
+            "uuid": "f48c069e-b345-49f6-96b7-f4ed6940ae5e",
+            "skip": false
+          }
+        ],
+        "uuid": "98470a5c-ffb0-4926-99d5-f1937d50fc43",
+        "skip": false
+      }
+    ],
+    "uuid": "a279c92e-89c5-4b44-893d-9270a4dfe70e",
+    "unfinished": false
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "google_sheets",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/ocsi_con_googlesheet_workato_service_account_de.connection.json",
+        "name": "[OCSI] CON | GoogleSheet | Workato Service Account DE",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/legacy_oauth_connection.connection.json",
+        "name": "Legacy OAuth Connection",
+        "folder": "Connections"
+      }
+    }
+  ]
+}
