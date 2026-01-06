@@ -1,6 +1,6 @@
 {
   "name": "Opportunity Search by ID, Name, and Number",
-  "version": 15,
+  "version": 24,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -18,7 +18,7 @@
     "input": {
       "request": {
         "content_type": "json",
-        "headers": "[{\"name\":\"user_token\",\"type\":\"string\",\"optional\":false,\"label\":\"User Token\",\"control_type\":\"text\"},{\"name\":\"opportunity_number\",\"type\":\"string\",\"optional\":false,\"label\":\"Opportunity Number\",\"control_type\":\"text\"},{\"name\":\"opportunity_id\",\"type\":\"string\",\"optional\":false,\"label\":\"Opportunity ID\",\"control_type\":\"text\"},{\"name\":\"opportunity_name\",\"type\":\"string\",\"optional\":false,\"label\":\"Opportunity Name\",\"control_type\":\"text\"}]"
+        "headers": "[{\"name\":\"user_token\",\"type\":\"string\",\"optional\":false,\"label\":\"User Token\",\"control_type\":\"text\"},{\"name\":\"opportunity_number\",\"type\":\"string\",\"optional\":false,\"label\":\"Opportunity Number\",\"control_type\":\"text\"},{\"name\":\"opportunity_id\",\"type\":\"string\",\"optional\":false,\"label\":\"Opportunity ID\",\"control_type\":\"text\"},{\"name\":\"opportunity_name\",\"type\":\"string\",\"optional\":false,\"label\":\"Opportunity Name\",\"control_type\":\"text\"},{\"name\":\"limit\",\"type\":\"string\",\"optional\":false,\"label\":\"Limit\",\"control_type\":\"text\"},{\"name\":\"offset\",\"type\":\"string\",\"optional\":false,\"label\":\"Offset\",\"control_type\":\"text\"}]"
       },
       "response": {
         "content_type": "json",
@@ -26,7 +26,7 @@
           {
             "name": "ok",
             "http_status_code": "200",
-            "body_schema": "[{\"control_type\":\"text\",\"label\":\"Output\",\"type\":\"string\",\"name\":\"output\"}]"
+            "body_schema": "[{\"control_type\":\"text\",\"label\":\"Opportunities\",\"type\":\"string\",\"name\":\"opportunities\",\"optional\":true},{\"control_type\":\"text\",\"label\":\"Total Opportunities\",\"name\":\"total_opportunities\",\"type\":\"string\",\"optional\":true},{\"control_type\":\"text\",\"label\":\"Opportunities List Size\",\"name\":\"opportunities_list_size\",\"type\":\"string\",\"optional\":true}]"
           }
         ]
       }
@@ -244,6 +244,20 @@
                 "name": "opportunity_name",
                 "type": "string",
                 "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Limit",
+                "name": "limit",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Offset",
+                "name": "offset",
+                "type": "string",
+                "optional": false
               }
             ],
             "label": "Request headers",
@@ -340,6 +354,360 @@
       },
       {
         "number": 2,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "a7d0dee6",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"limit\",\"name\":\"output\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"output\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "output": "="
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "limit",
+            "name": "output",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "output"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "limit",
+                    "name": "output",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "output"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.output"
+        ],
+        "uuid": "8877c7e1-94a3-42f7-9722-6e4a43e10f6b"
+      },
+      {
+        "number": 3,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "0befe193",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"offset\",\"name\":\"output\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"output\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "output": "="
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "offset",
+            "name": "output",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "output"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "offset",
+                    "name": "output",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "output"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.output"
+        ],
+        "uuid": "cf19179f-75d8-47d8-8f42-abc1923e7c60"
+      },
+      {
+        "number": 4,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "or",
+          "conditions": [
+            {
+              "operand": "blank",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"headers\",\"limit\"]}')}",
+              "rhs": "",
+              "uuid": "89408f53-bb96-4737-81f1-d4b96f2b3de9"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 5,
+            "provider": "workato_variable",
+            "name": "update_variables",
+            "as": "48b212d5",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": [
+                {
+                  "label": "limit (step 3)",
+                  "value": "8877c7e1-94a3-42f7-9722-6e4a43e10f6b:a7d0dee6:output"
+                }
+              ]
+            },
+            "input": {
+              "input_mode": "raw",
+              "name": "8877c7e1-94a3-42f7-9722-6e4a43e10f6b:a7d0dee6:output",
+              "output": "50"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "limit",
+                "name": "output",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              }
+            ],
+            "uuid": "61766b36-2396-418c-9450-1045f54cd89f"
+          },
+          {
+            "number": 6,
+            "keyword": "else",
+            "input": {
+            },
+            "block": [
+              {
+                "number": 7,
+                "provider": "workato_variable",
+                "name": "update_variables",
+                "as": "88d6c7f9",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": [
+                    {
+                      "label": "limit (step 3)",
+                      "value": "8877c7e1-94a3-42f7-9722-6e4a43e10f6b:a7d0dee6:output"
+                    }
+                  ]
+                },
+                "input": {
+                  "input_mode": "raw",
+                  "name": "8877c7e1-94a3-42f7-9722-6e4a43e10f6b:a7d0dee6:output",
+                  "output": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"headers\",\"limit\"]}')}"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                    "label": "limit",
+                    "name": "output",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "strip_interpolation": true
+                  }
+                ],
+                "uuid": "7d1af1fc-8b6b-4a8f-a990-7a201219f368"
+              }
+            ],
+            "uuid": "4af6341d-7b57-4cce-a4fe-c43c4377d88a"
+          }
+        ],
+        "uuid": "4d5081a7-6b7d-48b5-a71c-7d9ee401663b"
+      },
+      {
+        "number": 8,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "or",
+          "conditions": [
+            {
+              "operand": "blank",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"headers\",\"offset\"]}')}",
+              "rhs": "",
+              "uuid": "89408f53-bb96-4737-81f1-d4b96f2b3de9"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 9,
+            "provider": "workato_variable",
+            "name": "update_variables",
+            "as": "e0cc7319",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": [
+                {
+                  "label": "offset (step 4)",
+                  "value": "cf19179f-75d8-47d8-8f42-abc1923e7c60:0befe193:output"
+                }
+              ]
+            },
+            "input": {
+              "input_mode": "raw",
+              "name": "cf19179f-75d8-47d8-8f42-abc1923e7c60:0befe193:output",
+              "output": "0"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "offset",
+                "name": "output",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              }
+            ],
+            "uuid": "4ba6a4ba-5862-4eec-b09a-d95b1d7d3d18"
+          },
+          {
+            "number": 10,
+            "keyword": "else",
+            "input": {
+            },
+            "block": [
+              {
+                "number": 11,
+                "provider": "workato_variable",
+                "name": "update_variables",
+                "as": "4c9d4ff7",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": [
+                    {
+                      "label": "offset (step 4)",
+                      "value": "cf19179f-75d8-47d8-8f42-abc1923e7c60:0befe193:output"
+                    }
+                  ]
+                },
+                "input": {
+                  "input_mode": "raw",
+                  "name": "cf19179f-75d8-47d8-8f42-abc1923e7c60:0befe193:output",
+                  "output": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"headers\",\"offset\"]}')}"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                    "label": "offset",
+                    "name": "output",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "strip_interpolation": true
+                  }
+                ],
+                "uuid": "a7de98b7-4c5b-4060-9974-3b9cdd0cfbd6"
+              }
+            ],
+            "uuid": "d778e0c2-4090-407b-91d1-7a953498265b"
+          }
+        ],
+        "uuid": "7de7e332-ea4a-4cf7-9e0e-a4dda038a80c"
+      },
+      {
+        "number": 12,
         "keyword": "if",
         "input": {
           "type": "compound",
@@ -355,7 +723,7 @@
         },
         "block": [
           {
-            "number": 3,
+            "number": 13,
             "provider": "workato_variable",
             "name": "declare_variable",
             "as": "b8b1305d",
@@ -444,13 +812,13 @@
             "uuid": "e8f537b2-e0cb-457f-bfd3-1804eef3807d"
           },
           {
-            "number": 4,
+            "number": 14,
             "keyword": "try",
             "input": {
             },
             "block": [
               {
-                "number": 5,
+                "number": 15,
                 "provider": "workato_variable",
                 "name": "declare_variable",
                 "as": "d082fefa",
@@ -533,7 +901,7 @@
                 "uuid": "96afdc37-1a0c-4ccc-b2c1-f8ed2bc23195"
               },
               {
-                "number": 6,
+                "number": 16,
                 "as": "d53a783e",
                 "keyword": "catch",
                 "input": {
@@ -542,7 +910,7 @@
                 },
                 "block": [
                   {
-                    "number": 7,
+                    "number": 17,
                     "provider": "workato_api_platform",
                     "name": "return_response",
                     "as": "d2eb671a",
@@ -550,7 +918,6 @@
                     "input": {
                       "http_status_code": "200",
                       "response": {
-                        "output": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d53a783e\",\"path\":[\"message\"]}')}"
                       }
                     },
                     "extended_output_schema": [
@@ -574,9 +941,24 @@
                         "properties": [
                           {
                             "control_type": "text",
-                            "label": "Output",
+                            "label": "Opportunities",
                             "type": "string",
-                            "name": "output"
+                            "name": "opportunities",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Total Opportunities",
+                            "name": "total_opportunities",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Opportunities List Size",
+                            "name": "opportunities_list_size",
+                            "type": "string",
+                            "optional": true
                           }
                         ],
                         "type": "object"
@@ -603,9 +985,24 @@
                         "properties": [
                           {
                             "control_type": "text",
-                            "label": "Output",
+                            "label": "Opportunities",
                             "type": "string",
-                            "name": "output"
+                            "name": "opportunities",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Total Opportunities",
+                            "name": "total_opportunities",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Opportunities List Size",
+                            "name": "opportunities_list_size",
+                            "type": "string",
+                            "optional": true
                           }
                         ],
                         "type": "object"
@@ -621,7 +1018,7 @@
             "uuid": "7966d1a7-a9e7-4008-91f7-43eca455b202"
           },
           {
-            "number": 8,
+            "number": 18,
             "provider": "workato_variable",
             "name": "update_variables",
             "as": "d3c1cdfa",
@@ -654,13 +1051,13 @@
             "uuid": "30fc78ca-7ca6-4fa8-8378-49af949a9221"
           },
           {
-            "number": 9,
+            "number": 19,
             "keyword": "else",
             "input": {
             },
             "block": [
               {
-                "number": 10,
+                "number": 20,
                 "provider": "workato_variable",
                 "name": "update_variables",
                 "as": "8498e451",
@@ -699,7 +1096,7 @@
         "uuid": "cdc05449-fd9d-4421-80c7-d305e8634b3f"
       },
       {
-        "number": 11,
+        "number": 21,
         "keyword": "if",
         "input": {
           "type": "compound",
@@ -715,13 +1112,13 @@
         },
         "block": [
           {
-            "number": 12,
+            "number": 22,
             "keyword": "try",
             "input": {
             },
             "block": [
               {
-                "number": 13,
+                "number": 23,
                 "provider": "salesforce",
                 "name": "search_sobjects_soql",
                 "as": "96142c0e",
@@ -756,15 +1153,24 @@
                     {
                       "label": "Opportunity Number",
                       "value": "OpportunityNumber__c"
+                    },
+                    {
+                      "label": "Created Date",
+                      "value": "CreatedDate"
+                    },
+                    {
+                      "label": "Closed",
+                      "value": "IsClosed"
                     }
                   ]
                 },
                 "input": {
-                  "limit": "15",
+                  "limit": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"a7d0dee6\",\"path\":[\"output\"]}')}",
                   "sobject_name": "Opportunity",
-                  "query": "OpportunityNumber__c = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"headers\",\"opportunity_number\"]}')}'",
+                  "query": "OpportunityNumber__c = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"headers\",\"opportunity_number\"]}')}' ORDER BY CreatedDate DESC",
                   "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"777be6a7\",\"path\":[\"output\"]}')}",
-                  "field_list": "Name\nStageName\nAmount\nCloseDate\nAccountId\nId\nOpportunityNumber__c"
+                  "field_list": "Name\nStageName\nAmount\nCloseDate\nAccountId\nId\nOpportunityNumber__c\nCreatedDate\nIsClosed",
+                  "offset": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"0befe193\",\"path\":[\"output\"]}')}"
                 },
                 "extended_output_schema": [
                   {
@@ -803,6 +1209,42 @@
                         "sfdc_updateable": true,
                         "type": "date_time",
                         "name": "CloseDate"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Closed",
+                        "optional": true,
+                        "custom": false,
+                        "sfdc_createable": false,
+                        "sfdc_updateable": false,
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Closed",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "render_input": null,
+                          "parse_output": null,
+                          "optional": true,
+                          "custom": false,
+                          "sfdc_createable": false,
+                          "sfdc_updateable": false,
+                          "type": "boolean",
+                          "name": "IsClosed"
+                        },
+                        "type": "boolean",
+                        "name": "IsClosed"
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "Created Date",
+                        "render_input": "render_iso8601_timestamp",
+                        "parse_output": "parse_iso8601_timestamp",
+                        "optional": true,
+                        "custom": false,
+                        "sfdc_createable": true,
+                        "sfdc_updateable": false,
+                        "type": "date_time",
+                        "name": "CreatedDate"
                       },
                       {
                         "control_type": "text",
@@ -987,7 +1429,171 @@
                 "uuid": "f4a7c95f-7935-4fe1-afb1-9315c4e2f023"
               },
               {
-                "number": 14,
+                "number": 24,
+                "provider": "salesforce",
+                "name": "search_sobjects_soql",
+                "as": "1a5ae392",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "sobject_name": "Opportunity",
+                  "field_list": [
+                    {
+                      "label": "Name",
+                      "value": "Name"
+                    }
+                  ]
+                },
+                "input": {
+                  "sobject_name": "Opportunity",
+                  "query": "OpportunityNumber__c = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"headers\",\"opportunity_number\"]}')}'",
+                  "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"777be6a7\",\"path\":[\"output\"]}')}",
+                  "field_list": "Name"
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Opportunities",
+                    "name": "Opportunity",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Name",
+                        "event_title": true,
+                        "custom": false,
+                        "sfdc_createable": true,
+                        "sfdc_updateable": true,
+                        "type": "string",
+                        "name": "Name"
+                      },
+                      {
+                        "properties": [
+                          {
+                            "control_type": "number",
+                            "label": "Total size",
+                            "parse_output": "integer_conversion",
+                            "type": "integer",
+                            "name": "totalSize"
+                          },
+                          {
+                            "label": "Files",
+                            "of": "object",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "ID",
+                                "type": "string",
+                                "name": "Id"
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "Content size",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "ContentSize"
+                              },
+                              {
+                                "control_type": "url",
+                                "label": "Content URL",
+                                "type": "string",
+                                "name": "ContentUrl"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "File extension",
+                                "type": "string",
+                                "name": "FileExtension"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "File type",
+                                "type": "string",
+                                "name": "FileType"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Parent ID",
+                                "type": "string",
+                                "name": "ParentId"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Record type",
+                                "type": "string",
+                                "name": "RecordType"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Title",
+                                "type": "string",
+                                "name": "Title"
+                              }
+                            ],
+                            "type": "array",
+                            "name": "records"
+                          }
+                        ],
+                        "label": "Combined attachments",
+                        "sfdc_field_type": "CombinedAttachment",
+                        "type": "object",
+                        "name": "CombinedAttachments"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "List size",
+                    "name": "list_size",
+                    "parse_output": "integer_conversion",
+                    "type": "integer"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Processed all records?",
+                    "name": "done",
+                    "toggle_field": {
+                      "label": "Processed all records?",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "type": "boolean",
+                      "render_input": null,
+                      "parse_output": null,
+                      "name": "done"
+                    },
+                    "toggle_hint": "Select from option list",
+                    "type": "boolean"
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Total records",
+                    "name": "total_records",
+                    "parse_output": "integer_conversion",
+                    "type": "integer"
+                  },
+                  {
+                    "control_type": "url",
+                    "label": "Next page URL",
+                    "name": "next_page_url",
+                    "type": "string"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "control_type": "checkbox",
+                    "disable_formula": true,
+                    "extends_schema": true,
+                    "hint": "Select <b>Yes</b> to obtain data from notes, attachments and files associated to the queried records. Default value is <b>Yes</b>.",
+                    "label": "Select combined attachments",
+                    "name": "include_combined_attachments",
+                    "optional": true,
+                    "support_pills": false,
+                    "type": "boolean"
+                  }
+                ],
+                "uuid": "938c45f9-fa92-47f7-a76c-059082f6ee89"
+              },
+              {
+                "number": 25,
                 "as": "f3f8331d",
                 "keyword": "catch",
                 "input": {
@@ -996,7 +1602,7 @@
                 },
                 "block": [
                   {
-                    "number": 15,
+                    "number": 26,
                     "provider": "workato_api_platform",
                     "name": "return_response",
                     "as": "75de9233",
@@ -1004,7 +1610,6 @@
                     "input": {
                       "http_status_code": "200",
                       "response": {
-                        "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"f3f8331d\",\"path\":[\"message\"]}')"
                       }
                     },
                     "extended_output_schema": [
@@ -1028,9 +1633,24 @@
                         "properties": [
                           {
                             "control_type": "text",
-                            "label": "Output",
+                            "label": "Opportunities",
                             "type": "string",
-                            "name": "output"
+                            "name": "opportunities",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Total Opportunities",
+                            "name": "total_opportunities",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Opportunities List Size",
+                            "name": "opportunities_list_size",
+                            "type": "string",
+                            "optional": true
                           }
                         ],
                         "type": "object"
@@ -1057,9 +1677,24 @@
                         "properties": [
                           {
                             "control_type": "text",
-                            "label": "Output",
+                            "label": "Opportunities",
                             "type": "string",
-                            "name": "output"
+                            "name": "opportunities",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Total Opportunities",
+                            "name": "total_opportunities",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Opportunities List Size",
+                            "name": "opportunities_list_size",
+                            "type": "string",
+                            "optional": true
                           }
                         ],
                         "type": "object"
@@ -1075,7 +1710,7 @@
             "uuid": "17f00ef8-5bcd-4534-a921-5c4cb9721349"
           },
           {
-            "number": 16,
+            "number": 27,
             "provider": "workato_api_platform",
             "name": "return_response",
             "as": "63c2f101",
@@ -1083,7 +1718,9 @@
             "input": {
               "http_status_code": "200",
               "response": {
-                "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"96142c0e\",\"path\":[]}')"
+                "opportunities_list_size": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"96142c0e\",\"path\":[\"list_size\"]}')}",
+                "opportunities": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"96142c0e\",\"path\":[\"Opportunity\"]}')}",
+                "total_opportunities": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"1a5ae392\",\"path\":[\"list_size\"]}')}"
               }
             },
             "extended_output_schema": [
@@ -1107,9 +1744,24 @@
                 "properties": [
                   {
                     "control_type": "text",
-                    "label": "Output",
+                    "label": "Opportunities",
                     "type": "string",
-                    "name": "output"
+                    "name": "opportunities",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Total Opportunities",
+                    "name": "total_opportunities",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Opportunities List Size",
+                    "name": "opportunities_list_size",
+                    "type": "string",
+                    "optional": true
                   }
                 ],
                 "type": "object"
@@ -1136,19 +1788,41 @@
                 "properties": [
                   {
                     "control_type": "text",
-                    "label": "Output",
+                    "label": "Opportunities",
                     "type": "string",
-                    "name": "output"
+                    "name": "opportunities",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Total Opportunities",
+                    "name": "total_opportunities",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Opportunities List Size",
+                    "name": "opportunities_list_size",
+                    "type": "string",
+                    "optional": true
                   }
                 ],
                 "type": "object"
               }
             ],
+            "visible_config_fields": [
+              "http_status_code",
+              "response",
+              "response.opportunities",
+              "response.opportunities_list_size",
+              "response.total_opportunities"
+            ],
             "uuid": "9e0f7dd0-8b6a-4722-ae2e-71aa33aaddd8",
             "skip": false
           },
           {
-            "number": 17,
+            "number": 28,
             "keyword": "elsif",
             "input": {
               "type": "compound",
@@ -1164,13 +1838,13 @@
             },
             "block": [
               {
-                "number": 18,
+                "number": 29,
                 "keyword": "try",
                 "input": {
                 },
                 "block": [
                   {
-                    "number": 19,
+                    "number": 30,
                     "provider": "salesforce",
                     "name": "search_sobjects_soql",
                     "as": "d162e55e",
@@ -1205,15 +1879,24 @@
                         {
                           "label": "Opportunity Number",
                           "value": "OpportunityNumber__c"
+                        },
+                        {
+                          "label": "Created Date",
+                          "value": "CreatedDate"
+                        },
+                        {
+                          "label": "Closed",
+                          "value": "IsClosed"
                         }
                       ]
                     },
                     "input": {
-                      "limit": "15",
+                      "limit": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"a7d0dee6\",\"path\":[\"output\"]}')}",
                       "sobject_name": "Opportunity",
-                      "query": "Id = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"headers\",\"opportunity_id\"]}')}'",
+                      "query": "Id = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"headers\",\"opportunity_id\"]}')}' ORDER BY CreatedDate DESC",
                       "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"777be6a7\",\"path\":[\"output\"]}')}",
-                      "field_list": "Name\nStageName\nAmount\nCloseDate\nAccountId\nId\nOpportunityNumber__c"
+                      "field_list": "Name\nStageName\nAmount\nCloseDate\nAccountId\nId\nOpportunityNumber__c\nCreatedDate\nIsClosed",
+                      "offset": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"0befe193\",\"path\":[\"output\"]}')}"
                     },
                     "extended_output_schema": [
                       {
@@ -1252,6 +1935,42 @@
                             "sfdc_updateable": true,
                             "type": "date_time",
                             "name": "CloseDate"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Closed",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": false,
+                            "sfdc_updateable": false,
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Closed",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "render_input": null,
+                              "parse_output": null,
+                              "optional": true,
+                              "custom": false,
+                              "sfdc_createable": false,
+                              "sfdc_updateable": false,
+                              "type": "boolean",
+                              "name": "IsClosed"
+                            },
+                            "type": "boolean",
+                            "name": "IsClosed"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Created Date",
+                            "render_input": "render_iso8601_timestamp",
+                            "parse_output": "parse_iso8601_timestamp",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": false,
+                            "type": "date_time",
+                            "name": "CreatedDate"
                           },
                           {
                             "control_type": "text",
@@ -1436,7 +2155,171 @@
                     "uuid": "cb1b364c-2b6f-47b3-a774-2523d7d61e03"
                   },
                   {
-                    "number": 20,
+                    "number": 31,
+                    "provider": "salesforce",
+                    "name": "search_sobjects_soql",
+                    "as": "c11d66fc",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "sobject_name": "Opportunity",
+                      "field_list": [
+                        {
+                          "label": "Name",
+                          "value": "Name"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "sobject_name": "Opportunity",
+                      "query": "Id = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"headers\",\"opportunity_id\"]}')}'",
+                      "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"777be6a7\",\"path\":[\"output\"]}')}",
+                      "field_list": "Name"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Opportunities",
+                        "name": "Opportunity",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Name",
+                            "event_title": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "Name"
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "number",
+                                "label": "Total size",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "totalSize"
+                              },
+                              {
+                                "label": "Files",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "ID",
+                                    "type": "string",
+                                    "name": "Id"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Content size",
+                                    "parse_output": "integer_conversion",
+                                    "type": "integer",
+                                    "name": "ContentSize"
+                                  },
+                                  {
+                                    "control_type": "url",
+                                    "label": "Content URL",
+                                    "type": "string",
+                                    "name": "ContentUrl"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "File extension",
+                                    "type": "string",
+                                    "name": "FileExtension"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "File type",
+                                    "type": "string",
+                                    "name": "FileType"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Parent ID",
+                                    "type": "string",
+                                    "name": "ParentId"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Record type",
+                                    "type": "string",
+                                    "name": "RecordType"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Title",
+                                    "type": "string",
+                                    "name": "Title"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "records"
+                              }
+                            ],
+                            "label": "Combined attachments",
+                            "sfdc_field_type": "CombinedAttachment",
+                            "type": "object",
+                            "name": "CombinedAttachments"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "List size",
+                        "name": "list_size",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Processed all records?",
+                        "name": "done",
+                        "toggle_field": {
+                          "label": "Processed all records?",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "render_input": null,
+                          "parse_output": null,
+                          "name": "done"
+                        },
+                        "toggle_hint": "Select from option list",
+                        "type": "boolean"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Total records",
+                        "name": "total_records",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "url",
+                        "label": "Next page URL",
+                        "name": "next_page_url",
+                        "type": "string"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "checkbox",
+                        "disable_formula": true,
+                        "extends_schema": true,
+                        "hint": "Select <b>Yes</b> to obtain data from notes, attachments and files associated to the queried records. Default value is <b>Yes</b>.",
+                        "label": "Select combined attachments",
+                        "name": "include_combined_attachments",
+                        "optional": true,
+                        "support_pills": false,
+                        "type": "boolean"
+                      }
+                    ],
+                    "uuid": "81c712af-c9ba-432d-a1e7-f92d877d6b73"
+                  },
+                  {
+                    "number": 32,
                     "as": "e0e547f3",
                     "keyword": "catch",
                     "input": {
@@ -1445,7 +2328,7 @@
                     },
                     "block": [
                       {
-                        "number": 21,
+                        "number": 33,
                         "provider": "workato_api_platform",
                         "name": "return_response",
                         "as": "a6bf1810",
@@ -1453,7 +2336,6 @@
                         "input": {
                           "http_status_code": "200",
                           "response": {
-                            "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"e0e547f3\",\"path\":[\"message\"]}')"
                           }
                         },
                         "extended_output_schema": [
@@ -1477,9 +2359,24 @@
                             "properties": [
                               {
                                 "control_type": "text",
-                                "label": "Output",
+                                "label": "Opportunities",
                                 "type": "string",
-                                "name": "output"
+                                "name": "opportunities",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Total Opportunities",
+                                "name": "total_opportunities",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Opportunities List Size",
+                                "name": "opportunities_list_size",
+                                "type": "string",
+                                "optional": true
                               }
                             ],
                             "type": "object"
@@ -1506,9 +2403,24 @@
                             "properties": [
                               {
                                 "control_type": "text",
-                                "label": "Output",
+                                "label": "Opportunities",
                                 "type": "string",
-                                "name": "output"
+                                "name": "opportunities",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Total Opportunities",
+                                "name": "total_opportunities",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Opportunities List Size",
+                                "name": "opportunities_list_size",
+                                "type": "string",
+                                "optional": true
                               }
                             ],
                             "type": "object"
@@ -1524,7 +2436,7 @@
                 "uuid": "8314413c-6fb1-4b3f-8869-c012804128f3"
               },
               {
-                "number": 22,
+                "number": 34,
                 "provider": "workato_api_platform",
                 "name": "return_response",
                 "as": "6054eac6",
@@ -1532,7 +2444,9 @@
                 "input": {
                   "http_status_code": "200",
                   "response": {
-                    "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d162e55e\",\"path\":[]}')"
+                    "opportunities": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d162e55e\",\"path\":[\"Opportunity\"]}')",
+                    "opportunities_list_size": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d162e55e\",\"path\":[\"list_size\"]}')}",
+                    "total_opportunities": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"c11d66fc\",\"path\":[\"list_size\"]}')}"
                   }
                 },
                 "extended_output_schema": [
@@ -1556,9 +2470,24 @@
                     "properties": [
                       {
                         "control_type": "text",
-                        "label": "Output",
+                        "label": "Opportunities",
                         "type": "string",
-                        "name": "output"
+                        "name": "opportunities",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Total Opportunities",
+                        "name": "total_opportunities",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Opportunities List Size",
+                        "name": "opportunities_list_size",
+                        "type": "string",
+                        "optional": true
                       }
                     ],
                     "type": "object"
@@ -1585,13 +2514,36 @@
                     "properties": [
                       {
                         "control_type": "text",
-                        "label": "Output",
+                        "label": "Opportunities",
                         "type": "string",
-                        "name": "output"
+                        "name": "opportunities",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Total Opportunities",
+                        "name": "total_opportunities",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Opportunities List Size",
+                        "name": "opportunities_list_size",
+                        "type": "string",
+                        "optional": true
                       }
                     ],
                     "type": "object"
                   }
+                ],
+                "visible_config_fields": [
+                  "http_status_code",
+                  "response",
+                  "response.total_records",
+                  "response.opportunities_list_size",
+                  "response.opportunities",
+                  "response.total_opportunities"
                 ],
                 "uuid": "5913f8c8-fc1a-4e38-894f-b8468b9a904a",
                 "skip": false
@@ -1600,7 +2552,7 @@
             "uuid": "dfa00e3f-8898-47f7-905f-c5a5eea5b6ab"
           },
           {
-            "number": 23,
+            "number": 35,
             "keyword": "elsif",
             "input": {
               "type": "compound",
@@ -1616,13 +2568,13 @@
             },
             "block": [
               {
-                "number": 24,
+                "number": 36,
                 "keyword": "try",
                 "input": {
                 },
                 "block": [
                   {
-                    "number": 25,
+                    "number": 37,
                     "provider": "salesforce",
                     "name": "search_sobjects_soql",
                     "as": "7049adc9",
@@ -1657,15 +2609,24 @@
                         {
                           "label": "Opportunity Number",
                           "value": "OpportunityNumber__c"
+                        },
+                        {
+                          "label": "Created Date",
+                          "value": "CreatedDate"
+                        },
+                        {
+                          "label": "Closed",
+                          "value": "IsClosed"
                         }
                       ]
                     },
                     "input": {
-                      "limit": "15",
+                      "limit": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"a7d0dee6\",\"path\":[\"output\"]}')}",
                       "sobject_name": "Opportunity",
-                      "query": "Name like '%#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"headers\",\"opportunity_name\"]}')}%'",
+                      "query": "Name like '%#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"headers\",\"opportunity_name\"]}')}%' ORDER BY CreatedDate DESC",
                       "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"777be6a7\",\"path\":[\"output\"]}')}",
-                      "field_list": "Name\nStageName\nAmount\nCloseDate\nAccountId\nId\nOpportunityNumber__c"
+                      "field_list": "Name\nStageName\nAmount\nCloseDate\nAccountId\nId\nOpportunityNumber__c\nCreatedDate\nIsClosed",
+                      "offset": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"0befe193\",\"path\":[\"output\"]}')}"
                     },
                     "extended_output_schema": [
                       {
@@ -1704,6 +2665,42 @@
                             "sfdc_updateable": true,
                             "type": "date_time",
                             "name": "CloseDate"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Closed",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": false,
+                            "sfdc_updateable": false,
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Closed",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "render_input": null,
+                              "parse_output": null,
+                              "optional": true,
+                              "custom": false,
+                              "sfdc_createable": false,
+                              "sfdc_updateable": false,
+                              "type": "boolean",
+                              "name": "IsClosed"
+                            },
+                            "type": "boolean",
+                            "name": "IsClosed"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Created Date",
+                            "render_input": "render_iso8601_timestamp",
+                            "parse_output": "parse_iso8601_timestamp",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": false,
+                            "type": "date_time",
+                            "name": "CreatedDate"
                           },
                           {
                             "control_type": "text",
@@ -1888,7 +2885,171 @@
                     "uuid": "d5ef29fc-2101-44db-b544-063c526d6272"
                   },
                   {
-                    "number": 26,
+                    "number": 38,
+                    "provider": "salesforce",
+                    "name": "search_sobjects_soql",
+                    "as": "b77e0a69",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "sobject_name": "Opportunity",
+                      "field_list": [
+                        {
+                          "label": "Name",
+                          "value": "Name"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "sobject_name": "Opportunity",
+                      "query": "Name like '%#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"headers\",\"opportunity_name\"]}')}%' ",
+                      "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"777be6a7\",\"path\":[\"output\"]}')}",
+                      "field_list": "Name"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Opportunities",
+                        "name": "Opportunity",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Name",
+                            "event_title": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "Name"
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "number",
+                                "label": "Total size",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "totalSize"
+                              },
+                              {
+                                "label": "Files",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "ID",
+                                    "type": "string",
+                                    "name": "Id"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Content size",
+                                    "parse_output": "integer_conversion",
+                                    "type": "integer",
+                                    "name": "ContentSize"
+                                  },
+                                  {
+                                    "control_type": "url",
+                                    "label": "Content URL",
+                                    "type": "string",
+                                    "name": "ContentUrl"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "File extension",
+                                    "type": "string",
+                                    "name": "FileExtension"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "File type",
+                                    "type": "string",
+                                    "name": "FileType"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Parent ID",
+                                    "type": "string",
+                                    "name": "ParentId"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Record type",
+                                    "type": "string",
+                                    "name": "RecordType"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Title",
+                                    "type": "string",
+                                    "name": "Title"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "records"
+                              }
+                            ],
+                            "label": "Combined attachments",
+                            "sfdc_field_type": "CombinedAttachment",
+                            "type": "object",
+                            "name": "CombinedAttachments"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "List size",
+                        "name": "list_size",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Processed all records?",
+                        "name": "done",
+                        "toggle_field": {
+                          "label": "Processed all records?",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "render_input": null,
+                          "parse_output": null,
+                          "name": "done"
+                        },
+                        "toggle_hint": "Select from option list",
+                        "type": "boolean"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Total records",
+                        "name": "total_records",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "url",
+                        "label": "Next page URL",
+                        "name": "next_page_url",
+                        "type": "string"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "checkbox",
+                        "disable_formula": true,
+                        "extends_schema": true,
+                        "hint": "Select <b>Yes</b> to obtain data from notes, attachments and files associated to the queried records. Default value is <b>Yes</b>.",
+                        "label": "Select combined attachments",
+                        "name": "include_combined_attachments",
+                        "optional": true,
+                        "support_pills": false,
+                        "type": "boolean"
+                      }
+                    ],
+                    "uuid": "13c24dba-65e7-4bab-9112-109c1aafd61e"
+                  },
+                  {
+                    "number": 39,
                     "as": "6752ddc1",
                     "keyword": "catch",
                     "input": {
@@ -1897,7 +3058,7 @@
                     },
                     "block": [
                       {
-                        "number": 27,
+                        "number": 40,
                         "provider": "workato_api_platform",
                         "name": "return_response",
                         "as": "26a37acb",
@@ -1905,7 +3066,6 @@
                         "input": {
                           "http_status_code": "200",
                           "response": {
-                            "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"6752ddc1\",\"path\":[\"message\"]}')"
                           }
                         },
                         "extended_output_schema": [
@@ -1929,9 +3089,24 @@
                             "properties": [
                               {
                                 "control_type": "text",
-                                "label": "Output",
+                                "label": "Opportunities",
                                 "type": "string",
-                                "name": "output"
+                                "name": "opportunities",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Total Opportunities",
+                                "name": "total_opportunities",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Opportunities List Size",
+                                "name": "opportunities_list_size",
+                                "type": "string",
+                                "optional": true
                               }
                             ],
                             "type": "object"
@@ -1958,9 +3133,24 @@
                             "properties": [
                               {
                                 "control_type": "text",
-                                "label": "Output",
+                                "label": "Opportunities",
                                 "type": "string",
-                                "name": "output"
+                                "name": "opportunities",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Total Opportunities",
+                                "name": "total_opportunities",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Opportunities List Size",
+                                "name": "opportunities_list_size",
+                                "type": "string",
+                                "optional": true
                               }
                             ],
                             "type": "object"
@@ -1976,7 +3166,7 @@
                 "uuid": "8e2b0d26-c692-4207-a941-52fa3278ac87"
               },
               {
-                "number": 28,
+                "number": 41,
                 "provider": "workato_api_platform",
                 "name": "return_response",
                 "as": "41a4090c",
@@ -1984,7 +3174,9 @@
                 "input": {
                   "http_status_code": "200",
                   "response": {
-                    "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"7049adc9\",\"path\":[]}')"
+                    "opportunities": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"7049adc9\",\"path\":[\"Opportunity\"]}')",
+                    "opportunities_list_size": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"7049adc9\",\"path\":[\"list_size\"]}')}",
+                    "total_opportunities": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"b77e0a69\",\"path\":[\"list_size\"]}')}"
                   }
                 },
                 "extended_output_schema": [
@@ -2008,9 +3200,24 @@
                     "properties": [
                       {
                         "control_type": "text",
-                        "label": "Output",
+                        "label": "Opportunities",
                         "type": "string",
-                        "name": "output"
+                        "name": "opportunities",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Total Opportunities",
+                        "name": "total_opportunities",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Opportunities List Size",
+                        "name": "opportunities_list_size",
+                        "type": "string",
+                        "optional": true
                       }
                     ],
                     "type": "object"
@@ -2037,13 +3244,36 @@
                     "properties": [
                       {
                         "control_type": "text",
-                        "label": "Output",
+                        "label": "Opportunities",
                         "type": "string",
-                        "name": "output"
+                        "name": "opportunities",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Total Opportunities",
+                        "name": "total_opportunities",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Opportunities List Size",
+                        "name": "opportunities_list_size",
+                        "type": "string",
+                        "optional": true
                       }
                     ],
                     "type": "object"
                   }
+                ],
+                "visible_config_fields": [
+                  "http_status_code",
+                  "response",
+                  "response.total_records",
+                  "response.opportunities",
+                  "response.opportunities_list_size",
+                  "response.total_opportunities"
                 ],
                 "uuid": "2a7f58c7-28be-4848-9caa-2f7135cf31cc",
                 "skip": false
@@ -2055,7 +3285,7 @@
         "uuid": "942a882d-8c05-4975-a614-86692b5a43a0"
       },
       {
-        "number": 29,
+        "number": 42,
         "provider": "workato_api_platform",
         "name": "return_response",
         "as": "d5e46821",
@@ -2063,7 +3293,6 @@
         "input": {
           "http_status_code": "200",
           "response": {
-            "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"96142c0e\",\"path\":[\"Opportunity\"]}')"
           }
         },
         "extended_output_schema": [
@@ -2087,9 +3316,24 @@
             "properties": [
               {
                 "control_type": "text",
-                "label": "Output",
+                "label": "Opportunities",
                 "type": "string",
-                "name": "output"
+                "name": "opportunities",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Total Opportunities",
+                "name": "total_opportunities",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Opportunities List Size",
+                "name": "opportunities_list_size",
+                "type": "string",
+                "optional": true
               }
             ],
             "type": "object"
@@ -2116,9 +3360,24 @@
             "properties": [
               {
                 "control_type": "text",
-                "label": "Output",
+                "label": "Opportunities",
                 "type": "string",
-                "name": "output"
+                "name": "opportunities",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Total Opportunities",
+                "name": "total_opportunities",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Opportunities List Size",
+                "name": "opportunities_list_size",
+                "type": "string",
+                "optional": true
               }
             ],
             "type": "object"
