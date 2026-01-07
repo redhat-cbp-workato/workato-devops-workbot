@@ -1,10 +1,10 @@
 {
   "name": "[Core CRM] REC | Generate Private Offer",
   "description": "[ECM-93708/ECM-90533/ECM-74297] - This Workato recipe listens to a Salesforce platform event for private offer generation and publishes the data to the Rainmaker Kafka topic.",
-  "version": 3,
+  "version": 20,
   "private": true,
   "concurrency": 1,
-  "version_comment": "[ECM-93708/ECM-90533/ECM-74297] - Create the Workato Recipe to pull data out of RHSC",
+  "version_comment": "[ECM-109776] - Private offer acceptance date should be 14 days from the offer creation date",
   "code": {
     "number": 0,
     "provider": "salesforce",
@@ -95,11 +95,12 @@
         },
         "input": {
           "variables": {
-            "schema": "[{\"control_type\":\"text\",\"label\":\"message\",\"name\":\"message\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"message\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true},{\"control_type\":\"text\",\"label\":\"status\",\"name\":\"status\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"status\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true},{\"control_type\":\"checkbox\",\"label\":\"allowRetries\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"float_conversion\",\"name\":\"allowRetries\",\"type\":\"boolean\",\"optional\":true,\"details\":{\"real_name\":\"allowRetries\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"allowRetries\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"parse_output\":\"float_conversion\",\"name\":\"allowRetries\",\"type\":\"boolean\",\"optional\":true,\"details\":{\"real_name\":\"allowRetries\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true}},{\"control_type\":\"text\",\"label\":\"MarketplaceRenewalType\",\"name\":\"MarketplaceRenewalType\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"MarketplaceRenewalType\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true}]",
+            "schema": "[{\"control_type\":\"text\",\"label\":\"message\",\"name\":\"message\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"message\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true},{\"control_type\":\"text\",\"label\":\"status\",\"name\":\"status\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"status\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true},{\"control_type\":\"checkbox\",\"label\":\"allowRetries\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"float_conversion\",\"name\":\"allowRetries\",\"type\":\"boolean\",\"optional\":true,\"details\":{\"real_name\":\"allowRetries\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"allowRetries\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"parse_output\":\"float_conversion\",\"name\":\"allowRetries\",\"type\":\"boolean\",\"optional\":true,\"details\":{\"real_name\":\"allowRetries\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true}},{\"control_type\":\"text\",\"label\":\"MarketplaceRenewalType\",\"name\":\"MarketplaceRenewalType\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"MarketplaceRenewalType\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true},{\"name\":\"deadline_date\",\"type\":\"date\",\"optional\":true,\"label\":\"Deadline Date\",\"details\":{\"real_name\":\"Deadline Date\"},\"control_type\":\"date\",\"parent\":[\"variables\",\"data\"]}]",
             "data": {
               "message": "Published message successfully into the Kafka topic.",
               "status": "Complete",
-              "allowRetries": "false"
+              "allowRetries": "false",
+              "deadline_date": "=today + 14.days"
             }
           }
         },
@@ -172,6 +173,18 @@
             "details": {
               "real_name": "MarketplaceRenewalType"
             }
+          },
+          {
+            "control_type": "date",
+            "label": "Deadline Date",
+            "name": "deadline_date",
+            "optional": true,
+            "parse_output": "date_conversion",
+            "type": "date",
+            "details": {
+              "real_name": "Deadline Date"
+            },
+            "render_input": "date_conversion"
           }
         ],
         "extended_input_schema": [
@@ -283,6 +296,24 @@
                     ],
                     "hint": "Defaults to nil if not supplied.",
                     "sticky": true
+                  },
+                  {
+                    "control_type": "date",
+                    "label": "Deadline Date",
+                    "render_input": "date_conversion",
+                    "parse_output": "date_conversion",
+                    "name": "deadline_date",
+                    "type": "date",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Deadline Date"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
                   }
                 ],
                 "label": "Data",
@@ -311,7 +342,9 @@
           "variables.data.quoteLine.subtotal",
           "variables.data.quoteLineItemsList",
           "variables.data.quoteId",
-          "variables.data.MarketplaceRenewalType"
+          "variables.data.MarketplaceRenewalType",
+          "variables.data.current_date",
+          "variables.data.deadline_date"
         ],
         "uuid": "c09b43e0-c047-4248-ba00-99baa343b6f8"
       },
@@ -323,8 +356,8 @@
         "keyword": "action",
         "input": {
           "limit": "1",
-          "query": "SELECT \nId,\nAccount__r.Name,\nAssociate_Name__r.Email,\nCreatedBy.Name,\nCustomer_Hyperscaler_ID__c,\nOpportunity_Number__c,\nOpportunity__r.HCS_Contract__c,\nOpportunity__r.Marketplace_Renewal_Type__c,\nGeo_Country__c,\nProposal__c,\nProposal__r.SBQQ__ExpirationDate__c,\nProposal__r.CurrencyIsoCode,\nProposal__r.SBQQ__NetAmount__c \nfrom Sales_Assistance__c \nWHERE Id = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"e99ccd04\",\"path\":[\"Sales_Assistance_Record_Id__c\"]}')}'",
-          "output_schema": "[{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"Id\"},{\"properties\":[{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"Name\",\"optional\":false}],\"label\":\"Account\",\"type\":\"object\",\"name\":\"Account__r\",\"optional\":false},{\"properties\":[{\"control_type\":\"text\",\"label\":\"Email\",\"type\":\"string\",\"name\":\"Email\",\"optional\":false}],\"label\":\"Associate\",\"type\":\"object\",\"name\":\"Associate_Name__r\",\"optional\":false},{\"properties\":[{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"Name\",\"optional\":false}],\"label\":\"Created by\",\"type\":\"object\",\"name\":\"CreatedBy\"},{\"control_type\":\"text\",\"label\":\"Customer Hyperscaler ID\",\"type\":\"string\",\"name\":\"Customer_Hyperscaler_ID__c\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Opportunity Number\",\"type\":\"string\",\"name\":\"Opportunity_Number__c\",\"optional\":false},{\"properties\":[{\"name\":\"HCS_Contract__c\",\"type\":\"string\",\"optional\":false,\"label\":\"HCS Contract\",\"control_type\":\"text\"},{\"control_type\":\"text\",\"label\":\"Marketplace Renewal Type\",\"type\":\"string\",\"name\":\"Marketplace_Renewal_Type__c\",\"optional\":false}],\"label\":\"Opportunity\",\"type\":\"object\",\"name\":\"Opportunity__r\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Geo Country\",\"type\":\"string\",\"name\":\"Geo_Country__c\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Quote Id\",\"type\":\"string\",\"name\":\"Proposal__c\",\"optional\":false},{\"label\":\"Proposal/Quote\",\"type\":\"object\",\"name\":\"Proposal__r\",\"optional\":false,\"properties\":[{\"control_type\":\"number\",\"label\":\"Quote NetAmount\",\"name\":\"SBQQ__NetAmount__c\",\"type\":\"number\",\"optional\":false,\"parse_output\":\"float_conversion\"},{\"control_type\":\"text\",\"label\":\"Quote Currency Code\",\"name\":\"CurrencyIsoCode\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"date\",\"label\":\"Quote Expiration Date\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\",\"name\":\"SBQQ__ExpirationDate__c\",\"type\":\"date_time\",\"optional\":false}]}]"
+          "query": "SELECT \nId,\nAccount__r.Name,\nAssociate_Name__r.Email,\nCreatedBy.Name,\nCustomer_Hyperscaler_ID__c,\nOpportunity_Number__c,\nOpportunity__r.HCS_Contract__c,\nOpportunity__r.Marketplace_Renewal_Type__c,\nGeo_Country__c,\nProposal__c,\nProposal__r.SBQQ__ExpirationDate__c,\nProposal__r.CurrencyIsoCode,\nProposal__r.SBQQ__NetAmount__c,\nProposal__r.SBQQ__StartDate__c,\nProposal__r.SBQQ__EndDate__c\nfrom Sales_Assistance__c \nWHERE Id = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"e99ccd04\",\"path\":[\"Sales_Assistance_Record_Id__c\"]}')}'",
+          "output_schema": "[{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"Id\"},{\"properties\":[{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"Name\",\"optional\":false}],\"label\":\"Account\",\"type\":\"object\",\"name\":\"Account__r\",\"optional\":false},{\"properties\":[{\"control_type\":\"text\",\"label\":\"Email\",\"type\":\"string\",\"name\":\"Email\",\"optional\":false}],\"label\":\"Associate\",\"type\":\"object\",\"name\":\"Associate_Name__r\",\"optional\":false},{\"properties\":[{\"control_type\":\"text\",\"label\":\"Name\",\"type\":\"string\",\"name\":\"Name\",\"optional\":false}],\"label\":\"Created by\",\"type\":\"object\",\"name\":\"CreatedBy\"},{\"control_type\":\"text\",\"label\":\"Customer Hyperscaler ID\",\"type\":\"string\",\"name\":\"Customer_Hyperscaler_ID__c\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Opportunity Number\",\"type\":\"string\",\"name\":\"Opportunity_Number__c\",\"optional\":false},{\"properties\":[{\"name\":\"HCS_Contract__c\",\"type\":\"string\",\"optional\":false,\"label\":\"HCS Contract\",\"control_type\":\"text\"},{\"control_type\":\"text\",\"label\":\"Marketplace Renewal Type\",\"type\":\"string\",\"name\":\"Marketplace_Renewal_Type__c\",\"optional\":false}],\"label\":\"Opportunity\",\"type\":\"object\",\"name\":\"Opportunity__r\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Geo Country\",\"type\":\"string\",\"name\":\"Geo_Country__c\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Quote Id\",\"type\":\"string\",\"name\":\"Proposal__c\",\"optional\":false},{\"label\":\"Proposal/Quote\",\"type\":\"object\",\"name\":\"Proposal__r\",\"optional\":false,\"properties\":[{\"name\":\"SBQQ__EndDate__c\",\"type\":\"date_time\",\"optional\":false,\"control_type\":\"date\",\"label\":\"Quote End Date\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\"},{\"name\":\"SBQQ__StartDate__c\",\"type\":\"date_time\",\"optional\":false,\"control_type\":\"date\",\"label\":\"Quote Start Date\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\"},{\"control_type\":\"number\",\"label\":\"Quote NetAmount\",\"name\":\"SBQQ__NetAmount__c\",\"type\":\"number\",\"optional\":false,\"parse_output\":\"float_conversion\"},{\"control_type\":\"text\",\"label\":\"Quote Currency Code\",\"name\":\"CurrencyIsoCode\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"date\",\"label\":\"Quote Expiration Date\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\",\"name\":\"SBQQ__ExpirationDate__c\",\"type\":\"date_time\",\"optional\":false}]}]"
         },
         "extended_output_schema": [
           {
@@ -462,6 +495,24 @@
                 "optional": false,
                 "properties": [
                   {
+                    "name": "SBQQ__EndDate__c",
+                    "type": "date_time",
+                    "optional": false,
+                    "control_type": "date",
+                    "label": "Quote End Date",
+                    "render_input": "date_conversion",
+                    "parse_output": "date_conversion"
+                  },
+                  {
+                    "name": "SBQQ__StartDate__c",
+                    "type": "date_time",
+                    "optional": false,
+                    "control_type": "date",
+                    "label": "Quote Start Date",
+                    "render_input": "date_conversion",
+                    "parse_output": "date_conversion"
+                  },
+                  {
                     "control_type": "number",
                     "label": "Quote NetAmount",
                     "name": "SBQQ__NetAmount__c",
@@ -559,14 +610,6 @@
                   "value": "SBQQ__Description__c"
                 },
                 {
-                  "label": "Start Date",
-                  "value": "SBQQ__StartDate__c"
-                },
-                {
-                  "label": "End Date",
-                  "value": "SBQQ__EndDate__c"
-                },
-                {
                   "label": "List Unit Price",
                   "value": "SBQQ__ListPrice__c"
                 },
@@ -592,7 +635,7 @@
               "query": "SBQQ__Quote__c = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__c\"]}')}'",
               "limit": "2000",
               "sobject_name": "SBQQ__QuoteLine__c",
-              "field_list": "SBQQ__CustomerPrice__c\nSBQQ__Description__c\nSBQQ__StartDate__c\nSBQQ__EndDate__c\nSBQQ__ListPrice__c\nSBQQ__ProductCode__c\nSBQQ__Quote__c\nSBQQ__Quantity__c\nSBQQ__NetTotal__c"
+              "field_list": "SBQQ__CustomerPrice__c\nSBQQ__Description__c\nSBQQ__ListPrice__c\nSBQQ__ProductCode__c\nSBQQ__Quote__c\nSBQQ__Quantity__c\nSBQQ__NetTotal__c"
             },
             "extended_output_schema": [
               {
@@ -622,19 +665,6 @@
                     "sfdc_updateable": false,
                     "type": "string",
                     "name": "SBQQ__Description__c"
-                  },
-                  {
-                    "control_type": "date",
-                    "label": "End Date",
-                    "render_input": "render_iso8601_date",
-                    "parse_output": "parse_iso8601_date",
-                    "optional": true,
-                    "custom": true,
-                    "hint": "Date the service represented by this line item will end (only applies if product is a subscription).",
-                    "sfdc_createable": false,
-                    "sfdc_updateable": false,
-                    "type": "date_time",
-                    "name": "SBQQ__EndDate__c"
                   },
                   {
                     "control_type": "number",
@@ -694,19 +724,6 @@
                     "name": "SBQQ__Quote__c"
                   },
                   {
-                    "control_type": "date",
-                    "label": "Start Date",
-                    "render_input": "render_iso8601_date",
-                    "parse_output": "parse_iso8601_date",
-                    "optional": true,
-                    "custom": true,
-                    "hint": "The date the subscription for this product begins.",
-                    "sfdc_createable": false,
-                    "sfdc_updateable": false,
-                    "type": "date_time",
-                    "name": "SBQQ__StartDate__c"
-                  },
-                  {
                     "properties": [
                       {
                         "control_type": "number",
@@ -716,10 +733,8 @@
                         "name": "totalSize"
                       },
                       {
-                        "name": "records",
-                        "type": "array",
-                        "of": "object",
                         "label": "Files",
+                        "of": "object",
                         "properties": [
                           {
                             "control_type": "text",
@@ -770,7 +785,9 @@
                             "type": "string",
                             "name": "Title"
                           }
-                        ]
+                        ],
+                        "type": "array",
+                        "name": "records"
                       }
                     ],
                     "label": "Combined attachments",
@@ -1238,6 +1255,93 @@
         "block": [
           {
             "number": 17,
+            "provider": "workato_variable",
+            "name": "declare_variable",
+            "as": "22fb893c",
+            "keyword": "action",
+            "input": {
+              "variables": {
+                "schema": "[{\"control_type\":\"date\",\"label\":\"Acceptance Deadline\",\"name\":\"AcceptanceDeadlineFormula\",\"type\":\"date\",\"optional\":true,\"details\":{\"real_name\":\"AcceptanceDeadlineFormula\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true}]",
+                "data": {
+                  "AcceptanceDeadlineFormula": "=(\n  [3,6,9,12].include?(_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1ee2db5f\",\"path\":[\"deadline_date\"]}').month) &&\n  _dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1ee2db5f\",\"path\":[\"deadline_date\"]}').day >= (_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1ee2db5f\",\"path\":[\"deadline_date\"]}').end_of_month.day - 14)\n) ?\n  _dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1ee2db5f\",\"path\":[\"deadline_date\"]}').end_of_month :\n  _dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1ee2db5f\",\"path\":[\"deadline_date\"]}')\n.strftime(\"%Y-%m-%d\")"
+                }
+              }
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "date",
+                "hint": "Defaults to nil if not supplied.",
+                "label": "Acceptance Deadline",
+                "name": "AcceptanceDeadlineFormula",
+                "optional": true,
+                "parse_output": "date_conversion",
+                "sticky": true,
+                "type": "date",
+                "details": {
+                  "real_name": "AcceptanceDeadlineFormula"
+                },
+                "render_input": "date_conversion"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "add_field_label": "Add a variable",
+                "control_type": "form-schema-builder",
+                "empty_schema_title": "Add variables by giving them a name, type and default value",
+                "exclude_fields": [
+                  "hint"
+                ],
+                "item_label": "variable",
+                "label": "Variables",
+                "mark_as_required": true,
+                "name": "variables",
+                "ngIf": "!input.name",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Schema",
+                    "extends_schema": true,
+                    "broadcast_change_event": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "date",
+                        "label": "Acceptance Deadline",
+                        "render_input": "date_conversion",
+                        "parse_output": "date_conversion",
+                        "name": "AcceptanceDeadlineFormula",
+                        "type": "date",
+                        "optional": true,
+                        "details": {
+                          "real_name": "AcceptanceDeadlineFormula"
+                        },
+                        "parent": [
+                          "variables",
+                          "data"
+                        ],
+                        "hint": "Defaults to nil if not supplied.",
+                        "sticky": true
+                      }
+                    ],
+                    "label": "Data",
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "variables.data.AcceptanceDeadlineFormula"
+            ],
+            "uuid": "d46faf5a-7713-4def-a29a-c99efb0093e5"
+          },
+          {
+            "number": 18,
             "keyword": "if",
             "input": {
               "type": "compound",
@@ -1253,13 +1357,13 @@
             },
             "block": [
               {
-                "number": 18,
+                "number": 19,
                 "keyword": "try",
                 "input": {
                 },
                 "block": [
                   {
-                    "number": 19,
+                    "number": 20,
                     "provider": "kafka",
                     "name": "publish_to_topic",
                     "as": "31a6ff5a",
@@ -1294,9 +1398,8 @@
                         "sfdcOpportunityNumber": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Opportunity_Number__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Opportunity_Number__c\"]}') : clear",
                         "privateOffers": {
                           "$schema": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"SCHEMA_URL_PRIVATE_OFFERS\"}')}",
-                          "acceptanceDeadline": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__ExpirationDate__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__ExpirationDate__c\"]}') : clear",
+                          "acceptanceDeadline": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"22fb893c\",\"path\":[\"AcceptanceDeadlineFormula\"]}')",
                           "offerType": "contract",
-                          "startDate": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__StartDate__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__StartDate__c\"]}') : clear",
                           "paymentSchedule": {
                             "currency": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"CurrencyIsoCode\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"CurrencyIsoCode\"]}') : clear",
                             "installments": {
@@ -1304,7 +1407,6 @@
                               "amount": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__NetAmount__c\"]}').present? ?_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__NetAmount__c\"]}').to_s : clear"
                             }
                           },
-                          "endDate": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__EndDate__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__EndDate__c\"]}') : clear",
                           "quantityPerDimension": {
                             "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\"]}')}",
                             "dimension": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"dimension\"]}')}",
@@ -1314,7 +1416,11 @@
                             "proratedCost": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"proratedCost\"]}').to_s",
                             "subtotal": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"subtotal\"]}').to_s"
                           },
-                          "description": "Red Hat Private Offer"
+                          "description": "Red Hat Private Offer",
+                          "contractDuration": {
+                            "unit": "month",
+                            "value": "=((_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__EndDate__c\"]}').year - \n_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__StartDate__c\"]}').year) * 12) + (\n_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__EndDate__c\"]}').month - \n_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__StartDate__c\"]}').month)"
+                          }
                         }
                       },
                       "headers": [
@@ -1399,11 +1505,11 @@
                                 "optional": false
                               },
                               {
+                                "label": "accountIDs",
                                 "name": "accountIDs",
                                 "type": "array",
-                                "of": "string",
-                                "label": "accountIDs",
-                                "optional": false
+                                "optional": false,
+                                "of": "string"
                               }
                             ],
                             "label": "customer",
@@ -1426,11 +1532,11 @@
                             "optional": false
                           },
                           {
+                            "label": "privateOffers",
                             "name": "privateOffers",
                             "type": "array",
-                            "of": "object",
-                            "label": "privateOffers",
                             "optional": false,
+                            "of": "object",
                             "properties": [
                               {
                                 "control_type": "text",
@@ -1476,8 +1582,7 @@
                                     "parse_output": "float_conversion",
                                     "type": "number",
                                     "name": "value",
-                                    "optional": true,
-                                    "render_input": "float_conversion"
+                                    "optional": true
                                   }
                                 ],
                                 "label": "contractDuration",
@@ -1492,7 +1597,7 @@
                                 "parse_output": "date_conversion",
                                 "type": "date_time",
                                 "name": "startDate",
-                                "optional": false
+                                "optional": true
                               },
                               {
                                 "control_type": "date",
@@ -1501,7 +1606,7 @@
                                 "parse_output": "date_conversion",
                                 "name": "endDate",
                                 "type": "date_time",
-                                "optional": false
+                                "optional": true
                               },
                               {
                                 "control_type": "text",
@@ -1511,11 +1616,11 @@
                                 "optional": true
                               },
                               {
+                                "label": "quantityPerDimension",
                                 "name": "quantityPerDimension",
                                 "type": "array",
-                                "of": "object",
-                                "label": "quantityPerDimension",
                                 "optional": false,
+                                "of": "object",
                                 "properties": [
                                   {
                                     "control_type": "text",
@@ -1530,8 +1635,7 @@
                                     "parse_output": "integer_conversion",
                                     "name": "quantity",
                                     "type": "integer",
-                                    "optional": false,
-                                    "render_input": "integer_conversion"
+                                    "optional": false
                                   },
                                   {
                                     "control_type": "text",
@@ -1573,11 +1677,11 @@
                                     "optional": true
                                   },
                                   {
+                                    "label": "installments",
                                     "name": "installments",
                                     "type": "array",
-                                    "of": "object",
-                                    "label": "installments",
                                     "optional": true,
+                                    "of": "object",
                                     "properties": [
                                       {
                                         "control_type": "text",
@@ -1677,8 +1781,6 @@
                       "message.privateOffers.description",
                       "message.privateOffers.offerType",
                       "message.privateOffers.contractDuration",
-                      "message.privateOffers.startDate",
-                      "message.privateOffers.endDate",
                       "message.privateOffers.quantityPerDimension",
                       "message.privateOffers.quantityPerDimension.dimension",
                       "message.privateOffers.quantityPerDimension.quantity",
@@ -1690,16 +1792,16 @@
                       "message.privateOffers.paymentSchedule.currency",
                       "message.privateOffers.paymentSchedule.installments",
                       "message.privateOffers.paymentSchedule.installments.date",
-                      "message.privateOffers.paymentSchedule.installments.amount"
-                    ],
-                    "hidden_config_fields": [
+                      "message.privateOffers.paymentSchedule.installments.amount",
                       "schema_source",
-                      "key_schema_type"
+                      "key_schema_type",
+                      "message.privateOffers.contractDuration.value",
+                      "message.privateOffers.contractDuration.unit"
                     ],
                     "uuid": "b8196cc9-bcee-4d2b-818b-51a6ce29f3b3"
                   },
                   {
-                    "number": 20,
+                    "number": 21,
                     "as": "e2ed8234",
                     "keyword": "catch",
                     "input": {
@@ -1708,7 +1810,7 @@
                     },
                     "block": [
                       {
-                        "number": 21,
+                        "number": 22,
                         "provider": "workato_variable",
                         "name": "update_variables",
                         "as": "1f8fc24d",
@@ -1740,7 +1842,7 @@
                         "uuid": "2fb25200-eebe-45eb-87a0-8fb38fbefb11"
                       },
                       {
-                        "number": 22,
+                        "number": 23,
                         "provider": "workato_variable",
                         "name": "update_variables",
                         "as": "0144cbe7",
@@ -1772,7 +1874,7 @@
                         "uuid": "24b2595f-f772-4df6-bcb4-325b3f59de3c"
                       },
                       {
-                        "number": 23,
+                        "number": 24,
                         "provider": "workato_variable",
                         "name": "update_variables",
                         "as": "75a6d861",
@@ -1827,7 +1929,7 @@
                 "uuid": "bcb505d1-56fb-48e5-a131-191ad0148fb8"
               },
               {
-                "number": 24,
+                "number": 25,
                 "as": "12584dc5",
                 "keyword": "stop",
                 "input": {
@@ -1839,13 +1941,13 @@
             "uuid": "80ab8971-5967-4dc8-b3e0-b20ad9f1f792"
           },
           {
-            "number": 25,
+            "number": 26,
             "keyword": "try",
             "input": {
             },
             "block": [
               {
-                "number": 26,
+                "number": 27,
                 "provider": "kafka",
                 "name": "publish_to_topic",
                 "as": "f46bbb8d",
@@ -1882,9 +1984,8 @@
                     "sfdcOpportunityNumber": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Opportunity_Number__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Opportunity_Number__c\"]}') : clear",
                     "privateOffers": {
                       "$schema": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"SCHEMA_URL_PRIVATE_OFFERS\"}')}",
-                      "acceptanceDeadline": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__ExpirationDate__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__ExpirationDate__c\"]}') : clear",
+                      "acceptanceDeadline": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"22fb893c\",\"path\":[\"AcceptanceDeadlineFormula\"]}')",
                       "offerType": "contract",
-                      "startDate": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__StartDate__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__StartDate__c\"]}') : clear",
                       "preExistingAgreementAcquisitionChannel": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1ee2db5f\",\"path\":[\"MarketplaceRenewalType\"]}')",
                       "paymentSchedule": {
                         "currency": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"CurrencyIsoCode\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"CurrencyIsoCode\"]}') : clear",
@@ -1893,7 +1994,6 @@
                           "amount": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__NetAmount__c\"]}').present? ?_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__NetAmount__c\"]}').to_s : clear"
                         }
                       },
-                      "endDate": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__EndDate__c\"]}').present? ? _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"bcb5abdc\",\"path\":[\"SBQQ__QuoteLine__c\",{\"path_element_type\":\"current_item\"},\"SBQQ__EndDate__c\"]}') : clear",
                       "quantityPerDimension": {
                         "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\"]}')}",
                         "dimension": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"dimension\"]}')}",
@@ -1903,7 +2003,11 @@
                         "proratedCost": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"proratedCost\"]}').to_s",
                         "subtotal": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"54c0ddc3\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"subtotal\"]}').to_s"
                       },
-                      "description": "Red Hat Private Offer"
+                      "description": "Red Hat Private Offer",
+                      "contractDuration": {
+                        "unit": "month",
+                        "value": "=((_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__EndDate__c\"]}').year - \n_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__StartDate__c\"]}').year) * 12) + (\n_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__EndDate__c\"]}').month - \n_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"d58d9c7c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Proposal__r\",\"SBQQ__StartDate__c\"]}').month)"
+                      }
                     }
                   },
                   "headers": [
@@ -1986,11 +2090,11 @@
                             "optional": false
                           },
                           {
+                            "label": "accountIDs",
                             "name": "accountIDs",
                             "type": "array",
-                            "of": "string",
-                            "label": "accountIDs",
-                            "optional": false
+                            "optional": false,
+                            "of": "string"
                           }
                         ],
                         "label": "customer",
@@ -2013,11 +2117,11 @@
                         "optional": false
                       },
                       {
+                        "label": "privateOffers",
                         "name": "privateOffers",
                         "type": "array",
-                        "of": "object",
-                        "label": "privateOffers",
                         "optional": false,
+                        "of": "object",
                         "properties": [
                           {
                             "control_type": "text",
@@ -2063,8 +2167,7 @@
                                 "parse_output": "float_conversion",
                                 "type": "number",
                                 "name": "value",
-                                "optional": true,
-                                "render_input": "float_conversion"
+                                "optional": true
                               }
                             ],
                             "label": "contractDuration",
@@ -2079,7 +2182,7 @@
                             "parse_output": "date_conversion",
                             "type": "date_time",
                             "name": "startDate",
-                            "optional": false
+                            "optional": true
                           },
                           {
                             "control_type": "date",
@@ -2088,7 +2191,7 @@
                             "parse_output": "date_conversion",
                             "name": "endDate",
                             "type": "date_time",
-                            "optional": false
+                            "optional": true
                           },
                           {
                             "control_type": "text",
@@ -2098,11 +2201,11 @@
                             "optional": true
                           },
                           {
+                            "label": "quantityPerDimension",
                             "name": "quantityPerDimension",
                             "type": "array",
-                            "of": "object",
-                            "label": "quantityPerDimension",
                             "optional": false,
+                            "of": "object",
                             "properties": [
                               {
                                 "control_type": "text",
@@ -2117,8 +2220,7 @@
                                 "parse_output": "integer_conversion",
                                 "name": "quantity",
                                 "type": "integer",
-                                "optional": false,
-                                "render_input": "integer_conversion"
+                                "optional": false
                               },
                               {
                                 "control_type": "text",
@@ -2160,11 +2262,11 @@
                                 "optional": true
                               },
                               {
+                                "label": "installments",
                                 "name": "installments",
                                 "type": "array",
-                                "of": "object",
-                                "label": "installments",
                                 "optional": true,
+                                "of": "object",
                                 "properties": [
                                   {
                                     "control_type": "text",
@@ -2266,8 +2368,6 @@
                   "message.privateOffers.description",
                   "message.privateOffers.offerType",
                   "message.privateOffers.contractDuration",
-                  "message.privateOffers.startDate",
-                  "message.privateOffers.endDate",
                   "message.privateOffers.preExistingAgreementAcquisitionChannel",
                   "message.privateOffers.quantityPerDimension",
                   "message.privateOffers.quantityPerDimension.dimension",
@@ -2280,12 +2380,14 @@
                   "message.privateOffers.paymentSchedule.currency",
                   "message.privateOffers.paymentSchedule.installments",
                   "message.privateOffers.paymentSchedule.installments.date",
-                  "message.privateOffers.paymentSchedule.installments.amount"
+                  "message.privateOffers.paymentSchedule.installments.amount",
+                  "message.privateOffers.contractDuration.value",
+                  "message.privateOffers.contractDuration.unit"
                 ],
                 "uuid": "eb9c2b37-f279-421c-a30b-659b9b0938fc"
               },
               {
-                "number": 27,
+                "number": 28,
                 "as": "31169a1a",
                 "keyword": "catch",
                 "input": {
@@ -2294,7 +2396,7 @@
                 },
                 "block": [
                   {
-                    "number": 28,
+                    "number": 29,
                     "provider": "workato_variable",
                     "name": "update_variables",
                     "as": "d72bc87f",
@@ -2326,7 +2428,7 @@
                     "uuid": "d4678768-6e23-4702-b589-607e335af345"
                   },
                   {
-                    "number": 29,
+                    "number": 30,
                     "provider": "workato_variable",
                     "name": "update_variables",
                     "as": "9314f84b",
@@ -2358,7 +2460,7 @@
                     "uuid": "59d46ab1-cf41-40f8-be46-25ed71335582"
                   },
                   {
-                    "number": 30,
+                    "number": 31,
                     "provider": "workato_variable",
                     "name": "update_variables",
                     "as": "288e6f1b",
@@ -2416,7 +2518,7 @@
         "uuid": "e067bb3f-c0eb-4fb6-a4d6-df76beeec9d6"
       },
       {
-        "number": 31,
+        "number": 32,
         "as": "323a5256",
         "keyword": "stop",
         "input": {
