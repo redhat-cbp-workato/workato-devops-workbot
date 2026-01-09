@@ -1,8 +1,8 @@
 {
   "name": "Account Name Search",
-  "version": 14,
+  "version": 16,
   "private": true,
-  "concurrency": 1,
+  "concurrency": 20,
   "code": {
     "number": 0,
     "provider": "workato_api_platform",
@@ -21,7 +21,7 @@
       "request": {
         "content_type": "json",
         "schema": "[{\"name\":\"Conversation_ID\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\",\"label\":\"Conversation ID\"}]",
-        "headers": "[{\"name\":\"account_name\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Account name\"}]"
+        "headers": "[{\"name\":\"account_name\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Account name\"},{\"name\":\"limit\",\"type\":\"string\",\"optional\":false,\"label\":\"Limit\",\"control_type\":\"text\"},{\"name\":\"offset\",\"type\":\"string\",\"optional\":false,\"label\":\"Offset\",\"control_type\":\"text\"}]"
       },
       "response": {
         "content_type": "json",
@@ -29,7 +29,7 @@
           {
             "name": "ok",
             "http_status_code": "200",
-            "body_schema": "[{\"name\":\"output\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Output\"},{\"name\":\"Conversation_ID\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\",\"label\":\"Conversation ID\"}]"
+            "body_schema": "[{\"name\":\"accounts\",\"type\":\"string\",\"optional\":true,\"label\":\"Accounts\",\"control_type\":\"text\"},{\"name\":\"total_accounts\",\"type\":\"string\",\"optional\":true,\"label\":\"Total Accounts\",\"control_type\":\"text\"},{\"name\":\"accounts_list_size\",\"type\":\"string\",\"optional\":true,\"label\":\"Accounts List Size\",\"control_type\":\"text\"},{\"name\":\"error\",\"type\":\"string\",\"optional\":true,\"label\":\"Error\",\"control_type\":\"text\"}]"
           }
         ]
       }
@@ -226,6 +226,20 @@
                 "name": "account_name",
                 "type": "string",
                 "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Limit",
+                "name": "limit",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Offset",
+                "name": "offset",
+                "type": "string",
+                "optional": false
               }
             ],
             "label": "Request headers",
@@ -387,6 +401,360 @@
       },
       {
         "number": 4,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "3eb58038",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"limit\",\"name\":\"output\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"output\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "output": "="
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "limit",
+            "name": "output",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "output"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "limit",
+                    "name": "output",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "output"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.output"
+        ],
+        "uuid": "749bed15-6fc5-4f52-a523-14c849385f47"
+      },
+      {
+        "number": 5,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "97a3a6e0",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"offset\",\"name\":\"output\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"output\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "output": "="
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "offset",
+            "name": "output",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "output"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "offset",
+                    "name": "output",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "output"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.output"
+        ],
+        "uuid": "c6286bda-5347-4ec5-902c-35a449ce114f"
+      },
+      {
+        "number": 6,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "or",
+          "conditions": [
+            {
+              "operand": "blank",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"limit\"]}')}",
+              "rhs": "",
+              "uuid": "89408f53-bb96-4737-81f1-d4b96f2b3de9"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 7,
+            "provider": "workato_variable",
+            "name": "update_variables",
+            "as": "08a4ee11",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": [
+                {
+                  "label": "limit (step 5)",
+                  "value": "749bed15-6fc5-4f52-a523-14c849385f47:3eb58038:output"
+                }
+              ]
+            },
+            "input": {
+              "input_mode": "raw",
+              "name": "749bed15-6fc5-4f52-a523-14c849385f47:3eb58038:output",
+              "output": "50"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "limit",
+                "name": "output",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              }
+            ],
+            "uuid": "6b79c4d5-5f6a-43dc-98c9-a3358986f44d"
+          },
+          {
+            "number": 8,
+            "keyword": "else",
+            "input": {
+            },
+            "block": [
+              {
+                "number": 9,
+                "provider": "workato_variable",
+                "name": "update_variables",
+                "as": "383c99a8",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": [
+                    {
+                      "label": "limit (step 5)",
+                      "value": "749bed15-6fc5-4f52-a523-14c849385f47:3eb58038:output"
+                    }
+                  ]
+                },
+                "input": {
+                  "input_mode": "raw",
+                  "name": "749bed15-6fc5-4f52-a523-14c849385f47:3eb58038:output",
+                  "output": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"limit\"]}')}"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                    "label": "limit",
+                    "name": "output",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "strip_interpolation": true
+                  }
+                ],
+                "uuid": "fa28eba7-e8cc-4a49-8750-d0526ea50ef2"
+              }
+            ],
+            "uuid": "873e4b3f-93b4-44f4-b921-cada3ae167d9"
+          }
+        ],
+        "uuid": "5200261b-9858-4d63-a65f-42bcb77db580"
+      },
+      {
+        "number": 10,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "or",
+          "conditions": [
+            {
+              "operand": "blank",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"offset\"]}')}",
+              "rhs": "",
+              "uuid": "89408f53-bb96-4737-81f1-d4b96f2b3de9"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 11,
+            "provider": "workato_variable",
+            "name": "update_variables",
+            "as": "55cc95f1",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": [
+                {
+                  "label": "offset (step 6)",
+                  "value": "c6286bda-5347-4ec5-902c-35a449ce114f:97a3a6e0:output"
+                }
+              ]
+            },
+            "input": {
+              "input_mode": "raw",
+              "name": "c6286bda-5347-4ec5-902c-35a449ce114f:97a3a6e0:output",
+              "output": "0"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "offset",
+                "name": "output",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              }
+            ],
+            "uuid": "8824563f-d7ff-41a1-bf10-d5efb1198982"
+          },
+          {
+            "number": 12,
+            "keyword": "else",
+            "input": {
+            },
+            "block": [
+              {
+                "number": 13,
+                "provider": "workato_variable",
+                "name": "update_variables",
+                "as": "053e12e9",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": [
+                    {
+                      "label": "offset (step 6)",
+                      "value": "c6286bda-5347-4ec5-902c-35a449ce114f:97a3a6e0:output"
+                    }
+                  ]
+                },
+                "input": {
+                  "input_mode": "raw",
+                  "name": "c6286bda-5347-4ec5-902c-35a449ce114f:97a3a6e0:output",
+                  "output": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"offset\"]}')}"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                    "label": "offset",
+                    "name": "output",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "strip_interpolation": true
+                  }
+                ],
+                "uuid": "15140837-f676-460f-a480-b18862bfc85d"
+              }
+            ],
+            "uuid": "3642fee1-b282-4fdb-8195-0acf716768db"
+          }
+        ],
+        "uuid": "22212d6e-f8c9-4fed-955e-aa27dd98b244"
+      },
+      {
+        "number": 14,
         "keyword": "if",
         "input": {
           "type": "compound",
@@ -402,13 +770,13 @@
         },
         "block": [
           {
-            "number": 5,
+            "number": 15,
             "keyword": "try",
             "input": {
             },
             "block": [
               {
-                "number": 6,
+                "number": 16,
                 "provider": "salesforce",
                 "name": "search_sobjects_soql",
                 "as": "a8a29dfd",
@@ -439,11 +807,12 @@
                   ]
                 },
                 "input": {
-                  "limit": "50",
+                  "limit": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"3eb58038\",\"path\":[\"output\"]}')}",
                   "sobject_name": "Account",
                   "field_list": "Id\nName\nBillingCity\nBillingState\nBillingCountry",
                   "query": "Name LIKE '%#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"account_name\"]}')}%' ORDER BY Name",
-                  "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"output\"]}')}"
+                  "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"output\"]}')}",
+                  "offset": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"97a3a6e0\",\"path\":[\"output\"]}')}"
                 },
                 "extended_output_schema": [
                   {
@@ -629,7 +998,69 @@
                 "uuid": "d3565bbf-f804-41c6-b971-85162675cb85"
               },
               {
-                "number": 7,
+                "number": 17,
+                "provider": "salesforce",
+                "name": "search_sobjects_soql_v2",
+                "as": "3cf69812",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "sobject_name": "Opportunity",
+                  "field_list": [
+                    {
+                      "label": "Opportunity ID",
+                      "value": "Id"
+                    }
+                  ]
+                },
+                "input": {
+                  "query": "SELECT COUNT() FROM Account WHERE Name LIKE '%#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"account_name\"]}')}%'",
+                  "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"output\"]}')}",
+                  "limit": "2000",
+                  "output_schema": "[{\"control_type\":\"text\",\"label\":\"count\",\"type\":\"string\",\"name\":\"count\"}]"
+                },
+                "extended_output_schema": [
+                  {
+                    "control_type": "checkbox",
+                    "label": "Done",
+                    "name": "done",
+                    "toggle_field": {
+                      "label": "Done",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "done"
+                    },
+                    "toggle_hint": "Select from option list",
+                    "type": "boolean"
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Total size",
+                    "name": "totalSize",
+                    "parse_output": "integer_conversion",
+                    "type": "integer"
+                  },
+                  {
+                    "label": "Records",
+                    "name": "records",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "count",
+                        "type": "string",
+                        "name": "count"
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "uuid": "fd3427ec-565f-4daa-aeda-fe02da13067f"
+              },
+              {
+                "number": 18,
                 "as": "85bde6a5",
                 "keyword": "catch",
                 "input": {
@@ -638,7 +1069,7 @@
                 },
                 "block": [
                   {
-                    "number": 8,
+                    "number": 19,
                     "provider": "workato_api_platform",
                     "name": "return_response",
                     "as": "5a933a81",
@@ -646,7 +1077,7 @@
                     "input": {
                       "http_status_code": "200",
                       "response": {
-                        "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"85bde6a5\",\"path\":[\"message\"]}')"
+                        "error": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"85bde6a5\",\"path\":[\"message\"]}')}"
                       }
                     },
                     "extended_output_schema": [
@@ -670,15 +1101,29 @@
                         "properties": [
                           {
                             "control_type": "text",
-                            "label": "Output",
-                            "name": "output",
+                            "label": "Accounts",
+                            "name": "accounts",
                             "type": "string",
-                            "optional": false
+                            "optional": true
                           },
                           {
                             "control_type": "text",
-                            "label": "Conversation ID",
-                            "name": "Conversation_ID",
+                            "label": "Total Accounts",
+                            "name": "total_accounts",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Accounts List Size",
+                            "name": "accounts_list_size",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Error",
+                            "name": "error",
                             "type": "string",
                             "optional": true
                           }
@@ -707,21 +1152,40 @@
                         "properties": [
                           {
                             "control_type": "text",
-                            "label": "Output",
-                            "name": "output",
+                            "label": "Accounts",
+                            "name": "accounts",
                             "type": "string",
-                            "optional": false
+                            "optional": true
                           },
                           {
                             "control_type": "text",
-                            "label": "Conversation ID",
-                            "name": "Conversation_ID",
+                            "label": "Total Accounts",
+                            "name": "total_accounts",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Accounts List Size",
+                            "name": "accounts_list_size",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Error",
+                            "name": "error",
                             "type": "string",
                             "optional": true
                           }
                         ],
                         "type": "object"
                       }
+                    ],
+                    "visible_config_fields": [
+                      "http_status_code",
+                      "response",
+                      "response.error"
                     ],
                     "uuid": "bb5cf322-5a5a-44b8-9a15-05c5f1426192",
                     "skip": false
@@ -733,7 +1197,7 @@
             "uuid": "a4d315cd-2789-4b7c-80f6-3608556b08e9"
           },
           {
-            "number": 9,
+            "number": 20,
             "provider": "workato_api_platform",
             "name": "return_response",
             "as": "2887b0fa",
@@ -741,7 +1205,9 @@
             "input": {
               "http_status_code": "200",
               "response": {
-                "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a8a29dfd\",\"path\":[]}')"
+                "accounts": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a8a29dfd\",\"path\":[\"Account\"]}')",
+                "total_accounts": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"3cf69812\",\"path\":[\"totalSize\"]}')}",
+                "accounts_list_size": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a8a29dfd\",\"path\":[\"list_size\"]}')}"
               }
             },
             "extended_output_schema": [
@@ -765,15 +1231,29 @@
                 "properties": [
                   {
                     "control_type": "text",
-                    "label": "Output",
-                    "name": "output",
+                    "label": "Accounts",
+                    "name": "accounts",
                     "type": "string",
-                    "optional": false
+                    "optional": true
                   },
                   {
                     "control_type": "text",
-                    "label": "Conversation ID",
-                    "name": "Conversation_ID",
+                    "label": "Total Accounts",
+                    "name": "total_accounts",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Accounts List Size",
+                    "name": "accounts_list_size",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Error",
+                    "name": "error",
                     "type": "string",
                     "optional": true
                   }
@@ -802,21 +1282,42 @@
                 "properties": [
                   {
                     "control_type": "text",
-                    "label": "Output",
-                    "name": "output",
+                    "label": "Accounts",
+                    "name": "accounts",
                     "type": "string",
-                    "optional": false
+                    "optional": true
                   },
                   {
                     "control_type": "text",
-                    "label": "Conversation ID",
-                    "name": "Conversation_ID",
+                    "label": "Total Accounts",
+                    "name": "total_accounts",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Accounts List Size",
+                    "name": "accounts_list_size",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Error",
+                    "name": "error",
                     "type": "string",
                     "optional": true
                   }
                 ],
                 "type": "object"
               }
+            ],
+            "visible_config_fields": [
+              "http_status_code",
+              "response",
+              "response.accounts",
+              "response.total_accounts",
+              "response.accounts_list_size"
             ],
             "uuid": "1a9e51c8-df57-494f-8bec-6776b2b0516c",
             "skip": false
@@ -825,7 +1326,7 @@
         "uuid": "588f594f-163a-4172-9873-0a75b24a2b2f"
       },
       {
-        "number": 10,
+        "number": 21,
         "provider": "workato_api_platform",
         "name": "return_response",
         "as": "df2039a0",
@@ -833,7 +1334,7 @@
         "input": {
           "http_status_code": "200",
           "response": {
-            "output": "Account name is required."
+            "error": "Account name is required to search accounts."
           }
         },
         "extended_output_schema": [
@@ -857,15 +1358,29 @@
             "properties": [
               {
                 "control_type": "text",
-                "label": "Output",
-                "name": "output",
+                "label": "Accounts",
+                "name": "accounts",
                 "type": "string",
-                "optional": false
+                "optional": true
               },
               {
                 "control_type": "text",
-                "label": "Conversation ID",
-                "name": "Conversation_ID",
+                "label": "Total Accounts",
+                "name": "total_accounts",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Accounts List Size",
+                "name": "accounts_list_size",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Error",
+                "name": "error",
                 "type": "string",
                 "optional": true
               }
@@ -894,21 +1409,40 @@
             "properties": [
               {
                 "control_type": "text",
-                "label": "Output",
-                "name": "output",
+                "label": "Accounts",
+                "name": "accounts",
                 "type": "string",
-                "optional": false
+                "optional": true
               },
               {
                 "control_type": "text",
-                "label": "Conversation ID",
-                "name": "Conversation_ID",
+                "label": "Total Accounts",
+                "name": "total_accounts",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Accounts List Size",
+                "name": "accounts_list_size",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Error",
+                "name": "error",
                 "type": "string",
                 "optional": true
               }
             ],
             "type": "object"
           }
+        ],
+        "visible_config_fields": [
+          "http_status_code",
+          "response",
+          "response.error"
         ],
         "uuid": "f3f2c3f6-c203-4888-9451-fd0a4ad286bf",
         "skip": false
