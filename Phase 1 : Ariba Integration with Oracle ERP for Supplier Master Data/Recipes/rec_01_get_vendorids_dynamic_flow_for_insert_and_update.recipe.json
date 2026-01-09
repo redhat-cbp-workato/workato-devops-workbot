@@ -1,0 +1,2841 @@
+{
+  "name": "REC | 01 | Get VendorIDs - Dynamic flow for INSERT and UPDATE",
+  "description": "",
+  "version": 9,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "clock",
+    "name": "scheduled_event",
+    "as": "161ac6dc",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "time_unit": "Hours"
+    },
+    "input": {
+      "time_unit": "hours",
+      "trigger_every": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"vendorDataRequestSchedule\"}')}"
+    },
+    "extended_input_schema": [
+      {
+        "control_type": "integer",
+        "default": "5",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Define repeating schedule. Enter whole numbers only.\n                        This field can be set to a minimum of 5 minutes.",
+        "label": "Trigger every",
+        "name": "trigger_every",
+        "optional": false,
+        "suffix": {
+          "text": "hours"
+        },
+        "type": "string"
+      },
+      {
+        "control_type": "select",
+        "hint": "Select the timezone to use. Leave it blank to use <b>{{authUser.account_timezone}}</b>",
+        "label": "Timezone",
+        "name": "timezone",
+        "optional": true,
+        "pick_list": "timezone_id_global_pick_list",
+        "pick_list_connection_less": true,
+        "type": "string"
+      },
+      {
+        "control_type": "date_time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set date and time to start or leave blank to start immediately. <b>Once recipe has been run or tested, value cannot be changed.</b>",
+        "label": "Start after",
+        "name": "start_after",
+        "optional": true,
+        "parse_output": "date_time_conversion",
+        "since_field": true,
+        "type": "date_time",
+        "ignore_timezone": true,
+        "render_input": "date_time_conversion"
+      }
+    ],
+    "visible_config_fields": [
+      "time_unit",
+      "trigger_every",
+      "timezone",
+      "start_after"
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 2,
+            "provider": "rest",
+            "name": "make_request_v2",
+            "as": "f0e54157",
+            "keyword": "action",
+            "toggleCfg": {
+              "response.ignore_http_errors": true,
+              "request.body.withQuestionnaire": true,
+              "request.body.withBankDetail": true,
+              "request.body.withTaxDetail": true,
+              "request.body.withCompanyCodeDetail": true,
+              "disable_retries": true
+            },
+            "input": {
+              "request_name": "Call POST VendorDataRequests",
+              "request": {
+                "method": "POST",
+                "content_type": "json",
+                "url": "=\"https://openapi.ariba.com/api/supplierdatapagination/v4/prod/vendorDataRequests?$filter=updatedDateFrom ge \" + ((now - _dp('{\"pill_type\":\"project_property\",\"property_name\":\"vendorDataRequestSchedule\"}').to_i.hours).to_time.utc.to_s[0,19].gsub(' ', 'T') + 'Z') + \" and \" + \"updatedDateTo le \" + (_dp('{\"pill_type\":\"output\",\"provider\":\"clock\",\"line\":\"161ac6dc\",\"path\":[\"scheduled_time\"]}').to_time.utc.to_s[0,19].gsub(' ', 'T') + 'Z')",
+                "parameters": [
+                  {
+                    "param": "realm",
+                    "value": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"realm\"}')}"
+                  }
+                ],
+                "headers": [
+                  {
+                    "header": "APIKEY",
+                    "value": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"SupplierDataPaginationAPIKEY\"}')}"
+                  }
+                ],
+                "request_body_schema": "[{\"control_type\":\"text\",\"label\":\"Output format\",\"type\":\"string\",\"name\":\"outputFormat\",\"details\":{\"real_name\":\"outputFormat\"}},{\"control_type\":\"text\",\"label\":\"Qualification status list\",\"of\":\"string\",\"type\":\"array\",\"name\":\"qualificationStatusList\",\"details\":{\"real_name\":\"qualificationStatusList\"}},{\"control_type\":\"text\",\"label\":\"Registration status list\",\"of\":\"string\",\"type\":\"array\",\"name\":\"registrationStatusList\",\"details\":{\"real_name\":\"registrationStatusList\"}},{\"control_type\":\"text\",\"label\":\"With questionnaire\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"With questionnaire\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"withQuestionnaire\"},\"type\":\"boolean\",\"name\":\"withQuestionnaire\",\"details\":{\"real_name\":\"withQuestionnaire\"}},{\"control_type\":\"text\",\"label\":\"With bank detail\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"With bank detail\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"withBankDetail\"},\"type\":\"boolean\",\"name\":\"withBankDetail\",\"details\":{\"real_name\":\"withBankDetail\"}},{\"control_type\":\"text\",\"label\":\"With tax detail\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"With tax detail\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"withTaxDetail\"},\"type\":\"boolean\",\"name\":\"withTaxDetail\",\"details\":{\"real_name\":\"withTaxDetail\"}},{\"control_type\":\"text\",\"label\":\"With company code detail\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"With company code detail\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"withCompanyCodeDetail\"},\"type\":\"boolean\",\"name\":\"withCompanyCodeDetail\",\"details\":{\"real_name\":\"withCompanyCodeDetail\"}}]",
+                "body": {
+                  "outputFormat": "JSON",
+                  "qualificationStatusList": "=[\"Qualified\"]",
+                  "registrationStatusList": "=[\"Registered\"]",
+                  "withQuestionnaire": "TRUE",
+                  "withBankDetail": "TRUE",
+                  "withTaxDetail": "TRUE",
+                  "withCompanyCodeDetail": "TRUE"
+                }
+              },
+              "response": {
+                "output_type": "json",
+                "expected_encoding": "UTF-8",
+                "ignore_http_errors": "false",
+                "response_schema": "[{\"label\":\"Vendors\",\"name\":\"array\",\"type\":\"array\",\"of\":\"object\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Supplier name\",\"type\":\"string\",\"name\":\"Supplier_Name\"},{\"control_type\":\"text\",\"label\":\"SM vendor ID\",\"type\":\"string\",\"name\":\"SM_Vendor_ID\"},{\"control_type\":\"text\",\"label\":\"ERP vendor ID\",\"type\":\"string\",\"name\":\"ERP_Vendor_ID\"},{\"control_type\":\"text\",\"label\":\"ACM ID\",\"type\":\"string\",\"name\":\"ACM_ID\"},{\"control_type\":\"text\",\"label\":\"Registration status\",\"type\":\"string\",\"name\":\"Registration_Status\"},{\"label\":\"Qualification status\",\"type\":\"string\",\"name\":\"Qualification_Status\",\"optional\":false,\"of\":\"object\",\"control_type\":\"text\"},{\"label\":\"Questionnaires\",\"name\":\"questionnaires\",\"type\":\"array\",\"of\":\"object\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Questionnaire ID\",\"type\":\"string\",\"name\":\"questionnaireId\"},{\"control_type\":\"text\",\"label\":\"Questionnaire Title\",\"type\":\"string\",\"name\":\"questionnaireTitle\"},{\"control_type\":\"text\",\"label\":\"Workspace ID\",\"type\":\"string\",\"name\":\"workspaceId\"}]}]}]"
+              },
+              "wait_for_response": "false",
+              "disable_retries": "false"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Headers",
+                "name": "headers",
+                "properties": [
+
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Response",
+                "name": "response",
+                "properties": [
+                  {
+                    "label": "Vendors",
+                    "name": "array",
+                    "type": "array",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Supplier name",
+                        "type": "string",
+                        "name": "Supplier_Name"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "SM vendor ID",
+                        "type": "string",
+                        "name": "SM_Vendor_ID"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "ERP vendor ID",
+                        "type": "string",
+                        "name": "ERP_Vendor_ID"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "ACM ID",
+                        "type": "string",
+                        "name": "ACM_ID"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Registration status",
+                        "type": "string",
+                        "name": "Registration_Status"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Qualification status",
+                        "type": "string",
+                        "name": "Qualification_Status",
+                        "optional": false,
+                        "of": "object"
+                      },
+                      {
+                        "label": "Questionnaires",
+                        "name": "questionnaires",
+                        "type": "array",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Questionnaire ID",
+                            "type": "string",
+                            "name": "questionnaireId"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Questionnaire Title",
+                            "type": "string",
+                            "name": "questionnaireTitle"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Workspace ID",
+                            "type": "string",
+                            "name": "workspaceId"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Request",
+                "name": "request",
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "select",
+                    "label": "Method",
+                    "pick_list": [
+                      [
+                        "GET",
+                        "GET"
+                      ],
+                      [
+                        "POST",
+                        "POST"
+                      ],
+                      [
+                        "PUT",
+                        "PUT"
+                      ],
+                      [
+                        "DELETE",
+                        "DELETE"
+                      ],
+                      [
+                        "HEAD",
+                        "HEAD"
+                      ],
+                      [
+                        "PATCH",
+                        "PATCH"
+                      ]
+                    ],
+                    "hint": "Select a HTTP method",
+                    "default": "GET",
+                    "type": "string",
+                    "name": "method"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Request URL",
+                    "check_secrets": true,
+                    "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
+                    "placeholder": "https://api.example.com/v1/leads",
+                    "type": "string",
+                    "name": "url"
+                  },
+                  {
+                    "control_type": "select",
+                    "label": "Request content type",
+                    "extends_schema": true,
+                    "pick_list": [
+                      [
+                        "JSON request body",
+                        "json"
+                      ],
+                      [
+                        "Raw JSON request body",
+                        "application/json"
+                      ],
+                      [
+                        "XML",
+                        "application/xml"
+                      ],
+                      [
+                        "Text",
+                        "text/plain"
+                      ],
+                      [
+                        "URL encoded form",
+                        "application/x-www-form-urlencoded"
+                      ],
+                      [
+                        "Binary",
+                        "application/octet-stream"
+                      ],
+                      [
+                        "Multipart form",
+                        "multipart/form-data"
+                      ]
+                    ],
+                    "hint": "The API endpoint documentation should define what data it expects",
+                    "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
+                    "optional": true,
+                    "default": "application/json",
+                    "type": "string",
+                    "name": "content_type"
+                  },
+                  {
+                    "label": "Request body",
+                    "control_type": "key_value",
+                    "optional": true,
+                    "empty_list_title": "Does this HTTP request require form data?",
+                    "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
+                    "item_label": "Form data",
+                    "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Key",
+                        "type": "string",
+                        "name": "param"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "form_body"
+                  },
+                  {
+                    "label": "Request parts",
+                    "optional": true,
+                    "item_label": "Part",
+                    "ngIf": "(input.request.content_type === 'multipart/alternative'|| input.request.content_type === 'multipart/digest'|| input.request.content_type === 'multipart/mixed'|| input.request.content_type === 'multipart/related') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "label": "Headers",
+                        "optional": true,
+                        "sticky": true,
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Header name",
+                            "optional": false,
+                            "type": "string",
+                            "name": "name"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Value",
+                            "optional": true,
+                            "sticky": true,
+                            "type": "string",
+                            "name": "value"
+                          }
+                        ],
+                        "type": "array",
+                        "name": "headers"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Raw body",
+                        "optional": true,
+                        "sticky": true,
+                        "hint": "Raw content of the part",
+                        "type": "string",
+                        "name": "body"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "parts"
+                  },
+                  {
+                    "label": "Request URL parameters",
+                    "control_type": "key_value",
+                    "check_secrets": true,
+                    "optional": true,
+                    "empty_list_title": "Does this HTTP request contain a query string?",
+                    "empty_list_text": "Add URL parameters to the query string",
+                    "item_label": "URL parameter",
+                    "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Parameter name",
+                        "type": "string",
+                        "name": "param"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "parameters"
+                  },
+                  {
+                    "label": "Request headers",
+                    "control_type": "key_value",
+                    "optional": true,
+                    "check_secrets": true,
+                    "empty_list_title": "Does this HTTP request require headers?",
+                    "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                    "item_label": "Header",
+                    "sticky": true,
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Header name",
+                        "type": "string",
+                        "name": "header"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "headers"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Request body schema",
+                    "sample_data_type": "json_input",
+                    "add_field_label": "Add json field",
+                    "empty_schema_title": "Provide JSON input.",
+                    "extends_schema": true,
+                    "change_on_blur": true,
+                    "optional": true,
+                    "sticky": true,
+                    "ngIf": "(input.request.content_type == 'json' || input.request.content_type == 'multipart/form-data' || input.request.content_type === 'json') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                    "hint": "Use this to define the JSON input.",
+                    "schema_field_name_regex": [
+                      "\\S",
+                      "Field name should not be empty"
+                    ],
+                    "type": "string",
+                    "name": "request_body_schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Output format",
+                        "type": "string",
+                        "name": "outputFormat",
+                        "details": {
+                          "real_name": "outputFormat"
+                        },
+                        "sticky": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Qualification status list",
+                        "type": "array",
+                        "name": "qualificationStatusList",
+                        "details": {
+                          "real_name": "qualificationStatusList"
+                        },
+                        "of": "string",
+                        "sticky": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Registration status list",
+                        "type": "array",
+                        "name": "registrationStatusList",
+                        "details": {
+                          "real_name": "registrationStatusList"
+                        },
+                        "of": "string",
+                        "sticky": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "With questionnaire",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "With questionnaire",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "name": "withQuestionnaire"
+                        },
+                        "type": "boolean",
+                        "name": "withQuestionnaire",
+                        "details": {
+                          "real_name": "withQuestionnaire"
+                        },
+                        "sticky": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "With bank detail",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "With bank detail",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "name": "withBankDetail"
+                        },
+                        "type": "boolean",
+                        "name": "withBankDetail",
+                        "details": {
+                          "real_name": "withBankDetail"
+                        },
+                        "sticky": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "With tax detail",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "With tax detail",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "name": "withTaxDetail"
+                        },
+                        "type": "boolean",
+                        "name": "withTaxDetail",
+                        "details": {
+                          "real_name": "withTaxDetail"
+                        },
+                        "sticky": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "With company code detail",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "With company code detail",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "name": "withCompanyCodeDetail"
+                        },
+                        "type": "boolean",
+                        "name": "withCompanyCodeDetail",
+                        "details": {
+                          "real_name": "withCompanyCodeDetail"
+                        },
+                        "sticky": false
+                      }
+                    ],
+                    "label": "Request body",
+                    "type": "object",
+                    "name": "body",
+                    "sticky": false
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Response",
+                "name": "response",
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "select",
+                    "label": "Response content type",
+                    "pick_list": [
+                      [
+                        "Text",
+                        "rawdatatxt"
+                      ],
+                      [
+                        "Binary",
+                        "rawdata"
+                      ],
+                      [
+                        "JSON",
+                        "json"
+                      ],
+                      [
+                        "XML",
+                        "xml2"
+                      ],
+                      [
+                        "Multipart",
+                        "multipart"
+                      ]
+                    ],
+                    "hint": "Select expected format of data response type, e.g. JSON or XML. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "default": "json",
+                    "extends_schema": true,
+                    "type": "string",
+                    "name": "output_type"
+                  },
+                  {
+                    "control_type": "select",
+                    "label": "Encoding",
+                    "pick_list": "supported_encodings_without_binary_global_pick_list",
+                    "pick_list_connection_less": true,
+                    "optional": true,
+                    "default": "UTF-8",
+                    "hint": "Default encoding type is set to UTF-8, and typically doesn't need to be changed. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "type": "string",
+                    "name": "expected_encoding"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Response schema",
+                    "sample_data_type": "json_http",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all fields in your response.",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "response_schema"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "HTTP response headers",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all the response headers",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "headers_schema"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Multipart part headers",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe headers within each multipart part",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Define the headers that appear in each part of the multipart response (e.g., Content-Type, Content-ID)",
+                    "ngIf": "input.response.output_type == 'multipart'",
+                    "type": "string",
+                    "name": "part_headers_schema"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Mark non-2xx response codes as success?",
+                    "default": "false",
+                    "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                    "optional": true,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Mark non-2xx response codes as success?",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "default": false,
+                      "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                      "optional": true,
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "ignore_http_errors"
+                    },
+                    "type": "boolean",
+                    "name": "ignore_http_errors"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "comment": "Query -VendorDataRequest API to get list of Vendor IDs",
+            "uuid": "d260f5ae-3789-45e3-8d45-a1db003343da",
+            "wizardFinished": true
+          },
+          {
+            "number": 3,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"f0e54157\",\"path\":[\"body\"]}')}",
+                  "rhs": "",
+                  "uuid": "6987b64e-2901-4354-9a11-065efd385b06"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 4,
+                "provider": "workato_variable",
+                "name": "declare_variable",
+                "as": "bf35553b",
+                "keyword": "action",
+                "input": {
+                  "variables": {
+                    "schema": "[{\"name\":\"var_Insert\",\"type\":\"string\",\"optional\":true,\"label\":\"var_Insert\",\"details\":{\"real_name\":\"var_Insert\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
+                    "data": {
+                      "var_Insert": "No"
+                    }
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "control_type": "text",
+                    "label": "var_Insert",
+                    "name": "var_Insert",
+                    "optional": true,
+                    "type": "string",
+                    "details": {
+                      "real_name": "var_Insert"
+                    }
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "add_field_label": "Add a variable",
+                    "control_type": "form-schema-builder",
+                    "empty_schema_title": "Add variables by giving them a name, type and default value",
+                    "exclude_fields": [
+                      "hint"
+                    ],
+                    "item_label": "variable",
+                    "label": "Variables",
+                    "mark_as_required": true,
+                    "name": "variables",
+                    "ngIf": "!input.name",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Schema",
+                        "extends_schema": true,
+                        "broadcast_change_event": true,
+                        "type": "string",
+                        "name": "schema"
+                      },
+                      {
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "var_Insert",
+                            "name": "var_Insert",
+                            "type": "string",
+                            "optional": true,
+                            "details": {
+                              "real_name": "var_Insert"
+                            },
+                            "parent": [
+                              "variables",
+                              "data"
+                            ],
+                            "hint": "Defaults to nil if not supplied.",
+                            "sticky": true
+                          }
+                        ],
+                        "label": "Data",
+                        "type": "object",
+                        "name": "data"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "variables.data.var_Insert"
+                ],
+                "uuid": "4c1ae513-bd35-4f4b-85ea-782843be7db2",
+                "skip": true
+              },
+              {
+                "number": 5,
+                "as": "7f7bd44f",
+                "keyword": "foreach",
+                "repeat_mode": "simple",
+                "clear_scope": "false",
+                "input": {
+                },
+                "block": [
+                  {
+                    "number": 6,
+                    "provider": "oracle",
+                    "name": "search_rows_sql",
+                    "as": "3ce05254",
+                    "keyword": "action",
+                    "input": {
+                      "sql": "SELECT CASE \n    WHEN EXISTS (SELECT 1 FROM APPS.AP_SUPPLIERS WHERE ATTRIBUTE14 = :aribaVendorId) THEN '1' \n    ELSE '0' \nEND AS result\nFROM DUAL",
+                      "output_schema": "[{\"name\":\"result\",\"type\":\"string\",\"optional\":false,\"label\":\"result\",\"control_type\":\"text\"}]",
+                      "parameters": {
+                        "schema": "[{\"name\":\"aribaVendorId\",\"type\":\"string\",\"optional\":true,\"label\":\"aribaVendorId\",\"details\":{\"real_name\":\"aribaVendorId\"},\"control_type\":\"text\"}]",
+                        "data": {
+                          "aribaVendorId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"SM_Vendor_ID\"]}')}"
+                        }
+                      }
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Rows",
+                        "name": "rows",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "result",
+                            "details": {
+                              "primary_key": null,
+                              "data_type": "string",
+                              "column_name": "result",
+                              "length": null,
+                              "precision": null,
+                              "scale": null,
+                              "element_type": null
+                            },
+                            "hint": "string",
+                            "optional": true,
+                            "type": "string",
+                            "name": "result_f3f45e68"
+                          }
+                        ],
+                        "type": "array",
+                        "order_by_hint": false
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "form-schema-builder",
+                        "hint": "First provide the full name assigned to your bind variable in the WHERE condition. e.g. <b>id</b>\n                    Second, provide the actual parameter value. Parameter values can be static or datapills.\n                    Select the <b>closest corresponding data type</b> that your database is expecting for the bind variable\n                    ",
+                        "label": "Parameters",
+                        "name": "parameters",
+                        "optional": true,
+                        "override": true,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Schema",
+                            "extends_schema": true,
+                            "type": "string",
+                            "name": "schema"
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "aribaVendorId",
+                                "name": "aribaVendorId",
+                                "type": "string",
+                                "optional": true,
+                                "details": {
+                                  "real_name": "aribaVendorId"
+                                }
+                              }
+                            ],
+                            "label": "Data",
+                            "optional": true,
+                            "type": "object",
+                            "name": "data"
+                          }
+                        ],
+                        "sticky": true,
+                        "type": "object"
+                      }
+                    ],
+                    "visible_config_fields": [
+                      "sql",
+                      "parameters",
+                      "output_schema",
+                      "parameters.data.aribaVendorId"
+                    ],
+                    "comment": "Check for Attribute14 for new/existing supplier in oracle",
+                    "uuid": "ab984086-de41-4637-acdd-33e459b814ee"
+                  },
+                  {
+                    "number": 7,
+                    "keyword": "if",
+                    "input": {
+                      "type": "compound",
+                      "operand": "and",
+                      "conditions": [
+                        {
+                          "operand": "equals_to",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"3ce05254\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"result_f3f45e68\"]}')}",
+                          "rhs": "0",
+                          "uuid": "bc0ec49d-e5b7-4e95-992a-856eb78e1f3d"
+                        }
+                      ]
+                    },
+                    "block": [
+                      {
+                        "number": 8,
+                        "provider": "workato_db_table",
+                        "name": "get_records",
+                        "as": "1d7674ed",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "table_id": "[S2P] DT | ARIBA VendorID LOOKUP",
+                          "filters.0.field_id": "Vendor IDs",
+                          "filters.1.field_id": "Processed Flag"
+                        },
+                        "input": {
+                          "order_direction": "asc",
+                          "limit": "100",
+                          "table_id": {
+                            "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Insert Tables/s2p_dt_ariba_vendorid_lookup.workato_db_table.json",
+                            "name": "[S2P] DT | ARIBA VendorID LOOKUP",
+                            "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Insert Tables"
+                          },
+                          "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+                          "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+                          "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+                          "filters": [
+                            {
+                              "op_default": "eq",
+                              "value_default": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"SM_Vendor_ID\"]}')}",
+                              "field_id": "d2fcaf21-c817-47b2-9b3a-ad4bf9b7755f"
+                            },
+                            {
+                              "op_integer": "eq",
+                              "value_integer": "0",
+                              "field_id": "e8e88f56-0657-4b97-a2cd-5de908f7ae9e"
+                            }
+                          ],
+                          "b906e3c2-538d-4251-9d6d-42e5816f467b": "integer",
+                          "fd35ac66-337f-41f2-9267-656f867fcb8d": "string",
+                          "eb515531-9420-4d68-beed-86e23be8725b": "date_time",
+                          "b0a4049b-7605-495b-9413-2b2c4db792f6": "date_time",
+                          "87cfdc28-a5c7-4862-a2ec-b34b632e2809": "string",
+                          "1813dbac-5305-48a0-9b35-eca7e42d669d": "string",
+                          "d2fcaf21-c817-47b2-9b3a-ad4bf9b7755f": "string",
+                          "5778334e-0bf5-4cac-b90b-fb1ffb5a8622": "string",
+                          "7a031912-2136-4452-b035-281bd49cb8b5": "string",
+                          "e8e88f56-0657-4b97-a2cd-5de908f7ae9e": "integer",
+                          "6e8e8d2c-7f58-42c4-9c44-040823be50d7": "string",
+                          "95eb5899-ddb8-40d0-a5d5-1f8ce02007be": "string",
+                          "43002399-8d28-43b6-80b8-50c0b3a5715f": "string",
+                          "615c9721-4efe-4785-9016-450f978e9a0d": "boolean",
+                          "0338a1d7-5014-4212-8b6f-4c6318977f64": "integer",
+                          "cedcf82b-84e2-4337-a8c3-9d0b2b78396e": "integer",
+                          "a5bdc2b2-5033-4cf5-af68-646b1e0b38c2": "integer",
+                          "9e4e41b8-2b32-469a-9eb6-e5d57da5bb7d": "integer",
+                          "65ca81da-ac44-411e-ac79-5e857b558306": "integer",
+                          "114b2534-af16-4a9d-af70-d6cca8e5f4bd": "boolean",
+                          "173e18d6-5ef1-4ff5-a71b-9fe0fac90da7": "integer"
+                        },
+                        "extended_output_schema": [
+                          {
+                            "label": "Records",
+                            "name": "records",
+                            "of": "object",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Record ID",
+                                "type": "string",
+                                "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "Row No",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "b906e3c2_538d_4251_9d6d_42e5816f467b"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Job ID",
+                                "type": "string",
+                                "name": "fd35ac66_337f_41f2_9267_656f867fcb8d"
+                              },
+                              {
+                                "control_type": "date_time",
+                                "label": "Job Created At",
+                                "render_input": "date_time_conversion",
+                                "parse_output": "date_time_conversion",
+                                "type": "date_time",
+                                "name": "eb515531_9420_4d68_beed_86e23be8725b"
+                              },
+                              {
+                                "control_type": "date_time",
+                                "label": "Job Completed At",
+                                "render_input": "date_time_conversion",
+                                "parse_output": "date_time_conversion",
+                                "type": "date_time",
+                                "name": "b0a4049b_7605_495b_9413_2b2c4db792f6"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Recipe ID",
+                                "type": "string",
+                                "name": "87cfdc28_a5c7_4862_a2ec_b34b632e2809"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "WorkspaceId",
+                                "type": "string",
+                                "name": "1813dbac_5305_48a0_9b35_eca7e42d669d"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Vendor IDs",
+                                "type": "string",
+                                "name": "d2fcaf21_c817_47b2_9b3a_ad4bf9b7755f"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Vendor Name",
+                                "type": "string",
+                                "name": "5778334e_0bf5_4cac_b90b_fb1ffb5a8622"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "New/Existing Vendor",
+                                "type": "string",
+                                "name": "7a031912_2136_4452_b035_281bd49cb8b5"
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "Processed Flag",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "e8e88f56_0657_4b97_a2cd_5de908f7ae9e"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "ORA Request ID",
+                                "type": "string",
+                                "name": "6e8e8d2c_7f58_42c4_9c44_040823be50d7"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "ORA ERP Vendor ID",
+                                "type": "string",
+                                "name": "95eb5899_ddb8_40d0_a5d5_1f8ce02007be"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "ORA Return Status",
+                                "type": "string",
+                                "name": "43002399_8d28_43b6_80b8_50c0b3a5715f"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "History",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "History",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "render_input": null,
+                                  "parse_output": null,
+                                  "type": "boolean",
+                                  "name": "615c9721_4efe_4785_9016_450f978e9a0d"
+                                },
+                                "type": "boolean",
+                                "name": "615c9721_4efe_4785_9016_450f978e9a0d"
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "No_of_Site Address",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "0338a1d7_5014_4212_8b6f_4c6318977f64"
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "No_of_OU",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "cedcf82b_84e2_4337_a8c3_9d0b2b78396e"
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "No_of_Bank",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "a5bdc2b2_5033_4cf5_af68_646b1e0b38c2"
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "No_of_IntermediateBank",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "9e4e41b8_2b32_469a_9eb6_e5d57da5bb7d"
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "Unique_ID",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "65ca81da_ac44_411e_ac79_5e857b558306"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Reprocessed Flag",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Reprocessed Flag",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "render_input": null,
+                                  "parse_output": null,
+                                  "type": "boolean",
+                                  "name": "114b2534_af16_4a9d_af70_d6cca8e5f4bd"
+                                },
+                                "type": "boolean",
+                                "name": "114b2534_af16_4a9d_af70_d6cca8e5f4bd"
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "Total Count",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "173e18d6_5ef1_4ff5_a71b_9fe0fac90da7"
+                              },
+                              {
+                                "control_type": "date_time",
+                                "label": "Created at",
+                                "render_input": "date_time_conversion",
+                                "parse_output": "date_time_conversion",
+                                "type": "date_time",
+                                "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                              },
+                              {
+                                "control_type": "date_time",
+                                "label": "Updated at",
+                                "render_input": "date_time_conversion",
+                                "parse_output": "date_time_conversion",
+                                "type": "date_time",
+                                "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                              }
+                            ],
+                            "type": "array"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Next Page Token",
+                            "name": "continuation_token",
+                            "type": "string"
+                          }
+                        ],
+                        "extended_input_schema": [
+                          {
+                            "control_type": "text",
+                            "default": "integer",
+                            "label": "$internal_value_b906e3c2-538d-4251-9d6d-42e5816f467b",
+                            "name": "b906e3c2-538d-4251-9d6d-42e5816f467b",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_fd35ac66-337f-41f2-9267-656f867fcb8d",
+                            "name": "fd35ac66-337f-41f2-9267-656f867fcb8d",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "date_time",
+                            "label": "$internal_value_eb515531-9420-4d68-beed-86e23be8725b",
+                            "name": "eb515531-9420-4d68-beed-86e23be8725b",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "date_time",
+                            "label": "$internal_value_b0a4049b-7605-495b-9413-2b2c4db792f6",
+                            "name": "b0a4049b-7605-495b-9413-2b2c4db792f6",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_87cfdc28-a5c7-4862-a2ec-b34b632e2809",
+                            "name": "87cfdc28-a5c7-4862-a2ec-b34b632e2809",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_1813dbac-5305-48a0-9b35-eca7e42d669d",
+                            "name": "1813dbac-5305-48a0-9b35-eca7e42d669d",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_d2fcaf21-c817-47b2-9b3a-ad4bf9b7755f",
+                            "name": "d2fcaf21-c817-47b2-9b3a-ad4bf9b7755f",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_5778334e-0bf5-4cac-b90b-fb1ffb5a8622",
+                            "name": "5778334e-0bf5-4cac-b90b-fb1ffb5a8622",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_7a031912-2136-4452-b035-281bd49cb8b5",
+                            "name": "7a031912-2136-4452-b035-281bd49cb8b5",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "integer",
+                            "label": "$internal_value_e8e88f56-0657-4b97-a2cd-5de908f7ae9e",
+                            "name": "e8e88f56-0657-4b97-a2cd-5de908f7ae9e",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_6e8e8d2c-7f58-42c4-9c44-040823be50d7",
+                            "name": "6e8e8d2c-7f58-42c4-9c44-040823be50d7",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_95eb5899-ddb8-40d0-a5d5-1f8ce02007be",
+                            "name": "95eb5899-ddb8-40d0-a5d5-1f8ce02007be",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_43002399-8d28-43b6-80b8-50c0b3a5715f",
+                            "name": "43002399-8d28-43b6-80b8-50c0b3a5715f",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "boolean",
+                            "label": "$internal_value_615c9721-4efe-4785-9016-450f978e9a0d",
+                            "name": "615c9721-4efe-4785-9016-450f978e9a0d",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "integer",
+                            "label": "$internal_value_0338a1d7-5014-4212-8b6f-4c6318977f64",
+                            "name": "0338a1d7-5014-4212-8b6f-4c6318977f64",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "integer",
+                            "label": "$internal_value_cedcf82b-84e2-4337-a8c3-9d0b2b78396e",
+                            "name": "cedcf82b-84e2-4337-a8c3-9d0b2b78396e",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "integer",
+                            "label": "$internal_value_a5bdc2b2-5033-4cf5-af68-646b1e0b38c2",
+                            "name": "a5bdc2b2-5033-4cf5-af68-646b1e0b38c2",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "integer",
+                            "label": "$internal_value_9e4e41b8-2b32-469a-9eb6-e5d57da5bb7d",
+                            "name": "9e4e41b8-2b32-469a-9eb6-e5d57da5bb7d",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "integer",
+                            "label": "$internal_value_65ca81da-ac44-411e-ac79-5e857b558306",
+                            "name": "65ca81da-ac44-411e-ac79-5e857b558306",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "boolean",
+                            "label": "$internal_value_114b2534-af16-4a9d-af70-d6cca8e5f4bd",
+                            "name": "114b2534-af16-4a9d-af70-d6cca8e5f4bd",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "integer",
+                            "label": "$internal_value_173e18d6-5ef1-4ff5-a71b-9fe0fac90da7",
+                            "name": "173e18d6-5ef1-4ff5-a71b-9fe0fac90da7",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "id",
+                            "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                            "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "date_time",
+                            "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                            "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "date_time",
+                            "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                            "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          }
+                        ],
+                        "comment": "Get pending VendorIDs from Lookup table - Waiting to process",
+                        "uuid": "3297c637-3007-4882-a97e-45cf85ea882e"
+                      },
+                      {
+                        "number": 9,
+                        "keyword": "if",
+                        "input": {
+                          "type": "compound",
+                          "operand": "and",
+                          "conditions": [
+                            {
+                              "operand": "blank",
+                              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"1d7674ed\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
+                              "rhs": "",
+                              "uuid": "f79f5732-7115-4faa-a2d6-f5a6f3d642e1"
+                            }
+                          ]
+                        },
+                        "block": [
+                          {
+                            "number": 10,
+                            "provider": "workato_db_table",
+                            "name": "create_records_batch",
+                            "as": "af470417",
+                            "keyword": "action",
+                            "dynamicPickListSelection": {
+                              "table_id": "[S2P] DT | ARIBA VendorID LOOKUP"
+                            },
+                            "input": {
+                              "table_id": {
+                                "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Insert Tables/s2p_dt_ariba_vendorid_lookup.workato_db_table.json",
+                                "name": "[S2P] DT | ARIBA VendorID LOOKUP",
+                                "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Insert Tables"
+                              },
+                              "records": {
+                                "parameters": {
+                                  "b906e3c2_538d_4251_9d6d_42e5816f467b": "#{_dp('{\"pill_type\":\"foreach_meta\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"key\":\"index\"}')}",
+                                  "fd35ac66_337f_41f2_9267_656f867fcb8d": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_id\"]}')}",
+                                  "eb515531_9420_4d68_beed_86e23be8725b": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_created_at\"]}')}",
+                                  "87cfdc28_a5c7_4862_a2ec_b34b632e2809": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_id\"]}')}",
+                                  "1813dbac_5305_48a0_9b35_eca7e42d669d": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"questionnaires\",{\"path_element_type\":\"current_item\"},\"workspaceId\"]}')}",
+                                  "d2fcaf21_c817_47b2_9b3a_ad4bf9b7755f": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"SM_Vendor_ID\"]}')}",
+                                  "e8e88f56_0657_4b97_a2cd_5de908f7ae9e": "0"
+                                }
+                              }
+                            },
+                            "extended_output_schema": [
+                              {
+                                "label": "Records",
+                                "name": "records",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "Record ID",
+                                        "type": "string",
+                                        "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                                      },
+                                      {
+                                        "control_type": "number",
+                                        "label": "Row No",
+                                        "parse_output": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "b906e3c2_538d_4251_9d6d_42e5816f467b"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Job ID",
+                                        "type": "string",
+                                        "name": "fd35ac66_337f_41f2_9267_656f867fcb8d"
+                                      },
+                                      {
+                                        "control_type": "date_time",
+                                        "label": "Job Created At",
+                                        "render_input": "date_time_conversion",
+                                        "parse_output": "date_time_conversion",
+                                        "type": "date_time",
+                                        "name": "eb515531_9420_4d68_beed_86e23be8725b"
+                                      },
+                                      {
+                                        "control_type": "date_time",
+                                        "label": "Job Completed At",
+                                        "render_input": "date_time_conversion",
+                                        "parse_output": "date_time_conversion",
+                                        "type": "date_time",
+                                        "name": "b0a4049b_7605_495b_9413_2b2c4db792f6"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Recipe ID",
+                                        "type": "string",
+                                        "name": "87cfdc28_a5c7_4862_a2ec_b34b632e2809"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "WorkspaceId",
+                                        "type": "string",
+                                        "name": "1813dbac_5305_48a0_9b35_eca7e42d669d"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Vendor IDs",
+                                        "type": "string",
+                                        "name": "d2fcaf21_c817_47b2_9b3a_ad4bf9b7755f"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Vendor Name",
+                                        "type": "string",
+                                        "name": "5778334e_0bf5_4cac_b90b_fb1ffb5a8622"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "New/Existing Vendor",
+                                        "type": "string",
+                                        "name": "7a031912_2136_4452_b035_281bd49cb8b5"
+                                      },
+                                      {
+                                        "control_type": "number",
+                                        "label": "Processed Flag",
+                                        "parse_output": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "e8e88f56_0657_4b97_a2cd_5de908f7ae9e"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "ORA Request ID",
+                                        "type": "string",
+                                        "name": "6e8e8d2c_7f58_42c4_9c44_040823be50d7"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "ORA ERP Vendor ID",
+                                        "type": "string",
+                                        "name": "95eb5899_ddb8_40d0_a5d5_1f8ce02007be"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "ORA Return Status",
+                                        "type": "string",
+                                        "name": "43002399_8d28_43b6_80b8_50c0b3a5715f"
+                                      },
+                                      {
+                                        "control_type": "checkbox",
+                                        "label": "History",
+                                        "toggle_hint": "Select from option list",
+                                        "toggle_field": {
+                                          "label": "History",
+                                          "control_type": "text",
+                                          "toggle_hint": "Use custom value",
+                                          "render_input": null,
+                                          "parse_output": null,
+                                          "type": "boolean",
+                                          "name": "615c9721_4efe_4785_9016_450f978e9a0d"
+                                        },
+                                        "type": "boolean",
+                                        "name": "615c9721_4efe_4785_9016_450f978e9a0d"
+                                      },
+                                      {
+                                        "control_type": "number",
+                                        "label": "No_of_Site Address",
+                                        "parse_output": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "0338a1d7_5014_4212_8b6f_4c6318977f64"
+                                      },
+                                      {
+                                        "control_type": "number",
+                                        "label": "No_of_OU",
+                                        "parse_output": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "cedcf82b_84e2_4337_a8c3_9d0b2b78396e"
+                                      },
+                                      {
+                                        "control_type": "number",
+                                        "label": "No_of_Bank",
+                                        "parse_output": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "a5bdc2b2_5033_4cf5_af68_646b1e0b38c2"
+                                      },
+                                      {
+                                        "control_type": "number",
+                                        "label": "No_of_IntermediateBank",
+                                        "parse_output": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "9e4e41b8_2b32_469a_9eb6_e5d57da5bb7d"
+                                      },
+                                      {
+                                        "control_type": "number",
+                                        "label": "Unique_ID",
+                                        "parse_output": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "65ca81da_ac44_411e_ac79_5e857b558306"
+                                      },
+                                      {
+                                        "control_type": "checkbox",
+                                        "label": "Reprocessed Flag",
+                                        "toggle_hint": "Select from option list",
+                                        "toggle_field": {
+                                          "label": "Reprocessed Flag",
+                                          "control_type": "text",
+                                          "toggle_hint": "Use custom value",
+                                          "render_input": null,
+                                          "parse_output": null,
+                                          "type": "boolean",
+                                          "name": "114b2534_af16_4a9d_af70_d6cca8e5f4bd"
+                                        },
+                                        "type": "boolean",
+                                        "name": "114b2534_af16_4a9d_af70_d6cca8e5f4bd"
+                                      },
+                                      {
+                                        "control_type": "number",
+                                        "label": "Total Count",
+                                        "parse_output": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "173e18d6_5ef1_4ff5_a71b_9fe0fac90da7"
+                                      },
+                                      {
+                                        "control_type": "date_time",
+                                        "label": "Created at",
+                                        "render_input": "date_time_conversion",
+                                        "parse_output": "date_time_conversion",
+                                        "type": "date_time",
+                                        "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                                      },
+                                      {
+                                        "control_type": "date_time",
+                                        "label": "Updated at",
+                                        "render_input": "date_time_conversion",
+                                        "parse_output": "date_time_conversion",
+                                        "type": "date_time",
+                                        "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                                      }
+                                    ],
+                                    "label": "Record",
+                                    "type": "object",
+                                    "name": "record"
+                                  }
+                                ],
+                                "type": "array"
+                              }
+                            ],
+                            "extended_input_schema": [
+                              {
+                                "hint": "Provide the list of records",
+                                "label": "New records",
+                                "name": "records",
+                                "of": "object",
+                                "optional": false,
+                                "properties": [
+                                  {
+                                    "properties": [
+                                      {
+                                        "control_type": "integer",
+                                        "label": "Row No",
+                                        "parse_output": "integer_conversion",
+                                        "optional": true,
+                                        "sticky": true,
+                                        "render_input": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "b906e3c2_538d_4251_9d6d_42e5816f467b"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Job ID",
+                                        "optional": true,
+                                        "sticky": true,
+                                        "type": "string",
+                                        "name": "fd35ac66_337f_41f2_9267_656f867fcb8d"
+                                      },
+                                      {
+                                        "control_type": "date_time",
+                                        "label": "Job Created At",
+                                        "render_input": "date_time_conversion",
+                                        "parse_output": "date_time_conversion",
+                                        "optional": true,
+                                        "sticky": true,
+                                        "type": "date_time",
+                                        "name": "eb515531_9420_4d68_beed_86e23be8725b"
+                                      },
+                                      {
+                                        "control_type": "date_time",
+                                        "label": "Job Completed At",
+                                        "render_input": "date_time_conversion",
+                                        "parse_output": "date_time_conversion",
+                                        "optional": true,
+                                        "sticky": true,
+                                        "type": "date_time",
+                                        "name": "b0a4049b_7605_495b_9413_2b2c4db792f6"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Recipe ID",
+                                        "optional": true,
+                                        "sticky": true,
+                                        "type": "string",
+                                        "name": "87cfdc28_a5c7_4862_a2ec_b34b632e2809"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "WorkspaceId",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "type": "string",
+                                        "name": "1813dbac_5305_48a0_9b35_eca7e42d669d"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Vendor IDs",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "type": "string",
+                                        "name": "d2fcaf21_c817_47b2_9b3a_ad4bf9b7755f"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Vendor Name",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "type": "string",
+                                        "name": "5778334e_0bf5_4cac_b90b_fb1ffb5a8622"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "New/Existing Vendor",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "type": "string",
+                                        "name": "7a031912_2136_4452_b035_281bd49cb8b5"
+                                      },
+                                      {
+                                        "control_type": "integer",
+                                        "label": "Processed Flag",
+                                        "parse_output": "integer_conversion",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "render_input": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "e8e88f56_0657_4b97_a2cd_5de908f7ae9e"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "ORA Request ID",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "type": "string",
+                                        "name": "6e8e8d2c_7f58_42c4_9c44_040823be50d7"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "ORA ERP Vendor ID",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "type": "string",
+                                        "name": "95eb5899_ddb8_40d0_a5d5_1f8ce02007be"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "ORA Return Status",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "type": "string",
+                                        "name": "43002399_8d28_43b6_80b8_50c0b3a5715f"
+                                      },
+                                      {
+                                        "control_type": "checkbox",
+                                        "label": "History",
+                                        "render_input": "boolean_conversion",
+                                        "parse_output": "boolean_conversion",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "toggle_hint": "Select from option list",
+                                        "toggle_field": {
+                                          "label": "History",
+                                          "control_type": "text",
+                                          "toggle_hint": "Use custom value",
+                                          "hint": null,
+                                          "placeholder": null,
+                                          "optional": true,
+                                          "sticky": false,
+                                          "render_input": "boolean_conversion",
+                                          "parse_output": "boolean_conversion",
+                                          "type": "boolean",
+                                          "name": "615c9721_4efe_4785_9016_450f978e9a0d"
+                                        },
+                                        "type": "boolean",
+                                        "name": "615c9721_4efe_4785_9016_450f978e9a0d"
+                                      },
+                                      {
+                                        "control_type": "integer",
+                                        "label": "No_of_Site Address",
+                                        "parse_output": "integer_conversion",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "render_input": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "0338a1d7_5014_4212_8b6f_4c6318977f64"
+                                      },
+                                      {
+                                        "control_type": "integer",
+                                        "label": "No_of_OU",
+                                        "parse_output": "integer_conversion",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "render_input": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "cedcf82b_84e2_4337_a8c3_9d0b2b78396e"
+                                      },
+                                      {
+                                        "control_type": "integer",
+                                        "label": "No_of_Bank",
+                                        "parse_output": "integer_conversion",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "render_input": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "a5bdc2b2_5033_4cf5_af68_646b1e0b38c2"
+                                      },
+                                      {
+                                        "control_type": "integer",
+                                        "label": "No_of_IntermediateBank",
+                                        "parse_output": "integer_conversion",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "render_input": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "9e4e41b8_2b32_469a_9eb6_e5d57da5bb7d"
+                                      },
+                                      {
+                                        "control_type": "integer",
+                                        "label": "Unique_ID",
+                                        "parse_output": "integer_conversion",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "render_input": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "65ca81da_ac44_411e_ac79_5e857b558306"
+                                      },
+                                      {
+                                        "control_type": "checkbox",
+                                        "label": "Reprocessed Flag",
+                                        "render_input": "boolean_conversion",
+                                        "parse_output": "boolean_conversion",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "toggle_hint": "Select from option list",
+                                        "toggle_field": {
+                                          "label": "Reprocessed Flag",
+                                          "control_type": "text",
+                                          "toggle_hint": "Use custom value",
+                                          "hint": null,
+                                          "placeholder": null,
+                                          "optional": true,
+                                          "sticky": false,
+                                          "render_input": "boolean_conversion",
+                                          "parse_output": "boolean_conversion",
+                                          "type": "boolean",
+                                          "name": "114b2534_af16_4a9d_af70_d6cca8e5f4bd"
+                                        },
+                                        "type": "boolean",
+                                        "name": "114b2534_af16_4a9d_af70_d6cca8e5f4bd"
+                                      },
+                                      {
+                                        "control_type": "integer",
+                                        "label": "Total Count",
+                                        "parse_output": "integer_conversion",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "render_input": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "173e18d6_5ef1_4ff5_a71b_9fe0fac90da7"
+                                      }
+                                    ],
+                                    "label": "New record fields",
+                                    "hint": "Fill the fields for the new record",
+                                    "type": "object",
+                                    "name": "parameters"
+                                  }
+                                ],
+                                "type": "array"
+                              }
+                            ],
+                            "visible_config_fields": [
+                              "table_id",
+                              "records",
+                              "records.parameters",
+                              "records.parameters.602d8ecb_e1fa_47ac_ac76_77a290f1779a",
+                              "records.parameters.d7b8735b_fd89_4baf_9edd_30ee4741b183",
+                              "records.parameters.e36d32aa_a8fa_49a4_8ffa_ddb0bbd50f02",
+                              "records.parameters.85359466_1874_4533_8572_4d446ead50d5",
+                              "records.parameters.71472d4d_cdae_4dcb_973c_e2055c4cf9a8",
+                              "records.parameters.c64e9d37_5899_44ad_9e63_962dbb935112",
+                              "records.parameters.8ec7748f_c297_4836_b2d4_89abd91451b1",
+                              "records.parameters.b906e3c2_538d_4251_9d6d_42e5816f467b",
+                              "records.parameters.fd35ac66_337f_41f2_9267_656f867fcb8d",
+                              "records.parameters.eb515531_9420_4d68_beed_86e23be8725b",
+                              "records.parameters.b0a4049b_7605_495b_9413_2b2c4db792f6",
+                              "records.parameters.87cfdc28_a5c7_4862_a2ec_b34b632e2809",
+                              "records.parameters.e8e88f56_0657_4b97_a2cd_5de908f7ae9e",
+                              "records.parameters.d2fcaf21_c817_47b2_9b3a_ad4bf9b7755f",
+                              "records.parameters.1813dbac_5305_48a0_9b35_eca7e42d669d"
+                            ],
+                            "comment": "Add Entry to Lookup table for getting this VENDOR processed",
+                            "uuid": "49175d5c-32ce-4799-896b-b7003829a0ea",
+                            "skip": false
+                          },
+                          {
+                            "number": 11,
+                            "as": "c8dd992a",
+                            "keyword": "foreach",
+                            "repeat_mode": "simple",
+                            "clear_scope": "false",
+                            "input": {
+                            },
+                            "block": [
+                              {
+                                "number": 12,
+                                "provider": "workato_recipe_function",
+                                "name": "call_recipe",
+                                "as": "128f2b61",
+                                "keyword": "action",
+                                "dynamicPickListSelection": {
+                                  "flow_id": "FUNC | 02 | SupplierMasterData_ARIBA_To_ERP"
+                                },
+                                "input": {
+                                  "flow_id": {
+                                    "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | NEW Record/func_02_suppliermasterdata_ariba_to_erp.recipe.json",
+                                    "name": "FUNC | 02 | SupplierMasterData_ARIBA_To_ERP",
+                                    "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | NEW Record"
+                                  },
+                                  "parameters": {
+                                    "RecordID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"c8dd992a\",\"path\":[\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}"
+                                  }
+                                },
+                                "extended_input_schema": [
+                                  {
+                                    "label": "Parameters",
+                                    "name": "parameters",
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "RecordID",
+                                        "name": "RecordID",
+                                        "type": "string",
+                                        "optional": false
+                                      }
+                                    ],
+                                    "type": "object"
+                                  }
+                                ],
+                                "comment": "Call Next Recipe to INSERT NEW SUPPLIER Record",
+                                "uuid": "105c917c-92c8-4265-a038-f29153d87886",
+                                "skip": false
+                              }
+                            ],
+                            "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"af470417\",\"path\":[\"records\"]}')}",
+                            "uuid": "df90ff8f-4dfb-4ddd-9921-1f3d4d1d4bdd"
+                          }
+                        ],
+                        "uuid": "645dc669-55ba-4afa-ba0b-af2f6f2fc313"
+                      },
+                      {
+                        "number": 13,
+                        "provider": "workato_variable",
+                        "name": "update_variables",
+                        "as": "8385e063",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "name": [
+                            {
+                              "label": "var_Insert (step 4)",
+                              "value": "4c1ae513-bd35-4f4b-85ea-782843be7db2:bf35553b:var_Insert"
+                            }
+                          ]
+                        },
+                        "input": {
+                          "input_mode": "raw",
+                          "name": "4c1ae513-bd35-4f4b-85ea-782843be7db2:bf35553b:var_Insert",
+                          "var_Insert": "Yes"
+                        },
+                        "extended_input_schema": [
+                          {
+                            "control_type": "text",
+                            "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                            "label": "var_Insert",
+                            "name": "var_Insert",
+                            "optional": true,
+                            "sticky": true,
+                            "type": "string",
+                            "strip_interpolation": true
+                          }
+                        ],
+                        "comment": "INSERT = TRUE",
+                        "uuid": "feef95ef-7338-4130-a86e-0ac6073b0b35",
+                        "skip": true
+                      },
+                      {
+                        "number": 14,
+                        "keyword": "else",
+                        "input": {
+                        },
+                        "block": [
+                          {
+                            "number": 15,
+                            "provider": "workato_db_table",
+                            "name": "create_records_batch",
+                            "as": "b4f59044",
+                            "keyword": "action",
+                            "dynamicPickListSelection": {
+                              "table_id": "[S2P] DT | UPDATE | Ariba VendorID Lookup"
+                            },
+                            "input": {
+                              "table_id": {
+                                "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables/s2p_dt_update_ariba_vendorid_lookup.workato_db_table.json",
+                                "name": "[S2P] DT | UPDATE | Ariba VendorID Lookup",
+                                "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables"
+                              },
+                              "records": {
+                                "parameters": {
+                                  "d9210735_eeb2_4fb7_ab61_64be2d0ef393": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_id\"]}')}",
+                                  "42de9788_5b22_4e9c_8ba9_f3ef5f3c0fd3": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_created_at\"]}')}",
+                                  "0cace68b_17a3_4196_9052_ab3b9a4975f4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"SM_Vendor_ID\"]}')}",
+                                  "52acdbcc_bd96_4c60_8980_3298aebba2ad": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"ERP_Vendor_ID\"]}')}",
+                                  "60931ed0_5c08_44a0_80ef_dd11e16527a7": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_id\"]}')}",
+                                  "ccd4fe58_1df6_46d1_a647_3f7614f5e089": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"questionnaires\",{\"path_element_type\":\"current_item\"},\"workspaceId\"]}')}",
+                                  "b5ecdd75_b4c1_41c2_98f1_a9eff4a242e6": "=now",
+                                  "c4eb57b6_7210_4935_85c1_77137c037471": "0",
+                                  "2610b512_7efd_42d0_b05c_0bb37ff51efa": "#{_dp('{\"pill_type\":\"foreach_meta\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"key\":\"index\"}')}"
+                                }
+                              }
+                            },
+                            "extended_output_schema": [
+                              {
+                                "label": "Records",
+                                "name": "records",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "Record ID",
+                                        "type": "string",
+                                        "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Job ID",
+                                        "type": "string",
+                                        "name": "d9210735_eeb2_4fb7_ab61_64be2d0ef393"
+                                      },
+                                      {
+                                        "control_type": "date_time",
+                                        "label": "Job Created At",
+                                        "render_input": "date_time_conversion",
+                                        "parse_output": "date_time_conversion",
+                                        "type": "date_time",
+                                        "name": "42de9788_5b22_4e9c_8ba9_f3ef5f3c0fd3"
+                                      },
+                                      {
+                                        "control_type": "date_time",
+                                        "label": "Job Completed At",
+                                        "render_input": "date_time_conversion",
+                                        "parse_output": "date_time_conversion",
+                                        "type": "date_time",
+                                        "name": "cbdb7e10_d9a4_4ab1_afca_1e364cd99470"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "aribaVendorID",
+                                        "type": "string",
+                                        "name": "0cace68b_17a3_4196_9052_ab3b9a4975f4"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "oracleErpVendorID",
+                                        "type": "string",
+                                        "name": "52acdbcc_bd96_4c60_8980_3298aebba2ad"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Vendor_Name",
+                                        "type": "string",
+                                        "name": "166016b0_34d2_4c0c_ad96_96f9cff0140f"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Receipe ID",
+                                        "type": "string",
+                                        "name": "60931ed0_5c08_44a0_80ef_dd11e16527a7"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "WorkspaceId",
+                                        "type": "string",
+                                        "name": "ccd4fe58_1df6_46d1_a647_3f7614f5e089"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "lastJobRun",
+                                        "type": "string",
+                                        "name": "b5ecdd75_b4c1_41c2_98f1_a9eff4a242e6"
+                                      },
+                                      {
+                                        "control_type": "number",
+                                        "label": "Processed Flag",
+                                        "parse_output": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "c4eb57b6_7210_4935_85c1_77137c037471"
+                                      },
+                                      {
+                                        "control_type": "number",
+                                        "label": "Row No",
+                                        "parse_output": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "2610b512_7efd_42d0_b05c_0bb37ff51efa"
+                                      },
+                                      {
+                                        "control_type": "number",
+                                        "label": "reProcessFlag",
+                                        "parse_output": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "2c5daba0_da21_46ba_828f_f8868025adaf"
+                                      },
+                                      {
+                                        "control_type": "date_time",
+                                        "label": "Created at",
+                                        "render_input": "date_time_conversion",
+                                        "parse_output": "date_time_conversion",
+                                        "type": "date_time",
+                                        "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                                      },
+                                      {
+                                        "control_type": "date_time",
+                                        "label": "Updated at",
+                                        "render_input": "date_time_conversion",
+                                        "parse_output": "date_time_conversion",
+                                        "type": "date_time",
+                                        "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                                      }
+                                    ],
+                                    "label": "Record",
+                                    "type": "object",
+                                    "name": "record"
+                                  }
+                                ],
+                                "type": "array"
+                              }
+                            ],
+                            "extended_input_schema": [
+                              {
+                                "hint": "Provide the list of records",
+                                "label": "New records",
+                                "name": "records",
+                                "of": "object",
+                                "optional": false,
+                                "properties": [
+                                  {
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "Job ID",
+                                        "optional": true,
+                                        "sticky": true,
+                                        "type": "string",
+                                        "name": "d9210735_eeb2_4fb7_ab61_64be2d0ef393"
+                                      },
+                                      {
+                                        "control_type": "date_time",
+                                        "label": "Job Created At",
+                                        "render_input": "date_time_conversion",
+                                        "parse_output": "date_time_conversion",
+                                        "optional": true,
+                                        "sticky": true,
+                                        "type": "date_time",
+                                        "name": "42de9788_5b22_4e9c_8ba9_f3ef5f3c0fd3"
+                                      },
+                                      {
+                                        "control_type": "date_time",
+                                        "label": "Job Completed At",
+                                        "render_input": "date_time_conversion",
+                                        "parse_output": "date_time_conversion",
+                                        "optional": true,
+                                        "sticky": true,
+                                        "type": "date_time",
+                                        "name": "cbdb7e10_d9a4_4ab1_afca_1e364cd99470"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "aribaVendorID",
+                                        "optional": true,
+                                        "sticky": true,
+                                        "type": "string",
+                                        "name": "0cace68b_17a3_4196_9052_ab3b9a4975f4"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "oracleErpVendorID",
+                                        "optional": true,
+                                        "sticky": true,
+                                        "type": "string",
+                                        "name": "52acdbcc_bd96_4c60_8980_3298aebba2ad"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Vendor_Name",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "type": "string",
+                                        "name": "166016b0_34d2_4c0c_ad96_96f9cff0140f"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Receipe ID",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "type": "string",
+                                        "name": "60931ed0_5c08_44a0_80ef_dd11e16527a7"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "WorkspaceId",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "type": "string",
+                                        "name": "ccd4fe58_1df6_46d1_a647_3f7614f5e089"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "lastJobRun",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "type": "string",
+                                        "name": "b5ecdd75_b4c1_41c2_98f1_a9eff4a242e6"
+                                      },
+                                      {
+                                        "control_type": "integer",
+                                        "label": "Processed Flag",
+                                        "parse_output": "integer_conversion",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "render_input": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "c4eb57b6_7210_4935_85c1_77137c037471"
+                                      },
+                                      {
+                                        "control_type": "integer",
+                                        "label": "Row No",
+                                        "parse_output": "integer_conversion",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "render_input": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "2610b512_7efd_42d0_b05c_0bb37ff51efa"
+                                      },
+                                      {
+                                        "control_type": "integer",
+                                        "label": "reProcessFlag",
+                                        "parse_output": "integer_conversion",
+                                        "optional": true,
+                                        "sticky": false,
+                                        "render_input": "integer_conversion",
+                                        "type": "integer",
+                                        "name": "2c5daba0_da21_46ba_828f_f8868025adaf"
+                                      }
+                                    ],
+                                    "label": "New record fields",
+                                    "hint": "Fill the fields for the new record",
+                                    "type": "object",
+                                    "name": "parameters"
+                                  }
+                                ],
+                                "type": "array"
+                              }
+                            ],
+                            "visible_config_fields": [
+                              "table_id",
+                              "records",
+                              "records.parameters",
+                              "records.parameters.7131cd58_4d8c_4f6b_8bb6_614139d57d6a",
+                              "records.parameters.e4bcda3b_4c88_43a3_936d_b142a9369615",
+                              "records.parameters.02c00725_68db_45e6_8a7e_497a53e3474a",
+                              "records.parameters.bfc8cf3c_1df6_44eb_ba92_c10a0458cfec",
+                              "records.parameters.e9af2c2a_38c4_453e_a65c_6ad2da012401",
+                              "records.parameters.f89b8e1b_3dd6_41d1_9603_2e70b74c10ed",
+                              "records.parameters.9646a90c_6e40_42b6_a433_6ec756e95eb1",
+                              "records.parameters.002a46fd_b172_41c5_8cc7_1abb76c8dd26",
+                              "records.parameters.1213f769_011f_4f07_ae4d_af7cf5296b6f",
+                              "records.parameters.dfcb1b1a_0c12_4923_9623_6436b4a4dae5",
+                              "records.parameters.a15f1771_cbd3_40f4_823e_0de905604378",
+                              "records.parameters.d9210735_eeb2_4fb7_ab61_64be2d0ef393",
+                              "records.parameters.42de9788_5b22_4e9c_8ba9_f3ef5f3c0fd3",
+                              "records.parameters.cbdb7e10_d9a4_4ab1_afca_1e364cd99470",
+                              "records.parameters.0cace68b_17a3_4196_9052_ab3b9a4975f4",
+                              "records.parameters.52acdbcc_bd96_4c60_8980_3298aebba2ad",
+                              "records.parameters.2610b512_7efd_42d0_b05c_0bb37ff51efa",
+                              "records.parameters.c4eb57b6_7210_4935_85c1_77137c037471",
+                              "records.parameters.b5ecdd75_b4c1_41c2_98f1_a9eff4a242e6",
+                              "records.parameters.ccd4fe58_1df6_46d1_a647_3f7614f5e089",
+                              "records.parameters.60931ed0_5c08_44a0_80ef_dd11e16527a7"
+                            ],
+                            "comment": "Insert UPDATED VendorID's",
+                            "uuid": "c29a74d9-bbf6-4c3c-8d6f-882fe4192722"
+                          },
+                          {
+                            "number": 16,
+                            "as": "5e2096a2",
+                            "keyword": "foreach",
+                            "repeat_mode": "simple",
+                            "clear_scope": "false",
+                            "input": {
+                            },
+                            "block": [
+                              {
+                                "number": 17,
+                                "provider": "workato_recipe_function",
+                                "name": "call_recipe",
+                                "as": "6144608f",
+                                "keyword": "action",
+                                "dynamicPickListSelection": {
+                                  "flow_id": "FUNC | 02 | UPDATE | SupplierMasterData_Ariba_To_ERP"
+                                },
+                                "input": {
+                                  "flow_id": {
+                                    "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | UPDATE Record/func_02_update_suppliermasterdata_ariba_to_erp.recipe.json",
+                                    "name": "FUNC | 02 | UPDATE | SupplierMasterData_Ariba_To_ERP",
+                                    "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | UPDATE Record"
+                                  },
+                                  "parameters": {
+                                    "RecordID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"5e2096a2\",\"path\":[\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
+                                    "RecipeID": "=now.to_i",
+                                    "AribaVendorID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"5e2096a2\",\"path\":[\"record\",\"0cace68b_17a3_4196_9052_ab3b9a4975f4\"]}')}"
+                                  }
+                                },
+                                "extended_input_schema": [
+                                  {
+                                    "label": "Parameters",
+                                    "name": "parameters",
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "RecordID",
+                                        "name": "RecordID",
+                                        "type": "string",
+                                        "optional": false
+                                      },
+                                      {
+                                        "control_type": "number",
+                                        "label": "RecipeID",
+                                        "parse_output": "float_conversion",
+                                        "name": "RecipeID",
+                                        "type": "number",
+                                        "optional": false,
+                                        "render_input": "float_conversion"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "AribaVendorID",
+                                        "name": "AribaVendorID",
+                                        "type": "string",
+                                        "optional": false
+                                      }
+                                    ],
+                                    "type": "object"
+                                  }
+                                ],
+                                "comment": "Call UPDATE Next Recipe's",
+                                "uuid": "960ebce9-c07c-4e71-bcf3-383ac179a820",
+                                "skip": false
+                              }
+                            ],
+                            "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"b4f59044\",\"path\":[\"records\"]}')}",
+                            "uuid": "a4f66c52-a3e2-49b8-974f-6ca31a3e7a0f"
+                          }
+                        ],
+                        "comment": "For Existing Supplier - UPDATE",
+                        "uuid": "735739bb-1008-476c-8742-3fc4bb8b4461",
+                        "skip": false
+                      }
+                    ],
+                    "comment": "For New Supplier",
+                    "uuid": "3c8bc8da-82cc-44f6-a9a8-499f5ee8a235"
+                  }
+                ],
+                "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"f0e54157\",\"path\":[\"response\",\"array\"]}')}",
+                "comment": "For Each - VENDOR ID",
+                "uuid": "9cc0ab3c-ed9f-43ae-80e2-ba204d2cd518"
+              }
+            ],
+            "uuid": "6e4965c5-8e41-4e85-8313-35353534a3a5",
+            "skip": false
+          },
+          {
+            "number": 18,
+            "as": "d254b55a",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 19,
+                "provider": "workato_recipe_function",
+                "name": "call_recipe",
+                "as": "fbea9086",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "flow_id": "SAP ARIBA | Error Handling Recipe"
+                },
+                "input": {
+                  "flow_id": {
+                    "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | Error Handling/sap_ariba_error_handling_recipe.recipe.json",
+                    "name": "SAP ARIBA | Error Handling Recipe",
+                    "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | Error Handling"
+                  },
+                  "parameters": {
+                    "recipe_name": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_name\"]}')}",
+                    "recipe_url": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_url\"]}')}",
+                    "error_step_no": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"line_number\"]}')}",
+                    "error_message": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"message\"]}')}",
+                    "error_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"http_response\",\"code\"]}')}",
+                    "job_link": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_url\"]}')}",
+                    "job_failed_at": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"error_at\"]}')}"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "message",
+                        "name": "message",
+                        "type": "string",
+                        "optional": true
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Parameters",
+                    "name": "parameters",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "recipe_name",
+                        "name": "recipe_name",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "recipe_url",
+                        "name": "recipe_url",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "error_step_no",
+                        "parse_output": "integer_conversion",
+                        "name": "error_step_no",
+                        "type": "integer",
+                        "optional": true,
+                        "render_input": "integer_conversion"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "error_code",
+                        "parse_output": "integer_conversion",
+                        "name": "error_code",
+                        "type": "integer",
+                        "optional": true,
+                        "render_input": "integer_conversion"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "error_message",
+                        "name": "error_message",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "affected_oracle_table_name",
+                        "name": "affected_oracle_table_name",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "job_link",
+                        "name": "job_link",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "job_failed_at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "name": "job_failed_at",
+                        "type": "date_time",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "file_name",
+                        "name": "file_name",
+                        "type": "string",
+                        "optional": true
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "flow_id",
+                  "parameters.recipe_name",
+                  "parameters.recipe_url",
+                  "parameters.error_step_no",
+                  "parameters.error_code",
+                  "parameters.error_message",
+                  "parameters.affected_oracle_table_name",
+                  "parameters.job_link",
+                  "parameters.job_failed_at"
+                ],
+                "uuid": "ad7d3b0e-ef81-4bcf-b75f-932201f09d19"
+              },
+              {
+                "number": 20,
+                "provider": "workato_recipe_function",
+                "name": "call_recipe",
+                "as": "78e3f1a9",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "flow_id": "SUB | FUNC | Exception Call"
+                },
+                "input": {
+                  "flow_id": {
+                    "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | NEW Record/sub_func_exception_call.recipe.json",
+                    "name": "SUB | FUNC | Exception Call",
+                    "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | NEW Record"
+                  },
+                  "parameters": {
+                    "ErrorTypeID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"error_type_id\"]}')}",
+                    "ErrorType": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"type\"]}')}",
+                    "ErrorMessage": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"message\"]}')}",
+                    "RetryCount": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"retry_count\"]}')}",
+                    "ErrorUUID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"uuid\"]}')}",
+                    "ErroredStepNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"line_number\"]}')}",
+                    "ErroredApp": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"adapter\"]}')}",
+                    "ErroredAction": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"action\"]}')}",
+                    "RecordID": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"af470417\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"af470417\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}'): null",
+                    "ErroredAt": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"error_at\"]}')}",
+                    "HTTPProtocolVersion": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"http_response\",\"protocol\"]}')}",
+                    "HTTPStatusCode": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"http_response\",\"code\"]}')}",
+                    "HTTPStatusText": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"http_response\",\"raw_status_text\"]}')}",
+                    "HTTPStatusTextRFC": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"http_response\",\"normalized_status_text\"]}')}",
+                    "HTTPResponseBody": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"http_response\",\"body\"]}')}",
+                    "HTTPResponseRetryAfter": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"http_response\",\"retry_after\"]}')}",
+                    "RecipeName": "=\"REC | 01 |  Reprocess with VendorID\""
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "label": "Parameters",
+                    "name": "parameters",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "ErrorTypeID",
+                        "name": "ErrorTypeID",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "ErrorType",
+                        "name": "ErrorType",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "ErrorMessage",
+                        "name": "ErrorMessage",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "RetryCount",
+                        "parse_output": "float_conversion",
+                        "name": "RetryCount",
+                        "type": "number",
+                        "optional": false,
+                        "render_input": "float_conversion"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "ErrorUUID",
+                        "name": "ErrorUUID",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "ErroredStepNumber",
+                        "parse_output": "float_conversion",
+                        "name": "ErroredStepNumber",
+                        "type": "number",
+                        "optional": false,
+                        "render_input": "float_conversion"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "ErroredApp",
+                        "name": "ErroredApp",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "ErroredAction",
+                        "name": "ErroredAction",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "date",
+                        "label": "ErroredAt",
+                        "render_input": "date_conversion",
+                        "parse_output": "date_conversion",
+                        "name": "ErroredAt",
+                        "type": "date_time",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "HTTPProtocolVersion",
+                        "name": "HTTPProtocolVersion",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "HTTPStatusCode",
+                        "parse_output": "float_conversion",
+                        "name": "HTTPStatusCode",
+                        "type": "number",
+                        "optional": false,
+                        "render_input": "float_conversion"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "HTTPStatusText",
+                        "name": "HTTPStatusText",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "HTTPStatusTextRFC",
+                        "name": "HTTPStatusTextRFC",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "HTTPResponseBody",
+                        "name": "HTTPResponseBody",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "HTTPResponseRetryAfter",
+                        "parse_output": "float_conversion",
+                        "name": "HTTPResponseRetryAfter",
+                        "type": "number",
+                        "optional": false,
+                        "render_input": "float_conversion"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "RecordID",
+                        "name": "RecordID",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Recipe ID",
+                        "name": "RecipeID",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Vendor name",
+                        "name": "VendorName",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Job Url",
+                        "name": "JobUrl",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Recipe Name",
+                        "name": "RecipeName",
+                        "type": "string",
+                        "optional": true
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "flow_id",
+                  "parameters",
+                  "parameters.ErrorTypeID",
+                  "parameters.ErrorType",
+                  "parameters.ErrorMessage",
+                  "parameters.RetryCount",
+                  "parameters.ErrorUUID",
+                  "parameters.ErroredStepNumber",
+                  "parameters.ErroredApp",
+                  "parameters.ErroredAction",
+                  "parameters.ErroredAt",
+                  "parameters.HTTPProtocolVersion",
+                  "parameters.HTTPStatusCode",
+                  "parameters.HTTPStatusText",
+                  "parameters.HTTPStatusTextRFC",
+                  "parameters.HTTPResponseBody",
+                  "parameters.HTTPResponseRetryAfter",
+                  "parameters.RecordID",
+                  "parameters.RecipeName"
+                ],
+                "uuid": "c31d655d-f2c6-4117-8cef-fb0483951e3e"
+              },
+              {
+                "number": 21,
+                "provider": "logger",
+                "name": "log_message",
+                "as": "a5b68cbe",
+                "keyword": "action",
+                "input": {
+                  "user_logs_enabled": "false",
+                  "message": "Error MSg : #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"message\"]}')}"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "switch",
+                    "default": false,
+                    "disable_formula": true,
+                    "extends_schema": true,
+                    "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                    "label": "Send to Workato log service",
+                    "name": "user_logs_enabled",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "uuid": "a6d85b8b-c4f5-4274-8426-dc27b6766f40"
+              },
+              {
+                "number": 22,
+                "as": "4e35cf9d",
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "true",
+                  "stop_reason": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"message\"]}')}"
+                },
+                "uuid": "acc499e1-6552-4e5d-8575-20d4d283b4e9"
+              }
+            ],
+            "uuid": "8f6c2b20-7745-4d78-a1ae-57ff947152ee"
+          }
+        ],
+        "uuid": "cae5be9b-1366-4ccf-9d51-d6b89374f333"
+      }
+    ],
+    "comment": "Runs of schedule of every Hour",
+    "job_report_schema": [
+      {
+        "name": "custom_column_0",
+        "label": "Ariba Vendor ID"
+      },
+      {
+        "name": "custom_column_2",
+        "label": "Insert/Update"
+      },
+      {
+        "name": "custom_column_4",
+        "label": "INSERT JobID (If Success)"
+      },
+      {
+        "name": "custom_column_5",
+        "label": "UPDATE JobID (If Success)"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"f0e54157\",\"path\":[\"response\",\"array\",{\"path_element_type\":\"current_item\"},\"SM_Vendor_ID\"]}')}",
+      "custom_column_2": "=(_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"3ce05254\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"result_f3f45e68\"]}').to_i == 0) ? 'INSERT' : 'UPDATE'",
+      "custom_column_4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"af470417\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"record\",\"fd35ac66_337f_41f2_9267_656f867fcb8d\"]}')}",
+      "custom_column_5": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"b4f59044\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"record\",\"d9210735_eeb2_4fb7_ab61_64be2d0ef393\"]}')}"
+    },
+    "uuid": "788f1469-8f7c-43e3-8ecf-39abad0f9e93"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "logger",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "rest",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection/s2p_con_supplierdataapiwithpagination.connection.json",
+        "name": "S2P | CON | SupplierDataAPIWithPagination",
+        "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_db_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "oracle",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection/s2p_con_qa_xxrhfin.connection.json",
+        "name": "S2P | CON | QA | XXRHFIN",
+        "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": true,
+      "account_id": null
+    }
+  ],
+  "tags": [
+    "QA"
+  ]
+}
