@@ -1,0 +1,682 @@
+{
+  "name": "SAP ARIBA | Notify Stakeholders on Supplier Sync Status",
+  "description": "",
+  "version": 3,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "35ab4805",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"RECORD_METHOD\",\"type\":\"string\",\"optional\":true,\"label\":\"RECORD_METHOD\",\"control_type\":\"text\"},{\"name\":\"processed_flag\",\"type\":\"string\",\"optional\":false,\"label\":\"processed_flag\",\"control_type\":\"text\"},{\"name\":\"job_created_at\",\"type\":\"string\",\"optional\":true,\"label\":\"job_created_at\",\"control_type\":\"text\"},{\"name\":\"ariba_vendor_id\",\"type\":\"string\",\"optional\":false,\"label\":\"ariba_vendor_id\",\"control_type\":\"text\"},{\"name\":\"vendor_name\",\"type\":\"string\",\"optional\":true,\"label\":\"vendor_name\",\"control_type\":\"text\"},{\"name\":\"oracle_request_id\",\"type\":\"string\",\"optional\":true,\"label\":\"oracle_request_id\",\"control_type\":\"text\"},{\"name\":\"oracle_return_status\",\"type\":\"string\",\"optional\":false,\"label\":\"oracle_return_status\",\"control_type\":\"text\"},{\"name\":\"epr_vendor_id\",\"type\":\"string\",\"optional\":true,\"label\":\"epr_vendor_id\",\"control_type\":\"text\"},{\"name\":\"job_link\",\"type\":\"string\",\"optional\":true,\"label\":\"job_link\",\"control_type\":\"text\"},{\"name\":\"job_completed_at\",\"type\":\"string\",\"optional\":true,\"label\":\"job_completed_at\",\"control_type\":\"text\"},{\"name\":\"total_sites\",\"type\":\"string\",\"optional\":true,\"label\":\"total_sites\",\"control_type\":\"text\"},{\"name\":\"total_banks\",\"type\":\"string\",\"optional\":true,\"label\":\"total_banks\",\"control_type\":\"text\"},{\"name\":\"total_intermediate_banks\",\"type\":\"string\",\"optional\":true,\"label\":\"total_intermediate_banks\",\"control_type\":\"text\"},{\"name\":\"p_email_recipents\",\"type\":\"string\",\"optional\":true,\"label\":\"p_email_recipents\",\"control_type\":\"text\"},{\"name\":\"recipe_id\",\"type\":\"string\",\"optional\":false,\"label\":\"recipe_id\",\"control_type\":\"text\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "RECORD_METHOD",
+            "name": "RECORD_METHOD",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "processed_flag",
+            "name": "processed_flag",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "job_created_at",
+            "name": "job_created_at",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "ariba_vendor_id",
+            "name": "ariba_vendor_id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "vendor_name",
+            "name": "vendor_name",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "oracle_request_id",
+            "name": "oracle_request_id",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "oracle_return_status",
+            "name": "oracle_return_status",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "epr_vendor_id",
+            "name": "epr_vendor_id",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "job_link",
+            "name": "job_link",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "job_completed_at",
+            "name": "job_completed_at",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "total_sites",
+            "name": "total_sites",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "total_banks",
+            "name": "total_banks",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "total_intermediate_banks",
+            "name": "total_intermediate_banks",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "p_email_recipents",
+            "name": "p_email_recipents",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "recipe_id",
+            "name": "recipe_id",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "oracle",
+        "name": "search_rows_sql",
+        "as": "f8dfa54c",
+        "keyword": "action",
+        "input": {
+          "sql": "SELECT DISTINCT RECIPE_ID, INTERFACE_ID, INTERFACE_ERROR, RECORD_METHOD, CREATION_DATE, INTERFACE_STATUS,ARIBA_VENDOR_ID\n\tFROM XXRHFIN.XXRH_SUPPLIER_IMPORT_ALTER_STG\n    WHERE RECIPE_ID = :RECIPE_ID and CREATION_DATE > SYSDATE -1",
+          "parameters": {
+            "schema": "[{\"name\":\"RECIPE_ID\",\"type\":\"string\",\"optional\":true,\"label\":\"RECIPE_ID\",\"details\":{\"real_name\":\"RECIPE_ID\"},\"control_type\":\"text\"}]",
+            "data": {
+              "RECIPE_ID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"recipe_id\"]}')}"
+            }
+          },
+          "output_schema": "[{\"name\":\"interface_id\",\"type\":\"string\",\"optional\":false,\"label\":\"interface_id\",\"control_type\":\"text\"},{\"name\":\"record_method\",\"type\":\"string\",\"optional\":false,\"label\":\"record_method\",\"control_type\":\"text\"},{\"name\":\"ariba_vendor_id\",\"type\":\"string\",\"optional\":false,\"label\":\"ariba_vendor_id\",\"control_type\":\"text\"},{\"name\":\"interface_status\",\"type\":\"string\",\"optional\":false,\"label\":\"interface_status\",\"control_type\":\"text\"},{\"name\":\"interface_error\",\"type\":\"string\",\"optional\":true,\"label\":\"interface_error\",\"control_type\":\"text\"},{\"name\":\"creation_date\",\"type\":\"date_time\",\"optional\":false,\"label\":\"creation_date\",\"control_type\":\"date\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\"},{\"name\":\"recipe_id\",\"type\":\"string\",\"optional\":true,\"label\":\"recipe_id\",\"control_type\":\"text\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Rows",
+            "name": "rows",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "interface_id",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "interface_id",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "interface_id_689048c5"
+              },
+              {
+                "control_type": "text",
+                "label": "record_method",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "record_method",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "record_method_3fd0a942"
+              },
+              {
+                "control_type": "text",
+                "label": "ariba_vendor_id",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "ariba_vendor_id",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "ariba_vendor_id_cd58d60d"
+              },
+              {
+                "control_type": "text",
+                "label": "interface_status",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "interface_status",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "interface_status_e7947ef7"
+              },
+              {
+                "control_type": "text",
+                "label": "interface_error",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "interface_error",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "interface_error_aec4a19d"
+              },
+              {
+                "control_type": "text",
+                "label": "creation_date",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "date_time",
+                  "column_name": "creation_date",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "date_time",
+                "optional": true,
+                "type": "string",
+                "name": "creation_date_24cf53a8"
+              },
+              {
+                "control_type": "text",
+                "label": "recipe_id",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "recipe_id",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "recipe_id_31f66c90"
+              }
+            ],
+            "type": "array",
+            "order_by_hint": false
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "form-schema-builder",
+            "hint": "First provide the full name assigned to your bind variable in the WHERE condition. e.g. <b>id</b>\n                    Second, provide the actual parameter value. Parameter values can be static or datapills.\n                    Select the <b>closest corresponding data type</b> that your database is expecting for the bind variable\n                    ",
+            "label": "Parameters",
+            "name": "parameters",
+            "optional": true,
+            "override": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "RECIPE_ID",
+                    "name": "RECIPE_ID",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "RECIPE_ID"
+                    }
+                  }
+                ],
+                "label": "Data",
+                "optional": true,
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "sticky": true,
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "sql",
+          "parameters",
+          "parameters.data.RECIPE_ID",
+          "parameters.schema",
+          "output_schema"
+        ],
+        "uuid": "0ea93e3e-cb96-4c6a-8ee1-56b22fb1df12"
+      },
+      {
+        "number": 2,
+        "provider": "workato_template",
+        "name": "create_document",
+        "as": "58f11da8",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "template_id": "[S2P] Oracle Staging Table Notification - UPDATE"
+        },
+        "input": {
+          "template_id": {
+            "zip_name": "s2p_oracle_staging_notification_email_update.workato_template.json",
+            "name": "[S2P] Oracle Staging Notification Email - UPDATE",
+            "folder": ""
+          },
+          "template_input": {
+            "Record": {
+              "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\"]}')}",
+              "serialNo": "=_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\",{\"path_element_type\":\"current_index\"}]}') + 1",
+              "VendorID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"ariba_vendor_id_cd58d60d\"]}')}",
+              "RECIPE_ID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"recipe_id_31f66c90\"]}')}",
+              "INTERFACE_ID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"interface_id_689048c5\"]}')}",
+              "RECORD_METHOD": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"record_method_3fd0a942\"]}')}",
+              "INTERFACE_STATUS": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"interface_status_e7947ef7\"]}')}",
+              "INTERFACE_ERROR": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"interface_error_aec4a19d\"]}')}"
+            }
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Template input",
+            "name": "template_input",
+            "properties": [
+              {
+                "label": "Record",
+                "name": "Record",
+                "type": "array",
+                "optional": false,
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "serialNo",
+                    "name": "serialNo",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "VendorID",
+                    "name": "VendorID",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "RECIPE_ID",
+                    "name": "RECIPE_ID",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "INTERFACE_ID",
+                    "name": "INTERFACE_ID",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "RECORD_METHOD",
+                    "name": "RECORD_METHOD",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "INTERFACE_STATUS",
+                    "name": "INTERFACE_STATUS",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "INTERFACE_ERROR",
+                    "name": "INTERFACE_ERROR",
+                    "type": "string",
+                    "optional": true
+                  }
+                ]
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "template_id",
+          "template_input.Record.INTERFACE_ERROR",
+          "template_input.Record.INTERFACE_ID",
+          "template_input.Record.RECIPE_ID",
+          "template_input.Record.serialNo"
+        ],
+        "comment": "TABLE for STAGING Details",
+        "uuid": "88651d67-765e-4a8d-bce8-dacd78a40f07"
+      },
+      {
+        "number": 3,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "or",
+          "conditions": [
+            {
+              "operand": "equals_to",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"processed_flag\"]}')}",
+              "rhs": "1",
+              "uuid": "fc288a2a-7d9a-401c-9f56-378ee10d56c5"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 4,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"RECORD_METHOD\"]}')}",
+                  "rhs": "INSERT",
+                  "uuid": "a09140c2-8c04-45be-91f5-09e821ce4e48"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 5,
+                "provider": "email",
+                "name": "send_mail",
+                "as": "c6fd83d3",
+                "keyword": "action",
+                "input": {
+                  "email_type": "html",
+                  "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Supplier Data Status Notification</title>\n    <style>\n        body {\n            font-family: Arial, sans-serif;\n            line-height: 1.6;\n            color: #333;\n        }\n        .container {\n            width: 90%;\n            max-width: 600px;\n            margin: 20px auto;\n            border: 1px solid #e0e0e0;\n            border-radius: 8px;\n            padding: 20px;\n        }\n        table {\n            width: 100%;\n            border-collapse: collapse;\n            margin-top: 20px;\n        }\n        th, td {\n            border: 1px solid #e0e0e0;\n            padding: 10px 15px;\n            text-align: left;\n        }\n        th {\n            background-color: #f5f5f5;\n            font-weight: bold;\n            color: #555;\n            width: 35%; /* Set width for consistent alignment */\n        }\n        /*\n        The dynamic color was moved from here to an inline style on the H3 tag below \n        to ensure compatibility and correct parsing by Workato.\n        */\n        .status-header {\n            font-weight: 600;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <!-- DYNAMIC MAIN TITLE (Workato Logic) - Using 'INSERT' as dummy value -->\n        <h2>\n            New Supplier Master Record Created\n        </h2>\n\n        <!-- DYNAMIC STATUS MESSAGE (Workato Logic) - Using 'INSERT' as dummy value -->\n        <h3 style=\"color: #007bff;\" class=\"status-header\">\n            New record has been successfully processed from Workato to Oracle ERP.\n        </h3>\n        \n        <!-- DETAIL TABLE -->\n        <table>\n            <tbody>\n                <!-- Job Started At -->\n                <tr>\n                    <th>Job Started At</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"job_created_at\"]}')} </td> \n                </tr>\n                <!-- Record Type (New field to show the method) -->\n                <tr>\n                    <th>Record Action</th>\n                    <td> \n                        #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"RECORD_METHOD\"]}')}\n                    </td>\n                </tr>\n                <!-- Vendor ID -->\n                <tr>\n                    <th>Ariba Vendor ID </th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"ariba_vendor_id\"]}')} </td> \n                </tr>\n                <!-- Vendor Name -->\n                <tr>\n                    <th>Vendor Name</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"vendor_name\"]}')}</td> \n                </tr>\n                <!-- Total Sites -->\n                <tr>\n                    <th>Total Site(s)</th>\n                    <td>#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"total_sites\"]}')} Supplier Site(s) details has been recorded to Oracle table</td>\n                </tr>\n                <!-- Total Banks -->\n                <tr>\n                    <th>Total Bank(s)</th>\n                    <td>\n                        #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"total_banks\"]}')} Supplier Bank(s) details with \n                        #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"total_intermediate_banks\"]}')} Intermediate Bank(s) has been recorded to Oracle tables\n                    </td>\n                </tr>\n                <!-- Oracle Request ID -->\n                <tr>\n                    <th>Oracle Request ID</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"oracle_request_id\"]}')} </td> \n                </tr>\n                <!-- Oracle ERP Vendor ID -->\n                <tr>\n                    <th>Oracle ERP Vendor ID</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"epr_vendor_id\"]}')} </td> \n                </tr>\n                <!-- Oracle Return Status -->\n                <tr>\n                    <th>Oracle Return Status</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"oracle_return_status\"]}')} </td> \n                </tr>\n                <!-- Job Completed At -->\n                <tr>\n                    <th>Job Completed At</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"job_completed_at\"]}')}</td> \n                </tr>\n            </tbody>\n        </table>\n    </div>\n#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_template\",\"line\":\"58f11da8\",\"path\":[\"document\"]}')}\n</body>\n</html>",
+                  "subject": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')} - CREATED Record for Supplier Master Successfully",
+                  "to": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"p_email_recipents\"]}')}"
+                },
+                "comment": "Trigger INSERT SUCCESS Email to Stakeholders",
+                "uuid": "dd7ae126-56dc-4f7e-89fc-e8cc713c66d9",
+                "skip": false
+              },
+              {
+                "number": 6,
+                "keyword": "elsif",
+                "input": {
+                  "type": "compound",
+                  "operand": "and",
+                  "conditions": [
+                    {
+                      "operand": "equals_to",
+                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"RECORD_METHOD\"]}')}",
+                      "rhs": "UPDATE",
+                      "uuid": "f162727c-def7-4251-ae4f-8995e918e827"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "number": 7,
+                    "provider": "email",
+                    "name": "send_mail",
+                    "as": "6e3b07fa",
+                    "keyword": "action",
+                    "input": {
+                      "email_type": "html",
+                      "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Supplier Data Status Notification</title>\n    <!-- Use Tailwind CSS classes for a clean, modern look (although inline styles are used below for compatibility, \n         using classes is often better practice in professional environments that support it). -->\n    <style>\n        body {\n            font-family: 'Inter', Arial, sans-serif;\n            line-height: 1.6;\n            color: #333;\n            background-color: #f8f9fa; /* Light background */\n            padding: 20px 0;\n        }\n        .container {\n            width: 90%;\n            max-width: 650px;\n            margin: 0 auto;\n            background-color: #ffffff;\n            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);\n            border-radius: 12px;\n            padding: 25px;\n            /* Changed border to a neutral blue for general success/completion status */\n            border-left: 5px solid #007bff; \n        }\n        h2 {\n            font-size: 1.5rem;\n            margin-top: 0;\n            margin-bottom: 5px;\n        }\n        .main-status-title {\n            /* Changed color to a strong, professional blue */\n            color: #007bff; \n            font-weight: 700;\n        }\n        .subtitle {\n            font-style: italic;\n            color: #6c757d;\n            margin-bottom: 20px;\n        }\n        table {\n            width: 100%;\n            border-collapse: collapse;\n            margin-top: 25px;\n            border-radius: 8px;\n            overflow: hidden; /* Ensures rounded corners on the table */\n        }\n        th, td {\n            border: 1px solid #dee2e6;\n            padding: 12px 15px;\n            text-align: left;\n        }\n        th {\n            background-color: #e9ecef; /* Light gray background for headers */\n            font-weight: 600;\n            color: #495057;\n            width: 35%; \n        }\n        /* Custom styling for the data pill text, if needed */\n        td {\n            color: #212529;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <!-- DYNAMIC MAIN STATUS MESSAGE \n             We are now using the raw RECORD_METHOD pill and static text to form the status. \n             e.g., \"Supplier Master Record Status: INSERT Completed.\" -->\n        <h2 class=\"main-status-title\">\n            Supplier Master Record Status: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"RECORD_METHOD\"]}')} Completed.\n        </h2>\n\n        <!-- DYNAMIC SUB-MESSAGE -->\n        <p class=\"subtitle\">\n            The corresponding data has been successfully synchronized from Workato to Oracle ERP.\n        </p>\n        \n        <!-- DETAIL TABLE -->\n        <table>\n            <tbody>\n                <!-- Job Started At -->\n                <tr>\n                    <th>Job Started At</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"job_created_at\"]}')} </td> \n                </tr>\n                <!-- Record Type (The primary action that triggered this notification) -->\n                <tr>\n                    <th>Record Action</th>\n                    <td> \n                        #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"RECORD_METHOD\"]}')}\n                    </td>\n                </tr>\n                <!-- Vendor ID -->\n                <tr>\n                    <th>Ariba Vendor ID </th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"ariba_vendor_id\"]}')} </td> \n                </tr>\n                <!-- Vendor Name -->\n                <tr>\n                    <th>Vendor Name</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"vendor_name\"]}')}</td> \n                </tr>\n                <!-- Oracle ERP Vendor ID -->\n                <tr>\n                    <th>Oracle ERP Vendor ID</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"epr_vendor_id\"]}')} </td> \n                </tr>\n                <!-- Oracle Request ID -->\n                <tr>\n                    <th>Oracle Request ID</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"oracle_request_id\"]}')} </td> \n                </tr>\n                <!-- Oracle Return Status -->\n                <tr>\n                    <th>Oracle Return Status</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"oracle_return_status\"]}')} </td> \n                </tr>\n                <!-- Total Sites -->\n                <tr>\n                    <th>Total Site(s)</th>\n                    <td>#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"total_sites\"]}')} Supplier Site(s) details has been recorded to Oracle table</td>\n                </tr>\n                <!-- Total Banks -->\n                <tr>\n                    <th>Total Bank(s)</th>\n                    <td>\n                        #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"total_banks\"]}')} Supplier Bank(s) details with \n                        #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"total_intermediate_banks\"]}')} Intermediate Bank(s) has been recorded to Oracle tables\n                    </td>\n                </tr>\n                <!-- Job Completed At -->\n                <tr>\n                    <th>Job Completed At</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"job_completed_at\"]}')}</td> \n                </tr>\n            </tbody>\n        </table>\n    </div>\n#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_template\",\"line\":\"58f11da8\",\"path\":[\"document\"]}')}\n</body>\n</html>",
+                      "subject": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')}- UPDATED Record for Supplier Master Successfully",
+                      "to": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"p_email_recipents\"]}')}"
+                    },
+                    "comment": "Trigger UPDATE SUCCESS Email to Stakeholders",
+                    "uuid": "031c4002-8d1f-407b-853d-ac0e6c8a5b84",
+                    "skip": false
+                  }
+                ],
+                "uuid": "39c7c8cf-4129-499a-b4ea-2e6bb35311a9"
+              }
+            ],
+            "uuid": "3a7b26cc-76b4-44b2-b51e-2a8e8c2ade6f"
+          },
+          {
+            "number": 8,
+            "keyword": "elsif",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"processed_flag\"]}')}",
+                  "rhs": "2",
+                  "uuid": "0a6c7a64-e38e-43c9-900a-a938dc523fdd"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 9,
+                "keyword": "if",
+                "input": {
+                  "type": "compound",
+                  "operand": "and",
+                  "conditions": [
+                    {
+                      "operand": "equals_to",
+                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"RECORD_METHOD\"]}')}",
+                      "rhs": "INSERT",
+                      "uuid": "a09140c2-8c04-45be-91f5-09e821ce4e48"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "number": 10,
+                    "provider": "email",
+                    "name": "send_mail",
+                    "as": "701cede9",
+                    "keyword": "action",
+                    "input": {
+                      "email_type": "html",
+                      "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Supplier Data Status Notification - FAILURE</title>\n    <style>\n        body {\n            font-family: 'Inter', Arial, sans-serif;\n            line-height: 1.6;\n            color: #333;\n            background-color: #f8f9fa; /* Light background */\n            padding: 20px 0;\n        }\n        .container {\n            width: 90%;\n            max-width: 650px;\n            margin: 0 auto;\n            background-color: #ffffff;\n            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);\n            border-radius: 12px;\n            padding: 25px;\n            /* Hardcoded RED border for FAILURE status */\n            border-left: 5px solid #dc3545; \n        }\n        h2 {\n            font-size: 1.5rem;\n            margin-top: 0;\n            margin-bottom: 5px;\n            font-weight: 700;\n        }\n        .main-status-title {\n            /* Hardcoded RED color for FAILURE text */\n            color: #dc3545; \n            font-weight: 700;\n        }\n        .subtitle {\n            font-style: italic;\n            color: #6c757d;\n            margin-bottom: 20px;\n        }\n        table {\n            width: 100%;\n            border-collapse: collapse;\n            margin-top: 25px;\n            border-radius: 8px;\n            overflow: hidden; \n        }\n        th, td {\n            border: 1px solid #dee2e6;\n            padding: 12px 15px;\n            text-align: left;\n        }\n        th {\n            background-color: #e9ecef; /* Light gray background for headers */\n            font-weight: 600;\n            color: #495057;\n            width: 35%; \n        }\n        td {\n            color: #212529;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        \n        <!-- MAIN FAILURE STATUS MESSAGE -->\n        <h2 class=\"main-status-title\">\n            Supplier Master Record Status: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"RECORD_METHOD\"]}')} FAILED.\n        </h2>\n\n        <!-- FAILURE SUB-MESSAGE -->\n        <p class=\"subtitle\">\n            **Action Required:** The corresponding data **failed to synchronize** from Workato to Oracle ERP. Please review the details below.\n        </p>\n        \n        <!-- DETAIL TABLE (Same structure as success, but includes error status) -->\n        <table>\n            <tbody>\n                <!-- Job Started At -->\n                <tr>\n                    <th>Job Started At</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"job_created_at\"]}')} </td> \n                </tr>\n                <!-- Record Type (The primary action that failed) -->\n                <tr>\n                    <th>Record Action</th>\n                    <td> \n                        #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"RECORD_METHOD\"]}')}\n                    </td>\n                </tr>\n                <!-- Vendor ID -->\n                <tr>\n                    <th>Ariba Vendor ID </th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"ariba_vendor_id\"]}')} </td> \n                </tr>\n                <!-- Vendor Name -->\n                <tr>\n                    <th>Vendor Name</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"vendor_name\"]}')}</td> \n                </tr>\n                <!-- Oracle ERP Vendor ID (May be empty/null in failure scenario) -->\n                <tr>\n                    <th>Oracle ERP Vendor ID</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"epr_vendor_id\"]}')} </td> \n                </tr>\n                <!-- Oracle Request ID -->\n                <tr>\n                    <th>Oracle Request ID</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"oracle_request_id\"]}')} </td> \n                </tr>\n                <!-- Oracle Return Status (Crucial for failure diagnosis) -->\n                <tr>\n                    <th>Oracle Return Status</th>\n                    <td style=\"color: #dc3545; font-weight: bold;\"> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"oracle_return_status\"]}')} </td> \n                </tr>\n                <!-- Total Sites -->\n                <tr>\n                    <th>Total Site(s)</th>\n                    <td>#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"total_sites\"]}')} Supplier Site(s) details attempted.</td>\n                </tr>\n                <!-- Total Banks -->\n                <tr>\n                    <th>Total Bank(s)</th>\n                    <td>\n                        #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"total_banks\"]}')} Supplier Bank(s) details with \n                        #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"total_intermediate_banks\"]}')} Intermediate Bank(s) attempted.\n                    </td>\n                </tr>\n                <!-- Job Completed At -->\n                <tr>\n                    <th>Job Failure Time</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"job_completed_at\"]}')}</td> \n                </tr>\n            </tbody>\n        </table>\n    </div>\n#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_template\",\"line\":\"58f11da8\",\"path\":[\"document\"]}')}\n</body>\n</html>",
+                      "subject": "=_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}') + \"- ACTION REQUIRED: Supplier Creation FAILED - \" + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"ariba_vendor_id\"]}')",
+                      "to": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"p_email_recipents\"]}')}"
+                    },
+                    "comment": "Trigger INSERT FAILURE Email to Stakeholders",
+                    "uuid": "a407cbec-6869-4dd5-be45-67b8ee4e8e07",
+                    "skip": false
+                  },
+                  {
+                    "number": 11,
+                    "keyword": "elsif",
+                    "input": {
+                      "type": "compound",
+                      "operand": "and",
+                      "conditions": [
+                        {
+                          "operand": "equals_to",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"RECORD_METHOD\"]}')}",
+                          "rhs": "UPDATE",
+                          "uuid": "f162727c-def7-4251-ae4f-8995e918e827"
+                        }
+                      ]
+                    },
+                    "block": [
+                      {
+                        "number": 12,
+                        "provider": "email",
+                        "name": "send_mail",
+                        "as": "3f94878f",
+                        "keyword": "action",
+                        "input": {
+                          "email_type": "html",
+                          "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Supplier Data Status Notification - FAILURE</title>\n    <style>\n        body {\n            font-family: 'Inter', Arial, sans-serif;\n            line-height: 1.6;\n            color: #333;\n            background-color: #f8f9fa; /* Light background */\n            padding: 20px 0;\n        }\n        .container {\n            width: 90%;\n            max-width: 650px;\n            margin: 0 auto;\n            background-color: #ffffff;\n            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);\n            border-radius: 12px;\n            padding: 25px;\n            /* Hardcoded RED border for FAILURE status */\n            border-left: 5px solid #dc3545; \n        }\n        h2 {\n            font-size: 1.5rem;\n            margin-top: 0;\n            margin-bottom: 5px;\n            font-weight: 700;\n        }\n        .main-status-title {\n            /* Hardcoded RED color for FAILURE text */\n            color: #dc3545; \n            font-weight: 700;\n        }\n        .subtitle {\n            font-style: italic;\n            color: #6c757d;\n            margin-bottom: 20px;\n        }\n        table {\n            width: 100%;\n            border-collapse: collapse;\n            margin-top: 25px;\n            border-radius: 8px;\n            overflow: hidden; \n        }\n        th, td {\n            border: 1px solid #dee2e6;\n            padding: 12px 15px;\n            text-align: left;\n        }\n        th {\n            background-color: #e9ecef; /* Light gray background for headers */\n            font-weight: 600;\n            color: #495057;\n            width: 35%; \n        }\n        td {\n            color: #212529;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        \n        <!-- MAIN FAILURE STATUS MESSAGE -->\n        <h2 class=\"main-status-title\">\n            Supplier Master Record Status: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"RECORD_METHOD\"]}')} FAILED.\n        </h2>\n\n        <!-- FAILURE SUB-MESSAGE -->\n        <p class=\"subtitle\">\n            **Action Required:** The corresponding data **failed to synchronize** from Workato to Oracle ERP. Please review the details below.\n        </p>\n        \n        <!-- DETAIL TABLE (Same structure as success, but includes error status) -->\n        <table>\n            <tbody>\n                <!-- Job Started At -->\n                <tr>\n                    <th>Job Started At</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"job_created_at\"]}')} </td> \n                </tr>\n                <!-- Record Type (The primary action that failed) -->\n                <tr>\n                    <th>Record Action</th>\n                    <td> \n                        #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"RECORD_METHOD\"]}')}\n                    </td>\n                </tr>\n                <!-- Vendor ID -->\n                <tr>\n                    <th>Ariba Vendor ID </th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"ariba_vendor_id\"]}')} </td> \n                </tr>\n                <!-- Vendor Name -->\n                <tr>\n                    <th>Vendor Name</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"vendor_name\"]}')}</td> \n                </tr>\n                <!-- Oracle ERP Vendor ID (May be empty/null in failure scenario) -->\n                <tr>\n                    <th>Oracle ERP Vendor ID</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"epr_vendor_id\"]}')} </td> \n                </tr>\n                <!-- Oracle Request ID -->\n                <tr>\n                    <th>Oracle Request ID</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"oracle_request_id\"]}')} </td> \n                </tr>\n                <!-- Oracle Return Status (Crucial for failure diagnosis) -->\n                <tr>\n                    <th>Oracle Return Status</th>\n                    <td style=\"color: #dc3545; font-weight: bold;\"> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"oracle_return_status\"]}')} </td> \n                </tr>\n                <!-- Total Sites -->\n                <tr>\n                    <th>Total Site(s)</th>\n                    <td>#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"total_sites\"]}')} Supplier Site(s) details attempted.</td>\n                </tr>\n                <!-- Total Banks -->\n                <tr>\n                    <th>Total Bank(s)</th>\n                    <td>\n                        #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"total_banks\"]}')} Supplier Bank(s) details with \n                        #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"total_intermediate_banks\"]}')} Intermediate Bank(s) attempted.\n                    </td>\n                </tr>\n                <!-- Job Completed At -->\n                <tr>\n                    <th>Job Failure Time</th>\n                    <td> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"job_completed_at\"]}')}</td> \n                </tr>\n            </tbody>\n        </table>\n    </div>\n#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_template\",\"line\":\"58f11da8\",\"path\":[\"document\"]}')}\n</body>\n</html>",
+                          "subject": "=_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}') + \" - ACTION REQUIRED: Supplier Updation FAILED - \" + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"ariba_vendor_id\"]}')",
+                          "to": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"p_email_recipents\"]}')}"
+                        },
+                        "comment": "Trigger UPDATE FAILURE Email to Stakeholders",
+                        "uuid": "e8e8c6c2-b44b-4f0e-aed5-93cc0528ced9",
+                        "skip": false
+                      }
+                    ],
+                    "uuid": "2f2742db-1f22-4285-9496-3f833e458368"
+                  }
+                ],
+                "uuid": "ba364e61-1101-4033-bc58-a4312147f1fb"
+              }
+            ],
+            "comment": "In Case of - ANY  Oracle Package ERROR",
+            "uuid": "3ee07220-117b-4726-a341-ca65f8bf37f5",
+            "skip": false
+          }
+        ],
+        "comment": "IF SUCCESS",
+        "uuid": "68974606-8e14-4500-aed6-adbfbb67e2b8",
+        "skip": false
+      },
+      {
+        "number": 13,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "dbff2d5b",
+        "keyword": "action",
+        "input": {
+        },
+        "uuid": "10607ce5-b9b5-47a9-86ec-e52d75195c08"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_0",
+        "label": "Ariba Vendor ID"
+      },
+      {
+        "name": "custom_column_1",
+        "label": "Vendor Name"
+      },
+      {
+        "name": "custom_column_2",
+        "label": "Insert/Update"
+      },
+      {
+        "name": "custom_column_3",
+        "label": "Processed Flag"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"ariba_vendor_id\"]}')}",
+      "custom_column_1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"vendor_name\"]}')}",
+      "custom_column_2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"RECORD_METHOD\"]}')}",
+      "custom_column_3": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"processed_flag\"]}')}"
+    },
+    "uuid": "0fc4d9b4-76c6-4bca-b851-ab14d67e93fc"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "email",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "oracle",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection/s2p_con_qa_xxrhfin.connection.json",
+        "name": "S2P | CON | QA | XXRHFIN",
+        "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_template",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ],
+  "tags": [
+    "QA"
+  ]
+}
