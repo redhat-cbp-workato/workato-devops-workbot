@@ -1,0 +1,1080 @@
+{
+  "name": "FUNC | Custom Scheduler | Inactive Supplier Workflow",
+  "description": "",
+  "version": 6,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "77ec7229",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"smVendorId\",\"type\":\"string\",\"optional\":false,\"label\":\"smVendorId\",\"control_type\":\"text\"}]",
+      "result_schema_json": "[{\"label\":\"Vendor details\",\"of\":\"object\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Supplier name\",\"type\":\"string\",\"name\":\"supplierName\",\"optional\":true},{\"control_type\":\"text\",\"label\":\"Erp vendor ID\",\"type\":\"string\",\"name\":\"erpVendorId\",\"optional\":true},{\"control_type\":\"text\",\"label\":\"Sm vendor ID\",\"type\":\"string\",\"name\":\"smVendorId\",\"optional\":true},{\"control_type\":\"text\",\"label\":\"Registration status\",\"type\":\"string\",\"name\":\"registrationStatus\",\"optional\":true},{\"control_type\":\"text\",\"label\":\"Qualification status\",\"type\":\"string\",\"name\":\"qualificationStatus\",\"optional\":true},{\"control_type\":\"text\",\"label\":\"Erp int status\",\"type\":\"string\",\"name\":\"erpIntStatus\",\"optional\":true},{\"control_type\":\"number\",\"label\":\"Time updated\",\"type\":\"number\",\"name\":\"timeUpdated\",\"optional\":true,\"parse_output\":\"float_conversion\",\"render_input\":\"float_conversion\"},{\"control_type\":\"number\",\"label\":\"Time created\",\"type\":\"number\",\"name\":\"timeCreated\",\"optional\":true,\"parse_output\":\"float_conversion\",\"render_input\":\"float_conversion\"}],\"type\":\"array\",\"name\":\"vendorDetails\",\"optional\":true}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "smVendorId",
+            "name": "smVendorId",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 2,
+            "provider": "rest",
+            "name": "make_request_v2",
+            "as": "dbeb5141",
+            "keyword": "action",
+            "toggleCfg": {
+              "response.ignore_http_errors": true,
+              "disable_retries": true
+            },
+            "input": {
+              "request_name": "GET Inactive Suppliers",
+              "request": {
+                "method": "POST",
+                "content_type": "json",
+                "headers": [
+                  {
+                    "header": "APIKEY",
+                    "value": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"SupplierDataPaginationAPIKEY\"}')}"
+                  }
+                ],
+                "url": "=\"https://openapi.ariba.com/api/supplierdatapagination/v4/prod/inactiveVendorDataRequests/?realm=\" + _dp('{\"pill_type\":\"project_property\",\"property_name\":\"realm\"}')",
+                "request_body_schema": "[{\"label\":\"smVendorIds\",\"type\":\"array\",\"name\":\"smVendorIds\",\"details\":{\"real_name\":\"supplierIds\"},\"of\":\"string\",\"optional\":true},{\"control_type\":\"number\",\"label\":\"Inactive from\",\"type\":\"number\",\"name\":\"inactiveFrom\",\"details\":{\"real_name\":\"inactiveFrom\"},\"optional\":true,\"parse_output\":\"float_conversion\",\"render_input\":\"float_conversion\"},{\"control_type\":\"number\",\"label\":\"Inactive to\",\"type\":\"number\",\"name\":\"inactiveTo\",\"details\":{\"real_name\":\"inactiveTo\"},\"optional\":true,\"parse_output\":\"float_conversion\",\"render_input\":\"float_conversion\"},{\"control_type\":\"text\",\"label\":\"Request ID\",\"type\":\"string\",\"name\":\"requestId\",\"details\":{\"real_name\":\"requestId\"},\"optional\":true}]",
+                "body": {
+                  "smVendorIds": "=[_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"77ec7229\",\"path\":[\"parameters\",\"smVendorId\"]}')]",
+                  "inactiveFrom": "="
+                }
+              },
+              "response": {
+                "output_type": "json",
+                "expected_encoding": "UTF-8",
+                "ignore_http_errors": "false",
+                "response_schema": "[{\"label\":\"Vendor details\",\"of\":\"object\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Supplier name\",\"type\":\"string\",\"name\":\"supplierName\"},{\"control_type\":\"text\",\"label\":\"Name 2\",\"type\":\"string\",\"name\":\"name2\"},{\"control_type\":\"text\",\"label\":\"Name 3\",\"type\":\"string\",\"name\":\"name3\"},{\"control_type\":\"text\",\"label\":\"Name 4\",\"type\":\"string\",\"name\":\"name4\"},{\"control_type\":\"text\",\"label\":\"Erp vendor ID\",\"type\":\"string\",\"name\":\"erpVendorId\"},{\"control_type\":\"text\",\"label\":\"Sm vendor ID\",\"type\":\"string\",\"name\":\"smVendorId\"},{\"control_type\":\"text\",\"label\":\"Acm ID\",\"type\":\"string\",\"name\":\"acmId\"},{\"control_type\":\"text\",\"label\":\"An ID\",\"type\":\"string\",\"name\":\"anId\"},{\"control_type\":\"text\",\"label\":\"Registration status\",\"type\":\"string\",\"name\":\"registrationStatus\"},{\"control_type\":\"text\",\"label\":\"Qualification status\",\"type\":\"string\",\"name\":\"qualificationStatus\"},{\"control_type\":\"text\",\"label\":\"Erp int status\",\"type\":\"string\",\"name\":\"erpIntStatus\"},{\"control_type\":\"number\",\"label\":\"Time updated\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"timeUpdated\"},{\"control_type\":\"number\",\"label\":\"Time created\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"timeCreated\"}],\"type\":\"array\",\"name\":\"vendorDetails\"}]"
+              },
+              "wait_for_response": "false",
+              "disable_retries": "false"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Headers",
+                "name": "headers",
+                "properties": [
+
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Response",
+                "name": "response",
+                "properties": [
+                  {
+                    "label": "Vendor details",
+                    "type": "array",
+                    "name": "vendorDetails",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Supplier name",
+                        "type": "string",
+                        "name": "supplierName"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Name 2",
+                        "type": "string",
+                        "name": "name2"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Name 3",
+                        "type": "string",
+                        "name": "name3"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Name 4",
+                        "type": "string",
+                        "name": "name4"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Erp vendor ID",
+                        "type": "string",
+                        "name": "erpVendorId"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Sm vendor ID",
+                        "type": "string",
+                        "name": "smVendorId"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Acm ID",
+                        "type": "string",
+                        "name": "acmId"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "An ID",
+                        "type": "string",
+                        "name": "anId"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Registration status",
+                        "type": "string",
+                        "name": "registrationStatus"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Qualification status",
+                        "type": "string",
+                        "name": "qualificationStatus"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Erp int status",
+                        "type": "string",
+                        "name": "erpIntStatus"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Time updated",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "timeUpdated"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Time created",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "timeCreated"
+                      }
+                    ]
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Request",
+                "name": "request",
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "select",
+                    "label": "Method",
+                    "pick_list": [
+                      [
+                        "GET",
+                        "GET"
+                      ],
+                      [
+                        "POST",
+                        "POST"
+                      ],
+                      [
+                        "PUT",
+                        "PUT"
+                      ],
+                      [
+                        "DELETE",
+                        "DELETE"
+                      ],
+                      [
+                        "HEAD",
+                        "HEAD"
+                      ],
+                      [
+                        "PATCH",
+                        "PATCH"
+                      ]
+                    ],
+                    "hint": "Select a HTTP method",
+                    "default": "GET",
+                    "type": "string",
+                    "name": "method"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Request URL",
+                    "check_secrets": true,
+                    "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
+                    "placeholder": "https://api.example.com/v1/leads",
+                    "type": "string",
+                    "name": "url"
+                  },
+                  {
+                    "control_type": "select",
+                    "label": "Request content type",
+                    "extends_schema": true,
+                    "pick_list": [
+                      [
+                        "JSON request body",
+                        "json"
+                      ],
+                      [
+                        "Raw JSON request body",
+                        "application/json"
+                      ],
+                      [
+                        "XML",
+                        "application/xml"
+                      ],
+                      [
+                        "Text",
+                        "text/plain"
+                      ],
+                      [
+                        "URL encoded form",
+                        "application/x-www-form-urlencoded"
+                      ],
+                      [
+                        "Binary",
+                        "application/octet-stream"
+                      ],
+                      [
+                        "Multipart form",
+                        "multipart/form-data"
+                      ]
+                    ],
+                    "hint": "The API endpoint documentation should define what data it expects",
+                    "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
+                    "optional": true,
+                    "default": "application/json",
+                    "type": "string",
+                    "name": "content_type"
+                  },
+                  {
+                    "label": "Request body",
+                    "control_type": "key_value",
+                    "optional": true,
+                    "empty_list_title": "Does this HTTP request require form data?",
+                    "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
+                    "item_label": "Form data",
+                    "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Key",
+                        "type": "string",
+                        "name": "param"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "form_body"
+                  },
+                  {
+                    "label": "Request parts",
+                    "optional": true,
+                    "item_label": "Part",
+                    "ngIf": "input.request.content_type === 'multipart/mixed' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "label": "Headers",
+                        "optional": true,
+                        "sticky": true,
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Header name",
+                            "optional": false,
+                            "type": "string",
+                            "name": "name"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Value",
+                            "optional": true,
+                            "sticky": true,
+                            "type": "string",
+                            "name": "value"
+                          }
+                        ],
+                        "type": "array",
+                        "name": "headers"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Raw body",
+                        "optional": true,
+                        "hint": "Raw content of the part",
+                        "type": "string",
+                        "name": "body"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "parts"
+                  },
+                  {
+                    "label": "Request URL parameters",
+                    "control_type": "key_value",
+                    "check_secrets": true,
+                    "optional": true,
+                    "empty_list_title": "Does this HTTP request contain a query string?",
+                    "empty_list_text": "Add URL parameters to the query string",
+                    "item_label": "URL parameter",
+                    "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Parameter name",
+                        "type": "string",
+                        "name": "param"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "parameters"
+                  },
+                  {
+                    "label": "Request headers",
+                    "control_type": "key_value",
+                    "optional": true,
+                    "check_secrets": true,
+                    "empty_list_title": "Does this HTTP request require headers?",
+                    "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                    "item_label": "Header",
+                    "sticky": true,
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Header name",
+                        "type": "string",
+                        "name": "header"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "headers"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Request body schema",
+                    "sample_data_type": "json_input",
+                    "add_field_label": "Add json field",
+                    "empty_schema_title": "Provide JSON input.",
+                    "extends_schema": true,
+                    "change_on_blur": true,
+                    "optional": true,
+                    "sticky": true,
+                    "ngIf": "(input.request.content_type == 'json' || input.request.content_type == 'multipart/form-data' || input.request.content_type === 'json') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                    "hint": "Use this to define the JSON input.",
+                    "schema_field_name_regex": [
+                      "\\S",
+                      "Field name should not be empty"
+                    ],
+                    "type": "string",
+                    "name": "request_body_schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "label": "smVendorIds",
+                        "type": "array",
+                        "name": "smVendorIds",
+                        "details": {
+                          "real_name": "supplierIds"
+                        },
+                        "optional": true,
+                        "of": "string",
+                        "sticky": false
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Inactive from",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "inactiveFrom",
+                        "details": {
+                          "real_name": "inactiveFrom"
+                        },
+                        "optional": true,
+                        "render_input": "float_conversion",
+                        "sticky": false
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Inactive to",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "inactiveTo",
+                        "details": {
+                          "real_name": "inactiveTo"
+                        },
+                        "optional": true,
+                        "render_input": "float_conversion",
+                        "sticky": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Request ID",
+                        "type": "string",
+                        "name": "requestId",
+                        "details": {
+                          "real_name": "requestId"
+                        },
+                        "optional": true,
+                        "sticky": false
+                      }
+                    ],
+                    "label": "Request body",
+                    "type": "object",
+                    "name": "body",
+                    "sticky": false
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Response",
+                "name": "response",
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "select",
+                    "label": "Response content type",
+                    "pick_list": [
+                      [
+                        "Text",
+                        "rawdatatxt"
+                      ],
+                      [
+                        "Binary",
+                        "rawdata"
+                      ],
+                      [
+                        "JSON",
+                        "json"
+                      ],
+                      [
+                        "XML",
+                        "xml2"
+                      ]
+                    ],
+                    "hint": "Select expected format of data response type, e.g. JSON or XML. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "default": "json",
+                    "extends_schema": true,
+                    "type": "string",
+                    "name": "output_type"
+                  },
+                  {
+                    "control_type": "select",
+                    "label": "Encoding",
+                    "pick_list": "supported_encodings_without_binary_global_pick_list",
+                    "pick_list_connection_less": true,
+                    "optional": true,
+                    "default": "UTF-8",
+                    "hint": "Default encoding type is set to UTF-8, and typically doesn't need to be changed. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "type": "string",
+                    "name": "expected_encoding"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Response schema",
+                    "sample_data_type": "json_http",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all fields in your response.",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "response_schema"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "HTTP response headers",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all the response headers",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "headers_schema"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Multipart part headers",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe headers within each multipart part",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Define the headers that appear in each part of the multipart response (e.g., Content-Type, Content-ID)",
+                    "ngIf": "input.response.output_type == 'multipart'",
+                    "type": "string",
+                    "name": "part_headers_schema"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Mark non-2xx response codes as success?",
+                    "default": "false",
+                    "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                    "optional": true,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Mark non-2xx response codes as success?",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "default": false,
+                      "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                      "optional": true,
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "ignore_http_errors"
+                    },
+                    "type": "boolean",
+                    "name": "ignore_http_errors"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "comment": "Check Vendor is Inactive!",
+            "uuid": "043fc016-6624-4a9a-b377-0d09d360ecd0",
+            "wizardFinished": true
+          },
+          {
+            "number": 3,
+            "provider": "json_parser",
+            "name": "parse_json",
+            "as": "ceb47ea8",
+            "keyword": "action",
+            "input": {
+              "sample_document": "{\n  \"vendorDetails\": [\n    {\n      \"supplierName\": null,\n      \"erpVendorId\": \"VDR138905\",\n      \"smVendorId\": \"S76947036\",\n      \"registrationStatus\": \"NotInvited\",\n      \"qualificationStatus\": \"Unknown\",\n      \"erpIntStatus\": \"NotIntegrated\",\n      \"timeUpdated\": 1762361087339,\n      \"timeCreated\": 1762361043804\n    }\n  ]\n}\n",
+              "document": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"dbeb5141\",\"path\":[\"body\"]}')}"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Document",
+                "name": "document",
+                "properties": [
+                  {
+                    "label": "Vendor details",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Supplier name",
+                        "type": "string",
+                        "name": "supplierName"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Erp vendor ID",
+                        "type": "string",
+                        "name": "erpVendorId"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Sm vendor ID",
+                        "type": "string",
+                        "name": "smVendorId"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Registration status",
+                        "type": "string",
+                        "name": "registrationStatus"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Qualification status",
+                        "type": "string",
+                        "name": "qualificationStatus"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Erp int status",
+                        "type": "string",
+                        "name": "erpIntStatus"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Time updated",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "timeUpdated"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Time created",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "timeCreated"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "vendorDetails"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Edit schema",
+                "name": "edit_schema",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "multiselect",
+                    "label": "Override fields",
+                    "pick_list": [
+                      [
+                        "document > vendorDetails > supplierName",
+                        "document__sep__vendorDetails__sep__supplierName"
+                      ],
+                      [
+                        "document > vendorDetails > erpVendorId",
+                        "document__sep__vendorDetails__sep__erpVendorId"
+                      ],
+                      [
+                        "document > vendorDetails > smVendorId",
+                        "document__sep__vendorDetails__sep__smVendorId"
+                      ],
+                      [
+                        "document > vendorDetails > registrationStatus",
+                        "document__sep__vendorDetails__sep__registrationStatus"
+                      ],
+                      [
+                        "document > vendorDetails > qualificationStatus",
+                        "document__sep__vendorDetails__sep__qualificationStatus"
+                      ],
+                      [
+                        "document > vendorDetails > erpIntStatus",
+                        "document__sep__vendorDetails__sep__erpIntStatus"
+                      ],
+                      [
+                        "document > vendorDetails > timeUpdated",
+                        "document__sep__vendorDetails__sep__timeUpdated"
+                      ],
+                      [
+                        "document > vendorDetails > timeCreated",
+                        "document__sep__vendorDetails__sep__timeCreated"
+                      ]
+                    ],
+                    "optional": true,
+                    "extends_schema": true,
+                    "type": "string",
+                    "name": "override_fields_picklist"
+                  }
+                ],
+                "sticky": false,
+                "type": "object"
+              }
+            ],
+            "uuid": "d8deb091-5b16-4b40-9091-1cd15c72eba9"
+          },
+          {
+            "number": 4,
+            "as": "5bcc4f4f",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "3",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 5,
+                "provider": "workato_recipe_function",
+                "name": "call_recipe_async",
+                "as": "a91cfb9b",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "flow_id": "SAP ARIBA | Error Handling Recipe"
+                },
+                "input": {
+                  "flow_id": {
+                    "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | Error Handling/sap_ariba_error_handling_recipe.recipe.json",
+                    "name": "SAP ARIBA | Error Handling Recipe",
+                    "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | Error Handling"
+                  },
+                  "parameters": {
+                    "recipe_name": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_name\"]}')}",
+                    "recipe_url": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_url\"]}')}",
+                    "error_step_no": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"5bcc4f4f\",\"path\":[\"line_number\"]}')}",
+                    "error_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"5bcc4f4f\",\"path\":[\"http_response\",\"code\"]}')}",
+                    "error_message": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"5bcc4f4f\",\"path\":[\"message\"]}')}",
+                    "job_link": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_url\"]}')}",
+                    "job_failed_at": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"5bcc4f4f\",\"path\":[\"error_at\"]}')}"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "label": "Parameters",
+                    "name": "parameters",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "recipe_name",
+                        "name": "recipe_name",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "recipe_url",
+                        "name": "recipe_url",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "error_step_no",
+                        "parse_output": "integer_conversion",
+                        "name": "error_step_no",
+                        "type": "integer",
+                        "optional": true,
+                        "render_input": "integer_conversion"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "error_code",
+                        "parse_output": "integer_conversion",
+                        "name": "error_code",
+                        "type": "integer",
+                        "optional": true,
+                        "render_input": "integer_conversion"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "error_message",
+                        "name": "error_message",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "affected_oracle_table_name",
+                        "name": "affected_oracle_table_name",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "job_link",
+                        "name": "job_link",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "job_failed_at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "name": "job_failed_at",
+                        "type": "date_time",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "file_name",
+                        "name": "file_name",
+                        "type": "string",
+                        "optional": true
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "flow_id",
+                  "parameters.recipe_name",
+                  "parameters.recipe_url",
+                  "parameters.error_step_no",
+                  "parameters.error_code",
+                  "parameters.error_message",
+                  "parameters.job_link",
+                  "parameters.job_failed_at"
+                ],
+                "uuid": "c388f4ef-7023-413c-b6c9-af89e4d2b157"
+              }
+            ],
+            "uuid": "c7946ce8-9e03-4def-8450-fa551a9bba3d"
+          }
+        ],
+        "uuid": "ba9e3c9e-1b1c-44bf-adb1-fd332f07363d"
+      },
+      {
+        "number": 6,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "25632947",
+        "keyword": "action",
+        "input": {
+          "result": {
+            "vendorDetails": {
+              "supplierName": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"ceb47ea8\",\"path\":[\"document\",\"vendorDetails\",{\"path_element_type\":\"current_item\"},\"supplierName\"]}')}",
+              "erpVendorId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"ceb47ea8\",\"path\":[\"document\",\"vendorDetails\",{\"path_element_type\":\"current_item\"},\"erpVendorId\"]}')}",
+              "smVendorId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"ceb47ea8\",\"path\":[\"document\",\"vendorDetails\",{\"path_element_type\":\"current_item\"},\"smVendorId\"]}')}",
+              "registrationStatus": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"ceb47ea8\",\"path\":[\"document\",\"vendorDetails\",{\"path_element_type\":\"current_item\"},\"registrationStatus\"]}')}",
+              "qualificationStatus": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"ceb47ea8\",\"path\":[\"document\",\"vendorDetails\",{\"path_element_type\":\"current_item\"},\"qualificationStatus\"]}')}",
+              "erpIntStatus": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"ceb47ea8\",\"path\":[\"document\",\"vendorDetails\",{\"path_element_type\":\"current_item\"},\"erpIntStatus\"]}')}",
+              "timeUpdated": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"ceb47ea8\",\"path\":[\"document\",\"vendorDetails\",{\"path_element_type\":\"current_item\"},\"timeUpdated\"]}')}",
+              "timeCreated": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"ceb47ea8\",\"path\":[\"document\",\"vendorDetails\",{\"path_element_type\":\"current_item\"},\"timeCreated\"]}')}"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "label": "Vendor details",
+                "type": "array",
+                "name": "vendorDetails",
+                "optional": true,
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Supplier name",
+                    "type": "string",
+                    "name": "supplierName",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Erp vendor ID",
+                    "type": "string",
+                    "name": "erpVendorId",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Sm vendor ID",
+                    "type": "string",
+                    "name": "smVendorId",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Registration status",
+                    "type": "string",
+                    "name": "registrationStatus",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Qualification status",
+                    "type": "string",
+                    "name": "qualificationStatus",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Erp int status",
+                    "type": "string",
+                    "name": "erpIntStatus",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "Time updated",
+                    "parse_output": "float_conversion",
+                    "type": "number",
+                    "name": "timeUpdated",
+                    "optional": true,
+                    "render_input": "float_conversion"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "Time created",
+                    "parse_output": "float_conversion",
+                    "type": "number",
+                    "name": "timeCreated",
+                    "optional": true,
+                    "render_input": "float_conversion"
+                  }
+                ]
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "label": "Vendor details",
+                "type": "array",
+                "name": "vendorDetails",
+                "optional": true,
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Supplier name",
+                    "type": "string",
+                    "name": "supplierName",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Erp vendor ID",
+                    "type": "string",
+                    "name": "erpVendorId",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Sm vendor ID",
+                    "type": "string",
+                    "name": "smVendorId",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Registration status",
+                    "type": "string",
+                    "name": "registrationStatus",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Qualification status",
+                    "type": "string",
+                    "name": "qualificationStatus",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Erp int status",
+                    "type": "string",
+                    "name": "erpIntStatus",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "Time updated",
+                    "parse_output": "float_conversion",
+                    "type": "number",
+                    "name": "timeUpdated",
+                    "optional": true,
+                    "render_input": "float_conversion"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "Time created",
+                    "parse_output": "float_conversion",
+                    "type": "number",
+                    "name": "timeCreated",
+                    "optional": true,
+                    "render_input": "float_conversion"
+                  }
+                ]
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "result.vendorDetails.supplierName",
+          "result.vendorDetails.erpVendorId",
+          "result.vendorDetails.smVendorId",
+          "result.vendorDetails.registrationStatus",
+          "result.vendorDetails.qualificationStatus",
+          "result.vendorDetails.erpIntStatus",
+          "result.vendorDetails.timeUpdated",
+          "result.vendorDetails.timeCreated"
+        ],
+        "uuid": "f88ac3cb-1f2a-4646-87eb-eac05db91997"
+      }
+    ],
+    "comment": "Parameter - Ariba Vendor ID",
+    "job_report_schema": [
+      {
+        "name": "custom_column_0",
+        "label": "Ariba Vendor ID"
+      },
+      {
+        "name": "custom_column_1",
+        "label": "Supplier Name"
+      },
+      {
+        "name": "custom_column_2",
+        "label": "Inactive Date"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"77ec7229\",\"path\":[\"parameters\",\"smVendorId\"]}')}",
+      "custom_column_1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"ceb47ea8\",\"path\":[\"document\",\"vendorDetails\",{\"path_element_type\":\"current_item\"},\"supplierName\"]}')}",
+      "custom_column_2": "=_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"ceb47ea8\",\"path\":[\"document\",\"vendorDetails\",{\"path_element_type\":\"current_item\"},\"timeUpdated\"]}') ? ((_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"ceb47ea8\",\"path\":[\"document\",\"vendorDetails\",{\"path_element_type\":\"current_item\"},\"timeUpdated\"]}')).to_i/1000).to_time.strftime(\"%d-%m-%Y\") : null"
+    },
+    "uuid": "99174eb4-504f-4159-b61c-49fa0f631819"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "rest",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection/s2p_con_supplierdataapiwithpagination.connection.json",
+        "name": "S2P | CON | SupplierDataAPIWithPagination",
+        "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "json_parser",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ],
+  "tags": [
+    "QA"
+  ]
+}
