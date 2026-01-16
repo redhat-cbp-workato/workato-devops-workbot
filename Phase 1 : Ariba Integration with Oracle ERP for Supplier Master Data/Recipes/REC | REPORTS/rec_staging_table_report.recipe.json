@@ -1,0 +1,425 @@
+{
+  "name": "REC | Staging Table Report",
+  "description": "",
+  "version": 3,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "clock",
+    "name": "scheduled_event",
+    "as": "4edb9b52",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "time_unit": "Hours"
+    },
+    "input": {
+      "time_unit": "hours",
+      "trigger_every": "6"
+    },
+    "extended_input_schema": [
+      {
+        "control_type": "integer",
+        "default": "5",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Define repeating schedule. Enter whole numbers only.\n                        This field can be set to a minimum of 5 minutes.",
+        "label": "Trigger every",
+        "name": "trigger_every",
+        "optional": false,
+        "suffix": {
+          "text": "hours"
+        },
+        "type": "string"
+      },
+      {
+        "control_type": "select",
+        "hint": "Select the timezone to use. Leave it blank to use <b>{{authUser.account_timezone}}</b>",
+        "label": "Timezone",
+        "name": "timezone",
+        "optional": true,
+        "pick_list": "timezone_id_global_pick_list",
+        "pick_list_connection_less": true,
+        "type": "string"
+      },
+      {
+        "control_type": "date_time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set date and time to start or leave blank to start immediately. <b>Once recipe has been run or tested, value cannot be changed.</b>",
+        "label": "Start after",
+        "name": "start_after",
+        "optional": true,
+        "parse_output": "date_time_conversion",
+        "since_field": true,
+        "type": "date_time",
+        "ignore_timezone": true,
+        "render_input": "date_time_conversion"
+      }
+    ],
+    "visible_config_fields": [
+      "time_unit",
+      "trigger_every",
+      "start_after"
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "oracle",
+        "name": "run_custom_sql",
+        "as": "bfe63d3d",
+        "keyword": "action",
+        "toggleCfg": {
+          "update_only": true
+        },
+        "input": {
+          "update_only": "false",
+          "sql": "select distinct INTERFACE_ERROR, RECIPE_ID, VENDOR_NAME, RECORD_METHOD, CREATION_DATE, INTERFACE_STATUS,ARIBA_VENDOR_ID,VENDOR_ID,  INTERFACE_ID, VENDOR_SITE_CODE\n\tfrom XXRHFIN.XXRH_SUPPLIER_IMPORT_ALTER_STG where INTERFACE_ERROR is not null and CREATION_DATE > sysdate -1 and ROWNUM <= :Rownum order by CREATION_DATE DESC",
+          "output_schema": "[{\"control_type\":\"text\",\"label\":\"Recipe ID\",\"type\":\"string\",\"name\":\"recipe_id\"},{\"control_type\":\"text\",\"label\":\"Record method\",\"type\":\"string\",\"name\":\"record_method\"},{\"control_type\":\"text\",\"label\":\"Ariba vendor ID\",\"type\":\"string\",\"name\":\"ariba_vendor_id\"},{\"control_type\":\"text\",\"label\":\"Vendor name\",\"type\":\"string\",\"name\":\"vendor_name\"},{\"control_type\":\"text\",\"label\":\"Creation date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"creation_date\"},{\"control_type\":\"text\",\"label\":\"Interface status\",\"type\":\"string\",\"name\":\"interface_status\"},{\"control_type\":\"text\",\"label\":\"Interface error\",\"type\":\"string\",\"name\":\"interface_error\"},{\"control_type\":\"text\",\"label\":\"Vendor ID\",\"type\":\"string\",\"name\":\"vendor_id\"},{\"control_type\":\"number\",\"label\":\"Workatorownum\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"workatorownum\"},{\"name\":\"interface_id\",\"type\":\"string\",\"optional\":true,\"label\":\"interface_id\",\"control_type\":\"text\"},{\"name\":\"vendor_site_code\",\"type\":\"string\",\"optional\":true,\"label\":\"vendor_site_code\",\"control_type\":\"text\"}]",
+          "parameters": {
+            "schema": "[{\"name\":\"Rownum\",\"type\":\"integer\",\"optional\":true,\"label\":\"Rownum\",\"details\":{\"real_name\":\"Rownum\"},\"control_type\":\"integer\"}]",
+            "data": {
+              "Rownum": "20"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Rows",
+            "name": "rows",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "recipe_id",
+                "type": "string",
+                "name": "recipe_id"
+              },
+              {
+                "control_type": "text",
+                "label": "record_method",
+                "type": "string",
+                "name": "record_method"
+              },
+              {
+                "control_type": "text",
+                "label": "ariba_vendor_id",
+                "type": "string",
+                "name": "ariba_vendor_id"
+              },
+              {
+                "control_type": "text",
+                "label": "vendor_name",
+                "type": "string",
+                "name": "vendor_name"
+              },
+              {
+                "control_type": "text",
+                "label": "creation_date",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "type": "date_time",
+                "name": "creation_date"
+              },
+              {
+                "control_type": "text",
+                "label": "interface_status",
+                "type": "string",
+                "name": "interface_status"
+              },
+              {
+                "control_type": "text",
+                "label": "interface_error",
+                "type": "string",
+                "name": "interface_error"
+              },
+              {
+                "control_type": "text",
+                "label": "vendor_id",
+                "type": "string",
+                "name": "vendor_id"
+              },
+              {
+                "control_type": "number",
+                "label": "workatorownum",
+                "parse_output": "float_conversion",
+                "type": "number",
+                "name": "workatorownum"
+              },
+              {
+                "control_type": "text",
+                "label": "interface_id",
+                "name": "interface_id",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "vendor_site_code",
+                "name": "vendor_site_code",
+                "type": "string",
+                "optional": true
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "control_type": "number",
+            "label": "Rows affected",
+            "name": "rows_affected",
+            "parse_output": "integer_conversion",
+            "type": "integer"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "form-schema-builder",
+            "hint": "First provide the full name assigned to your bind variable in the WHERE condition. e.g. <b>id</b>\n                    Second, provide the actual parameter value. Parameter values can be static or datapills.\n                    Select the <b>closest corresponding data type</b> that your database is expecting for the bind variable\n                    This feature requires OPA version 2.7.3 or newer",
+            "label": "Parameters",
+            "name": "parameters",
+            "optional": true,
+            "override": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "integer",
+                    "label": "Rownum",
+                    "parse_output": "integer_conversion",
+                    "name": "Rownum",
+                    "type": "integer",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Rownum"
+                    }
+                  }
+                ],
+                "label": "Data",
+                "optional": true,
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "sticky": true,
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "sql",
+          "update_only",
+          "parameters",
+          "output_schema",
+          "parameters.data.Rownum"
+        ],
+        "uuid": "bec25dc7-6889-4274-8a48-770e2e4c8199"
+      },
+      {
+        "number": 2,
+        "provider": "workato_template",
+        "name": "create_document",
+        "as": "34b4bcb1",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "template_id": "[S2P] Oracle Staging Report"
+        },
+        "input": {
+          "template_id": {
+            "zip_name": "s2p_oracle_staging_report.workato_template.json",
+            "name": "[S2P] Oracle Staging Report",
+            "folder": ""
+          },
+          "template_input": {
+            "Rows": {
+              "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"bfe63d3d\",\"path\":[\"rows\"]}')}",
+              "RECORD_METHOD": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"bfe63d3d\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"record_method\"]}')}",
+              "VENDOR_NAME": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"bfe63d3d\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"vendor_name\"]}')}",
+              "CREATION_DATE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"bfe63d3d\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"creation_date\"]}')}",
+              "INTERFACE_STATUS": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"bfe63d3d\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"interface_status\"]}')}",
+              "INTERFACE_ERROR": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"bfe63d3d\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"interface_error\"]}')}",
+              "ARIBA_VENDOR_ID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"bfe63d3d\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"ariba_vendor_id\"]}')}",
+              "RECIPE_ID": "=_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"bfe63d3d\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"recipe_id\"]}').floor(0)",
+              "INTERFACE_ID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"bfe63d3d\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"interface_id\"]}')}",
+              "serialNo": "=_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"bfe63d3d\",\"path\":[\"rows\",{\"path_element_type\":\"current_index\"}]}') + 1",
+              "VENDOR_SITE_CODE": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"bfe63d3d\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"vendor_site_code\"]}')}"
+            }
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Template input",
+            "name": "template_input",
+            "properties": [
+              {
+                "label": "Rows",
+                "name": "Rows",
+                "type": "array",
+                "optional": false,
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "integer",
+                    "label": "serialNo",
+                    "parse_output": "integer_conversion",
+                    "name": "serialNo",
+                    "type": "integer",
+                    "optional": true,
+                    "render_input": "integer_conversion"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "INTERFACE_ID",
+                    "name": "INTERFACE_ID",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "RECORD_METHOD",
+                    "name": "RECORD_METHOD",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "VENDOR_NAME",
+                    "name": "VENDOR_NAME",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "date",
+                    "label": "CREATION_DATE",
+                    "render_input": "date_conversion",
+                    "parse_output": "date_conversion",
+                    "name": "CREATION_DATE",
+                    "type": "date_time",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "INTERFACE_STATUS",
+                    "name": "INTERFACE_STATUS",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "INTERFACE_ERROR",
+                    "name": "INTERFACE_ERROR",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ARIBA_VENDOR_ID",
+                    "name": "ARIBA_VENDOR_ID",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "RECIPE_ID",
+                    "name": "RECIPE_ID",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "VENDOR_SITE_CODE",
+                    "name": "VENDOR_SITE_CODE",
+                    "type": "string",
+                    "optional": true
+                  }
+                ]
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "template_id",
+          "template_input",
+          "template_input.Rows",
+          "template_input.Rows.RECORD_METHOD",
+          "template_input.Rows.VENDOR_NAME",
+          "template_input.Rows.CREATION_DATE",
+          "template_input.Rows.INTERFACE_STATUS",
+          "template_input.Rows.INTERFACE_ERROR",
+          "template_input.Rows.ARIBA_VENDOR_ID",
+          "template_input.Rows.RECIPE_ID",
+          "template_input.Rows.VENDOR_ID",
+          "template_input.Rows.SerialNo",
+          "template_input.Rows.INTERFACE_ID",
+          "template_input.Rows.serialNo",
+          "template_input.Rows.VENDOR_SITE_CODE"
+        ],
+        "comment": "Custom SQL",
+        "uuid": "be98b9f2-7eae-4618-9561-c6a556f89ae9"
+      },
+      {
+        "number": 3,
+        "provider": "email",
+        "name": "send_mail",
+        "as": "c32f9e64",
+        "keyword": "action",
+        "input": {
+          "email_type": "html",
+          "to": "pputhran@redhat.com, #{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2p_ariba_support_mail\"}')}",
+          "subject": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')}: Oracle Staging Table - Error Report ",
+          "body": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_template\",\"line\":\"34b4bcb1\",\"path\":[\"document\"]}')}",
+          "cc": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2r_mail_support\"}')}"
+        },
+        "visible_config_fields": [
+          "to",
+          "subject",
+          "email_type",
+          "body",
+          "cc"
+        ],
+        "uuid": "e2220dfb-aba4-4abe-813f-a3caf35813de",
+        "skip": false
+      }
+    ],
+    "uuid": "f56a0c00-4114-4b50-b2bb-591dd106c2b5"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "email",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "oracle",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection/s2p_con_qa_xxrhfin.connection.json",
+        "name": "S2P | CON | QA | XXRHFIN",
+        "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_template",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ],
+  "tags": [
+    "QA"
+  ]
+}
