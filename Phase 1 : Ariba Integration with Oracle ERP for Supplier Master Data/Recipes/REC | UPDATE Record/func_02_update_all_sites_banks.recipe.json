@@ -1,7 +1,7 @@
 {
   "name": "FUNC | 02 | UPDATE | All Sites & Banks",
   "description": "This Workato recipe automates the process of updating supplier information in an Oracle database based on data retrieved from an Ariba vendor ID lookup.\n\n### Key Actions and Outcomes:\n\n- **Trigger and Input Parameters**: The recipe is initiated by executing a function that requires parameters such as `RecordID`, `AribaVendorID`, and `RecipeID`.\n\n- **Data Retrieval**: It searches for records in the Ariba VendorID Lookup data table to find relevant supplier information based on the provided `RecordID` and `AribaVendorID`.\n\n- **Data Processing**:\n  - If records are found, it truncates a temporary data table to prepare for new data.\n  - It retrieves additional records related to the supplier and their bank details from the data table.\n  - The recipe then makes HTTP requests to the Ariba API to fetch questionnaires and other supplier-related data.\n\n- **Data Upsert**: The recipe processes the retrieved data and upserts it into the appropriate data tables, ensuring that all relevant supplier information, including addresses and bank details, is updated or inserted as necessary.\n\n- **Error Handling**: If any errors occur during the process, the recipe logs the error and updates the status in the Ariba VendorID Lookup table to indicate failure. It also calls an error handling recipe to notify stakeholders of the issue.\n\n- **Final Notifications**: Upon successful completion, the recipe sends notifications about the status of the supplier data synchronization, including details about the number of records processed and any relevant Oracle request IDs.\n\n### Summary:\nThis recipe streamlines the process of updating supplier information in Oracle by integrating data from Ariba, ensuring that all relevant details are accurately reflected in the database while providing error handling and notifications for stakeholders.",
-  "version": 16,
+  "version": 17,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -7225,7 +7225,9 @@
                                             "vendor_site_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"7e4f5dad_60a9_46fe_8724_d2f3ef131dbe\"]}') ? (_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"7e4f5dad_60a9_46fe_8724_d2f3ef131dbe\"]}')).slice(0,15) : null",
                                             "branch_type": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"d785cbc8_253c_4b1e_9422_40332bf3fadf\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"d785cbc8_253c_4b1e_9422_40332bf3fadf\"]}').slice(0,10) : null",
                                             "recipe_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"RecipeID\"]}').to_i",
-                                            "is_intermediate_bank": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"26c50923_a852_4bc5_96e1_9eb06d3c4523\"]}').presence"
+                                            "is_intermediate_bank": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"26c50923_a852_4bc5_96e1_9eb06d3c4523\"]}').presence",
+                                            "swift": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"fefac935_33b0_44d8_ac8f_1e71cb74dc86\"]}').presence",
+                                            "bank_key": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"655a419b_bfc2_4bc5_a88f_5957dfcd5d9d\"]}').presence"
                                           }
                                         },
                                         "extended_output_schema": [
@@ -7779,7 +7781,9 @@
                                           "rows",
                                           "rows.vendor_site_code",
                                           "rows.recipe_id",
-                                          "rows.is_intermediate_bank"
+                                          "rows.is_intermediate_bank",
+                                          "rows.swift",
+                                          "rows.bank_key"
                                         ],
                                         "comment": "INSERT into BANK Staging Table",
                                         "uuid": "bb99e777-dbde-4329-b779-4065fa19d015",

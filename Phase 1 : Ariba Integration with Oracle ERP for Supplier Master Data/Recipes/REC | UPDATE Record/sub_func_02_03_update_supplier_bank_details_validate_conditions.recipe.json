@@ -1,7 +1,7 @@
 {
   "name": "SUB FUNC | 02 - 03 | UPDATE | Supplier Bank Details Validate Conditions",
   "description": "This recipe automates the process of updating bank details for vendors in a data table.\n\n- The process begins by executing a recipe function that accepts parameters such as vendor ID, alternative values, and vendor name.\n- It truncates existing data in two specific tables to prepare for new entries.\n- A variable is created to track whether an intermediate bank is applicable.\n- The recipe retrieves records from a temporary data table based on the provided vendor ID and filters for relevant bank account details.\n- For each record found, it checks if certain fields are present and updates the intermediate bank variable accordingly.\n- If applicable, it calls a sub-recipe to handle intermediate bank details.\n- The recipe then creates new records in the main bank data table using the parsed JSON data from the retrieved records, including details like account number, bank name, and branch information.\n- It also updates various variables related to BIC and branch numbers, logging these updates for tracking purposes.\n- If any errors occur during execution, the recipe logs the error message and calls an error handling recipe to notify relevant stakeholders.\n\nOverall, this recipe ensures that vendor bank details are accurately updated and managed within the system, while also handling potential errors effectively.",
-  "version": 19,
+  "version": 38,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -3396,22 +3396,676 @@
                   },
                   {
                     "number": 18,
+                    "provider": "workato_db_table",
+                    "name": "get_records",
+                    "as": "fbfffe6e",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "table_id": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                      "filters.0.field_id": "alternative",
+                      "filters.1.field_id": "alternative",
+                      "filters.2.field_id": "questionLabel"
+                    },
+                    "input": {
+                      "order_direction": "asc",
+                      "limit": "100",
+                      "table_id": {
+                        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables/s2p_dt_func_02_update_qna_temporary_datatable.workato_db_table.json",
+                        "name": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                        "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables"
+                      },
+                      "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+                      "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+                      "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+                      "filters": [
+                        {
+                          "op_default": "isnotnull",
+                          "op_number": "isnotnull",
+                          "field_id": "88487651-73a1-4f9d-85ae-82c6ce98d9e9"
+                        },
+                        {
+                          "op_number": "eq",
+                          "value_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"666d4433\",\"path\":[\"88487651_73a1_4f9d_85ae_82c6ce98d9e9\"]}')}",
+                          "field_id": "88487651-73a1-4f9d-85ae-82c6ce98d9e9"
+                        },
+                        {
+                          "value_default": "Bank 1",
+                          "op_default": "eq",
+                          "field_id": "75690224-c5ca-46bb-bc80-0734dd5030b9"
+                        }
+                      ],
+                      "df0a7445-ebf1-43d4-aaee-211341a35fca": "string",
+                      "8592cf8a-33a9-4220-9212-a751aceeacc3": "string",
+                      "5eb10546-eeb3-4443-af64-20690a89e51b": "string",
+                      "5f423414-cde0-4622-b532-167a178978e9": "string",
+                      "763f9443-4020-49d2-b4af-8dfd0336617a": "string",
+                      "88487651-73a1-4f9d-85ae-82c6ce98d9e9": "number",
+                      "009d70fd-2945-4b5e-97f0-d3f586f87942": "string",
+                      "37d6ee65-cf65-4fad-a376-d2f9e20412a5": "string",
+                      "75690224-c5ca-46bb-bc80-0734dd5030b9": "string",
+                      "a7e29481-f5e3-4c90-bfad-98b050fc87c7": "string",
+                      "2afa9266-b625-47b7-bb16-30ad28d0db9e": "string",
+                      "32ba9c2f-8bfd-4b91-b03d-b50baf48156d": "string",
+                      "e38453ee-253a-454c-8f81-df2326bd0045": "integer"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Records",
+                        "name": "records",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Record ID",
+                            "type": "string",
+                            "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "smVendorId",
+                            "type": "string",
+                            "name": "df0a7445_ebf1_43d4_aaee_211341a35fca"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "workspaceId",
+                            "type": "string",
+                            "name": "8592cf8a_33a9_4220_9212_a751aceeacc3"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "uniqueName",
+                            "type": "string",
+                            "name": "5eb10546_eeb3_4443_af64_20690a89e51b"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "rootId",
+                            "type": "string",
+                            "name": "5f423414_cde0_4622_b532_167a178978e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "processId",
+                            "type": "string",
+                            "name": "763f9443_4020_49d2_b4af_8dfd0336617a"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "alternative",
+                            "parse_output": "float_conversion",
+                            "type": "number",
+                            "name": "88487651_73a1_4f9d_85ae_82c6ce98d9e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "externalSystemCorrelationId",
+                            "type": "string",
+                            "name": "009d70fd_2945_4b5e_97f0_d3f586f87942"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionnaireLabel",
+                            "type": "string",
+                            "name": "37d6ee65_cf65_4fad_a376_d2f9e20412a5"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionLabel",
+                            "type": "string",
+                            "name": "75690224_c5ca_46bb_bc80_0734dd5030b9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "answer",
+                            "type": "string",
+                            "name": "a7e29481_f5e3_4c90_bfad_98b050fc87c7"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "dataType",
+                            "type": "string",
+                            "name": "2afa9266_b625_47b7_bb16_30ad28d0db9e"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "type",
+                            "type": "string",
+                            "name": "32ba9c2f_8bfd_4b91_b03d_b50baf48156d"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "APIListSize",
+                            "parse_output": "integer_conversion",
+                            "type": "integer",
+                            "name": "e38453ee_253a_454c_8f81_df2326bd0045"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Created at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Updated at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next Page Token",
+                        "name": "continuation_token",
+                        "type": "string"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "name": "df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "name": "8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "name": "5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5f423414-cde0-4622-b532-167a178978e9",
+                        "name": "5f423414-cde0-4622-b532-167a178978e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "name": "763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "number",
+                        "label": "$internal_value_88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "name": "88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "name": "009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "name": "37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "name": "75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "name": "a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "name": "2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "name": "32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "integer",
+                        "label": "$internal_value_e38453ee-253a-454c-8f81-df2326bd0045",
+                        "name": "e38453ee-253a-454c-8f81-df2326bd0045",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "id",
+                        "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      }
+                    ],
+                    "comment": "Check If -  BANK 1 is present",
+                    "uuid": "5998e891-5d82-430a-a50e-66b5b8dc29f0"
+                  },
+                  {
+                    "number": 19,
+                    "provider": "workato_db_table",
+                    "name": "get_records",
+                    "as": "51dffa52",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "table_id": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                      "filters.0.field_id": "alternative",
+                      "filters.1.field_id": "alternative",
+                      "filters.2.field_id": "questionLabel"
+                    },
+                    "input": {
+                      "order_direction": "asc",
+                      "limit": "100",
+                      "table_id": {
+                        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables/s2p_dt_func_02_update_qna_temporary_datatable.workato_db_table.json",
+                        "name": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                        "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables"
+                      },
+                      "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+                      "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+                      "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+                      "filters": [
+                        {
+                          "op_default": "isnotnull",
+                          "op_number": "isnotnull",
+                          "field_id": "88487651-73a1-4f9d-85ae-82c6ce98d9e9"
+                        },
+                        {
+                          "op_number": "eq",
+                          "value_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"666d4433\",\"path\":[\"88487651_73a1_4f9d_85ae_82c6ce98d9e9\"]}')}",
+                          "field_id": "88487651-73a1-4f9d-85ae-82c6ce98d9e9"
+                        },
+                        {
+                          "value_default": "Bank 2",
+                          "op_default": "eq",
+                          "field_id": "75690224-c5ca-46bb-bc80-0734dd5030b9"
+                        }
+                      ],
+                      "df0a7445-ebf1-43d4-aaee-211341a35fca": "string",
+                      "8592cf8a-33a9-4220-9212-a751aceeacc3": "string",
+                      "5eb10546-eeb3-4443-af64-20690a89e51b": "string",
+                      "5f423414-cde0-4622-b532-167a178978e9": "string",
+                      "763f9443-4020-49d2-b4af-8dfd0336617a": "string",
+                      "88487651-73a1-4f9d-85ae-82c6ce98d9e9": "number",
+                      "009d70fd-2945-4b5e-97f0-d3f586f87942": "string",
+                      "37d6ee65-cf65-4fad-a376-d2f9e20412a5": "string",
+                      "75690224-c5ca-46bb-bc80-0734dd5030b9": "string",
+                      "a7e29481-f5e3-4c90-bfad-98b050fc87c7": "string",
+                      "2afa9266-b625-47b7-bb16-30ad28d0db9e": "string",
+                      "32ba9c2f-8bfd-4b91-b03d-b50baf48156d": "string",
+                      "e38453ee-253a-454c-8f81-df2326bd0045": "integer"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Records",
+                        "name": "records",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Record ID",
+                            "type": "string",
+                            "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "smVendorId",
+                            "type": "string",
+                            "name": "df0a7445_ebf1_43d4_aaee_211341a35fca"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "workspaceId",
+                            "type": "string",
+                            "name": "8592cf8a_33a9_4220_9212_a751aceeacc3"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "uniqueName",
+                            "type": "string",
+                            "name": "5eb10546_eeb3_4443_af64_20690a89e51b"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "rootId",
+                            "type": "string",
+                            "name": "5f423414_cde0_4622_b532_167a178978e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "processId",
+                            "type": "string",
+                            "name": "763f9443_4020_49d2_b4af_8dfd0336617a"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "alternative",
+                            "parse_output": "float_conversion",
+                            "type": "number",
+                            "name": "88487651_73a1_4f9d_85ae_82c6ce98d9e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "externalSystemCorrelationId",
+                            "type": "string",
+                            "name": "009d70fd_2945_4b5e_97f0_d3f586f87942"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionnaireLabel",
+                            "type": "string",
+                            "name": "37d6ee65_cf65_4fad_a376_d2f9e20412a5"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionLabel",
+                            "type": "string",
+                            "name": "75690224_c5ca_46bb_bc80_0734dd5030b9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "answer",
+                            "type": "string",
+                            "name": "a7e29481_f5e3_4c90_bfad_98b050fc87c7"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "dataType",
+                            "type": "string",
+                            "name": "2afa9266_b625_47b7_bb16_30ad28d0db9e"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "type",
+                            "type": "string",
+                            "name": "32ba9c2f_8bfd_4b91_b03d_b50baf48156d"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "APIListSize",
+                            "parse_output": "integer_conversion",
+                            "type": "integer",
+                            "name": "e38453ee_253a_454c_8f81_df2326bd0045"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Created at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Updated at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next Page Token",
+                        "name": "continuation_token",
+                        "type": "string"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "name": "df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "name": "8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "name": "5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5f423414-cde0-4622-b532-167a178978e9",
+                        "name": "5f423414-cde0-4622-b532-167a178978e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "name": "763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "number",
+                        "label": "$internal_value_88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "name": "88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "name": "009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "name": "37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "name": "75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "name": "a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "name": "2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "name": "32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "integer",
+                        "label": "$internal_value_e38453ee-253a-454c-8f81-df2326bd0045",
+                        "name": "e38453ee-253a-454c-8f81-df2326bd0045",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "id",
+                        "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      }
+                    ],
+                    "comment": "Check If -  BANK 2 is present",
+                    "uuid": "3a8e5582-a933-4ce5-b24f-f7f34dc98ee0"
+                  },
+                  {
+                    "number": 20,
                     "keyword": "if",
                     "input": {
                       "type": "compound",
-                      "operand": "and",
+                      "operand": "or",
                       "conditions": [
                         {
                           "operand": "is_true",
                           "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"1994bc76\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
                           "rhs": "",
                           "uuid": "cb29fd96-7e8d-47d3-ae94-794fdf2ba7a7"
+                        },
+                        {
+                          "operand": "present",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"51dffa52\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
+                          "rhs": "",
+                          "uuid": "4ea9ed84-3643-4992-b91d-220eab6b57d5"
+                        },
+                        {
+                          "operand": "present",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"fbfffe6e\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
+                          "rhs": "",
+                          "uuid": "774623c3-8234-4a37-8018-e83f5ac59e1d"
                         }
                       ]
                     },
                     "block": [
                       {
-                        "number": 19,
+                        "number": 21,
                         "provider": "workato_variable",
                         "name": "update_variables",
                         "as": "55b74174",
@@ -3462,7 +4116,7 @@
                         "uuid": "b7025dec-8b97-4463-aa72-e4dd07f45af5"
                       },
                       {
-                        "number": 20,
+                        "number": 22,
                         "provider": "workato_recipe_function",
                         "name": "call_recipe",
                         "as": "0e427489",
@@ -3534,7 +4188,7 @@
                     "uuid": "5655e72a-36d4-4fd1-8801-84b2fc98e6bc"
                   },
                   {
-                    "number": 21,
+                    "number": 23,
                     "provider": "workato_db_table",
                     "name": "create_records_batch",
                     "as": "46b4fefd",
@@ -4108,13 +4762,13 @@
                 "uuid": "e70501f3-9332-4f94-a3ed-f771ecbf2132"
               },
               {
-                "number": 22,
+                "number": 24,
                 "keyword": "else",
                 "input": {
                 },
                 "block": [
                   {
-                    "number": 23,
+                    "number": 25,
                     "provider": "workato_db_table",
                     "name": "get_records",
                     "as": "264b5af1",
@@ -4430,180 +5084,1561 @@
                     "uuid": "fbd82e10-7742-441b-8be1-c0e17332ced2"
                   },
                   {
-                    "number": 24,
+                    "number": 26,
+                    "provider": "workato_db_table",
+                    "name": "get_records",
+                    "as": "131195a2",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "table_id": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                      "filters.0.field_id": "alternative",
+                      "filters.1.field_id": "alternative",
+                      "filters.2.field_id": "questionLabel"
+                    },
+                    "input": {
+                      "order_direction": "asc",
+                      "limit": "100",
+                      "table_id": {
+                        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables/s2p_dt_func_02_update_qna_temporary_datatable.workato_db_table.json",
+                        "name": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                        "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables"
+                      },
+                      "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+                      "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+                      "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+                      "filters": [
+                        {
+                          "op_default": "isnotnull",
+                          "op_number": "isnotnull",
+                          "field_id": "88487651-73a1-4f9d-85ae-82c6ce98d9e9"
+                        },
+                        {
+                          "value_default": "Bank 1",
+                          "op_default": "eq",
+                          "field_id": "75690224-c5ca-46bb-bc80-0734dd5030b9"
+                        }
+                      ],
+                      "df0a7445-ebf1-43d4-aaee-211341a35fca": "string",
+                      "8592cf8a-33a9-4220-9212-a751aceeacc3": "string",
+                      "5eb10546-eeb3-4443-af64-20690a89e51b": "string",
+                      "5f423414-cde0-4622-b532-167a178978e9": "string",
+                      "763f9443-4020-49d2-b4af-8dfd0336617a": "string",
+                      "88487651-73a1-4f9d-85ae-82c6ce98d9e9": "number",
+                      "009d70fd-2945-4b5e-97f0-d3f586f87942": "string",
+                      "37d6ee65-cf65-4fad-a376-d2f9e20412a5": "string",
+                      "75690224-c5ca-46bb-bc80-0734dd5030b9": "string",
+                      "a7e29481-f5e3-4c90-bfad-98b050fc87c7": "string",
+                      "2afa9266-b625-47b7-bb16-30ad28d0db9e": "string",
+                      "32ba9c2f-8bfd-4b91-b03d-b50baf48156d": "string",
+                      "e38453ee-253a-454c-8f81-df2326bd0045": "integer"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Records",
+                        "name": "records",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Record ID",
+                            "type": "string",
+                            "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "smVendorId",
+                            "type": "string",
+                            "name": "df0a7445_ebf1_43d4_aaee_211341a35fca"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "workspaceId",
+                            "type": "string",
+                            "name": "8592cf8a_33a9_4220_9212_a751aceeacc3"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "uniqueName",
+                            "type": "string",
+                            "name": "5eb10546_eeb3_4443_af64_20690a89e51b"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "rootId",
+                            "type": "string",
+                            "name": "5f423414_cde0_4622_b532_167a178978e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "processId",
+                            "type": "string",
+                            "name": "763f9443_4020_49d2_b4af_8dfd0336617a"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "alternative",
+                            "parse_output": "float_conversion",
+                            "type": "number",
+                            "name": "88487651_73a1_4f9d_85ae_82c6ce98d9e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "externalSystemCorrelationId",
+                            "type": "string",
+                            "name": "009d70fd_2945_4b5e_97f0_d3f586f87942"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionnaireLabel",
+                            "type": "string",
+                            "name": "37d6ee65_cf65_4fad_a376_d2f9e20412a5"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionLabel",
+                            "type": "string",
+                            "name": "75690224_c5ca_46bb_bc80_0734dd5030b9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "answer",
+                            "type": "string",
+                            "name": "a7e29481_f5e3_4c90_bfad_98b050fc87c7"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "dataType",
+                            "type": "string",
+                            "name": "2afa9266_b625_47b7_bb16_30ad28d0db9e"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "type",
+                            "type": "string",
+                            "name": "32ba9c2f_8bfd_4b91_b03d_b50baf48156d"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "APIListSize",
+                            "parse_output": "integer_conversion",
+                            "type": "integer",
+                            "name": "e38453ee_253a_454c_8f81_df2326bd0045"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Created at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Updated at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next Page Token",
+                        "name": "continuation_token",
+                        "type": "string"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "name": "df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "name": "8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "name": "5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5f423414-cde0-4622-b532-167a178978e9",
+                        "name": "5f423414-cde0-4622-b532-167a178978e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "name": "763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "number",
+                        "label": "$internal_value_88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "name": "88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "name": "009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "name": "37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "name": "75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "name": "a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "name": "2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "name": "32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "integer",
+                        "label": "$internal_value_e38453ee-253a-454c-8f81-df2326bd0045",
+                        "name": "e38453ee-253a-454c-8f81-df2326bd0045",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "id",
+                        "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      }
+                    ],
+                    "comment": "Check If -  BANK 1 is present",
+                    "uuid": "ea66fe5e-ede7-4888-a0d6-20d6d95deaf8"
+                  },
+                  {
+                    "number": 27,
+                    "provider": "workato_db_table",
+                    "name": "get_records",
+                    "as": "cfc6de81",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "table_id": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                      "filters.0.field_id": "alternative",
+                      "filters.1.field_id": "alternative",
+                      "filters.2.field_id": "questionLabel"
+                    },
+                    "input": {
+                      "order_direction": "asc",
+                      "limit": "100",
+                      "table_id": {
+                        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables/s2p_dt_func_02_update_qna_temporary_datatable.workato_db_table.json",
+                        "name": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                        "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables"
+                      },
+                      "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+                      "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+                      "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+                      "filters": [
+                        {
+                          "op_default": "isnotnull",
+                          "op_number": "isnotnull",
+                          "field_id": "88487651-73a1-4f9d-85ae-82c6ce98d9e9"
+                        },
+                        {
+                          "value_default": "Branch Number 1",
+                          "op_default": "eq",
+                          "field_id": "75690224-c5ca-46bb-bc80-0734dd5030b9"
+                        }
+                      ],
+                      "df0a7445-ebf1-43d4-aaee-211341a35fca": "string",
+                      "8592cf8a-33a9-4220-9212-a751aceeacc3": "string",
+                      "5eb10546-eeb3-4443-af64-20690a89e51b": "string",
+                      "5f423414-cde0-4622-b532-167a178978e9": "string",
+                      "763f9443-4020-49d2-b4af-8dfd0336617a": "string",
+                      "88487651-73a1-4f9d-85ae-82c6ce98d9e9": "number",
+                      "009d70fd-2945-4b5e-97f0-d3f586f87942": "string",
+                      "37d6ee65-cf65-4fad-a376-d2f9e20412a5": "string",
+                      "75690224-c5ca-46bb-bc80-0734dd5030b9": "string",
+                      "a7e29481-f5e3-4c90-bfad-98b050fc87c7": "string",
+                      "2afa9266-b625-47b7-bb16-30ad28d0db9e": "string",
+                      "32ba9c2f-8bfd-4b91-b03d-b50baf48156d": "string",
+                      "e38453ee-253a-454c-8f81-df2326bd0045": "integer"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Records",
+                        "name": "records",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Record ID",
+                            "type": "string",
+                            "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "smVendorId",
+                            "type": "string",
+                            "name": "df0a7445_ebf1_43d4_aaee_211341a35fca"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "workspaceId",
+                            "type": "string",
+                            "name": "8592cf8a_33a9_4220_9212_a751aceeacc3"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "uniqueName",
+                            "type": "string",
+                            "name": "5eb10546_eeb3_4443_af64_20690a89e51b"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "rootId",
+                            "type": "string",
+                            "name": "5f423414_cde0_4622_b532_167a178978e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "processId",
+                            "type": "string",
+                            "name": "763f9443_4020_49d2_b4af_8dfd0336617a"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "alternative",
+                            "parse_output": "float_conversion",
+                            "type": "number",
+                            "name": "88487651_73a1_4f9d_85ae_82c6ce98d9e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "externalSystemCorrelationId",
+                            "type": "string",
+                            "name": "009d70fd_2945_4b5e_97f0_d3f586f87942"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionnaireLabel",
+                            "type": "string",
+                            "name": "37d6ee65_cf65_4fad_a376_d2f9e20412a5"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionLabel",
+                            "type": "string",
+                            "name": "75690224_c5ca_46bb_bc80_0734dd5030b9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "answer",
+                            "type": "string",
+                            "name": "a7e29481_f5e3_4c90_bfad_98b050fc87c7"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "dataType",
+                            "type": "string",
+                            "name": "2afa9266_b625_47b7_bb16_30ad28d0db9e"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "type",
+                            "type": "string",
+                            "name": "32ba9c2f_8bfd_4b91_b03d_b50baf48156d"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "APIListSize",
+                            "parse_output": "integer_conversion",
+                            "type": "integer",
+                            "name": "e38453ee_253a_454c_8f81_df2326bd0045"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Created at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Updated at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next Page Token",
+                        "name": "continuation_token",
+                        "type": "string"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "name": "df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "name": "8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "name": "5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5f423414-cde0-4622-b532-167a178978e9",
+                        "name": "5f423414-cde0-4622-b532-167a178978e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "name": "763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "number",
+                        "label": "$internal_value_88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "name": "88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "name": "009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "name": "37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "name": "75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "name": "a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "name": "2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "name": "32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "integer",
+                        "label": "$internal_value_e38453ee-253a-454c-8f81-df2326bd0045",
+                        "name": "e38453ee-253a-454c-8f81-df2326bd0045",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "id",
+                        "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      }
+                    ],
+                    "comment": "Check If -  BRANCH NUMBER 1 is present",
+                    "uuid": "334aa5fd-fbda-4314-9451-5aede530c089"
+                  },
+                  {
+                    "number": 28,
+                    "provider": "workato_db_table",
+                    "name": "get_records",
+                    "as": "9159a8c4",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "table_id": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                      "filters.0.field_id": "alternative",
+                      "filters.1.field_id": "alternative",
+                      "filters.2.field_id": "questionLabel"
+                    },
+                    "input": {
+                      "order_direction": "asc",
+                      "limit": "100",
+                      "table_id": {
+                        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables/s2p_dt_func_02_update_qna_temporary_datatable.workato_db_table.json",
+                        "name": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                        "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables"
+                      },
+                      "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+                      "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+                      "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+                      "filters": [
+                        {
+                          "op_default": "isnotnull",
+                          "op_number": "isnotnull",
+                          "field_id": "88487651-73a1-4f9d-85ae-82c6ce98d9e9"
+                        },
+                        {
+                          "value_default": "Bank 2",
+                          "op_default": "eq",
+                          "field_id": "75690224-c5ca-46bb-bc80-0734dd5030b9"
+                        }
+                      ],
+                      "df0a7445-ebf1-43d4-aaee-211341a35fca": "string",
+                      "8592cf8a-33a9-4220-9212-a751aceeacc3": "string",
+                      "5eb10546-eeb3-4443-af64-20690a89e51b": "string",
+                      "5f423414-cde0-4622-b532-167a178978e9": "string",
+                      "763f9443-4020-49d2-b4af-8dfd0336617a": "string",
+                      "88487651-73a1-4f9d-85ae-82c6ce98d9e9": "number",
+                      "009d70fd-2945-4b5e-97f0-d3f586f87942": "string",
+                      "37d6ee65-cf65-4fad-a376-d2f9e20412a5": "string",
+                      "75690224-c5ca-46bb-bc80-0734dd5030b9": "string",
+                      "a7e29481-f5e3-4c90-bfad-98b050fc87c7": "string",
+                      "2afa9266-b625-47b7-bb16-30ad28d0db9e": "string",
+                      "32ba9c2f-8bfd-4b91-b03d-b50baf48156d": "string",
+                      "e38453ee-253a-454c-8f81-df2326bd0045": "integer"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Records",
+                        "name": "records",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Record ID",
+                            "type": "string",
+                            "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "smVendorId",
+                            "type": "string",
+                            "name": "df0a7445_ebf1_43d4_aaee_211341a35fca"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "workspaceId",
+                            "type": "string",
+                            "name": "8592cf8a_33a9_4220_9212_a751aceeacc3"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "uniqueName",
+                            "type": "string",
+                            "name": "5eb10546_eeb3_4443_af64_20690a89e51b"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "rootId",
+                            "type": "string",
+                            "name": "5f423414_cde0_4622_b532_167a178978e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "processId",
+                            "type": "string",
+                            "name": "763f9443_4020_49d2_b4af_8dfd0336617a"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "alternative",
+                            "parse_output": "float_conversion",
+                            "type": "number",
+                            "name": "88487651_73a1_4f9d_85ae_82c6ce98d9e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "externalSystemCorrelationId",
+                            "type": "string",
+                            "name": "009d70fd_2945_4b5e_97f0_d3f586f87942"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionnaireLabel",
+                            "type": "string",
+                            "name": "37d6ee65_cf65_4fad_a376_d2f9e20412a5"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionLabel",
+                            "type": "string",
+                            "name": "75690224_c5ca_46bb_bc80_0734dd5030b9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "answer",
+                            "type": "string",
+                            "name": "a7e29481_f5e3_4c90_bfad_98b050fc87c7"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "dataType",
+                            "type": "string",
+                            "name": "2afa9266_b625_47b7_bb16_30ad28d0db9e"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "type",
+                            "type": "string",
+                            "name": "32ba9c2f_8bfd_4b91_b03d_b50baf48156d"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "APIListSize",
+                            "parse_output": "integer_conversion",
+                            "type": "integer",
+                            "name": "e38453ee_253a_454c_8f81_df2326bd0045"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Created at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Updated at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next Page Token",
+                        "name": "continuation_token",
+                        "type": "string"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "name": "df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "name": "8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "name": "5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5f423414-cde0-4622-b532-167a178978e9",
+                        "name": "5f423414-cde0-4622-b532-167a178978e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "name": "763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "number",
+                        "label": "$internal_value_88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "name": "88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "name": "009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "name": "37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "name": "75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "name": "a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "name": "2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "name": "32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "integer",
+                        "label": "$internal_value_e38453ee-253a-454c-8f81-df2326bd0045",
+                        "name": "e38453ee-253a-454c-8f81-df2326bd0045",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "id",
+                        "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      }
+                    ],
+                    "comment": "Check If -  BANK 2 is present",
+                    "uuid": "38e41fc4-aa35-4e55-85b9-d2d23a48c0ac"
+                  },
+                  {
+                    "number": 29,
+                    "provider": "workato_db_table",
+                    "name": "get_records",
+                    "as": "6ca3ef50",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "table_id": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                      "filters.0.field_id": "alternative",
+                      "filters.1.field_id": "alternative",
+                      "filters.2.field_id": "questionLabel"
+                    },
+                    "input": {
+                      "order_direction": "asc",
+                      "limit": "100",
+                      "table_id": {
+                        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables/s2p_dt_func_02_update_qna_temporary_datatable.workato_db_table.json",
+                        "name": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                        "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables"
+                      },
+                      "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+                      "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+                      "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+                      "filters": [
+                        {
+                          "op_default": "isnotnull",
+                          "op_number": "isnotnull",
+                          "field_id": "88487651-73a1-4f9d-85ae-82c6ce98d9e9"
+                        },
+                        {
+                          "value_default": "Branch Number 2",
+                          "op_default": "eq",
+                          "field_id": "75690224-c5ca-46bb-bc80-0734dd5030b9"
+                        }
+                      ],
+                      "df0a7445-ebf1-43d4-aaee-211341a35fca": "string",
+                      "8592cf8a-33a9-4220-9212-a751aceeacc3": "string",
+                      "5eb10546-eeb3-4443-af64-20690a89e51b": "string",
+                      "5f423414-cde0-4622-b532-167a178978e9": "string",
+                      "763f9443-4020-49d2-b4af-8dfd0336617a": "string",
+                      "88487651-73a1-4f9d-85ae-82c6ce98d9e9": "number",
+                      "009d70fd-2945-4b5e-97f0-d3f586f87942": "string",
+                      "37d6ee65-cf65-4fad-a376-d2f9e20412a5": "string",
+                      "75690224-c5ca-46bb-bc80-0734dd5030b9": "string",
+                      "a7e29481-f5e3-4c90-bfad-98b050fc87c7": "string",
+                      "2afa9266-b625-47b7-bb16-30ad28d0db9e": "string",
+                      "32ba9c2f-8bfd-4b91-b03d-b50baf48156d": "string",
+                      "e38453ee-253a-454c-8f81-df2326bd0045": "integer"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Records",
+                        "name": "records",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Record ID",
+                            "type": "string",
+                            "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "smVendorId",
+                            "type": "string",
+                            "name": "df0a7445_ebf1_43d4_aaee_211341a35fca"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "workspaceId",
+                            "type": "string",
+                            "name": "8592cf8a_33a9_4220_9212_a751aceeacc3"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "uniqueName",
+                            "type": "string",
+                            "name": "5eb10546_eeb3_4443_af64_20690a89e51b"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "rootId",
+                            "type": "string",
+                            "name": "5f423414_cde0_4622_b532_167a178978e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "processId",
+                            "type": "string",
+                            "name": "763f9443_4020_49d2_b4af_8dfd0336617a"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "alternative",
+                            "parse_output": "float_conversion",
+                            "type": "number",
+                            "name": "88487651_73a1_4f9d_85ae_82c6ce98d9e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "externalSystemCorrelationId",
+                            "type": "string",
+                            "name": "009d70fd_2945_4b5e_97f0_d3f586f87942"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionnaireLabel",
+                            "type": "string",
+                            "name": "37d6ee65_cf65_4fad_a376_d2f9e20412a5"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionLabel",
+                            "type": "string",
+                            "name": "75690224_c5ca_46bb_bc80_0734dd5030b9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "answer",
+                            "type": "string",
+                            "name": "a7e29481_f5e3_4c90_bfad_98b050fc87c7"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "dataType",
+                            "type": "string",
+                            "name": "2afa9266_b625_47b7_bb16_30ad28d0db9e"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "type",
+                            "type": "string",
+                            "name": "32ba9c2f_8bfd_4b91_b03d_b50baf48156d"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "APIListSize",
+                            "parse_output": "integer_conversion",
+                            "type": "integer",
+                            "name": "e38453ee_253a_454c_8f81_df2326bd0045"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Created at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Updated at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next Page Token",
+                        "name": "continuation_token",
+                        "type": "string"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "name": "df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "name": "8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "name": "5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5f423414-cde0-4622-b532-167a178978e9",
+                        "name": "5f423414-cde0-4622-b532-167a178978e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "name": "763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "number",
+                        "label": "$internal_value_88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "name": "88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "name": "009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "name": "37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "name": "75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "name": "a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "name": "2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "name": "32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "integer",
+                        "label": "$internal_value_e38453ee-253a-454c-8f81-df2326bd0045",
+                        "name": "e38453ee-253a-454c-8f81-df2326bd0045",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "id",
+                        "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      }
+                    ],
+                    "comment": "Check If -  BRANCH NUMBER 2 is present",
+                    "uuid": "5fddd0f1-c140-4f73-9861-d84ef57c52b8"
+                  },
+                  {
+                    "number": 30,
                     "keyword": "if",
                     "input": {
                       "type": "compound",
-                      "operand": "and",
+                      "operand": "or",
                       "conditions": [
                         {
                           "operand": "present",
-                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"264b5af1\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"131195a2\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
                           "rhs": "",
-                          "uuid": "6616d2b6-d70b-4648-ac05-31e40a694616"
+                          "uuid": "230148f1-3c82-4184-8b43-e7413e776e33"
+                        },
+                        {
+                          "operand": "present",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"cfc6de81\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
+                          "rhs": "",
+                          "uuid": "70dfbe60-7331-49db-8892-dd5567888e63"
                         }
                       ]
                     },
                     "block": [
                       {
-                        "number": 25,
-                        "as": "e8f660b9",
-                        "keyword": "foreach",
-                        "repeat_mode": "simple",
-                        "clear_scope": "false",
+                        "number": 31,
+                        "provider": "workato_recipe_function",
+                        "name": "call_recipe",
+                        "as": "8ff3ade8",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "flow_id": "SUB FUNC | 02 - 03.01 | UPDATE | Supplier Intermediate Bank Details"
+                        },
                         "input": {
+                          "flow_id": {
+                            "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | UPDATE Record/sub_func_02_03_01_update_supplier_intermediate_bank_details.recipe.json",
+                            "name": "SUB FUNC | 02 - 03.01 | UPDATE | Supplier Intermediate Bank Details",
+                            "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | UPDATE Record"
+                          },
+                          "parameters": {
+                            "smVendorId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"smVendorId\"]}')}",
+                            "alternative": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"131195a2\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"88487651_73a1_4f9d_85ae_82c6ce98d9e9\"]}')}",
+                            "varRecipeID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"varRecipeID\"]}')}",
+                            "VendorName": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"VendorName\"]}')}"
+                          }
+                        },
+                        "extended_input_schema": [
+                          {
+                            "label": "Parameters",
+                            "name": "parameters",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Sm vendor ID",
+                                "type": "string",
+                                "name": "smVendorId"
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "alternative",
+                                "parse_output": "float_conversion",
+                                "name": "alternative",
+                                "type": "number",
+                                "optional": false,
+                                "render_input": "float_conversion"
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "varRecipeID",
+                                "parse_output": "float_conversion",
+                                "name": "varRecipeID",
+                                "type": "number",
+                                "optional": false,
+                                "render_input": "float_conversion"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "VendorName",
+                                "name": "VendorName",
+                                "type": "string",
+                                "optional": true
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "visible_config_fields": [
+                          "flow_id",
+                          "parameters.VendorName"
+                        ],
+                        "comment": "Call INTERMEDIATE Recipe",
+                        "uuid": "b17225d1-3a0d-478e-9c2b-ebe09a250838"
+                      },
+                      {
+                        "number": 32,
+                        "provider": "workato_variable",
+                        "name": "update_variables",
+                        "as": "9bfb3fdd",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "name": [
+                            {
+                              "label": "IsIntermediate (step 4)",
+                              "value": "da8c709f-42e0-46e7-8dfa-0569089ddd73:6cd4330f:IsIntermediate"
+                            }
+                          ]
+                        },
+                        "toggleCfg": {
+                          "IsIntermediate": true
+                        },
+                        "input": {
+                          "input_mode": "raw",
+                          "name": "da8c709f-42e0-46e7-8dfa-0569089ddd73:6cd4330f:IsIntermediate",
+                          "IsIntermediate": "true"
+                        },
+                        "extended_input_schema": [
+                          {
+                            "control_type": "checkbox",
+                            "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                            "label": "IsIntermediate",
+                            "name": "IsIntermediate",
+                            "optional": true,
+                            "parse_output": "boolean_conversion",
+                            "sticky": true,
+                            "toggle_field": {
+                              "label": "IsIntermediate",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                              "strip_interpolation": true,
+                              "sticky": true,
+                              "optional": true,
+                              "type": "boolean",
+                              "name": "IsIntermediate"
+                            },
+                            "toggle_hint": "Select from option list",
+                            "type": "boolean",
+                            "render_input": "boolean_conversion",
+                            "strip_interpolation": true
+                          }
+                        ],
+                        "comment": "SET  Variable - IsIntermediate = TRUE",
+                        "uuid": "074fc590-6a4f-4787-aac5-1876eebc9598"
+                      },
+                      {
+                        "number": 33,
+                        "keyword": "elsif",
+                        "input": {
+                          "type": "compound",
+                          "operand": "or",
+                          "conditions": [
+                            {
+                              "operand": "present",
+                              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"9159a8c4\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
+                              "rhs": "",
+                              "uuid": "6114824a-f1f7-448e-a58c-5d927122db6c"
+                            },
+                            {
+                              "operand": "present",
+                              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"6ca3ef50\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
+                              "rhs": "",
+                              "uuid": "ef77138f-36ea-4560-b6cf-9867dce8f81d"
+                            }
+                          ]
                         },
                         "block": [
                           {
-                            "number": 26,
-                            "keyword": "if",
+                            "number": 34,
+                            "provider": "workato_recipe_function",
+                            "name": "call_recipe",
+                            "as": "070a8c35",
+                            "keyword": "action",
+                            "dynamicPickListSelection": {
+                              "flow_id": "SUB FUNC | 02 - 03.01 | UPDATE | Supplier Intermediate Bank Details"
+                            },
                             "input": {
-                              "type": "compound",
-                              "operand": "and",
-                              "conditions": [
+                              "flow_id": {
+                                "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | UPDATE Record/sub_func_02_03_01_update_supplier_intermediate_bank_details.recipe.json",
+                                "name": "SUB FUNC | 02 - 03.01 | UPDATE | Supplier Intermediate Bank Details",
+                                "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | UPDATE Record"
+                              },
+                              "parameters": {
+                                "smVendorId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"smVendorId\"]}')}",
+                                "alternative": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"9159a8c4\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"88487651_73a1_4f9d_85ae_82c6ce98d9e9\"]}')}",
+                                "varRecipeID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"varRecipeID\"]}')}",
+                                "VendorName": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"VendorName\"]}')}"
+                              }
+                            },
+                            "extended_input_schema": [
+                              {
+                                "label": "Parameters",
+                                "name": "parameters",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Sm vendor ID",
+                                    "type": "string",
+                                    "name": "smVendorId"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "alternative",
+                                    "parse_output": "float_conversion",
+                                    "name": "alternative",
+                                    "type": "number",
+                                    "optional": false,
+                                    "render_input": "float_conversion"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "varRecipeID",
+                                    "parse_output": "float_conversion",
+                                    "name": "varRecipeID",
+                                    "type": "number",
+                                    "optional": false,
+                                    "render_input": "float_conversion"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "VendorName",
+                                    "name": "VendorName",
+                                    "type": "string",
+                                    "optional": true
+                                  }
+                                ],
+                                "type": "object"
+                              }
+                            ],
+                            "visible_config_fields": [
+                              "flow_id",
+                              "parameters.VendorName"
+                            ],
+                            "comment": "Call INTERMEDIATE Recipe",
+                            "uuid": "7ccf9995-5207-4216-917e-0214ed6e16f6"
+                          },
+                          {
+                            "number": 35,
+                            "provider": "workato_variable",
+                            "name": "update_variables",
+                            "as": "bf52fd9a",
+                            "keyword": "action",
+                            "dynamicPickListSelection": {
+                              "name": [
                                 {
-                                  "operand": "is_true",
-                                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"264b5af1\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
-                                  "rhs": "",
-                                  "uuid": "cfe13c65-5ec4-4ba7-8d81-c024cf5ec1c7"
+                                  "label": "IsIntermediate (step 4)",
+                                  "value": "da8c709f-42e0-46e7-8dfa-0569089ddd73:6cd4330f:IsIntermediate"
                                 }
                               ]
                             },
-                            "block": [
+                            "toggleCfg": {
+                              "IsIntermediate": true
+                            },
+                            "input": {
+                              "input_mode": "raw",
+                              "name": "da8c709f-42e0-46e7-8dfa-0569089ddd73:6cd4330f:IsIntermediate",
+                              "IsIntermediate": "true"
+                            },
+                            "extended_input_schema": [
                               {
-                                "number": 27,
-                                "provider": "workato_recipe_function",
-                                "name": "call_recipe",
-                                "as": "8ff3ade8",
-                                "keyword": "action",
-                                "dynamicPickListSelection": {
-                                  "flow_id": "SUB FUNC | 02 - 03.01 | UPDATE | Supplier Intermediate Bank Details"
+                                "control_type": "checkbox",
+                                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                                "label": "IsIntermediate",
+                                "name": "IsIntermediate",
+                                "optional": true,
+                                "parse_output": "boolean_conversion",
+                                "sticky": true,
+                                "toggle_field": {
+                                  "label": "IsIntermediate",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                                  "strip_interpolation": true,
+                                  "sticky": true,
+                                  "optional": true,
+                                  "type": "boolean",
+                                  "name": "IsIntermediate"
                                 },
-                                "input": {
-                                  "flow_id": {
-                                    "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | UPDATE Record/sub_func_02_03_01_update_supplier_intermediate_bank_details.recipe.json",
-                                    "name": "SUB FUNC | 02 - 03.01 | UPDATE | Supplier Intermediate Bank Details",
-                                    "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | UPDATE Record"
-                                  },
-                                  "parameters": {
-                                    "smVendorId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"smVendorId\"]}')}",
-                                    "alternative": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e8f660b9\",\"path\":[\"88487651_73a1_4f9d_85ae_82c6ce98d9e9\"]}')}",
-                                    "varRecipeID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"varRecipeID\"]}')}",
-                                    "VendorName": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"VendorName\"]}')}"
-                                  }
-                                },
-                                "extended_input_schema": [
-                                  {
-                                    "label": "Parameters",
-                                    "name": "parameters",
-                                    "properties": [
-                                      {
-                                        "control_type": "text",
-                                        "label": "Sm vendor ID",
-                                        "type": "string",
-                                        "name": "smVendorId"
-                                      },
-                                      {
-                                        "control_type": "number",
-                                        "label": "alternative",
-                                        "parse_output": "float_conversion",
-                                        "name": "alternative",
-                                        "type": "number",
-                                        "optional": false,
-                                        "render_input": "float_conversion"
-                                      },
-                                      {
-                                        "control_type": "number",
-                                        "label": "varRecipeID",
-                                        "parse_output": "float_conversion",
-                                        "name": "varRecipeID",
-                                        "type": "number",
-                                        "optional": false,
-                                        "render_input": "float_conversion"
-                                      },
-                                      {
-                                        "control_type": "text",
-                                        "label": "VendorName",
-                                        "name": "VendorName",
-                                        "type": "string",
-                                        "optional": true
-                                      }
-                                    ],
-                                    "type": "object"
-                                  }
-                                ],
-                                "visible_config_fields": [
-                                  "flow_id",
-                                  "parameters.VendorName"
-                                ],
-                                "comment": "Call INTERMEDIATE Recipe",
-                                "uuid": "b17225d1-3a0d-478e-9c2b-ebe09a250838"
-                              },
-                              {
-                                "number": 28,
-                                "provider": "workato_variable",
-                                "name": "update_variables",
-                                "as": "9bfb3fdd",
-                                "keyword": "action",
-                                "dynamicPickListSelection": {
-                                  "name": [
-                                    {
-                                      "label": "IsIntermediate (step 4)",
-                                      "value": "da8c709f-42e0-46e7-8dfa-0569089ddd73:6cd4330f:IsIntermediate"
-                                    }
-                                  ]
-                                },
-                                "toggleCfg": {
-                                  "IsIntermediate": true
-                                },
-                                "input": {
-                                  "input_mode": "raw",
-                                  "name": "da8c709f-42e0-46e7-8dfa-0569089ddd73:6cd4330f:IsIntermediate",
-                                  "IsIntermediate": "true"
-                                },
-                                "extended_input_schema": [
-                                  {
-                                    "control_type": "checkbox",
-                                    "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
-                                    "label": "IsIntermediate",
-                                    "name": "IsIntermediate",
-                                    "optional": true,
-                                    "parse_output": "boolean_conversion",
-                                    "sticky": true,
-                                    "toggle_field": {
-                                      "label": "IsIntermediate",
-                                      "control_type": "text",
-                                      "toggle_hint": "Use custom value",
-                                      "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
-                                      "strip_interpolation": true,
-                                      "sticky": true,
-                                      "optional": true,
-                                      "type": "boolean",
-                                      "name": "IsIntermediate"
-                                    },
-                                    "toggle_hint": "Select from option list",
-                                    "type": "boolean",
-                                    "render_input": "boolean_conversion",
-                                    "strip_interpolation": true
-                                  }
-                                ],
-                                "comment": "SET  Variable - IsIntermediate = TRUE",
-                                "uuid": "074fc590-6a4f-4787-aac5-1876eebc9598"
+                                "toggle_hint": "Select from option list",
+                                "type": "boolean",
+                                "render_input": "boolean_conversion",
+                                "strip_interpolation": true
                               }
                             ],
-                            "comment": "IF Intermediate Flag is True",
-                            "uuid": "1395a22b-2c5d-4ae3-9aa0-f9127edf6b38"
+                            "comment": "SET  Variable - IsIntermediate = TRUE",
+                            "uuid": "cf894c3a-7089-4688-a147-e48254f54ce5"
                           }
                         ],
-                        "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"264b5af1\",\"path\":[\"records\"]}')}",
-                        "comment": "In case of - Multiple Banks - Check Intermediate Flag",
-                        "uuid": "c2069de0-2994-4bdf-bc27-ef8003e4e816"
+                        "uuid": "cf4ee783-49b8-477e-a0ee-c14ff1f76802"
                       }
                     ],
-                    "uuid": "53d0f598-34e9-4c8e-b4fe-afc223203ac1"
+                    "uuid": "b386781b-9f86-47d6-96cd-a6b1f29cd72c"
                   },
                   {
-                    "number": 29,
+                    "number": 36,
                     "provider": "workato_db_table",
                     "name": "get_records",
                     "as": "332d18a4",
@@ -4919,7 +6954,7 @@
                     "uuid": "0a2f59bb-38b5-48c9-839c-57816ef23c4a"
                   },
                   {
-                    "number": 30,
+                    "number": 37,
                     "keyword": "if",
                     "input": {
                       "type": "compound",
@@ -4935,7 +6970,7 @@
                     },
                     "block": [
                       {
-                        "number": 31,
+                        "number": 38,
                         "as": "dbb7bc1c",
                         "keyword": "foreach",
                         "repeat_mode": "simple",
@@ -4944,7 +6979,7 @@
                         },
                         "block": [
                           {
-                            "number": 32,
+                            "number": 39,
                             "provider": "workato_db_table",
                             "name": "upsert_record",
                             "as": "fac42a1b",
@@ -5414,7 +7449,7 @@
                     "uuid": "8f6f7862-1a08-4ab2-855d-5f00e10ec2c8"
                   },
                   {
-                    "number": 33,
+                    "number": 40,
                     "provider": "workato_db_table",
                     "name": "get_records",
                     "as": "2b1eba54",
@@ -5730,7 +7765,7 @@
                     "uuid": "a4ed1fbf-ec84-4519-a0b7-6840dba36bd0"
                   },
                   {
-                    "number": 34,
+                    "number": 41,
                     "keyword": "if",
                     "input": {
                       "type": "compound",
@@ -5746,7 +7781,7 @@
                     },
                     "block": [
                       {
-                        "number": 35,
+                        "number": 42,
                         "as": "8251dd4a",
                         "keyword": "foreach",
                         "repeat_mode": "simple",
@@ -5755,7 +7790,7 @@
                         },
                         "block": [
                           {
-                            "number": 36,
+                            "number": 43,
                             "provider": "workato_db_table",
                             "name": "upsert_record",
                             "as": "ea4bafe7",
@@ -6225,7 +8260,7 @@
                     "uuid": "86bf96a7-70b0-4e8a-a626-b62a58ab285b"
                   },
                   {
-                    "number": 37,
+                    "number": 44,
                     "provider": "workato_db_table",
                     "name": "get_records",
                     "as": "2853719c",
@@ -6541,7 +8576,7 @@
                     "uuid": "5be92731-20e3-4a68-adf0-e62aec3e6e91"
                   },
                   {
-                    "number": 38,
+                    "number": 45,
                     "keyword": "if",
                     "input": {
                       "type": "compound",
@@ -6557,7 +8592,7 @@
                     },
                     "block": [
                       {
-                        "number": 39,
+                        "number": 46,
                         "as": "b2c15310",
                         "keyword": "foreach",
                         "repeat_mode": "simple",
@@ -6566,7 +8601,7 @@
                         },
                         "block": [
                           {
-                            "number": 40,
+                            "number": 47,
                             "provider": "workato_db_table",
                             "name": "upsert_record",
                             "as": "2a4dd743",
@@ -7055,7 +9090,7 @@
                     "uuid": "ee7408a7-9b5b-4e9b-a4d4-d9334afd8383"
                   },
                   {
-                    "number": 41,
+                    "number": 48,
                     "provider": "workato_db_table",
                     "name": "get_records",
                     "as": "37d170b1",
@@ -7371,7 +9406,7 @@
                     "uuid": "ff7ee4e5-6e33-4d0a-a0de-c01ee5b92156"
                   },
                   {
-                    "number": 42,
+                    "number": 49,
                     "keyword": "if",
                     "input": {
                       "type": "compound",
@@ -7387,7 +9422,7 @@
                     },
                     "block": [
                       {
-                        "number": 43,
+                        "number": 50,
                         "as": "36343a18",
                         "keyword": "foreach",
                         "repeat_mode": "simple",
@@ -7396,7 +9431,7 @@
                         },
                         "block": [
                           {
-                            "number": 44,
+                            "number": 51,
                             "provider": "workato_db_table",
                             "name": "upsert_record",
                             "as": "eccb3d40",
@@ -7885,7 +9920,7 @@
                     "uuid": "be296b40-77a2-49ab-b7f6-cc74518923e8"
                   },
                   {
-                    "number": 45,
+                    "number": 52,
                     "provider": "workato_db_table",
                     "name": "get_records",
                     "as": "a4d0725f",
@@ -8201,7 +10236,7 @@
                     "uuid": "9ad363a2-3680-4e9c-8173-9f12b27dcdd3"
                   },
                   {
-                    "number": 46,
+                    "number": 53,
                     "keyword": "if",
                     "input": {
                       "type": "compound",
@@ -8217,7 +10252,7 @@
                     },
                     "block": [
                       {
-                        "number": 47,
+                        "number": 54,
                         "as": "f1ea0043",
                         "keyword": "foreach",
                         "repeat_mode": "simple",
@@ -8226,7 +10261,7 @@
                         },
                         "block": [
                           {
-                            "number": 48,
+                            "number": 55,
                             "provider": "workato_db_table",
                             "name": "upsert_record",
                             "as": "0a10cb06",
@@ -8722,7 +10757,7 @@
             "uuid": "30358740-6dd7-471e-b921-cda795f6c9b0"
           },
           {
-            "number": 49,
+            "number": 56,
             "provider": "workato_recipe_function",
             "name": "return_result",
             "as": "28186d5e",
@@ -8732,7 +10767,7 @@
             "uuid": "3c7bae6b-b7bb-4c34-9ff2-055b6448ffb5"
           },
           {
-            "number": 50,
+            "number": 57,
             "as": "b907e6f7",
             "keyword": "catch",
             "input": {
@@ -8741,7 +10776,7 @@
             },
             "block": [
               {
-                "number": 51,
+                "number": 58,
                 "provider": "logger",
                 "name": "log_message",
                 "as": "8e251cf8",
@@ -8766,7 +10801,7 @@
                 "uuid": "853004a4-3e7a-4693-a2c1-f25bd02eb115"
               },
               {
-                "number": 52,
+                "number": 59,
                 "provider": "workato_recipe_function",
                 "name": "call_recipe",
                 "as": "67daa051",
