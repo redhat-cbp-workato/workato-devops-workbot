@@ -1,7 +1,7 @@
 {
   "name": "SAP ARIBA | Notify Stakeholders on Supplier Sync Status",
   "description": "",
-  "version": 4,
+  "version": 5,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -142,14 +142,14 @@
         "as": "f8dfa54c",
         "keyword": "action",
         "input": {
-          "sql": "SELECT DISTINCT RECIPE_ID, INTERFACE_ID, INTERFACE_ERROR, RECORD_METHOD, CREATION_DATE, INTERFACE_STATUS,ARIBA_VENDOR_ID\n\tFROM XXRHFIN.XXRH_SUPPLIER_IMPORT_ALTER_STG\n    WHERE RECIPE_ID = :RECIPE_ID and CREATION_DATE > SYSDATE -1",
+          "sql": "SELECT DISTINCT RECIPE_ID, INTERFACE_ID, INTERFACE_ERROR, RECORD_METHOD, CREATION_DATE, INTERFACE_STATUS,ARIBA_VENDOR_ID, VENDOR_NAME, VENDOR_SITE_CODE\n\tFROM XXRHFIN.XXRH_SUPPLIER_IMPORT_ALTER_STG\n    WHERE RECIPE_ID = :RECIPE_ID and CREATION_DATE > SYSDATE -1",
           "parameters": {
             "schema": "[{\"name\":\"RECIPE_ID\",\"type\":\"string\",\"optional\":true,\"label\":\"RECIPE_ID\",\"details\":{\"real_name\":\"RECIPE_ID\"},\"control_type\":\"text\"}]",
             "data": {
               "RECIPE_ID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"35ab4805\",\"path\":[\"parameters\",\"recipe_id\"]}')}"
             }
           },
-          "output_schema": "[{\"name\":\"interface_id\",\"type\":\"string\",\"optional\":false,\"label\":\"interface_id\",\"control_type\":\"text\"},{\"name\":\"record_method\",\"type\":\"string\",\"optional\":false,\"label\":\"record_method\",\"control_type\":\"text\"},{\"name\":\"ariba_vendor_id\",\"type\":\"string\",\"optional\":false,\"label\":\"ariba_vendor_id\",\"control_type\":\"text\"},{\"name\":\"interface_status\",\"type\":\"string\",\"optional\":false,\"label\":\"interface_status\",\"control_type\":\"text\"},{\"name\":\"interface_error\",\"type\":\"string\",\"optional\":true,\"label\":\"interface_error\",\"control_type\":\"text\"},{\"name\":\"creation_date\",\"type\":\"date_time\",\"optional\":false,\"label\":\"creation_date\",\"control_type\":\"date\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\"},{\"name\":\"recipe_id\",\"type\":\"string\",\"optional\":true,\"label\":\"recipe_id\",\"control_type\":\"text\"}]"
+          "output_schema": "[{\"name\":\"interface_id\",\"type\":\"string\",\"optional\":false,\"label\":\"interface_id\",\"control_type\":\"text\"},{\"name\":\"record_method\",\"type\":\"string\",\"optional\":false,\"label\":\"record_method\",\"control_type\":\"text\"},{\"name\":\"ariba_vendor_id\",\"type\":\"string\",\"optional\":false,\"label\":\"ariba_vendor_id\",\"control_type\":\"text\"},{\"name\":\"interface_status\",\"type\":\"string\",\"optional\":false,\"label\":\"interface_status\",\"control_type\":\"text\"},{\"name\":\"interface_error\",\"type\":\"string\",\"optional\":true,\"label\":\"interface_error\",\"control_type\":\"text\"},{\"name\":\"creation_date\",\"type\":\"date_time\",\"optional\":false,\"label\":\"creation_date\",\"control_type\":\"date\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\"},{\"name\":\"recipe_id\",\"type\":\"string\",\"optional\":true,\"label\":\"recipe_id\",\"control_type\":\"text\"},{\"name\":\"vendor_name\",\"type\":\"string\",\"optional\":true,\"label\":\"vendor_name\",\"control_type\":\"text\"},{\"name\":\"vendor_site_code\",\"type\":\"string\",\"optional\":true,\"label\":\"vendor_site_code\",\"control_type\":\"text\"}]"
         },
         "extended_output_schema": [
           {
@@ -275,6 +275,40 @@
                 "optional": true,
                 "type": "string",
                 "name": "recipe_id_31f66c90"
+              },
+              {
+                "control_type": "text",
+                "label": "vendor_name",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "vendor_name",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "vendor_name_49552178"
+              },
+              {
+                "control_type": "text",
+                "label": "vendor_site_code",
+                "details": {
+                  "primary_key": null,
+                  "data_type": "string",
+                  "column_name": "vendor_site_code",
+                  "length": null,
+                  "precision": null,
+                  "scale": null,
+                  "element_type": null
+                },
+                "hint": "string",
+                "optional": true,
+                "type": "string",
+                "name": "vendor_site_code_ef485700"
               }
             ],
             "type": "array",
@@ -431,11 +465,116 @@
           "template_input.Record.RECIPE_ID",
           "template_input.Record.serialNo"
         ],
-        "comment": "TABLE for STAGING Details",
+        "comment": "TABLE for STAGING Details IT Team Template",
         "uuid": "88651d67-765e-4a8d-bce8-dacd78a40f07"
       },
       {
         "number": 3,
+        "provider": "workato_template",
+        "name": "create_document",
+        "as": "fe994836",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "template_id": "[S2P] Business Notification"
+        },
+        "input": {
+          "template_id": {
+            "zip_name": "s2p_business_notification_for_validation_errors.workato_template.json",
+            "name": "[S2P] Business Notification for Validation Errors",
+            "folder": ""
+          },
+          "template_input": {
+            "Rows": {
+              "SerialNo": "=_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\",{\"path_element_type\":\"current_index\"}]}') + 1",
+              "VendorName": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"vendor_name_49552178\"]}')}",
+              "InterfaceError": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"interface_error_aec4a19d\"]}')}",
+              "InterfaceStatus": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"interface_status_e7947ef7\"]}')}",
+              "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\"]}')}",
+              "VendorSiteCode": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"vendor_site_code_ef485700\"]}')}"
+            },
+            "VendorID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"ariba_vendor_id_cd58d60d\"]}')}"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Template input",
+            "name": "template_input",
+            "properties": [
+              {
+                "label": "Rows",
+                "name": "Rows",
+                "type": "array",
+                "optional": false,
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "integer",
+                    "label": "SerialNo",
+                    "parse_output": "integer_conversion",
+                    "name": "SerialNo",
+                    "type": "integer",
+                    "optional": true,
+                    "render_input": "integer_conversion"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "VendorName",
+                    "name": "VendorName",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "InterfaceError",
+                    "name": "InterfaceError",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "InterfaceStatus",
+                    "name": "InterfaceStatus",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "VendorSiteCode",
+                    "name": "VendorSiteCode",
+                    "type": "string",
+                    "optional": true
+                  }
+                ]
+              },
+              {
+                "control_type": "text",
+                "label": "VendorID",
+                "name": "VendorID",
+                "type": "string",
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "template_id",
+          "template_input.Rows.SerialNo",
+          "template_input.Rows.VendorName",
+          "template_input.Rows.InterfaceError",
+          "template_input.Rows.InterfaceStatus",
+          "template_input",
+          "template_input.Rows",
+          "template_input.Rows.VendorSiteCode",
+          "template_input.Rows.VendorID",
+          "template_input.VendorID"
+        ],
+        "comment": "FOR BUSINESS Team Template with Error Status",
+        "uuid": "a45d6b88-31d6-4972-8dea-e98866133f33",
+        "skip": false
+      },
+      {
+        "number": 4,
         "keyword": "if",
         "input": {
           "type": "compound",
@@ -451,7 +590,7 @@
         },
         "block": [
           {
-            "number": 4,
+            "number": 5,
             "keyword": "if",
             "input": {
               "type": "compound",
@@ -467,7 +606,7 @@
             },
             "block": [
               {
-                "number": 5,
+                "number": 6,
                 "provider": "email",
                 "name": "send_mail",
                 "as": "c6fd83d3",
@@ -483,7 +622,7 @@
                 "skip": false
               },
               {
-                "number": 6,
+                "number": 7,
                 "keyword": "elsif",
                 "input": {
                   "type": "compound",
@@ -499,7 +638,7 @@
                 },
                 "block": [
                   {
-                    "number": 7,
+                    "number": 8,
                     "provider": "email",
                     "name": "send_mail",
                     "as": "c450a6c5",
@@ -513,6 +652,48 @@
                     "comment": "Trigger UPDATE SUCCESS Email to Stakeholders",
                     "uuid": "e94964e1-0318-4c72-97ce-8e9c31285e97",
                     "skip": false
+                  },
+                  {
+                    "number": 9,
+                    "keyword": "if",
+                    "input": {
+                      "type": "compound",
+                      "operand": "and",
+                      "conditions": [
+                        {
+                          "operand": "present",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"f8dfa54c\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"interface_id_689048c5\"]}')}",
+                          "rhs": "",
+                          "uuid": "bb4d8f25-684d-446e-876c-33e909a2aeed"
+                        }
+                      ]
+                    },
+                    "block": [
+                      {
+                        "number": 10,
+                        "provider": "email",
+                        "name": "send_mail",
+                        "as": "ca25aa12",
+                        "keyword": "action",
+                        "input": {
+                          "email_type": "html",
+                          "body": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_template\",\"line\":\"fe994836\",\"path\":[\"document\"]}')}",
+                          "subject": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')} - Action Required : Submission Partially failed in Oracle ",
+                          "to": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2p_ariba_support_mail\"}')}"
+                        },
+                        "visible_config_fields": [
+                          "to",
+                          "subject",
+                          "email_type",
+                          "body",
+                          "cc"
+                        ],
+                        "comment": "Notify BUSINESS TEAM - For Partial Failure",
+                        "uuid": "2ec5130e-007f-4da6-9757-72b389abd12f",
+                        "skip": false
+                      }
+                    ],
+                    "uuid": "f025281d-0259-450c-93b4-ec3912ef2e58"
                   }
                 ],
                 "uuid": "39c7c8cf-4129-499a-b4ea-2e6bb35311a9"
@@ -521,7 +702,7 @@
             "uuid": "3a7b26cc-76b4-44b2-b51e-2a8e8c2ade6f"
           },
           {
-            "number": 8,
+            "number": 11,
             "keyword": "elsif",
             "input": {
               "type": "compound",
@@ -537,7 +718,7 @@
             },
             "block": [
               {
-                "number": 9,
+                "number": 12,
                 "keyword": "if",
                 "input": {
                   "type": "compound",
@@ -553,7 +734,7 @@
                 },
                 "block": [
                   {
-                    "number": 10,
+                    "number": 13,
                     "provider": "email",
                     "name": "send_mail",
                     "as": "701cede9",
@@ -569,7 +750,7 @@
                     "skip": false
                   },
                   {
-                    "number": 11,
+                    "number": 14,
                     "keyword": "elsif",
                     "input": {
                       "type": "compound",
@@ -585,7 +766,7 @@
                     },
                     "block": [
                       {
-                        "number": 12,
+                        "number": 15,
                         "provider": "email",
                         "name": "send_mail",
                         "as": "3f94878f",
@@ -598,6 +779,29 @@
                         },
                         "comment": "Trigger UPDATE FAILURE Email to Stakeholders",
                         "uuid": "e8e8c6c2-b44b-4f0e-aed5-93cc0528ced9",
+                        "skip": false
+                      },
+                      {
+                        "number": 16,
+                        "provider": "email",
+                        "name": "send_mail",
+                        "as": "afbbcae1",
+                        "keyword": "action",
+                        "input": {
+                          "email_type": "html",
+                          "body": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_template\",\"line\":\"fe994836\",\"path\":[\"document\"]}')}",
+                          "subject": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')} - Action Required : Submission Partially failed in Oracle ",
+                          "to": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2p_ariba_support_mail\"}')}"
+                        },
+                        "visible_config_fields": [
+                          "to",
+                          "subject",
+                          "email_type",
+                          "body",
+                          "cc"
+                        ],
+                        "comment": "Notify BUSINESS TEAM - For Failure",
+                        "uuid": "bd6610d7-85bc-4941-861a-6d4df584ee19",
                         "skip": false
                       }
                     ],
@@ -617,7 +821,7 @@
         "skip": false
       },
       {
-        "number": 13,
+        "number": 17,
         "provider": "workato_recipe_function",
         "name": "return_result",
         "as": "dbff2d5b",
