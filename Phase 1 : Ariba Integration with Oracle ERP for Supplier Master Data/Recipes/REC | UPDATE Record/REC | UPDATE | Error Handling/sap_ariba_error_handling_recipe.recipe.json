@@ -1,0 +1,658 @@
+{
+  "name": "SAP ARIBA | Error Handling Recipe",
+  "description": "",
+  "version": 2,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "1d6befa6",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"recipe_name\",\"type\":\"string\",\"optional\":true,\"label\":\"recipe_name\",\"control_type\":\"text\"},{\"name\":\"recipe_url\",\"type\":\"string\",\"optional\":true,\"label\":\"recipe_url\",\"control_type\":\"text\"},{\"name\":\"error_step_no\",\"type\":\"integer\",\"optional\":true,\"label\":\"error_step_no\",\"control_type\":\"integer\",\"parse_output\":\"integer_conversion\",\"render_input\":\"integer_conversion\"},{\"name\":\"error_code\",\"type\":\"integer\",\"optional\":true,\"label\":\"error_code\",\"control_type\":\"integer\",\"parse_output\":\"integer_conversion\",\"render_input\":\"integer_conversion\"},{\"name\":\"error_message\",\"type\":\"string\",\"optional\":true,\"label\":\"error_message\",\"control_type\":\"text\"},{\"name\":\"affected_oracle_table_name\",\"type\":\"string\",\"optional\":true,\"label\":\"affected_oracle_table_name\",\"control_type\":\"text\"},{\"name\":\"job_link\",\"type\":\"string\",\"optional\":true,\"label\":\"job_link\",\"control_type\":\"text\"},{\"name\":\"job_failed_at\",\"type\":\"date_time\",\"optional\":true,\"label\":\"job_failed_at\",\"control_type\":\"date_time\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\"},{\"name\":\"file_name\",\"type\":\"string\",\"optional\":true,\"label\":\"file_name\",\"control_type\":\"text\"}]",
+      "result_schema_json": "[{\"name\":\"message\",\"type\":\"string\",\"optional\":true,\"label\":\"message\",\"control_type\":\"text\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "recipe_name",
+            "name": "recipe_name",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "recipe_url",
+            "name": "recipe_url",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "integer",
+            "label": "error_step_no",
+            "parse_output": "integer_conversion",
+            "name": "error_step_no",
+            "type": "integer",
+            "optional": true,
+            "render_input": "integer_conversion"
+          },
+          {
+            "control_type": "integer",
+            "label": "error_code",
+            "parse_output": "integer_conversion",
+            "name": "error_code",
+            "type": "integer",
+            "optional": true,
+            "render_input": "integer_conversion"
+          },
+          {
+            "control_type": "text",
+            "label": "error_message",
+            "name": "error_message",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "affected_oracle_table_name",
+            "name": "affected_oracle_table_name",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "job_link",
+            "name": "job_link",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "date_time",
+            "label": "job_failed_at",
+            "render_input": "date_time_conversion",
+            "parse_output": "date_time_conversion",
+            "name": "job_failed_at",
+            "type": "date_time",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "file_name",
+            "name": "file_name",
+            "type": "string",
+            "optional": true
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 2,
+            "provider": "workato_db_table",
+            "name": "create_records_batch",
+            "as": "9c802d0c",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "table_id": "S2P | Ariba | Error Handling Data Table"
+            },
+            "input": {
+              "table_id": {
+                "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables/Error/s2p_ariba_error_handling_data_table.workato_db_table.json",
+                "name": "S2P | Ariba | Error Handling Data Table",
+                "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables/Error"
+              },
+              "records": {
+                "parameters": {
+                  "d3a7787e_3cc7_4e19_8a6f_b5f46aeb4b8f": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"recipe_name\"]}')}",
+                  "80dcb150_9aff_4012_8a11_44ea4fad612c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"recipe_url\"]}')}",
+                  "350b49e8_6ac5_45df_b318_bc3c1ce1f961": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"error_step_no\"]}')}",
+                  "55902b30_e61d_4a80_ac66_325d085bd87d": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"error_code\"]}')}",
+                  "540e6512_6fcb_4d28_a1b5_2944f508b314": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"error_message\"]}')}",
+                  "b83a6c0b_f0e5_4943_bda0_c6e47acde591": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"affected_oracle_table_name\"]}')}",
+                  "4a74fb73_d134_4da0_ac0b_25d7061e4d55": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"job_link\"]}')}",
+                  "15d44377_82da_480e_a5ed_96ab9de33c78": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"job_failed_at\"]}')}"
+                }
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Records",
+                "name": "records",
+                "of": "object",
+                "properties": [
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Record ID",
+                        "type": "string",
+                        "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "recipe_name",
+                        "type": "string",
+                        "name": "d3a7787e_3cc7_4e19_8a6f_b5f46aeb4b8f"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "recipe_url",
+                        "type": "string",
+                        "name": "80dcb150_9aff_4012_8a11_44ea4fad612c"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "error_step_no",
+                        "parse_output": "integer_conversion",
+                        "type": "integer",
+                        "name": "350b49e8_6ac5_45df_b318_bc3c1ce1f961"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "error_code",
+                        "parse_output": "integer_conversion",
+                        "type": "integer",
+                        "name": "55902b30_e61d_4a80_ac66_325d085bd87d"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "error_message",
+                        "type": "string",
+                        "name": "540e6512_6fcb_4d28_a1b5_2944f508b314"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "affected_oracle_table_name",
+                        "type": "string",
+                        "name": "b83a6c0b_f0e5_4943_bda0_c6e47acde591"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "job_link",
+                        "type": "string",
+                        "name": "4a74fb73_d134_4da0_ac0b_25d7061e4d55"
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "job_failed_at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "type": "date_time",
+                        "name": "15d44377_82da_480e_a5ed_96ab9de33c78"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "issue_resolved",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "issue_resolved",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "render_input": null,
+                          "parse_output": null,
+                          "type": "boolean",
+                          "name": "56402012_0991_4db8_a2bd_825857cd251a"
+                        },
+                        "type": "boolean",
+                        "name": "56402012_0991_4db8_a2bd_825857cd251a"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "developers_comment",
+                        "type": "string",
+                        "name": "aa75493f_afaa_4112_b4ee_cdfd1a0e2d34"
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "Created at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "type": "date_time",
+                        "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "Updated at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "type": "date_time",
+                        "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                      }
+                    ],
+                    "label": "Record",
+                    "type": "object",
+                    "name": "record"
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Provide the list of records",
+                "label": "New records",
+                "name": "records",
+                "of": "object",
+                "optional": false,
+                "properties": [
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "recipe_name",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "d3a7787e_3cc7_4e19_8a6f_b5f46aeb4b8f"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "recipe_url",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "80dcb150_9aff_4012_8a11_44ea4fad612c"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "error_step_no",
+                        "parse_output": "integer_conversion",
+                        "optional": true,
+                        "sticky": true,
+                        "render_input": "integer_conversion",
+                        "type": "integer",
+                        "name": "350b49e8_6ac5_45df_b318_bc3c1ce1f961"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "error_code",
+                        "parse_output": "integer_conversion",
+                        "optional": true,
+                        "sticky": true,
+                        "render_input": "integer_conversion",
+                        "type": "integer",
+                        "name": "55902b30_e61d_4a80_ac66_325d085bd87d"
+                      },
+                      {
+                        "control_type": "text-area",
+                        "label": "error_message",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "540e6512_6fcb_4d28_a1b5_2944f508b314"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "affected_oracle_table_name",
+                        "optional": true,
+                        "sticky": false,
+                        "type": "string",
+                        "name": "b83a6c0b_f0e5_4943_bda0_c6e47acde591"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "job_link",
+                        "optional": true,
+                        "sticky": false,
+                        "type": "string",
+                        "name": "4a74fb73_d134_4da0_ac0b_25d7061e4d55"
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "job_failed_at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "optional": true,
+                        "sticky": false,
+                        "type": "date_time",
+                        "name": "15d44377_82da_480e_a5ed_96ab9de33c78"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "issue_resolved",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "optional": true,
+                        "sticky": false,
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "issue_resolved",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "hint": null,
+                          "placeholder": null,
+                          "optional": true,
+                          "sticky": false,
+                          "render_input": "boolean_conversion",
+                          "parse_output": "boolean_conversion",
+                          "type": "boolean",
+                          "name": "56402012_0991_4db8_a2bd_825857cd251a"
+                        },
+                        "type": "boolean",
+                        "name": "56402012_0991_4db8_a2bd_825857cd251a"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "developers_comment",
+                        "optional": true,
+                        "sticky": false,
+                        "type": "string",
+                        "name": "aa75493f_afaa_4112_b4ee_cdfd1a0e2d34"
+                      }
+                    ],
+                    "label": "New record fields",
+                    "hint": "Fill the fields for the new record",
+                    "type": "object",
+                    "name": "parameters"
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "visible_config_fields": [
+              "table_id",
+              "records.parameters.874de497_e796_476d_a688_331f066ed5c3",
+              "records.parameters.80320043_0574_4753_9caf_78a8d4a3514d",
+              "records.parameters.63654713_1d34_4af5_9ca0_aa09343c2c11",
+              "records.parameters.8ac4b588_5024_4b41_baaf_049368aa5414",
+              "records.parameters.d4bc017e_4ce6_451e_86de_d7fe1cf51401",
+              "output_format",
+              "records.parameters.d54571fa_67a6_4eca_9e5d_692662404589",
+              "records.parameters.07a07328_2827_4bc3_ab16_58013a26453e",
+              "records.parameters.7c252b5c_9a3b_4c82_a11c_276dad77fcd3",
+              "records.parameters.5b746d4c_c2b1_43d7_8c34_dc8e8f8938b0",
+              "records.parameters.dd502a3d_0f72_4622_aa08_e93defd96748",
+              "records",
+              "records.parameters",
+              "records.parameters.d3a7787e_3cc7_4e19_8a6f_b5f46aeb4b8f",
+              "records.parameters.80dcb150_9aff_4012_8a11_44ea4fad612c",
+              "records.parameters.350b49e8_6ac5_45df_b318_bc3c1ce1f961",
+              "records.parameters.55902b30_e61d_4a80_ac66_325d085bd87d",
+              "records.parameters.540e6512_6fcb_4d28_a1b5_2944f508b314",
+              "records.parameters.b83a6c0b_f0e5_4943_bda0_c6e47acde591",
+              "records.parameters.4a74fb73_d134_4da0_ac0b_25d7061e4d55",
+              "records.parameters.15d44377_82da_480e_a5ed_96ab9de33c78",
+              "records.parameters.56402012_0991_4db8_a2bd_825857cd251a",
+              "records.parameters.aa75493f_afaa_4112_b4ee_cdfd1a0e2d34"
+            ],
+            "uuid": "56528850-8ca2-4739-bfdb-19ccafe4f274"
+          },
+          {
+            "number": 3,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"file_name\"]}')}",
+                  "rhs": "",
+                  "uuid": "2644c5d7-0388-400b-92e8-561aeea0b55b"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 4,
+                "provider": "workato_files",
+                "name": "search_files",
+                "as": "669666fe",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "file_path": {
+                    "ids": [
+                      "/",
+                      "/S2PR2R",
+                      "/S2PR2R/SAPARIBA"
+                    ],
+                    "titles": [
+                      "Root directory",
+                      "S2PR2R",
+                      "SAPARIBA"
+                    ]
+                  }
+                },
+                "toggleCfg": {
+                  "file_path": true
+                },
+                "input": {
+                  "file_name_filter": {
+                    "condition": "equals",
+                    "value": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"file_name\"]}')}"
+                  },
+                  "file_path": "/S2PR2R/SAPARIBA"
+                },
+                "uuid": "41a557c8-e120-4b63-aca5-aa1cac0d4d03"
+              },
+              {
+                "number": 5,
+                "provider": "workato_files",
+                "name": "get_file_contents",
+                "as": "127942fd",
+                "keyword": "action",
+                "toggleCfg": {
+                  "file_path": true
+                },
+                "input": {
+                  "file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"669666fe\",\"path\":[\"files\",{\"path_element_type\":\"current_item\"},\"full_path\"]}')}"
+                },
+                "uuid": "cffe56f7-fb82-447d-91f1-8dcc5bb7cbf0"
+              },
+              {
+                "number": 6,
+                "provider": "email",
+                "name": "send_mail",
+                "as": "f4ad7a33",
+                "keyword": "action",
+                "input": {
+                  "email_type": "plain_text",
+                  "to": "jgayam@redhat.com, sipawar@redhat.com, pputhran@redhat.com, sdepa@redhat.com",
+                  "subject": "Workato Recipe Failed - #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"recipe_name\"]}')}",
+                  "body": "Workato Process Failure Notification!\n\nA critical error occurred in the  Workato environment. Please investigate immediately to ensure the stability of the integration.\n\nFailure Details:\nInstance: DEV1\nRecipe: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"recipe_name\"]}')}\nJob ID: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"context\",\"calling_job_id\"]}')}\nJob Link: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"job_link\"]}')}\nContact / Owner: Please reach out to S2P/R2R Team.\n\nAttached below is file containing failed records!\n\nThanks!",
+                  "attachments": {
+                    "file_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"127942fd\",\"path\":[\"name\"]}')}",
+                    "file_binary_content": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"127942fd\",\"path\":[\"content\"]}')}"
+                  }
+                },
+                "visible_config_fields": [
+                  "to",
+                  "subject",
+                  "email_type",
+                  "body",
+                  "attachments.file_name",
+                  "attachments.file_binary_content"
+                ],
+                "uuid": "725439cc-f210-4121-8f4a-e1e7ee10af4f",
+                "skip": false
+              },
+              {
+                "number": 7,
+                "keyword": "else",
+                "input": {
+                },
+                "block": [
+                  {
+                    "number": 8,
+                    "provider": "email",
+                    "name": "send_mail",
+                    "as": "df9b0c4c",
+                    "keyword": "action",
+                    "input": {
+                      "email_type": "plain_text",
+                      "to": "jgayam@redhat.com, sipawar@redhat.com, pputhran@redhat.com, sdepa@redhat.com",
+                      "subject": "Workato Recipe Failed - #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"recipe_name\"]}')}",
+                      "body": "Workato Process Failure Notification!\n\nA critical error occurred in the  Workato environment. Please investigate immediately to ensure the stability of the integration.\n\nFailure Details:\nInstance: DEV1\nRecipe: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"recipe_name\"]}')}\nJob ID: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"context\",\"calling_job_id\"]}')}\nJob Link: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"job_link\"]}')}\nTimestamp of Failure: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"job_failed_at\"]}')}\nError Type: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"error_code\"]}')}\nError Message: #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1d6befa6\",\"path\":[\"parameters\",\"error_message\"]}')}\nContact / Owner: Please reach out to S2P/R2R Team.\n\nThanks!"
+                    },
+                    "visible_config_fields": [
+                      "to",
+                      "subject",
+                      "email_type",
+                      "body"
+                    ],
+                    "uuid": "d28edaa1-ac4c-4a5c-83a5-96102564c77e",
+                    "skip": false
+                  }
+                ],
+                "uuid": "5171bf67-6d47-4f08-8a60-7517dec7ab0c"
+              }
+            ],
+            "uuid": "294aba79-3e9a-4b8b-ac86-8e5c35826f10"
+          },
+          {
+            "number": 9,
+            "as": "f2ed5313",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 10,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "3dc2ab71",
+                "keyword": "action",
+                "input": {
+                  "result": {
+                    "message": "=\"Failed to Insert Error Record to Data Table!\" + _dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"f2ed5313\",\"path\":[\"message\"]}')"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "message",
+                        "name": "message",
+                        "type": "string",
+                        "optional": true
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "message",
+                        "name": "message",
+                        "type": "string",
+                        "optional": true
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "result.message"
+                ],
+                "uuid": "9fb28545-2918-4aa0-ba8b-49393c20d62e"
+              }
+            ],
+            "uuid": "aaf996d3-02f3-4760-9ee6-1ee4b20f812c"
+          }
+        ],
+        "uuid": "a50877b8-f92e-44b4-9437-0d528712d0ed"
+      },
+      {
+        "number": 11,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "42d1860a",
+        "keyword": "action",
+        "input": {
+          "result": {
+            "message": "Error Record Inserted to Data Table Successfully!"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "message",
+                "name": "message",
+                "type": "string",
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "message",
+                "name": "message",
+                "type": "string",
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "result.message"
+        ],
+        "uuid": "a24e9410-3da2-4393-a2de-8669e5ce1087"
+      }
+    ],
+    "uuid": "755e2ba5-d713-458c-8b69-b0f31f9fe58f"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_db_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "email",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_files",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ],
+  "tags": [
+    "QA"
+  ]
+}
