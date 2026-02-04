@@ -1,7 +1,7 @@
 {
   "name": "FUNC | 02 | SupplierMasterData_ARIBA_To_ERP",
   "description": "",
-  "version": 185,
+  "version": 191,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -553,7 +553,7 @@
                 "default": false,
                 "disable_formula": true,
                 "extends_schema": true,
-                "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
                 "label": "Send to Workato log service",
                 "name": "user_logs_enabled",
                 "optional": true,
@@ -1150,6 +1150,250 @@
                       }
                     ],
                     "extended_input_schema": [
+                      {
+                        "label": "Request",
+                        "name": "request",
+                        "override": true,
+                        "properties": [
+                          {
+                            "control_type": "select",
+                            "label": "Method",
+                            "pick_list": [
+                              [
+                                "GET",
+                                "GET"
+                              ],
+                              [
+                                "POST",
+                                "POST"
+                              ],
+                              [
+                                "PUT",
+                                "PUT"
+                              ],
+                              [
+                                "DELETE",
+                                "DELETE"
+                              ],
+                              [
+                                "HEAD",
+                                "HEAD"
+                              ],
+                              [
+                                "PATCH",
+                                "PATCH"
+                              ]
+                            ],
+                            "hint": "Select a HTTP method",
+                            "default": "GET",
+                            "type": "string",
+                            "name": "method"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Request URL",
+                            "check_secrets": true,
+                            "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
+                            "placeholder": "https://api.example.com/v1/leads",
+                            "type": "string",
+                            "name": "url"
+                          },
+                          {
+                            "control_type": "select",
+                            "label": "Request content type",
+                            "extends_schema": true,
+                            "pick_list": [
+                              [
+                                "JSON request body",
+                                "json"
+                              ],
+                              [
+                                "Raw JSON request body",
+                                "application/json"
+                              ],
+                              [
+                                "XML",
+                                "application/xml"
+                              ],
+                              [
+                                "Text",
+                                "text/plain"
+                              ],
+                              [
+                                "URL encoded form",
+                                "application/x-www-form-urlencoded"
+                              ],
+                              [
+                                "Binary",
+                                "application/octet-stream"
+                              ],
+                              [
+                                "Multipart form",
+                                "multipart/form-data"
+                              ],
+                              [
+                                "Multipart alternative",
+                                "multipart/alternative"
+                              ],
+                              [
+                                "Multipart digest",
+                                "multipart/digest"
+                              ],
+                              [
+                                "Multipart mixed",
+                                "multipart/mixed"
+                              ],
+                              [
+                                "Multipart related",
+                                "multipart/related"
+                              ]
+                            ],
+                            "hint": "The API endpoint documentation should define what data it expects",
+                            "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
+                            "optional": true,
+                            "default": "application/json",
+                            "type": "string",
+                            "name": "content_type"
+                          },
+                          {
+                            "control_type": "text-area",
+                            "label": "Request body",
+                            "hint": "HTTP request body to send with the request. <a href=\"https://docs.workato.com/developing-connectors/http.html#request-body\" target=\"_blank\">Learn more</a>",
+                            "sticky": true,
+                            "check_secrets": true,
+                            "ngIf": "input.request.content_type !== 'json' && input.request.content_type !== 'application/x-www-form-urlencoded' && input.request.content_type !== 'multipart/form-data' && input.request.content_type !== 'multipart/alternative' && input.request.content_type !== 'multipart/digest' && input.request.content_type !== 'multipart/mixed' && input.request.content_type !== 'multipart/related' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                            "optional": true,
+                            "type": "string",
+                            "name": "body"
+                          },
+                          {
+                            "label": "Request body",
+                            "control_type": "key_value",
+                            "optional": true,
+                            "empty_list_title": "Does this HTTP request require form data?",
+                            "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
+                            "item_label": "Form data",
+                            "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                            "of": "object",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Key",
+                                "type": "string",
+                                "name": "param"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Value",
+                                "type": "string",
+                                "name": "value"
+                              }
+                            ],
+                            "type": "array",
+                            "name": "form_body"
+                          },
+                          {
+                            "label": "Request parts",
+                            "optional": true,
+                            "item_label": "Part",
+                            "ngIf": "(input.request.content_type === 'multipart/alternative'|| input.request.content_type === 'multipart/digest'|| input.request.content_type === 'multipart/mixed'|| input.request.content_type === 'multipart/related') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                            "of": "object",
+                            "properties": [
+                              {
+                                "label": "Headers",
+                                "optional": true,
+                                "sticky": true,
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Header name",
+                                    "optional": false,
+                                    "type": "string",
+                                    "name": "name"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "optional": true,
+                                    "sticky": true,
+                                    "type": "string",
+                                    "name": "value"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "headers"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Raw body",
+                                "optional": true,
+                                "sticky": true,
+                                "hint": "Raw content of the part",
+                                "type": "string",
+                                "name": "body"
+                              }
+                            ],
+                            "type": "array",
+                            "name": "parts"
+                          },
+                          {
+                            "label": "Request URL parameters",
+                            "control_type": "key_value",
+                            "check_secrets": true,
+                            "optional": true,
+                            "empty_list_title": "Does this HTTP request contain a query string?",
+                            "empty_list_text": "Add URL parameters to the query string",
+                            "item_label": "URL parameter",
+                            "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
+                            "of": "object",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Parameter name",
+                                "type": "string",
+                                "name": "param"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Value",
+                                "type": "string",
+                                "name": "value"
+                              }
+                            ],
+                            "type": "array",
+                            "name": "parameters"
+                          },
+                          {
+                            "label": "Request headers",
+                            "control_type": "key_value",
+                            "optional": true,
+                            "check_secrets": true,
+                            "empty_list_title": "Does this HTTP request require headers?",
+                            "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                            "item_label": "Header",
+                            "sticky": true,
+                            "of": "object",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Header name",
+                                "type": "string",
+                                "name": "header"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Value",
+                                "type": "string",
+                                "name": "value"
+                              }
+                            ],
+                            "type": "array",
+                            "name": "headers"
+                          }
+                        ],
+                        "type": "object"
+                      },
                       {
                         "label": "Response",
                         "name": "response",
@@ -1980,6 +2224,250 @@
                         ],
                         "extended_input_schema": [
                           {
+                            "label": "Request",
+                            "name": "request",
+                            "override": true,
+                            "properties": [
+                              {
+                                "control_type": "select",
+                                "label": "Method",
+                                "pick_list": [
+                                  [
+                                    "GET",
+                                    "GET"
+                                  ],
+                                  [
+                                    "POST",
+                                    "POST"
+                                  ],
+                                  [
+                                    "PUT",
+                                    "PUT"
+                                  ],
+                                  [
+                                    "DELETE",
+                                    "DELETE"
+                                  ],
+                                  [
+                                    "HEAD",
+                                    "HEAD"
+                                  ],
+                                  [
+                                    "PATCH",
+                                    "PATCH"
+                                  ]
+                                ],
+                                "hint": "Select a HTTP method",
+                                "default": "GET",
+                                "type": "string",
+                                "name": "method"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Request URL",
+                                "check_secrets": true,
+                                "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
+                                "placeholder": "https://api.example.com/v1/leads",
+                                "type": "string",
+                                "name": "url"
+                              },
+                              {
+                                "control_type": "select",
+                                "label": "Request content type",
+                                "extends_schema": true,
+                                "pick_list": [
+                                  [
+                                    "JSON request body",
+                                    "json"
+                                  ],
+                                  [
+                                    "Raw JSON request body",
+                                    "application/json"
+                                  ],
+                                  [
+                                    "XML",
+                                    "application/xml"
+                                  ],
+                                  [
+                                    "Text",
+                                    "text/plain"
+                                  ],
+                                  [
+                                    "URL encoded form",
+                                    "application/x-www-form-urlencoded"
+                                  ],
+                                  [
+                                    "Binary",
+                                    "application/octet-stream"
+                                  ],
+                                  [
+                                    "Multipart form",
+                                    "multipart/form-data"
+                                  ],
+                                  [
+                                    "Multipart alternative",
+                                    "multipart/alternative"
+                                  ],
+                                  [
+                                    "Multipart digest",
+                                    "multipart/digest"
+                                  ],
+                                  [
+                                    "Multipart mixed",
+                                    "multipart/mixed"
+                                  ],
+                                  [
+                                    "Multipart related",
+                                    "multipart/related"
+                                  ]
+                                ],
+                                "hint": "The API endpoint documentation should define what data it expects",
+                                "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
+                                "optional": true,
+                                "default": "application/json",
+                                "type": "string",
+                                "name": "content_type"
+                              },
+                              {
+                                "control_type": "text-area",
+                                "label": "Request body",
+                                "hint": "HTTP request body to send with the request. <a href=\"https://docs.workato.com/developing-connectors/http.html#request-body\" target=\"_blank\">Learn more</a>",
+                                "sticky": true,
+                                "check_secrets": true,
+                                "ngIf": "input.request.content_type !== 'json' && input.request.content_type !== 'application/x-www-form-urlencoded' && input.request.content_type !== 'multipart/form-data' && input.request.content_type !== 'multipart/alternative' && input.request.content_type !== 'multipart/digest' && input.request.content_type !== 'multipart/mixed' && input.request.content_type !== 'multipart/related' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                                "optional": true,
+                                "type": "string",
+                                "name": "body"
+                              },
+                              {
+                                "label": "Request body",
+                                "control_type": "key_value",
+                                "optional": true,
+                                "empty_list_title": "Does this HTTP request require form data?",
+                                "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
+                                "item_label": "Form data",
+                                "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Key",
+                                    "type": "string",
+                                    "name": "param"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "type": "string",
+                                    "name": "value"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "form_body"
+                              },
+                              {
+                                "label": "Request parts",
+                                "optional": true,
+                                "item_label": "Part",
+                                "ngIf": "(input.request.content_type === 'multipart/alternative'|| input.request.content_type === 'multipart/digest'|| input.request.content_type === 'multipart/mixed'|| input.request.content_type === 'multipart/related') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "label": "Headers",
+                                    "optional": true,
+                                    "sticky": true,
+                                    "of": "object",
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "Header name",
+                                        "optional": false,
+                                        "type": "string",
+                                        "name": "name"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Value",
+                                        "optional": true,
+                                        "sticky": true,
+                                        "type": "string",
+                                        "name": "value"
+                                      }
+                                    ],
+                                    "type": "array",
+                                    "name": "headers"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Raw body",
+                                    "optional": true,
+                                    "sticky": true,
+                                    "hint": "Raw content of the part",
+                                    "type": "string",
+                                    "name": "body"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "parts"
+                              },
+                              {
+                                "label": "Request URL parameters",
+                                "control_type": "key_value",
+                                "check_secrets": true,
+                                "optional": true,
+                                "empty_list_title": "Does this HTTP request contain a query string?",
+                                "empty_list_text": "Add URL parameters to the query string",
+                                "item_label": "URL parameter",
+                                "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Parameter name",
+                                    "type": "string",
+                                    "name": "param"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "type": "string",
+                                    "name": "value"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "parameters"
+                              },
+                              {
+                                "label": "Request headers",
+                                "control_type": "key_value",
+                                "optional": true,
+                                "check_secrets": true,
+                                "empty_list_title": "Does this HTTP request require headers?",
+                                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                                "item_label": "Header",
+                                "sticky": true,
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Header name",
+                                    "type": "string",
+                                    "name": "header"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "type": "string",
+                                    "name": "value"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "headers"
+                              }
+                            ],
+                            "type": "object"
+                          },
+                          {
                             "label": "Response",
                             "name": "response",
                             "override": true,
@@ -2121,7 +2609,7 @@
                                 "default": false,
                                 "disable_formula": true,
                                 "extends_schema": true,
-                                "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                                "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
                                 "label": "Send to Workato log service",
                                 "name": "user_logs_enabled",
                                 "optional": true,
@@ -3942,7 +4430,7 @@
                             "default": false,
                             "disable_formula": true,
                             "extends_schema": true,
-                            "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                            "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
                             "label": "Send to Workato log service",
                             "name": "user_logs_enabled",
                             "optional": true,
@@ -4377,7 +4865,7 @@
                             "default": false,
                             "disable_formula": true,
                             "extends_schema": true,
-                            "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                            "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
                             "label": "Send to Workato log service",
                             "name": "user_logs_enabled",
                             "optional": true,
@@ -6860,8 +7348,6 @@
                               "b0f6dca5-dc01-4f03-9c6b-a2c8d1eb5f54": "string",
                               "ffe1367c-a5a7-47ff-9612-4662984d8993": "string",
                               "25ccc0de-b116-485b-b92e-593d8b979297": "date_time",
-                              "3762fa8a-4799-4faa-bde7-3ad4c80f5e88": "string",
-                              "9fd6709a-8fbd-4cf7-9dad-0764565bac28": "date_time",
                               "00587738-f0c5-40c9-9338-26809757aed8": "string",
                               "d54a527c-8d90-4ca8-8fe0-50d97d4b9f13": "string",
                               "3e55c6fa-5041-446b-abd9-ba35727db9f4": "string",
@@ -6985,18 +7471,18 @@
                                     "name": "TAX_CLASSIFICATION"
                                   },
                                   {
-                                    "control_type": "text",
-                                    "label": "UPDATED_VALIDATION_CODE",
-                                    "type": "string",
-                                    "name": "UPDATED_VALIDATION_CODE"
-                                  },
-                                  {
                                     "control_type": "date_time",
-                                    "label": "UPDATED_VALIDATION_DATE",
+                                    "label": "TAX_EFFECTIVE_FROM",
                                     "render_input": "date_time_conversion",
                                     "parse_output": "date_time_conversion",
                                     "type": "date_time",
-                                    "name": "UPDATED_VALIDATION_DATE"
+                                    "name": "TAX_EFFECTIVE_FROM"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "REGISTRATION_STATUS_CODE",
+                                    "type": "string",
+                                    "name": "REGISTRATION_STATUS_CODE"
                                   },
                                   {
                                     "control_type": "date_time",
@@ -7171,18 +7657,18 @@
                               },
                               {
                                 "control_type": "text",
-                                "default": "string",
-                                "label": "$internal_value_3762fa8a-4799-4faa-bde7-3ad4c80f5e88",
-                                "name": "3762fa8a-4799-4faa-bde7-3ad4c80f5e88",
+                                "default": "date_time",
+                                "label": "$internal_value_dcd4afb5-eec3-44e4-a6c2-68e101a39aac",
+                                "name": "dcd4afb5-eec3-44e4-a6c2-68e101a39aac",
                                 "ngIf": "false",
                                 "optional": true,
                                 "type": "string"
                               },
                               {
                                 "control_type": "text",
-                                "default": "date_time",
-                                "label": "$internal_value_9fd6709a-8fbd-4cf7-9dad-0764565bac28",
-                                "name": "9fd6709a-8fbd-4cf7-9dad-0764565bac28",
+                                "default": "string",
+                                "label": "$internal_value_35bdb80d-2ec6-4d56-abfe-2581ba0fddef",
+                                "name": "35bdb80d-2ec6-4d56-abfe-2581ba0fddef",
                                 "ngIf": "false",
                                 "optional": true,
                                 "type": "string"
@@ -7278,7 +7764,9 @@
                                 "pif_validation_expiration_date": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d9126f4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"PIF_VALIDATION_EXPIRATION_DATE\"]}')} ",
                                 "recipe_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d9126f4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"RECIPE_ID\"]}').to_i",
                                 "organization_type": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d9126f4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"ORGANIZATION_TYPE\"]}')}",
-                                "tax_classification": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d9126f4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TAX_CLASSIFICATION\"]}')}"
+                                "tax_classification": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d9126f4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TAX_CLASSIFICATION\"]}')}",
+                                "registration_status_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d9126f4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"REGISTRATION_STATUS_CODE\"]}')}",
+                                "tax_effective_from": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d9126f4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TAX_EFFECTIVE_FROM\"]}')}"
                               }
                             },
                             "extended_input_schema": [
@@ -7638,6 +8126,23 @@
                                     "name": "record_method"
                                   },
                                   {
+                                    "control_type": "text",
+                                    "label": "REGISTRATION_STATUS_CODE",
+                                    "details": {
+                                      "primary_key": false,
+                                      "data_type": "varchar2",
+                                      "column_name": "REGISTRATION_STATUS_CODE",
+                                      "length": 30,
+                                      "precision": null,
+                                      "scale": null,
+                                      "element_type": null
+                                    },
+                                    "optional": true,
+                                    "hint": "varchar2, max length 30",
+                                    "type": "string",
+                                    "name": "registration_status_code"
+                                  },
+                                  {
                                     "control_type": "number",
                                     "label": "REQUEST_ID",
                                     "parse_output": "parse_numeric_output",
@@ -7723,6 +8228,25 @@
                                     "hint": "varchar2, max length 240",
                                     "type": "string",
                                     "name": "tax_classification"
+                                  },
+                                  {
+                                    "control_type": "date_time",
+                                    "label": "TAX_EFFECTIVE_FROM",
+                                    "render_input": "render_date_time_format",
+                                    "parse_output": "parse_date_time_format",
+                                    "details": {
+                                      "primary_key": false,
+                                      "data_type": "date",
+                                      "column_name": "TAX_EFFECTIVE_FROM",
+                                      "length": 0,
+                                      "precision": null,
+                                      "scale": null,
+                                      "element_type": null
+                                    },
+                                    "optional": true,
+                                    "hint": "date",
+                                    "type": "date_time",
+                                    "name": "tax_effective_from"
                                   },
                                   {
                                     "control_type": "text",
@@ -7933,7 +8457,9 @@
                               "columns.inactive_date",
                               "columns.recipe_id",
                               "columns.organization_type",
-                              "columns.tax_classification"
+                              "columns.tax_classification",
+                              "columns.tax_effective_from",
+                              "columns.registration_status_code"
                             ],
                             "comment": "Add Rows from Supplier Temporary Table",
                             "uuid": "59a33182-d31e-4101-aadf-8d70e479f9ab"
@@ -9325,14 +9851,12 @@
                               "cf544cd3-065f-4520-b166-fcfdee994b1a": "string",
                               "10a34a52-7dc8-41c1-8ab8-57612aa7d57d": "string",
                               "a662f45f-c44f-4455-a94a-6c2692ca129d": "string",
-                              "906ac2db-7d01-4671-80e8-9718f90447ea": "string",
                               "96427d5d-6a42-433f-a6d2-b4c6d5b6af25": "string",
                               "7914cc5e-6138-4459-b802-83c5904af607": "string",
                               "2ca4b43f-d578-4a84-bb86-9a151bdcf0f4": "integer",
                               "3f1b47ab-a001-4de0-ba0f-b5be0b97e1c5": "string",
                               "01293ff1-ad3d-4e93-9cfc-1a55f2e049e0": "string",
                               "16d47fb1-70b7-42d0-9778-e04deaf6bba5": "string",
-                              "b6cee089-62b2-42c7-85ac-2e8ef6c0bc53": "string",
                               "28e0944d-969a-4c62-9a63-f31fb4c27029": "string",
                               "order_by_field_id": "2ca4b43f-d578-4a84-bb86-9a151bdcf0f4"
                             },
@@ -9423,12 +9947,6 @@
                                   },
                                   {
                                     "control_type": "text",
-                                    "label": "TAX_EFFECTIVE_FROM",
-                                    "type": "string",
-                                    "name": "TAX_EFFECTIVE_FROM"
-                                  },
-                                  {
-                                    "control_type": "text",
                                     "label": "TR_ALLOW_TX",
                                     "type": "string",
                                     "name": "TR_ALLOW_TX"
@@ -9463,12 +9981,6 @@
                                     "label": "PURCHASING_FLAG",
                                     "type": "string",
                                     "name": "PURCHASING_FLAG"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "REGISTRATION_STATUS_CODE",
-                                    "type": "string",
-                                    "name": "REGISTRATION_STATUS_CODE"
                                   },
                                   {
                                     "control_type": "text",
@@ -9614,15 +10126,6 @@
                               {
                                 "control_type": "text",
                                 "default": "string",
-                                "label": "$internal_value_906ac2db-7d01-4671-80e8-9718f90447ea",
-                                "name": "906ac2db-7d01-4671-80e8-9718f90447ea",
-                                "ngIf": "false",
-                                "optional": true,
-                                "type": "string"
-                              },
-                              {
-                                "control_type": "text",
-                                "default": "string",
                                 "label": "$internal_value_96427d5d-6a42-433f-a6d2-b4c6d5b6af25",
                                 "name": "96427d5d-6a42-433f-a6d2-b4c6d5b6af25",
                                 "ngIf": "false",
@@ -9670,15 +10173,6 @@
                                 "default": "string",
                                 "label": "$internal_value_16d47fb1-70b7-42d0-9778-e04deaf6bba5",
                                 "name": "16d47fb1-70b7-42d0-9778-e04deaf6bba5",
-                                "ngIf": "false",
-                                "optional": true,
-                                "type": "string"
-                              },
-                              {
-                                "control_type": "text",
-                                "default": "string",
-                                "label": "$internal_value_b6cee089-62b2-42c7-85ac-2e8ef6c0bc53",
-                                "name": "b6cee089-62b2-42c7-85ac-2e8ef6c0bc53",
                                 "ngIf": "false",
                                 "optional": true,
                                 "type": "string"
@@ -9803,7 +10297,6 @@
                                     "payment_reason": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"PAYMENT_REASON\"]}')}",
                                     "recipe_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"RECIPE_ID\"]}').to_i",
                                     "service_level": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"SERVICE_LEVEL\"]}')}",
-                                    "tax_effective_from": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TAX_EFFECTIVE_FROM\"]}')}",
                                     "terms": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TERMS\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TERMS\"]}').slice(0,50) : null",
                                     "tr_allow_tx": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TR_ALLOW_TX\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TR_ALLOW_TX\"]}').slice(0,3) : null",
                                     "vendor_site_alternative": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"VENDOR_SITE_ALTERNATIVE\"]}')}",
@@ -9816,7 +10309,6 @@
                                     "verified": "N",
                                     "address_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"ADDRESS_NAME\"]}')}",
                                     "site_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"SITE_NAME\"]}').slice(0,20) ",
-                                    "registration_status_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"REGISTRATION_STATUS_CODE\"]}')}",
                                     "tax_regime_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TAX_REGIME_CODE\"]}')}"
                                   }
                                 },
@@ -10132,23 +10624,6 @@
                                       },
                                       {
                                         "control_type": "text",
-                                        "label": "REGISTRATION_STATUS_CODE",
-                                        "details": {
-                                          "primary_key": false,
-                                          "data_type": "varchar2",
-                                          "column_name": "REGISTRATION_STATUS_CODE",
-                                          "length": 30,
-                                          "precision": null,
-                                          "scale": null,
-                                          "element_type": null
-                                        },
-                                        "optional": true,
-                                        "hint": "varchar2, max length 30",
-                                        "type": "string",
-                                        "name": "registration_status_code"
-                                      },
-                                      {
-                                        "control_type": "text",
                                         "label": "SERVICE_LEVEL",
                                         "details": {
                                           "primary_key": false,
@@ -10215,25 +10690,6 @@
                                         "hint": "number",
                                         "type": "number",
                                         "name": "supplier_ou_rec_seq_id"
-                                      },
-                                      {
-                                        "control_type": "date_time",
-                                        "label": "TAX_EFFECTIVE_FROM",
-                                        "render_input": "render_date_time_format",
-                                        "parse_output": "parse_date_time_format",
-                                        "details": {
-                                          "primary_key": false,
-                                          "data_type": "date",
-                                          "column_name": "TAX_EFFECTIVE_FROM",
-                                          "length": 0,
-                                          "precision": null,
-                                          "scale": null,
-                                          "element_type": null
-                                        },
-                                        "optional": true,
-                                        "hint": "date",
-                                        "type": "date_time",
-                                        "name": "tax_effective_from"
                                       },
                                       {
                                         "control_type": "text",
@@ -10740,6 +11196,12 @@
                                     "name": "f1463fa9_a84a_4bab_8211_a74bac4dc569"
                                   },
                                   {
+                                    "control_type": "text",
+                                    "label": "BANK_TAX_PAYER_ID",
+                                    "type": "string",
+                                    "name": "365a6b95_dbd7_44ce_ad9e_026a7b10775f"
+                                  },
+                                  {
                                     "control_type": "date_time",
                                     "label": "Created at",
                                     "render_input": "date_time_conversion",
@@ -11029,6 +11491,15 @@
                               },
                               {
                                 "control_type": "text",
+                                "default": "string",
+                                "label": "$internal_value_365a6b95-dbd7-44ce-ad9e-026a7b10775f",
+                                "name": "365a6b95-dbd7-44ce-ad9e-026a7b10775f",
+                                "ngIf": "false",
+                                "optional": true,
+                                "type": "string"
+                              },
+                              {
+                                "control_type": "text",
                                 "default": "id",
                                 "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
                                 "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
@@ -11150,7 +11621,8 @@
                                     "is_intermediate_bank": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"54a78a4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"b0560a0c_d1bb_455a_873c_a8ca33224655\"]}')}",
                                     "recipe_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"54a78a4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"2e741f0c_814e_471c_ab78_b4bc8a5c7956\"]}').to_i",
                                     "bank_key": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"54a78a4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"f1463fa9_a84a_4bab_8211_a74bac4dc569\"]}')}",
-                                    "swift": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"54a78a4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"612334a5_9eb8_4a1d_b159_08fccabf4848\"]}')}"
+                                    "swift": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"54a78a4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"612334a5_9eb8_4a1d_b159_08fccabf4848\"]}')}",
+                                    "bank_tax_payer_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"54a78a4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"365a6b95_dbd7_44ce_ad9e_026a7b10775f\"]}')}"
                                   }
                                 },
                                 "extended_output_schema": [
@@ -11339,6 +11811,23 @@
                                         "hint": "varchar2, max length 30",
                                         "type": "string",
                                         "name": "bank_number"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "BANK_TAX_PAYER_ID",
+                                        "details": {
+                                          "primary_key": false,
+                                          "data_type": "varchar2",
+                                          "column_name": "BANK_TAX_PAYER_ID",
+                                          "length": 30,
+                                          "precision": null,
+                                          "scale": null,
+                                          "element_type": null
+                                        },
+                                        "optional": true,
+                                        "hint": "varchar2, max length 30",
+                                        "type": "string",
+                                        "name": "bank_tax_payer_id"
                                       },
                                       {
                                         "control_type": "text",
@@ -11711,7 +12200,8 @@
                                   "rows.int_account_name",
                                   "rows.recipe_id",
                                   "rows.bank_key",
-                                  "rows.swift"
+                                  "rows.swift",
+                                  "rows.bank_tax_payer_id"
                                 ],
                                 "comment": "Add Rows from Supplier BANK Temporary Table",
                                 "uuid": "352165bc-9ba4-4c96-a9ca-b979c098c718",
@@ -11938,6 +12428,12 @@
                                     "name": "7a67a2b9_6f1d_4630_b9f6_0b0e41060b4a"
                                   },
                                   {
+                                    "control_type": "text",
+                                    "label": "INT_BANK_TAX_PAYER_ID",
+                                    "type": "string",
+                                    "name": "05e56c99_1fbe_446e_9220_3e534cac3482"
+                                  },
+                                  {
                                     "control_type": "date_time",
                                     "label": "Created at",
                                     "render_input": "date_time_conversion",
@@ -12137,6 +12633,15 @@
                               },
                               {
                                 "control_type": "text",
+                                "default": "string",
+                                "label": "$internal_value_05e56c99-1fbe-446e-9220-3e534cac3482",
+                                "name": "05e56c99-1fbe-446e-9220-3e534cac3482",
+                                "ngIf": "false",
+                                "optional": true,
+                                "type": "string"
+                              },
+                              {
+                                "control_type": "text",
                                 "default": "id",
                                 "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
                                 "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
@@ -12215,7 +12720,8 @@
                                     "int_branch_type": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"66a398d9_f4f9_4a24_abb8_8b5eaa489ee7\"]}')  ? _dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"66a398d9_f4f9_4a24_abb8_8b5eaa489ee7\"]}').slice(0,10) : null",
                                     "int_iban": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"7a67a2b9_6f1d_4630_b9f6_0b0e41060b4a\"]}')}",
                                     "int_swift": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"62619092_4747_4fe1_a06f_48d0fc4d6f7f\"]}')}",
-                                    "int_bank_key": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"e624d501_a93d_40a6_9df0_1622658c6b80\"]}')}"
+                                    "int_bank_key": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"e624d501_a93d_40a6_9df0_1622658c6b80\"]}')}",
+                                    "int_bank_tax_payer_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"05e56c99_1fbe_446e_9220_3e534cac3482\"]}')}"
                                   }
                                 },
                                 "extended_output_schema": [
@@ -12407,6 +12913,23 @@
                                         "hint": "varchar2, max length 30",
                                         "type": "string",
                                         "name": "int_bank_number"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "INT_BANK_TAX_PAYER_ID",
+                                        "details": {
+                                          "primary_key": false,
+                                          "data_type": "varchar2",
+                                          "column_name": "INT_BANK_TAX_PAYER_ID",
+                                          "length": 30,
+                                          "precision": null,
+                                          "scale": null,
+                                          "element_type": null
+                                        },
+                                        "optional": true,
+                                        "hint": "varchar2, max length 30",
+                                        "type": "string",
+                                        "name": "int_bank_tax_payer_id"
                                       },
                                       {
                                         "control_type": "text",
@@ -12732,7 +13255,8 @@
                                   "rows.int_currency_code",
                                   "rows.int_iban",
                                   "rows.int_bank_key",
-                                  "rows.int_swift"
+                                  "rows.int_swift",
+                                  "rows.int_bank_tax_payer_id"
                                 ],
                                 "comment": "Add Rows from Supplier INTERMEDIATE BANK Temporary Table",
                                 "uuid": "7e5c966c-14a5-4509-b403-a5a35f6d5d46",
@@ -14655,7 +15179,7 @@
                                 "input": {
                                   "email_type": "html",
                                   "to": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2p_ariba_Business_Support_Team\"}')}",
-                                  "subject": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')} -  Action Required : Submission Partially failed in Oracle - #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"Vendor IDs\"]}')}",
+                                  "subject": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')} -  Action Required : Submission Partially failed in Oracle for NEW Supplier creation - #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"Vendor IDs\"]}')}",
                                   "body": "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\" style=\"font-family:arial, 'helvetica neue', helvetica, sans-serif\"> \n<head>\n  <title>Supplier Master Data Submission Status</title>\n     <style>\n        table {\n            width: 80%;\n            border-collapse: collapse;\n            margin: 20px auto;\n        }\n        th, td {\n            border: 1px solid #ccc;\n            padding: 8px;\n            text-align: left;\n        }\n        th {\n            background-color: #f2f2f2;\n            font-weight: bold;\n        }\n       .right-aligned-table {\n            float: right;\n            margin-left: 15px; /* Adds some space between the table and text */\n        }\n    </style>\n </head> \n <body>\n   <h4>Hello Team,</h4>\n   <div/>\n   <n>We have encountered failure during processing of this request for Ariba Supplier - <b> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"Vendor Name\"]}')}</b></n>\n   <div />\n   <n>IT Team is looking into this issue, and will get back to you shortly.</n>\n   <div/>   <div/>\n   <h4>Best Regards,</h4>\n   <n>IT Support Team</n>\n</body>\n</html>",
                                   "cc": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2p_ariba_IT_Support_Team\"}')}"
                                 },
