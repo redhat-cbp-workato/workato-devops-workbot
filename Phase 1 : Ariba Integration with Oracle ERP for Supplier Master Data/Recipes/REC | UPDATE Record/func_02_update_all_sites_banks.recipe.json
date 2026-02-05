@@ -1,7 +1,7 @@
 {
   "name": "FUNC | 02 | UPDATE | All Sites & Banks",
   "description": "This Workato recipe automates the process of updating supplier information in an Oracle database based on data retrieved from an Ariba vendor ID lookup.\n\n### Key Actions and Outcomes:\n\n- **Trigger and Input Parameters**: The recipe is initiated by executing a function that requires parameters such as `RecordID`, `AribaVendorID`, and `RecipeID`.\n\n- **Data Retrieval**: It searches for records in the Ariba VendorID Lookup data table to find relevant supplier information based on the provided `RecordID` and `AribaVendorID`.\n\n- **Data Processing**:\n  - If records are found, it truncates a temporary data table to prepare for new data.\n  - It retrieves additional records related to the supplier and their bank details from the data table.\n  - The recipe then makes HTTP requests to the Ariba API to fetch questionnaires and other supplier-related data.\n\n- **Data Upsert**: The recipe processes the retrieved data and upserts it into the appropriate data tables, ensuring that all relevant supplier information, including addresses and bank details, is updated or inserted as necessary.\n\n- **Error Handling**: If any errors occur during the process, the recipe logs the error and updates the status in the Ariba VendorID Lookup table to indicate failure. It also calls an error handling recipe to notify stakeholders of the issue.\n\n- **Final Notifications**: Upon successful completion, the recipe sends notifications about the status of the supplier data synchronization, including details about the number of records processed and any relevant Oracle request IDs.\n\n### Summary:\nThis recipe streamlines the process of updating supplier information in Oracle by integrating data from Ariba, ensuring that all relevant details are accurately reflected in the database while providing error handling and notifications for stakeholders.",
-  "version": 21,
+  "version": 22,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -1751,6 +1751,250 @@
                           }
                         ],
                         "extended_input_schema": [
+                          {
+                            "label": "Request",
+                            "name": "request",
+                            "override": true,
+                            "properties": [
+                              {
+                                "control_type": "select",
+                                "label": "Method",
+                                "pick_list": [
+                                  [
+                                    "GET",
+                                    "GET"
+                                  ],
+                                  [
+                                    "POST",
+                                    "POST"
+                                  ],
+                                  [
+                                    "PUT",
+                                    "PUT"
+                                  ],
+                                  [
+                                    "DELETE",
+                                    "DELETE"
+                                  ],
+                                  [
+                                    "HEAD",
+                                    "HEAD"
+                                  ],
+                                  [
+                                    "PATCH",
+                                    "PATCH"
+                                  ]
+                                ],
+                                "hint": "Select a HTTP method",
+                                "default": "GET",
+                                "type": "string",
+                                "name": "method"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Request URL",
+                                "check_secrets": true,
+                                "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
+                                "placeholder": "https://api.example.com/v1/leads",
+                                "type": "string",
+                                "name": "url"
+                              },
+                              {
+                                "control_type": "select",
+                                "label": "Request content type",
+                                "extends_schema": true,
+                                "pick_list": [
+                                  [
+                                    "JSON request body",
+                                    "json"
+                                  ],
+                                  [
+                                    "Raw JSON request body",
+                                    "application/json"
+                                  ],
+                                  [
+                                    "XML",
+                                    "application/xml"
+                                  ],
+                                  [
+                                    "Text",
+                                    "text/plain"
+                                  ],
+                                  [
+                                    "URL encoded form",
+                                    "application/x-www-form-urlencoded"
+                                  ],
+                                  [
+                                    "Binary",
+                                    "application/octet-stream"
+                                  ],
+                                  [
+                                    "Multipart form",
+                                    "multipart/form-data"
+                                  ],
+                                  [
+                                    "Multipart alternative",
+                                    "multipart/alternative"
+                                  ],
+                                  [
+                                    "Multipart digest",
+                                    "multipart/digest"
+                                  ],
+                                  [
+                                    "Multipart mixed",
+                                    "multipart/mixed"
+                                  ],
+                                  [
+                                    "Multipart related",
+                                    "multipart/related"
+                                  ]
+                                ],
+                                "hint": "The API endpoint documentation should define what data it expects",
+                                "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
+                                "optional": true,
+                                "default": "application/json",
+                                "type": "string",
+                                "name": "content_type"
+                              },
+                              {
+                                "control_type": "text-area",
+                                "label": "Request body",
+                                "hint": "HTTP request body to send with the request. <a href=\"https://docs.workato.com/developing-connectors/http.html#request-body\" target=\"_blank\">Learn more</a>",
+                                "sticky": true,
+                                "check_secrets": true,
+                                "ngIf": "input.request.content_type !== 'json' && input.request.content_type !== 'application/x-www-form-urlencoded' && input.request.content_type !== 'multipart/form-data' && input.request.content_type !== 'multipart/alternative' && input.request.content_type !== 'multipart/digest' && input.request.content_type !== 'multipart/mixed' && input.request.content_type !== 'multipart/related' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                                "optional": true,
+                                "type": "string",
+                                "name": "body"
+                              },
+                              {
+                                "label": "Request body",
+                                "control_type": "key_value",
+                                "optional": true,
+                                "empty_list_title": "Does this HTTP request require form data?",
+                                "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
+                                "item_label": "Form data",
+                                "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Key",
+                                    "type": "string",
+                                    "name": "param"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "type": "string",
+                                    "name": "value"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "form_body"
+                              },
+                              {
+                                "label": "Request parts",
+                                "optional": true,
+                                "item_label": "Part",
+                                "ngIf": "(input.request.content_type === 'multipart/alternative'|| input.request.content_type === 'multipart/digest'|| input.request.content_type === 'multipart/mixed'|| input.request.content_type === 'multipart/related') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "label": "Headers",
+                                    "optional": true,
+                                    "sticky": true,
+                                    "of": "object",
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "Header name",
+                                        "optional": false,
+                                        "type": "string",
+                                        "name": "name"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Value",
+                                        "optional": true,
+                                        "sticky": true,
+                                        "type": "string",
+                                        "name": "value"
+                                      }
+                                    ],
+                                    "type": "array",
+                                    "name": "headers"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Raw body",
+                                    "optional": true,
+                                    "sticky": true,
+                                    "hint": "Raw content of the part",
+                                    "type": "string",
+                                    "name": "body"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "parts"
+                              },
+                              {
+                                "label": "Request URL parameters",
+                                "control_type": "key_value",
+                                "check_secrets": true,
+                                "optional": true,
+                                "empty_list_title": "Does this HTTP request contain a query string?",
+                                "empty_list_text": "Add URL parameters to the query string",
+                                "item_label": "URL parameter",
+                                "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Parameter name",
+                                    "type": "string",
+                                    "name": "param"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "type": "string",
+                                    "name": "value"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "parameters"
+                              },
+                              {
+                                "label": "Request headers",
+                                "control_type": "key_value",
+                                "optional": true,
+                                "check_secrets": true,
+                                "empty_list_title": "Does this HTTP request require headers?",
+                                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                                "item_label": "Header",
+                                "sticky": true,
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Header name",
+                                    "type": "string",
+                                    "name": "header"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "type": "string",
+                                    "name": "value"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "headers"
+                              }
+                            ],
+                            "type": "object"
+                          },
                           {
                             "label": "Request",
                             "name": "request",
@@ -9357,12 +9601,147 @@
                           },
                           {
                             "number": 46,
+                            "provider": "oracle",
+                            "name": "search_rows_sql",
+                            "as": "8890543b",
+                            "keyword": "action",
+                            "input": {
+                              "sql": "SELECT APS.VENDOR_ID AS ORACLE_VENDOR_ID, APS.VENDOR_NAME, APS.GLOBAL_ATTRIBUTE14 AS ARIBA_VENDOR_ID FROM APPS.AP_SUPPLIERS APS WHERE APS.GLOBAL_ATTRIBUTE14 = :P_ARIBA_VENDOR_ID",
+                              "output_schema": "[{\"name\":\"ORACLE_VENDOR_ID\",\"type\":\"string\",\"optional\":true,\"label\":\"ORACLE_VENDOR_ID\",\"control_type\":\"text\"},{\"name\":\"VENDOR_NAME\",\"type\":\"string\",\"optional\":true,\"label\":\"VENDOR_NAME\",\"control_type\":\"text\"},{\"name\":\"ARIBA_VENDOR_ID\",\"type\":\"string\",\"optional\":true,\"label\":\"ARIBA_VENDOR_ID\",\"control_type\":\"text\"}]",
+                              "parameters": {
+                                "schema": "[{\"control_type\":\"text\",\"label\":\"P_ARIBA_VENDOR_ID\",\"name\":\"P_ARIBA_VENDOR_ID\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"P_ARIBA_VENDOR_ID\"},\"parent\":[\"parameters\",\"data\"]}]",
+                                "data": {
+                                  "P_ARIBA_VENDOR_ID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"4ce752ad\",\"path\":[\"0cace68b_17a3_4196_9052_ab3b9a4975f4\"]}')}"
+                                }
+                              }
+                            },
+                            "extended_output_schema": [
+                              {
+                                "label": "Rows",
+                                "name": "rows",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "ORACLE_VENDOR_ID",
+                                    "details": {
+                                      "primary_key": null,
+                                      "data_type": "string",
+                                      "column_name": "ORACLE_VENDOR_ID",
+                                      "length": null,
+                                      "precision": null,
+                                      "scale": null,
+                                      "element_type": null
+                                    },
+                                    "hint": "string",
+                                    "optional": true,
+                                    "type": "string",
+                                    "name": "oracle_vendor_id"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "VENDOR_NAME",
+                                    "details": {
+                                      "primary_key": null,
+                                      "data_type": "string",
+                                      "column_name": "VENDOR_NAME",
+                                      "length": null,
+                                      "precision": null,
+                                      "scale": null,
+                                      "element_type": null
+                                    },
+                                    "hint": "string",
+                                    "optional": true,
+                                    "type": "string",
+                                    "name": "vendor_name"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "ARIBA_VENDOR_ID",
+                                    "details": {
+                                      "primary_key": null,
+                                      "data_type": "string",
+                                      "column_name": "ARIBA_VENDOR_ID",
+                                      "length": null,
+                                      "precision": null,
+                                      "scale": null,
+                                      "element_type": null
+                                    },
+                                    "hint": "string",
+                                    "optional": true,
+                                    "type": "string",
+                                    "name": "ariba_vendor_id"
+                                  }
+                                ],
+                                "type": "array",
+                                "order_by_hint": false
+                              }
+                            ],
+                            "extended_input_schema": [
+                              {
+                                "control_type": "form-schema-builder",
+                                "hint": "First provide the full name assigned to your bind variable in the WHERE condition. e.g. <b>id</b>\n                    Second, provide the actual parameter value. Parameter values can be static or datapills.\n                    Select the <b>closest corresponding data type</b> that your database is expecting for the bind variable\n                    ",
+                                "label": "Parameters",
+                                "name": "parameters",
+                                "optional": true,
+                                "override": true,
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Schema",
+                                    "extends_schema": true,
+                                    "type": "string",
+                                    "name": "schema"
+                                  },
+                                  {
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "P_ARIBA_VENDOR_ID",
+                                        "name": "P_ARIBA_VENDOR_ID",
+                                        "type": "string",
+                                        "optional": true,
+                                        "details": {
+                                          "real_name": "P_ARIBA_VENDOR_ID"
+                                        },
+                                        "parent": [
+                                          "parameters",
+                                          "data"
+                                        ]
+                                      }
+                                    ],
+                                    "label": "Data",
+                                    "optional": true,
+                                    "type": "object",
+                                    "name": "data"
+                                  }
+                                ],
+                                "sticky": true,
+                                "type": "object"
+                              }
+                            ],
+                            "visible_config_fields": [
+                              "sql",
+                              "parameters",
+                              "output_schema",
+                              "parameters.data.P_ARIBA_VENDOR_ID",
+                              "parameters.schema",
+                              "parameters.data.P_VENDOR_SITE_CODE",
+                              "parameters.data",
+                              "parameters.data.P_EXT_ALT_VENDOR_SITE",
+                              "parameters.data.P_INT_ALT_VENDOR_SITE"
+                            ],
+                            "comment": "Get Vendor Details from Oracle Main Table: Required for Notification",
+                            "uuid": "142e6f88-1dab-441c-9fd7-ea123d586048"
+                          },
+                          {
+                            "number": 47,
                             "keyword": "try",
                             "input": {
                             },
                             "block": [
                               {
-                                "number": 47,
+                                "number": 48,
                                 "provider": "oracle",
                                 "name": "execute_procedure",
                                 "as": "5ff6a6a5",
@@ -9498,7 +9877,7 @@
                                 "skip": false
                               },
                               {
-                                "number": 48,
+                                "number": 49,
                                 "as": "66f9a39f",
                                 "keyword": "catch",
                                 "input": {
@@ -9507,7 +9886,7 @@
                                 },
                                 "block": [
                                   {
-                                    "number": 49,
+                                    "number": 50,
                                     "provider": "workato_db_table",
                                     "name": "update_record",
                                     "as": "200d150e",
@@ -9526,7 +9905,8 @@
                                       "parameters": {
                                         "cbdb7e10_d9a4_4ab1_afca_1e364cd99470": "=now",
                                         "c4eb57b6_7210_4935_85c1_77137c037471": "2",
-                                        "60931ed0_5c08_44a0_80ef_dd11e16527a7": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"RecipeID\"]}').to_s"
+                                        "60931ed0_5c08_44a0_80ef_dd11e16527a7": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"RecipeID\"]}').to_s",
+                                        "166016b0_34d2_4c0c_ad96_96f9cff0140f": "=_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"8890543b\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"vendor_name\"]}').presence"
                                       }
                                     },
                                     "extended_output_schema": [
@@ -9784,7 +10164,7 @@
                                     "skip": false
                                   },
                                   {
-                                    "number": 50,
+                                    "number": 51,
                                     "provider": "workato_recipe_function",
                                     "name": "call_recipe",
                                     "as": "548d27fe",
@@ -9931,7 +10311,7 @@
                         "skip": false
                       },
                       {
-                        "number": 51,
+                        "number": 52,
                         "provider": "workato_db_table",
                         "name": "update_record",
                         "as": "44463e93",
@@ -9950,7 +10330,8 @@
                           "parameters": {
                             "cbdb7e10_d9a4_4ab1_afca_1e364cd99470": "=now",
                             "c4eb57b6_7210_4935_85c1_77137c037471": "1",
-                            "60931ed0_5c08_44a0_80ef_dd11e16527a7": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"RecipeID\"]}').to_s"
+                            "60931ed0_5c08_44a0_80ef_dd11e16527a7": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"RecipeID\"]}').to_s",
+                            "166016b0_34d2_4c0c_ad96_96f9cff0140f": "=_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"8890543b\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"vendor_name\"]}').presence"
                           }
                         },
                         "extended_output_schema": [
@@ -10208,7 +10589,7 @@
                         "skip": false
                       },
                       {
-                        "number": 52,
+                        "number": 53,
                         "provider": "workato_recipe_function",
                         "name": "call_recipe_async",
                         "as": "b8cb1f31",
@@ -10231,7 +10612,7 @@
                             "job_link": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_url\"]}')}",
                             "job_created_at": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_created_at\"]}')}",
                             "RECORD_METHOD": "UPDATE",
-                            "vendor_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"4ce752ad\",\"path\":[\"166016b0_34d2_4c0c_ad96_96f9cff0140f\"]}')}",
+                            "vendor_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"8890543b\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"vendor_name\"]}').presence",
                             "job_completed_at": "=now",
                             "total_sites": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"008a5405\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}",
                             "total_banks": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"8ba8ca53\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}",
@@ -10388,7 +10769,7 @@
                     "uuid": "59214fb9-4313-45ed-a3d2-b66420d9ab16"
                   },
                   {
-                    "number": 53,
+                    "number": 54,
                     "provider": "workato_db_table",
                     "name": "update_record",
                     "as": "9a8de650",
@@ -10407,7 +10788,8 @@
                       "parameters": {
                         "cbdb7e10_d9a4_4ab1_afca_1e364cd99470": "=now",
                         "c4eb57b6_7210_4935_85c1_77137c037471": "1",
-                        "60931ed0_5c08_44a0_80ef_dd11e16527a7": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"RecipeID\"]}').to_s"
+                        "60931ed0_5c08_44a0_80ef_dd11e16527a7": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"RecipeID\"]}').to_s",
+                        "166016b0_34d2_4c0c_ad96_96f9cff0140f": "=_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"8890543b\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"vendor_name\"]}').presence"
                       }
                     },
                     "extended_output_schema": [
@@ -10674,7 +11056,7 @@
             "uuid": "66817a43-6a4b-4f17-9ff1-62a18c83e2b7"
           },
           {
-            "number": 54,
+            "number": 55,
             "provider": "workato_recipe_function",
             "name": "return_result",
             "as": "28186d5e",
@@ -10684,7 +11066,7 @@
             "uuid": "3c7bae6b-b7bb-4c34-9ff2-055b6448ffb5"
           },
           {
-            "number": 55,
+            "number": 56,
             "as": "b907e6f7",
             "keyword": "catch",
             "input": {
@@ -10693,7 +11075,7 @@
             },
             "block": [
               {
-                "number": 56,
+                "number": 57,
                 "provider": "workato_recipe_function",
                 "name": "call_recipe",
                 "as": "c64b5791",
@@ -10826,7 +11208,7 @@
                 "uuid": "df363217-9c8e-478e-831e-bef85a495600"
               },
               {
-                "number": 57,
+                "number": 58,
                 "provider": "workato_db_table",
                 "name": "update_record",
                 "as": "c17665cb",
@@ -10845,7 +11227,8 @@
                   "parameters": {
                     "cbdb7e10_d9a4_4ab1_afca_1e364cd99470": "=now",
                     "c4eb57b6_7210_4935_85c1_77137c037471": "2",
-                    "60931ed0_5c08_44a0_80ef_dd11e16527a7": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"RecipeID\"]}').to_s"
+                    "60931ed0_5c08_44a0_80ef_dd11e16527a7": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"RecipeID\"]}').to_s",
+                    "166016b0_34d2_4c0c_ad96_96f9cff0140f": "=_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"8890543b\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"vendor_name\"]}').presence"
                   }
                 },
                 "extended_output_schema": [
@@ -11103,7 +11486,7 @@
                 "skip": false
               },
               {
-                "number": 58,
+                "number": 59,
                 "provider": "logger",
                 "name": "log_message",
                 "as": "8e251cf8",
