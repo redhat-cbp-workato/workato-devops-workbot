@@ -1996,6 +1996,250 @@
                             "type": "object"
                           },
                           {
+                            "label": "Request",
+                            "name": "request",
+                            "override": true,
+                            "properties": [
+                              {
+                                "control_type": "select",
+                                "label": "Method",
+                                "pick_list": [
+                                  [
+                                    "GET",
+                                    "GET"
+                                  ],
+                                  [
+                                    "POST",
+                                    "POST"
+                                  ],
+                                  [
+                                    "PUT",
+                                    "PUT"
+                                  ],
+                                  [
+                                    "DELETE",
+                                    "DELETE"
+                                  ],
+                                  [
+                                    "HEAD",
+                                    "HEAD"
+                                  ],
+                                  [
+                                    "PATCH",
+                                    "PATCH"
+                                  ]
+                                ],
+                                "hint": "Select a HTTP method",
+                                "default": "GET",
+                                "type": "string",
+                                "name": "method"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Request URL",
+                                "check_secrets": true,
+                                "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
+                                "placeholder": "https://api.example.com/v1/leads",
+                                "type": "string",
+                                "name": "url"
+                              },
+                              {
+                                "control_type": "select",
+                                "label": "Request content type",
+                                "extends_schema": true,
+                                "pick_list": [
+                                  [
+                                    "JSON request body",
+                                    "json"
+                                  ],
+                                  [
+                                    "Raw JSON request body",
+                                    "application/json"
+                                  ],
+                                  [
+                                    "XML",
+                                    "application/xml"
+                                  ],
+                                  [
+                                    "Text",
+                                    "text/plain"
+                                  ],
+                                  [
+                                    "URL encoded form",
+                                    "application/x-www-form-urlencoded"
+                                  ],
+                                  [
+                                    "Binary",
+                                    "application/octet-stream"
+                                  ],
+                                  [
+                                    "Multipart form",
+                                    "multipart/form-data"
+                                  ],
+                                  [
+                                    "Multipart alternative",
+                                    "multipart/alternative"
+                                  ],
+                                  [
+                                    "Multipart digest",
+                                    "multipart/digest"
+                                  ],
+                                  [
+                                    "Multipart mixed",
+                                    "multipart/mixed"
+                                  ],
+                                  [
+                                    "Multipart related",
+                                    "multipart/related"
+                                  ]
+                                ],
+                                "hint": "The API endpoint documentation should define what data it expects",
+                                "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
+                                "optional": true,
+                                "default": "application/json",
+                                "type": "string",
+                                "name": "content_type"
+                              },
+                              {
+                                "control_type": "text-area",
+                                "label": "Request body",
+                                "hint": "HTTP request body to send with the request. <a href=\"https://docs.workato.com/developing-connectors/http.html#request-body\" target=\"_blank\">Learn more</a>",
+                                "sticky": true,
+                                "check_secrets": true,
+                                "ngIf": "input.request.content_type !== 'json' && input.request.content_type !== 'application/x-www-form-urlencoded' && input.request.content_type !== 'multipart/form-data' && input.request.content_type !== 'multipart/alternative' && input.request.content_type !== 'multipart/digest' && input.request.content_type !== 'multipart/mixed' && input.request.content_type !== 'multipart/related' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                                "optional": true,
+                                "type": "string",
+                                "name": "body"
+                              },
+                              {
+                                "label": "Request body",
+                                "control_type": "key_value",
+                                "optional": true,
+                                "empty_list_title": "Does this HTTP request require form data?",
+                                "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
+                                "item_label": "Form data",
+                                "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Key",
+                                    "type": "string",
+                                    "name": "param"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "type": "string",
+                                    "name": "value"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "form_body"
+                              },
+                              {
+                                "label": "Request parts",
+                                "optional": true,
+                                "item_label": "Part",
+                                "ngIf": "(input.request.content_type === 'multipart/alternative'|| input.request.content_type === 'multipart/digest'|| input.request.content_type === 'multipart/mixed'|| input.request.content_type === 'multipart/related') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "label": "Headers",
+                                    "optional": true,
+                                    "sticky": true,
+                                    "of": "object",
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "Header name",
+                                        "optional": false,
+                                        "type": "string",
+                                        "name": "name"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Value",
+                                        "optional": true,
+                                        "sticky": true,
+                                        "type": "string",
+                                        "name": "value"
+                                      }
+                                    ],
+                                    "type": "array",
+                                    "name": "headers"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Raw body",
+                                    "optional": true,
+                                    "sticky": true,
+                                    "hint": "Raw content of the part",
+                                    "type": "string",
+                                    "name": "body"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "parts"
+                              },
+                              {
+                                "label": "Request URL parameters",
+                                "control_type": "key_value",
+                                "check_secrets": true,
+                                "optional": true,
+                                "empty_list_title": "Does this HTTP request contain a query string?",
+                                "empty_list_text": "Add URL parameters to the query string",
+                                "item_label": "URL parameter",
+                                "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Parameter name",
+                                    "type": "string",
+                                    "name": "param"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "type": "string",
+                                    "name": "value"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "parameters"
+                              },
+                              {
+                                "label": "Request headers",
+                                "control_type": "key_value",
+                                "optional": true,
+                                "check_secrets": true,
+                                "empty_list_title": "Does this HTTP request require headers?",
+                                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                                "item_label": "Header",
+                                "sticky": true,
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Header name",
+                                    "type": "string",
+                                    "name": "header"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "type": "string",
+                                    "name": "value"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "headers"
+                              }
+                            ],
+                            "type": "object"
+                          },
+                          {
                             "label": "Response",
                             "name": "response",
                             "override": true,
