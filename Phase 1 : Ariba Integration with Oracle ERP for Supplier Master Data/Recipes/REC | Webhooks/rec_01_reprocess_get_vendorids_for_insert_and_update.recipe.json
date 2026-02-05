@@ -1,67 +1,214 @@
 {
-  "name": "REC | 01 | Get VendorIDs - Dynamic flow for INSERT and UPDATE",
-  "description": "This recipe automates the process of synchronizing vendor data from SAP Ariba to an Oracle ERP system.\n\n- The process is triggered on a specified schedule, initiating a request to the Ariba API to fetch updated vendor data based on a defined time range.\n- If new vendor data is retrieved, the recipe checks if each vendor already exists in the Oracle database.\n- For vendors that do not exist, new records are created in the relevant Oracle staging tables for suppliers, supplier sites, and bank details.\n- If existing vendors are found, their records are updated accordingly.\n- The recipe also handles the creation of new records for supplier sites and banks, ensuring that all relevant details are captured.\n- After processing, the recipe sends notifications via email to stakeholders, summarizing the results of the synchronization, including any errors encountered during the process.\n- In case of errors, the recipe calls an error handling function to log the error details and notify the appropriate personnel.\n\nOverall, this recipe ensures that vendor information in the Oracle ERP system is kept up-to-date with the latest data from SAP Ariba, facilitating efficient vendor management and compliance.",
-  "version": 18,
+  "name": "REC | 01 | REPROCESS | Get VendorIDs for INSERT and UPDATE",
+  "description": "",
+  "version": 10,
   "private": true,
   "concurrency": 1,
   "code": {
     "number": 0,
-    "provider": "clock",
-    "name": "scheduled_event",
-    "as": "161ac6dc",
+    "provider": "workato_webhooks",
+    "name": "new_event",
+    "as": "e9f614bc",
     "keyword": "trigger",
-    "dynamicPickListSelection": {
-      "time_unit": "Hours"
-    },
     "input": {
-      "time_unit": "hours",
-      "trigger_every": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"vendorDataRequestSchedule\"}')}"
+      "request": {
+        "webhook_type": "json",
+        "query_params": "[{\"name\":\"ReStartJobTime\",\"type\":\"string\",\"optional\":false,\"label\":\"ReStartJobTime\",\"hint\":\"Please provide with Job Start Time\",\"control_type\":\"text\"},{\"name\":\"ReEndJobTime\",\"type\":\"string\",\"optional\":true,\"label\":\"ReEndJobTime\",\"hint\":\"This parameter is used to re-process till the given timestamp\",\"control_type\":\"text\"},{\"name\":\"CHQ\",\"type\":\"string\",\"optional\":true,\"label\":\"CHQ\",\"hint\":\"Please Provide with Change Request No.\",\"control_type\":\"text\"},{\"name\":\"RequestorMailId\",\"type\":\"string\",\"optional\":true,\"label\":\"RequestorMailId\",\"hint\":\"Please Provide with requestor's mail id\",\"control_type\":\"text\"}]",
+        "headers_schema": "[{\"control_type\":\"text\",\"label\":\"Accept encoding\",\"type\":\"string\",\"name\":\"accept_encoding\"},{\"control_type\":\"text\",\"label\":\"Content length\",\"type\":\"string\",\"name\":\"content_length\"},{\"control_type\":\"text\",\"label\":\"Content type\",\"type\":\"string\",\"name\":\"content_type\"},{\"control_type\":\"text\",\"label\":\"User agent\",\"type\":\"string\",\"name\":\"user_agent\"},{\"control_type\":\"text\",\"label\":\"X amzn trace ID\",\"type\":\"string\",\"name\":\"x_amzn_trace_id\"},{\"control_type\":\"text\",\"label\":\"X correlation ID\",\"type\":\"string\",\"name\":\"x_correlation_id\"},{\"control_type\":\"text\",\"label\":\"X forwarded for\",\"type\":\"string\",\"name\":\"x_forwarded_for\"},{\"control_type\":\"text\",\"label\":\"X forwarded port\",\"type\":\"string\",\"name\":\"x_forwarded_port\"},{\"control_type\":\"text\",\"label\":\"X forwarded proto\",\"type\":\"string\",\"name\":\"x_forwarded_proto\"},{\"control_type\":\"text\",\"label\":\"X request ID\",\"type\":\"string\",\"name\":\"x_request_id\"}]"
+      },
+      "webhook_suffix": "ReProcessMain"
     },
-    "extended_input_schema": [
+    "extended_output_schema": [
       {
-        "control_type": "integer",
-        "default": "5",
-        "enforce_template_mode": true,
-        "extends_schema": true,
-        "hint": "Define repeating schedule. Enter whole numbers only.\n                        This field can be set to a minimum of 5 minutes.",
-        "label": "Trigger every",
-        "name": "trigger_every",
-        "optional": false,
-        "suffix": {
-          "text": "hours"
-        },
-        "type": "string"
+        "label": "Headers",
+        "name": "headers",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Accept encoding",
+            "type": "string",
+            "name": "accept_encoding"
+          },
+          {
+            "control_type": "text",
+            "label": "Content length",
+            "type": "string",
+            "name": "content_length"
+          },
+          {
+            "control_type": "text",
+            "label": "Content type",
+            "type": "string",
+            "name": "content_type"
+          },
+          {
+            "control_type": "text",
+            "label": "User agent",
+            "type": "string",
+            "name": "user_agent"
+          },
+          {
+            "control_type": "text",
+            "label": "X amzn trace ID",
+            "type": "string",
+            "name": "x_amzn_trace_id"
+          },
+          {
+            "control_type": "text",
+            "label": "X correlation ID",
+            "type": "string",
+            "name": "x_correlation_id"
+          },
+          {
+            "control_type": "text",
+            "label": "X forwarded for",
+            "type": "string",
+            "name": "x_forwarded_for"
+          },
+          {
+            "control_type": "text",
+            "label": "X forwarded port",
+            "type": "string",
+            "name": "x_forwarded_port"
+          },
+          {
+            "control_type": "text",
+            "label": "X forwarded proto",
+            "type": "string",
+            "name": "x_forwarded_proto"
+          },
+          {
+            "control_type": "text",
+            "label": "X request ID",
+            "type": "string",
+            "name": "x_request_id"
+          }
+        ],
+        "type": "object"
       },
       {
-        "control_type": "select",
-        "hint": "Select the timezone to use. Leave it blank to use <b>{{authUser.account_timezone}}</b>",
-        "label": "Timezone",
-        "name": "timezone",
-        "optional": true,
-        "pick_list": "timezone_id_global_pick_list",
-        "pick_list_connection_less": true,
-        "type": "string"
+        "label": "Payload",
+        "name": "payload",
+        "properties": [
+
+        ],
+        "type": "object"
       },
       {
-        "control_type": "date_time",
-        "enforce_template_mode": true,
-        "extends_schema": true,
-        "hint": "Set date and time to start or leave blank to start immediately. <b>Once recipe has been run or tested, value cannot be changed.</b>",
-        "label": "Start after",
-        "name": "start_after",
-        "optional": true,
-        "parse_output": "date_time_conversion",
-        "since_field": true,
-        "type": "date_time",
-        "ignore_timezone": true,
-        "render_input": "date_time_conversion"
+        "label": "Params",
+        "name": "params",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "ReStartJobTime",
+            "name": "ReStartJobTime",
+            "type": "string",
+            "optional": false,
+            "hint": "Please provide with Job Start Time"
+          },
+          {
+            "control_type": "text",
+            "label": "ReEndJobTime",
+            "name": "ReEndJobTime",
+            "type": "string",
+            "optional": true,
+            "hint": "This parameter is used to re-process till the given timestamp"
+          },
+          {
+            "control_type": "text",
+            "label": "CHQ",
+            "name": "CHQ",
+            "type": "string",
+            "optional": true,
+            "hint": "Please Provide with Change Request No."
+          },
+          {
+            "control_type": "text",
+            "label": "RequestorMailId",
+            "name": "RequestorMailId",
+            "type": "string",
+            "optional": true,
+            "hint": "Please Provide with requestor's mail id"
+          }
+        ],
+        "type": "object"
       }
     ],
-    "visible_config_fields": [
-      "time_unit",
-      "trigger_every",
-      "timezone",
-      "start_after"
+    "extended_input_schema": [
+      {
+        "label": "Payload configuration",
+        "name": "request",
+        "override": true,
+        "properties": [
+          {
+            "control_type": "select",
+            "label": "Webhook type",
+            "pick_list": [
+              [
+                "GET request",
+                "get"
+              ],
+              [
+                "PUT/POST with JSON payload",
+                "json"
+              ],
+              [
+                "PUT/POST with XML payload",
+                "xml"
+              ],
+              [
+                "PUT/POST with FORM encoded payload",
+                "form"
+              ],
+              [
+                "PUT/POST with raw binary data",
+                "rawdata"
+              ],
+              [
+                "PUT/POST with unicode text data",
+                "rawdatatxt"
+              ]
+            ],
+            "hint": "Select the HTTP method and payload data type used by webhook. <a href=\"https://docs.workato.com/developing-connectors/http.html#set-up-your-non-oauth-2-0-connection\" target=\"_blank\">Learn more</a>",
+            "default": "json",
+            "extends_schema": true,
+            "type": "string",
+            "name": "webhook_type"
+          },
+          {
+            "control_type": "schema-designer",
+            "label": "Payload schema",
+            "sample_data_type": "json_http",
+            "extends_schema": true,
+            "empty_schema_title": "Describe all fields in your response.",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "name": "payload_schema"
+          },
+          {
+            "control_type": "schema-designer",
+            "label": "Query params",
+            "extends_schema": true,
+            "empty_schema_title": "Describe all the query params",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "name": "query_params"
+          },
+          {
+            "control_type": "schema-designer",
+            "label": "Headers",
+            "extends_schema": true,
+            "empty_schema_title": "Describe all the webhook headers",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "name": "headers_schema"
+          }
+        ],
+        "type": "object"
+      }
     ],
     "block": [
       {
@@ -74,7 +221,7 @@
             "number": 2,
             "provider": "rest",
             "name": "make_request_v2",
-            "as": "f0e54157",
+            "as": "4885e59e",
             "keyword": "action",
             "toggleCfg": {
               "response.ignore_http_errors": true,
@@ -89,7 +236,7 @@
               "request": {
                 "method": "POST",
                 "content_type": "json",
-                "url": "=\"https://openapi.ariba.com/api/supplierdatapagination/v4/prod/vendorDataRequests?$filter=updatedDateFrom ge \" + ((now - _dp('{\"pill_type\":\"project_property\",\"property_name\":\"vendorDataRequestSchedule\"}').to_i.hours).to_time.utc.to_s[0,19].gsub(' ', 'T') + 'Z') + \" and \" + \"updatedDateTo le \" + (_dp('{\"pill_type\":\"output\",\"provider\":\"clock\",\"line\":\"161ac6dc\",\"path\":[\"scheduled_time\"]}').to_time.utc.to_s[0,19].gsub(' ', 'T') + 'Z')",
+                "url": "=\"https://openapi.ariba.com/api/supplierdatapagination/v4/prod/vendorDataRequests?$filter=updatedDateFrom ge \" + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"e9f614bc\",\"path\":[\"params\",\"ReStartJobTime\"]}') + \" and \" + \"updatedDateTo le \" + (_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"e9f614bc\",\"path\":[\"params\",\"ReEndJobTime\"]}').presence || now.utc.strftime(\"%Y-%m-%dT%H:%M:%SZ\"))",
                 "parameters": [
                   {
                     "param": "realm",
@@ -675,7 +822,7 @@
               }
             ],
             "comment": "Query -VendorDataRequest API to get list of Vendor IDs",
-            "uuid": "d260f5ae-3789-45e3-8d45-a1db003343da",
+            "uuid": "dcd19e1b-4c77-4d97-b34f-89a51ee43a76",
             "wizardFinished": true
           },
           {
@@ -687,7 +834,7 @@
               "conditions": [
                 {
                   "operand": "present",
-                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"f0e54157\",\"path\":[\"body\"]}')}",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"4885e59e\",\"path\":[\"body\"]}')}",
                   "rhs": "",
                   "uuid": "6987b64e-2901-4354-9a11-065efd385b06"
                 }
@@ -698,7 +845,7 @@
                 "number": 4,
                 "provider": "workato_variable",
                 "name": "declare_variable",
-                "as": "bf35553b",
+                "as": "a70bbea6",
                 "keyword": "action",
                 "toggleCfg": {
                   "variables.data.var_Insert": true
@@ -819,12 +966,12 @@
                   "variables.data.var_Insert"
                 ],
                 "comment": "INSERT Flag",
-                "uuid": "4c1ae513-bd35-4f4b-85ea-782843be7db2",
+                "uuid": "2e81bb63-a0a7-4b31-ada3-4629a8085237",
                 "skip": false
               },
               {
                 "number": 5,
-                "as": "7f7bd44f",
+                "as": "d10c1cf0",
                 "keyword": "foreach",
                 "repeat_mode": "simple",
                 "clear_scope": "false",
@@ -835,7 +982,7 @@
                     "number": 6,
                     "provider": "oracle",
                     "name": "search_rows_sql",
-                    "as": "3ce05254",
+                    "as": "86284551",
                     "keyword": "action",
                     "input": {
                       "sql": "SELECT CASE \n    WHEN EXISTS (SELECT 1 FROM APPS.AP_SUPPLIERS WHERE GLOBAL_ATTRIBUTE14 = :aribaVendorId) THEN '1' \n    ELSE '0' \nEND AS result\nFROM DUAL",
@@ -843,7 +990,7 @@
                       "parameters": {
                         "schema": "[{\"name\":\"aribaVendorId\",\"type\":\"string\",\"optional\":true,\"label\":\"aribaVendorId\",\"details\":{\"real_name\":\"aribaVendorId\"},\"control_type\":\"text\"}]",
                         "data": {
-                          "aribaVendorId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"SM_Vendor_ID\"]}')}"
+                          "aribaVendorId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"d10c1cf0\",\"path\":[\"SM_Vendor_ID\"]}')}"
                         }
                       }
                     },
@@ -921,7 +1068,8 @@
                       "parameters.data.aribaVendorId"
                     ],
                     "comment": "Check for GLOBAL_ATTRIBUTE14 for new/existing supplier in oracle",
-                    "uuid": "ab984086-de41-4637-acdd-33e459b814ee"
+                    "uuid": "1ce55959-df14-47aa-ab25-134f47dc3589",
+                    "skip": false
                   },
                   {
                     "number": 7,
@@ -932,7 +1080,7 @@
                       "conditions": [
                         {
                           "operand": "equals_to",
-                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"3ce05254\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"result_f3f45e68\"]}')}",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"86284551\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"result_f3f45e68\"]}')}",
                           "rhs": "0",
                           "uuid": "bc0ec49d-e5b7-4e95-992a-856eb78e1f3d"
                         }
@@ -943,7 +1091,7 @@
                         "number": 8,
                         "provider": "workato_db_table",
                         "name": "get_records",
-                        "as": "1d7674ed",
+                        "as": "c3d47aaf",
                         "keyword": "action",
                         "dynamicPickListSelection": {
                           "table_id": "[S2P] DT | ARIBA VendorID LOOKUP",
@@ -964,7 +1112,7 @@
                           "filters": [
                             {
                               "op_default": "eq",
-                              "value_default": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"SM_Vendor_ID\"]}')}",
+                              "value_default": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"d10c1cf0\",\"path\":[\"SM_Vendor_ID\"]}')}",
                               "field_id": "d2fcaf21-c817-47b2-9b3a-ad4bf9b7755f"
                             },
                             {
@@ -1410,7 +1558,8 @@
                           }
                         ],
                         "comment": "Get pending VendorIDs from Lookup table - Waiting to process",
-                        "uuid": "3297c637-3007-4882-a97e-45cf85ea882e"
+                        "uuid": "df5efb93-d500-4df1-810b-e300422b4f0c",
+                        "skip": false
                       },
                       {
                         "number": 9,
@@ -1421,7 +1570,7 @@
                           "conditions": [
                             {
                               "operand": "blank",
-                              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"1d7674ed\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
+                              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"c3d47aaf\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
                               "rhs": "",
                               "uuid": "f79f5732-7115-4faa-a2d6-f5a6f3d642e1"
                             }
@@ -1432,7 +1581,7 @@
                             "number": 10,
                             "provider": "workato_db_table",
                             "name": "create_records_batch",
-                            "as": "af470417",
+                            "as": "177b76d6",
                             "keyword": "action",
                             "dynamicPickListSelection": {
                               "table_id": "[S2P] DT | ARIBA VendorID LOOKUP"
@@ -1445,12 +1594,12 @@
                               },
                               "records": {
                                 "parameters": {
-                                  "b906e3c2_538d_4251_9d6d_42e5816f467b": "#{_dp('{\"pill_type\":\"foreach_meta\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"key\":\"index\"}')}",
+                                  "b906e3c2_538d_4251_9d6d_42e5816f467b": "#{_dp('{\"pill_type\":\"foreach_meta\",\"provider\":\"foreach\",\"line\":\"d10c1cf0\",\"key\":\"index\"}')}",
                                   "fd35ac66_337f_41f2_9267_656f867fcb8d": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_id\"]}')}",
                                   "eb515531_9420_4d68_beed_86e23be8725b": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_created_at\"]}')}",
                                   "87cfdc28_a5c7_4862_a2ec_b34b632e2809": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_id\"]}')}",
-                                  "1813dbac_5305_48a0_9b35_eca7e42d669d": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"questionnaires\",{\"path_element_type\":\"current_item\"},\"workspaceId\"]}')}",
-                                  "d2fcaf21_c817_47b2_9b3a_ad4bf9b7755f": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"SM_Vendor_ID\"]}')}",
+                                  "1813dbac_5305_48a0_9b35_eca7e42d669d": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"d10c1cf0\",\"path\":[\"questionnaires\",{\"path_element_type\":\"current_item\"},\"workspaceId\"]}')}",
+                                  "d2fcaf21_c817_47b2_9b3a_ad4bf9b7755f": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"d10c1cf0\",\"path\":[\"SM_Vendor_ID\"]}')}",
                                   "e8e88f56_0657_4b97_a2cd_5de908f7ae9e": "0"
                                 }
                               }
@@ -1913,12 +2062,12 @@
                               "records.parameters.1813dbac_5305_48a0_9b35_eca7e42d669d"
                             ],
                             "comment": "Add Entry to Lookup table for getting this VENDOR processed",
-                            "uuid": "49175d5c-32ce-4799-896b-b7003829a0ea",
+                            "uuid": "4d227d99-20f6-45de-ab73-1926fc45a855",
                             "skip": false
                           },
                           {
                             "number": 11,
-                            "as": "c8dd992a",
+                            "as": "534bb1cb",
                             "keyword": "foreach",
                             "repeat_mode": "simple",
                             "clear_scope": "false",
@@ -1929,15 +2078,19 @@
                                 "number": 12,
                                 "provider": "workato_recipe_function",
                                 "name": "call_recipe",
-                                "as": "128f2b61",
+                                "as": "52c7c373",
                                 "keyword": "action",
                                 "dynamicPickListSelection": {
                                   "flow_id": "FUNC | 02 | SupplierMasterData_ARIBA_To_ERP"
                                 },
                                 "input": {
-                                  "flow_id": "69362360",
+                                  "flow_id": {
+                                    "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | NEW Record/func_02_suppliermasterdata_ariba_to_erp.recipe.json",
+                                    "name": "FUNC | 02 | SupplierMasterData_ARIBA_To_ERP",
+                                    "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | NEW Record"
+                                  },
                                   "parameters": {
-                                    "RecordID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"c8dd992a\",\"path\":[\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}"
+                                    "RecordID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"534bb1cb\",\"path\":[\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}"
                                   }
                                 },
                                 "extended_input_schema": [
@@ -1957,28 +2110,29 @@
                                   }
                                 ],
                                 "comment": "Call Next Recipe to INSERT NEW SUPPLIER Record",
-                                "uuid": "105c917c-92c8-4265-a038-f29153d87886",
-                                "skip": true
+                                "uuid": "b83d3197-6d09-49e7-9ca3-a12798c99aec",
+                                "skip": false
                               }
                             ],
-                            "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"af470417\",\"path\":[\"records\"]}')}",
-                            "uuid": "df90ff8f-4dfb-4ddd-9921-1f3d4d1d4bdd",
-                            "skip": true
+                            "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"177b76d6\",\"path\":[\"records\"]}')}",
+                            "uuid": "8e288aa3-e3ad-43fc-a124-f880d7527cc9",
+                            "skip": false
                           }
                         ],
-                        "uuid": "645dc669-55ba-4afa-ba0b-af2f6f2fc313"
+                        "uuid": "178196a1-29c6-4185-9c3c-e1c371627a56",
+                        "skip": false
                       },
                       {
                         "number": 13,
                         "provider": "workato_variable",
                         "name": "update_variables",
-                        "as": "8385e063",
+                        "as": "4f5a3e01",
                         "keyword": "action",
                         "dynamicPickListSelection": {
                           "name": [
                             {
-                              "label": "var_Insert (step 4)",
-                              "value": "4c1ae513-bd35-4f4b-85ea-782843be7db2:bf35553b:var_Insert"
+                              "label": "var_Insert (step 5)",
+                              "value": "2e81bb63-a0a7-4b31-ada3-4629a8085237:a70bbea6:var_Insert"
                             }
                           ]
                         },
@@ -1987,7 +2141,7 @@
                         },
                         "input": {
                           "input_mode": "raw",
-                          "name": "4c1ae513-bd35-4f4b-85ea-782843be7db2:bf35553b:var_Insert",
+                          "name": "2e81bb63-a0a7-4b31-ada3-4629a8085237:a70bbea6:var_Insert",
                           "var_Insert": "true"
                         },
                         "extended_input_schema": [
@@ -2017,7 +2171,7 @@
                           }
                         ],
                         "comment": "INSERT = TRUE",
-                        "uuid": "feef95ef-7338-4130-a86e-0ac6073b0b35",
+                        "uuid": "856492b4-c959-4147-9cad-34d2631322e0",
                         "skip": false
                       },
                       {
@@ -2030,7 +2184,7 @@
                             "number": 15,
                             "provider": "workato_db_table",
                             "name": "create_records_batch",
-                            "as": "b4f59044",
+                            "as": "0f16d3ba",
                             "keyword": "action",
                             "dynamicPickListSelection": {
                               "table_id": "[S2P] DT | UPDATE | Ariba VendorID Lookup"
@@ -2045,13 +2199,13 @@
                                 "parameters": {
                                   "d9210735_eeb2_4fb7_ab61_64be2d0ef393": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_id\"]}')}",
                                   "42de9788_5b22_4e9c_8ba9_f3ef5f3c0fd3": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_created_at\"]}')}",
-                                  "0cace68b_17a3_4196_9052_ab3b9a4975f4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"SM_Vendor_ID\"]}')}",
-                                  "52acdbcc_bd96_4c60_8980_3298aebba2ad": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"ERP_Vendor_ID\"]}')}",
+                                  "0cace68b_17a3_4196_9052_ab3b9a4975f4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"d10c1cf0\",\"path\":[\"SM_Vendor_ID\"]}')}",
+                                  "52acdbcc_bd96_4c60_8980_3298aebba2ad": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"d10c1cf0\",\"path\":[\"ERP_Vendor_ID\"]}')}",
                                   "60931ed0_5c08_44a0_80ef_dd11e16527a7": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_id\"]}')}",
-                                  "ccd4fe58_1df6_46d1_a647_3f7614f5e089": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"questionnaires\",{\"path_element_type\":\"current_item\"},\"workspaceId\"]}')}",
+                                  "ccd4fe58_1df6_46d1_a647_3f7614f5e089": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"d10c1cf0\",\"path\":[\"questionnaires\",{\"path_element_type\":\"current_item\"},\"workspaceId\"]}')}",
                                   "b5ecdd75_b4c1_41c2_98f1_a9eff4a242e6": "=now",
                                   "c4eb57b6_7210_4935_85c1_77137c037471": "0",
-                                  "2610b512_7efd_42d0_b05c_0bb37ff51efa": "#{_dp('{\"pill_type\":\"foreach_meta\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"key\":\"index\"}')}"
+                                  "2610b512_7efd_42d0_b05c_0bb37ff51efa": "#{_dp('{\"pill_type\":\"foreach_meta\",\"provider\":\"foreach\",\"line\":\"d10c1cf0\",\"key\":\"index\"}')}"
                                 }
                               }
                             },
@@ -2326,11 +2480,12 @@
                               "records.parameters.60931ed0_5c08_44a0_80ef_dd11e16527a7"
                             ],
                             "comment": "Insert UPDATED VendorID's",
-                            "uuid": "c29a74d9-bbf6-4c3c-8d6f-882fe4192722"
+                            "uuid": "fce8c9e9-2948-4ad3-841f-6cbc95dcbb3a",
+                            "skip": false
                           },
                           {
                             "number": 16,
-                            "as": "5e2096a2",
+                            "as": "5a07be61",
                             "keyword": "foreach",
                             "repeat_mode": "simple",
                             "clear_scope": "false",
@@ -2341,7 +2496,7 @@
                                 "number": 17,
                                 "provider": "workato_recipe_function",
                                 "name": "call_recipe",
-                                "as": "6144608f",
+                                "as": "afee7efc",
                                 "keyword": "action",
                                 "dynamicPickListSelection": {
                                   "flow_id": "FUNC | 02 | UPDATE | SupplierMasterData_Ariba_To_ERP"
@@ -2353,9 +2508,9 @@
                                     "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | UPDATE Record"
                                   },
                                   "parameters": {
-                                    "RecordID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"5e2096a2\",\"path\":[\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
+                                    "RecordID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"5a07be61\",\"path\":[\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
                                     "RecipeID": "=now.to_i",
-                                    "AribaVendorID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"5e2096a2\",\"path\":[\"record\",\"0cace68b_17a3_4196_9052_ab3b9a4975f4\"]}')}"
+                                    "AribaVendorID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"5a07be61\",\"path\":[\"record\",\"0cace68b_17a3_4196_9052_ab3b9a4975f4\"]}')}"
                                   }
                                 },
                                 "extended_input_schema": [
@@ -2385,32 +2540,43 @@
                                         "name": "AribaVendorID",
                                         "type": "string",
                                         "optional": false
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "RelastJobRun",
+                                        "name": "RelastJobRun",
+                                        "type": "string",
+                                        "optional": true,
+                                        "hint": "Last Job Run Field used in case of Re-Processing!"
                                       }
                                     ],
                                     "type": "object"
                                   }
                                 ],
                                 "comment": "Call UPDATE Next Recipe's",
-                                "uuid": "960ebce9-c07c-4e71-bcf3-383ac179a820",
+                                "uuid": "fa9404f9-b0d6-4c07-9a60-78377b877a08",
                                 "skip": false
                               }
                             ],
-                            "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"b4f59044\",\"path\":[\"records\"]}')}",
-                            "uuid": "a4f66c52-a3e2-49b8-974f-6ca31a3e7a0f"
+                            "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0f16d3ba\",\"path\":[\"records\"]}')}",
+                            "uuid": "52542724-c758-48b0-8c67-2fd05bcc7f65",
+                            "skip": false
                           }
                         ],
                         "comment": "For Existing Supplier - UPDATE",
-                        "uuid": "735739bb-1008-476c-8742-3fc4bb8b4461",
+                        "uuid": "6daa1564-1199-4e96-8b19-bd650f0e15d1",
                         "skip": false
                       }
                     ],
                     "comment": "For New Supplier",
-                    "uuid": "3c8bc8da-82cc-44f6-a9a8-499f5ee8a235"
+                    "uuid": "b5a8b973-4610-4d3c-995d-621d6aafef7c",
+                    "skip": false
                   }
                 ],
-                "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"f0e54157\",\"path\":[\"response\",\"array\"]}')}",
+                "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"4885e59e\",\"path\":[\"response\",\"array\"]}')}",
                 "comment": "For Each - VENDOR ID",
-                "uuid": "9cc0ab3c-ed9f-43ae-80e2-ba204d2cd518"
+                "uuid": "c15e1000-31fa-4adf-a2af-44702dd76fc6",
+                "skip": false
               },
               {
                 "number": 18,
@@ -2421,7 +2587,7 @@
                   "conditions": [
                     {
                       "operand": "is_true",
-                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"bf35553b\",\"path\":[\"var_Insert\"]}')}",
+                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"a70bbea6\",\"path\":[\"var_Insert\"]}')}",
                       "rhs": "",
                       "uuid": "b699b9a1-fb53-412a-97eb-f0aa2c4a8fd1"
                     }
@@ -2432,7 +2598,7 @@
                     "number": 19,
                     "provider": "workato_recipe_function",
                     "name": "call_recipe",
-                    "as": "4cac13d4",
+                    "as": "9b47ff7c",
                     "keyword": "action",
                     "dynamicPickListSelection": {
                       "flow_id": "FUNC | 02 | SupplierMasterData_ARIBA_To_ERP"
@@ -2444,7 +2610,7 @@
                         "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | NEW Record"
                       },
                       "parameters": {
-                        "RecordID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"af470417\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}"
+                        "RecordID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"177b76d6\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}"
                       }
                     },
                     "extended_input_schema": [
@@ -2464,19 +2630,20 @@
                       }
                     ],
                     "comment": "Call Next Recipe to INSERT NEW SUPPLIER Record",
-                    "uuid": "f89e574c-bfef-4d70-b627-874f8f2dd801",
+                    "uuid": "b670191b-01f2-4dc6-96a6-789b924fdc6f",
                     "skip": false
                   }
                 ],
-                "uuid": "6864c6b1-8460-408e-8a4b-108058484124"
+                "uuid": "455a1422-807f-4fd8-b282-da6381507ec1",
+                "skip": false
               }
             ],
-            "uuid": "6e4965c5-8e41-4e85-8313-35353534a3a5",
+            "uuid": "069b85b3-d632-42d8-8113-b9b7b24c1f9d",
             "skip": false
           },
           {
             "number": 20,
-            "as": "d254b55a",
+            "as": "68ddaeaf",
             "keyword": "catch",
             "input": {
               "max_retry_count": "0",
@@ -2487,7 +2654,7 @@
                 "number": 21,
                 "provider": "workato_recipe_function",
                 "name": "call_recipe",
-                "as": "fbea9086",
+                "as": "d638f288",
                 "keyword": "action",
                 "dynamicPickListSelection": {
                   "flow_id": "SAP ARIBA | Error Handling Recipe"
@@ -2501,11 +2668,11 @@
                   "parameters": {
                     "recipe_name": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_name\"]}')}",
                     "recipe_url": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_url\"]}')}",
-                    "error_step_no": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"line_number\"]}')}",
-                    "error_message": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"message\"]}')}",
-                    "error_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"http_response\",\"code\"]}')}",
+                    "error_step_no": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"line_number\"]}')}",
+                    "error_message": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"message\"]}')}",
+                    "error_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"http_response\",\"code\"]}')}",
                     "job_link": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_url\"]}')}",
-                    "job_failed_at": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"error_at\"]}')}"
+                    "job_failed_at": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"error_at\"]}')}"
                   }
                 },
                 "extended_output_schema": [
@@ -2613,13 +2780,13 @@
                   "parameters.job_link",
                   "parameters.job_failed_at"
                 ],
-                "uuid": "ad7d3b0e-ef81-4bcf-b75f-932201f09d19"
+                "uuid": "6d86798a-7b75-43e5-9c1b-d7d5439f363f"
               },
               {
                 "number": 22,
                 "provider": "workato_recipe_function",
                 "name": "call_recipe",
-                "as": "78e3f1a9",
+                "as": "e93b1eda",
                 "keyword": "action",
                 "dynamicPickListSelection": {
                   "flow_id": "SUB | FUNC | Exception Call"
@@ -2631,23 +2798,23 @@
                     "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | NEW Record"
                   },
                   "parameters": {
-                    "ErrorTypeID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"error_type_id\"]}')}",
-                    "ErrorType": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"type\"]}')}",
-                    "ErrorMessage": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"message\"]}')}",
-                    "RetryCount": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"retry_count\"]}')}",
-                    "ErrorUUID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"uuid\"]}')}",
-                    "ErroredStepNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"line_number\"]}')}",
-                    "ErroredApp": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"adapter\"]}')}",
-                    "ErroredAction": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"action\"]}')}",
-                    "RecordID": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"af470417\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"af470417\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}'): null",
-                    "ErroredAt": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"error_at\"]}')}",
-                    "HTTPProtocolVersion": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"http_response\",\"protocol\"]}')}",
-                    "HTTPStatusCode": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"http_response\",\"code\"]}')}",
-                    "HTTPStatusText": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"http_response\",\"raw_status_text\"]}')}",
-                    "HTTPStatusTextRFC": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"http_response\",\"normalized_status_text\"]}')}",
-                    "HTTPResponseBody": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"http_response\",\"body\"]}')}",
-                    "HTTPResponseRetryAfter": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"http_response\",\"retry_after\"]}')}",
-                    "RecipeName": "=\"REC | 01 |  Reprocess with VendorID\""
+                    "ErrorTypeID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"error_type_id\"]}')}",
+                    "ErrorType": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"type\"]}')}",
+                    "ErrorMessage": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"message\"]}')}",
+                    "RetryCount": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"retry_count\"]}')}",
+                    "ErrorUUID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"uuid\"]}')}",
+                    "ErroredStepNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"line_number\"]}')}",
+                    "ErroredApp": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"adapter\"]}')}",
+                    "ErroredAction": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"action\"]}')}",
+                    "RecordID": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"177b76d6\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"177b76d6\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}'): null",
+                    "ErroredAt": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"error_at\"]}')}",
+                    "HTTPProtocolVersion": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"http_response\",\"protocol\"]}')}",
+                    "HTTPStatusCode": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"http_response\",\"code\"]}')}",
+                    "HTTPStatusText": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"http_response\",\"raw_status_text\"]}')}",
+                    "HTTPStatusTextRFC": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"http_response\",\"normalized_status_text\"]}')}",
+                    "HTTPResponseBody": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"http_response\",\"body\"]}')}",
+                    "HTTPResponseRetryAfter": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"http_response\",\"retry_after\"]}')}",
+                    "RecipeName": "=\"REC | 01 | REPROCESS | Get VendorIDs for INSERT and UPDATE\""
                   }
                 },
                 "extended_input_schema": [
@@ -2830,17 +2997,18 @@
                   "parameters.RecordID",
                   "parameters.RecipeName"
                 ],
-                "uuid": "c31d655d-f2c6-4117-8cef-fb0483951e3e"
+                "uuid": "37cecfcb-735c-4237-b762-5e6148dc8504",
+                "skip": false
               },
               {
                 "number": 23,
                 "provider": "logger",
                 "name": "log_message",
-                "as": "a5b68cbe",
+                "as": "0d8bc7b3",
                 "keyword": "action",
                 "input": {
                   "user_logs_enabled": "false",
-                  "message": "Error MSg : #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"message\"]}')}"
+                  "message": "Error MSg : #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"message\"]}')}"
                 },
                 "extended_input_schema": [
                   {
@@ -2848,69 +3016,69 @@
                     "default": false,
                     "disable_formula": true,
                     "extends_schema": true,
-                    "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                    "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
                     "label": "Send to Workato log service",
                     "name": "user_logs_enabled",
                     "optional": true,
                     "type": "string"
                   }
                 ],
-                "uuid": "a6d85b8b-c4f5-4274-8426-dc27b6766f40"
+                "uuid": "679071dc-321d-4a5e-b7f0-ab0ce1f3052d"
               },
               {
                 "number": 24,
-                "as": "4e35cf9d",
+                "as": "d7b74330",
                 "keyword": "stop",
                 "input": {
                   "stop_with_error": "true",
-                  "stop_reason": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"d254b55a\",\"path\":[\"message\"]}')}"
+                  "stop_reason": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"68ddaeaf\",\"path\":[\"message\"]}')}"
                 },
-                "uuid": "acc499e1-6552-4e5d-8575-20d4d283b4e9"
+                "uuid": "8596570b-51b4-4dd0-802c-2ec628f83961"
               }
             ],
-            "uuid": "8f6c2b20-7745-4d78-a1ae-57ff947152ee"
+            "uuid": "377bd6cc-7da3-439d-8c00-ef4c019f4bd0"
           }
         ],
-        "uuid": "cae5be9b-1366-4ccf-9d51-d6b89374f333"
+        "uuid": "a6f18dec-73fd-4706-9140-af89b835909d"
       }
     ],
-    "comment": "Runs of schedule of every Hour",
+    "comment": "Parameter- ReStartJobTime + ReEndJobTime for Reprocessing",
     "job_report_schema": [
       {
         "name": "custom_column_0",
-        "label": "Ariba Vendor ID"
+        "label": "Start Job Time"
       },
       {
-        "name": "custom_column_2",
-        "label": "Insert/Update"
+        "name": "custom_column_3",
+        "label": "End Job Time"
       },
       {
         "name": "custom_column_4",
-        "label": "INSERT JobID (If Success)"
+        "label": "List Size"
       },
       {
         "name": "custom_column_5",
-        "label": "UPDATE JobID (If Success)"
+        "label": "P_CHQ"
+      },
+      {
+        "name": "custom_column_6",
+        "label": "P_Requestor Mail ID"
       }
     ],
     "job_report_config": {
-      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"f0e54157\",\"path\":[\"response\",\"array\",{\"path_element_type\":\"current_item\"},\"SM_Vendor_ID\"]}')}",
-      "custom_column_2": "=_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"3ce05254\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"result_f3f45e68\"]}').presence ? (_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"3ce05254\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"result_f3f45e68\"]}').to_i == 1 ? 'UPDATE' : 'INSERT') : null",
-      "custom_column_4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"af470417\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"record\",\"fd35ac66_337f_41f2_9267_656f867fcb8d\"]}')}",
-      "custom_column_5": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"b4f59044\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"record\",\"d9210735_eeb2_4fb7_ab61_64be2d0ef393\"]}')}"
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"e9f614bc\",\"path\":[\"params\",\"ReStartJobTime\"]}')}",
+      "custom_column_3": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"e9f614bc\",\"path\":[\"params\",\"ReEndJobTime\"]}')}",
+      "custom_column_4": "=_dp('{\"pill_type\":\"foreach_meta\",\"provider\":\"foreach\",\"line\":\"d10c1cf0\",\"key\":\"size\"}')",
+      "custom_column_5": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"e9f614bc\",\"path\":[\"params\",\"CHQ\"]}').presence",
+      "custom_column_6": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"e9f614bc\",\"path\":[\"params\",\"RequestorMailId\"]}').presence"
     },
-    "uuid": "788f1469-8f7c-43e3-8ecf-39abad0f9e93"
+    "uuid": "788f1469-8f7c-43e3-8ecf-39abad0f9e93",
+    "wizardFinished": true
   },
   "config": [
     {
       "keyword": "application",
-      "provider": "clock",
-      "skip_validation": false,
-      "account_id": null
-    },
-    {
-      "keyword": "application",
-      "provider": "logger",
+      "provider": "workato_webhooks",
       "skip_validation": false,
       "account_id": null
     },
@@ -2926,13 +3094,7 @@
     },
     {
       "keyword": "application",
-      "provider": "workato_recipe_function",
-      "skip_validation": false,
-      "account_id": null
-    },
-    {
-      "keyword": "application",
-      "provider": "workato_db_table",
+      "provider": "workato_variable",
       "skip_validation": false,
       "account_id": null
     },
@@ -2948,13 +3110,25 @@
     },
     {
       "keyword": "application",
-      "provider": "workato_variable",
+      "provider": "workato_db_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "logger",
       "skip_validation": false,
       "account_id": null
     }
   ],
   "tags": [
-    "Main Recipe",
-    "QA"
+    "QA",
+    "Webhook"
   ]
 }
