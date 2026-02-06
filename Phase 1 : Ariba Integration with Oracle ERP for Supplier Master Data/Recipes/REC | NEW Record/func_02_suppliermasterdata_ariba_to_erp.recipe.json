@@ -1,7 +1,7 @@
 {
   "name": "FUNC | 02 | SupplierMasterData_ARIBA_To_ERP",
   "description": "",
-  "version": 126,
+  "version": 198,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -553,7 +553,7 @@
                 "default": false,
                 "disable_formula": true,
                 "extends_schema": true,
-                "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
                 "label": "Send to Workato log service",
                 "name": "user_logs_enabled",
                 "optional": true,
@@ -1150,6 +1150,250 @@
                       }
                     ],
                     "extended_input_schema": [
+                      {
+                        "label": "Request",
+                        "name": "request",
+                        "override": true,
+                        "properties": [
+                          {
+                            "control_type": "select",
+                            "label": "Method",
+                            "pick_list": [
+                              [
+                                "GET",
+                                "GET"
+                              ],
+                              [
+                                "POST",
+                                "POST"
+                              ],
+                              [
+                                "PUT",
+                                "PUT"
+                              ],
+                              [
+                                "DELETE",
+                                "DELETE"
+                              ],
+                              [
+                                "HEAD",
+                                "HEAD"
+                              ],
+                              [
+                                "PATCH",
+                                "PATCH"
+                              ]
+                            ],
+                            "hint": "Select a HTTP method",
+                            "default": "GET",
+                            "type": "string",
+                            "name": "method"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Request URL",
+                            "check_secrets": true,
+                            "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
+                            "placeholder": "https://api.example.com/v1/leads",
+                            "type": "string",
+                            "name": "url"
+                          },
+                          {
+                            "control_type": "select",
+                            "label": "Request content type",
+                            "extends_schema": true,
+                            "pick_list": [
+                              [
+                                "JSON request body",
+                                "json"
+                              ],
+                              [
+                                "Raw JSON request body",
+                                "application/json"
+                              ],
+                              [
+                                "XML",
+                                "application/xml"
+                              ],
+                              [
+                                "Text",
+                                "text/plain"
+                              ],
+                              [
+                                "URL encoded form",
+                                "application/x-www-form-urlencoded"
+                              ],
+                              [
+                                "Binary",
+                                "application/octet-stream"
+                              ],
+                              [
+                                "Multipart form",
+                                "multipart/form-data"
+                              ],
+                              [
+                                "Multipart alternative",
+                                "multipart/alternative"
+                              ],
+                              [
+                                "Multipart digest",
+                                "multipart/digest"
+                              ],
+                              [
+                                "Multipart mixed",
+                                "multipart/mixed"
+                              ],
+                              [
+                                "Multipart related",
+                                "multipart/related"
+                              ]
+                            ],
+                            "hint": "The API endpoint documentation should define what data it expects",
+                            "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
+                            "optional": true,
+                            "default": "application/json",
+                            "type": "string",
+                            "name": "content_type"
+                          },
+                          {
+                            "control_type": "text-area",
+                            "label": "Request body",
+                            "hint": "HTTP request body to send with the request. <a href=\"https://docs.workato.com/developing-connectors/http.html#request-body\" target=\"_blank\">Learn more</a>",
+                            "sticky": true,
+                            "check_secrets": true,
+                            "ngIf": "input.request.content_type !== 'json' && input.request.content_type !== 'application/x-www-form-urlencoded' && input.request.content_type !== 'multipart/form-data' && input.request.content_type !== 'multipart/alternative' && input.request.content_type !== 'multipart/digest' && input.request.content_type !== 'multipart/mixed' && input.request.content_type !== 'multipart/related' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                            "optional": true,
+                            "type": "string",
+                            "name": "body"
+                          },
+                          {
+                            "label": "Request body",
+                            "control_type": "key_value",
+                            "optional": true,
+                            "empty_list_title": "Does this HTTP request require form data?",
+                            "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
+                            "item_label": "Form data",
+                            "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                            "of": "object",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Key",
+                                "type": "string",
+                                "name": "param"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Value",
+                                "type": "string",
+                                "name": "value"
+                              }
+                            ],
+                            "type": "array",
+                            "name": "form_body"
+                          },
+                          {
+                            "label": "Request parts",
+                            "optional": true,
+                            "item_label": "Part",
+                            "ngIf": "(input.request.content_type === 'multipart/alternative'|| input.request.content_type === 'multipart/digest'|| input.request.content_type === 'multipart/mixed'|| input.request.content_type === 'multipart/related') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                            "of": "object",
+                            "properties": [
+                              {
+                                "label": "Headers",
+                                "optional": true,
+                                "sticky": true,
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Header name",
+                                    "optional": false,
+                                    "type": "string",
+                                    "name": "name"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "optional": true,
+                                    "sticky": true,
+                                    "type": "string",
+                                    "name": "value"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "headers"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Raw body",
+                                "optional": true,
+                                "sticky": true,
+                                "hint": "Raw content of the part",
+                                "type": "string",
+                                "name": "body"
+                              }
+                            ],
+                            "type": "array",
+                            "name": "parts"
+                          },
+                          {
+                            "label": "Request URL parameters",
+                            "control_type": "key_value",
+                            "check_secrets": true,
+                            "optional": true,
+                            "empty_list_title": "Does this HTTP request contain a query string?",
+                            "empty_list_text": "Add URL parameters to the query string",
+                            "item_label": "URL parameter",
+                            "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
+                            "of": "object",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Parameter name",
+                                "type": "string",
+                                "name": "param"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Value",
+                                "type": "string",
+                                "name": "value"
+                              }
+                            ],
+                            "type": "array",
+                            "name": "parameters"
+                          },
+                          {
+                            "label": "Request headers",
+                            "control_type": "key_value",
+                            "optional": true,
+                            "check_secrets": true,
+                            "empty_list_title": "Does this HTTP request require headers?",
+                            "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                            "item_label": "Header",
+                            "sticky": true,
+                            "of": "object",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Header name",
+                                "type": "string",
+                                "name": "header"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Value",
+                                "type": "string",
+                                "name": "value"
+                              }
+                            ],
+                            "type": "array",
+                            "name": "headers"
+                          }
+                        ],
+                        "type": "object"
+                      },
                       {
                         "label": "Response",
                         "name": "response",
@@ -1980,6 +2224,250 @@
                         ],
                         "extended_input_schema": [
                           {
+                            "label": "Request",
+                            "name": "request",
+                            "override": true,
+                            "properties": [
+                              {
+                                "control_type": "select",
+                                "label": "Method",
+                                "pick_list": [
+                                  [
+                                    "GET",
+                                    "GET"
+                                  ],
+                                  [
+                                    "POST",
+                                    "POST"
+                                  ],
+                                  [
+                                    "PUT",
+                                    "PUT"
+                                  ],
+                                  [
+                                    "DELETE",
+                                    "DELETE"
+                                  ],
+                                  [
+                                    "HEAD",
+                                    "HEAD"
+                                  ],
+                                  [
+                                    "PATCH",
+                                    "PATCH"
+                                  ]
+                                ],
+                                "hint": "Select a HTTP method",
+                                "default": "GET",
+                                "type": "string",
+                                "name": "method"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Request URL",
+                                "check_secrets": true,
+                                "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
+                                "placeholder": "https://api.example.com/v1/leads",
+                                "type": "string",
+                                "name": "url"
+                              },
+                              {
+                                "control_type": "select",
+                                "label": "Request content type",
+                                "extends_schema": true,
+                                "pick_list": [
+                                  [
+                                    "JSON request body",
+                                    "json"
+                                  ],
+                                  [
+                                    "Raw JSON request body",
+                                    "application/json"
+                                  ],
+                                  [
+                                    "XML",
+                                    "application/xml"
+                                  ],
+                                  [
+                                    "Text",
+                                    "text/plain"
+                                  ],
+                                  [
+                                    "URL encoded form",
+                                    "application/x-www-form-urlencoded"
+                                  ],
+                                  [
+                                    "Binary",
+                                    "application/octet-stream"
+                                  ],
+                                  [
+                                    "Multipart form",
+                                    "multipart/form-data"
+                                  ],
+                                  [
+                                    "Multipart alternative",
+                                    "multipart/alternative"
+                                  ],
+                                  [
+                                    "Multipart digest",
+                                    "multipart/digest"
+                                  ],
+                                  [
+                                    "Multipart mixed",
+                                    "multipart/mixed"
+                                  ],
+                                  [
+                                    "Multipart related",
+                                    "multipart/related"
+                                  ]
+                                ],
+                                "hint": "The API endpoint documentation should define what data it expects",
+                                "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
+                                "optional": true,
+                                "default": "application/json",
+                                "type": "string",
+                                "name": "content_type"
+                              },
+                              {
+                                "control_type": "text-area",
+                                "label": "Request body",
+                                "hint": "HTTP request body to send with the request. <a href=\"https://docs.workato.com/developing-connectors/http.html#request-body\" target=\"_blank\">Learn more</a>",
+                                "sticky": true,
+                                "check_secrets": true,
+                                "ngIf": "input.request.content_type !== 'json' && input.request.content_type !== 'application/x-www-form-urlencoded' && input.request.content_type !== 'multipart/form-data' && input.request.content_type !== 'multipart/alternative' && input.request.content_type !== 'multipart/digest' && input.request.content_type !== 'multipart/mixed' && input.request.content_type !== 'multipart/related' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                                "optional": true,
+                                "type": "string",
+                                "name": "body"
+                              },
+                              {
+                                "label": "Request body",
+                                "control_type": "key_value",
+                                "optional": true,
+                                "empty_list_title": "Does this HTTP request require form data?",
+                                "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
+                                "item_label": "Form data",
+                                "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Key",
+                                    "type": "string",
+                                    "name": "param"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "type": "string",
+                                    "name": "value"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "form_body"
+                              },
+                              {
+                                "label": "Request parts",
+                                "optional": true,
+                                "item_label": "Part",
+                                "ngIf": "(input.request.content_type === 'multipart/alternative'|| input.request.content_type === 'multipart/digest'|| input.request.content_type === 'multipart/mixed'|| input.request.content_type === 'multipart/related') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "label": "Headers",
+                                    "optional": true,
+                                    "sticky": true,
+                                    "of": "object",
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "Header name",
+                                        "optional": false,
+                                        "type": "string",
+                                        "name": "name"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Value",
+                                        "optional": true,
+                                        "sticky": true,
+                                        "type": "string",
+                                        "name": "value"
+                                      }
+                                    ],
+                                    "type": "array",
+                                    "name": "headers"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Raw body",
+                                    "optional": true,
+                                    "sticky": true,
+                                    "hint": "Raw content of the part",
+                                    "type": "string",
+                                    "name": "body"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "parts"
+                              },
+                              {
+                                "label": "Request URL parameters",
+                                "control_type": "key_value",
+                                "check_secrets": true,
+                                "optional": true,
+                                "empty_list_title": "Does this HTTP request contain a query string?",
+                                "empty_list_text": "Add URL parameters to the query string",
+                                "item_label": "URL parameter",
+                                "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Parameter name",
+                                    "type": "string",
+                                    "name": "param"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "type": "string",
+                                    "name": "value"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "parameters"
+                              },
+                              {
+                                "label": "Request headers",
+                                "control_type": "key_value",
+                                "optional": true,
+                                "check_secrets": true,
+                                "empty_list_title": "Does this HTTP request require headers?",
+                                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                                "item_label": "Header",
+                                "sticky": true,
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Header name",
+                                    "type": "string",
+                                    "name": "header"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Value",
+                                    "type": "string",
+                                    "name": "value"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "headers"
+                              }
+                            ],
+                            "type": "object"
+                          },
+                          {
                             "label": "Response",
                             "name": "response",
                             "override": true,
@@ -2121,7 +2609,7 @@
                                 "default": false,
                                 "disable_formula": true,
                                 "extends_schema": true,
-                                "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                                "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
                                 "label": "Send to Workato log service",
                                 "name": "user_logs_enabled",
                                 "optional": true,
@@ -3942,7 +4430,7 @@
                             "default": false,
                             "disable_formula": true,
                             "extends_schema": true,
-                            "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                            "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
                             "label": "Send to Workato log service",
                             "name": "user_logs_enabled",
                             "optional": true,
@@ -4377,7 +4865,7 @@
                             "default": false,
                             "disable_formula": true,
                             "extends_schema": true,
-                            "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                            "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
                             "label": "Send to Workato log service",
                             "name": "user_logs_enabled",
                             "optional": true,
@@ -6826,7 +7314,8 @@
                             "keyword": "action",
                             "dynamicPickListSelection": {
                               "table_id": "[S2P] DT | FUNC | 02 | 001 | QNA Temp ADD SUPPLIER DATA",
-                              "filters.0.field_id": "ARIBA_VENDOR_ID"
+                              "filters.0.field_id": "ARIBA_VENDOR_ID",
+                              "filters.1.field_id": "RECIPE_ID"
                             },
                             "input": {
                               "table_id": {
@@ -6845,6 +7334,10 @@
                                   "op_default": "eq",
                                   "value_default": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"3ab35d32\",\"path\":[\"questionAnswer\",\"smVendorId\"]}')}",
                                   "field_id": "d5677e3f-ce55-46c6-b879-73214018ee27"
+                                },
+                                {
+                                  "field_id": "4096efb2-c073-49b9-942e-77b3f2f1d54f",
+                                  "op_integer": "isnotnull"
                                 }
                               ],
                               "d5677e3f-ce55-46c6-b879-73214018ee27": "string",
@@ -6855,13 +7348,14 @@
                               "b0f6dca5-dc01-4f03-9c6b-a2c8d1eb5f54": "string",
                               "ffe1367c-a5a7-47ff-9612-4662984d8993": "string",
                               "25ccc0de-b116-485b-b92e-593d8b979297": "date_time",
-                              "3762fa8a-4799-4faa-bde7-3ad4c80f5e88": "string",
-                              "9fd6709a-8fbd-4cf7-9dad-0764565bac28": "date_time",
                               "00587738-f0c5-40c9-9338-26809757aed8": "string",
                               "d54a527c-8d90-4ca8-8fe0-50d97d4b9f13": "string",
                               "3e55c6fa-5041-446b-abd9-ba35727db9f4": "string",
                               "9372baef-e188-4c56-9afc-04860ccd1b39": "date_time",
-                              "4096efb2-c073-49b9-942e-77b3f2f1d54f": "integer"
+                              "4096efb2-c073-49b9-942e-77b3f2f1d54f": "integer",
+                              "fbb75cda-4400-4804-b66f-581f510a49ad": "string",
+                              "18501faf-4833-4769-93eb-6a2bc20c1eac": "string",
+                              "29e44014-0432-489e-a809-886ae19ac5c7": "string"
                             },
                             "extended_output_schema": [
                               {
@@ -6975,20 +7469,6 @@
                                     "label": "TAX_CLASSIFICATION",
                                     "type": "string",
                                     "name": "TAX_CLASSIFICATION"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "UPDATED_VALIDATION_CODE",
-                                    "type": "string",
-                                    "name": "UPDATED_VALIDATION_CODE"
-                                  },
-                                  {
-                                    "control_type": "date_time",
-                                    "label": "UPDATED_VALIDATION_DATE",
-                                    "render_input": "date_time_conversion",
-                                    "parse_output": "date_time_conversion",
-                                    "type": "date_time",
-                                    "name": "UPDATED_VALIDATION_DATE"
                                   },
                                   {
                                     "control_type": "date_time",
@@ -7163,24 +7643,6 @@
                               },
                               {
                                 "control_type": "text",
-                                "default": "string",
-                                "label": "$internal_value_3762fa8a-4799-4faa-bde7-3ad4c80f5e88",
-                                "name": "3762fa8a-4799-4faa-bde7-3ad4c80f5e88",
-                                "ngIf": "false",
-                                "optional": true,
-                                "type": "string"
-                              },
-                              {
-                                "control_type": "text",
-                                "default": "date_time",
-                                "label": "$internal_value_9fd6709a-8fbd-4cf7-9dad-0764565bac28",
-                                "name": "9fd6709a-8fbd-4cf7-9dad-0764565bac28",
-                                "ngIf": "false",
-                                "optional": true,
-                                "type": "string"
-                              },
-                              {
-                                "control_type": "text",
                                 "default": "id",
                                 "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
                                 "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
@@ -7269,7 +7731,8 @@
                                 "pif_supplier": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d9126f4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"PIF_SUPPLIER\"]}')}",
                                 "pif_validation_expiration_date": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d9126f4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"PIF_VALIDATION_EXPIRATION_DATE\"]}')} ",
                                 "recipe_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d9126f4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"RECIPE_ID\"]}').to_i",
-                                "organization_type": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d9126f4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"ORGANIZATION_TYPE\"]}')}"
+                                "organization_type": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d9126f4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"ORGANIZATION_TYPE\"]}')}",
+                                "tax_classification": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d9126f4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TAX_CLASSIFICATION\"]}')}"
                               }
                             },
                             "extended_input_schema": [
@@ -7700,6 +8163,23 @@
                                   },
                                   {
                                     "control_type": "text",
+                                    "label": "TAX_CLASSIFICATION",
+                                    "details": {
+                                      "primary_key": false,
+                                      "data_type": "varchar2",
+                                      "column_name": "TAX_CLASSIFICATION",
+                                      "length": 240,
+                                      "precision": null,
+                                      "scale": null,
+                                      "element_type": null
+                                    },
+                                    "optional": true,
+                                    "hint": "varchar2, max length 240",
+                                    "type": "string",
+                                    "name": "tax_classification"
+                                  },
+                                  {
+                                    "control_type": "text",
                                     "label": "UPDATED_VALIDATION_CODE",
                                     "details": {
                                       "primary_key": false,
@@ -7906,7 +8386,10 @@
                               "columns",
                               "columns.inactive_date",
                               "columns.recipe_id",
-                              "columns.organization_type"
+                              "columns.organization_type",
+                              "columns.tax_classification",
+                              "columns.tax_effective_from",
+                              "columns.registration_status_code"
                             ],
                             "comment": "Add Rows from Supplier Temporary Table",
                             "uuid": "59a33182-d31e-4101-aadf-8d70e479f9ab"
@@ -9298,14 +9781,12 @@
                               "cf544cd3-065f-4520-b166-fcfdee994b1a": "string",
                               "10a34a52-7dc8-41c1-8ab8-57612aa7d57d": "string",
                               "a662f45f-c44f-4455-a94a-6c2692ca129d": "string",
-                              "906ac2db-7d01-4671-80e8-9718f90447ea": "string",
                               "96427d5d-6a42-433f-a6d2-b4c6d5b6af25": "string",
                               "7914cc5e-6138-4459-b802-83c5904af607": "string",
                               "2ca4b43f-d578-4a84-bb86-9a151bdcf0f4": "integer",
                               "3f1b47ab-a001-4de0-ba0f-b5be0b97e1c5": "string",
                               "01293ff1-ad3d-4e93-9cfc-1a55f2e049e0": "string",
                               "16d47fb1-70b7-42d0-9778-e04deaf6bba5": "string",
-                              "b6cee089-62b2-42c7-85ac-2e8ef6c0bc53": "string",
                               "28e0944d-969a-4c62-9a63-f31fb4c27029": "string",
                               "order_by_field_id": "2ca4b43f-d578-4a84-bb86-9a151bdcf0f4"
                             },
@@ -9396,12 +9877,6 @@
                                   },
                                   {
                                     "control_type": "text",
-                                    "label": "TAX_EFFECTIVE_FROM",
-                                    "type": "string",
-                                    "name": "TAX_EFFECTIVE_FROM"
-                                  },
-                                  {
-                                    "control_type": "text",
                                     "label": "TR_ALLOW_TX",
                                     "type": "string",
                                     "name": "TR_ALLOW_TX"
@@ -9439,15 +9914,23 @@
                                   },
                                   {
                                     "control_type": "text",
-                                    "label": "REGISTRATION_STATUS_CODE",
-                                    "type": "string",
-                                    "name": "REGISTRATION_STATUS_CODE"
-                                  },
-                                  {
-                                    "control_type": "text",
                                     "label": "TAX_REGIME_CODE",
                                     "type": "string",
                                     "name": "TAX_REGIME_CODE"
+                                  },
+                                  {
+                                    "control_type": "date_time",
+                                    "label": "TAX_EFFECTIVE_FROM",
+                                    "render_input": "date_time_conversion",
+                                    "parse_output": "date_time_conversion",
+                                    "type": "date_time",
+                                    "name": "TAX_EFFECTIVE_FROM"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "REGISTRATION_STATUS_CODE",
+                                    "type": "string",
+                                    "name": "REGISTRATION_STATUS_CODE"
                                   },
                                   {
                                     "control_type": "date_time",
@@ -9587,15 +10070,6 @@
                               {
                                 "control_type": "text",
                                 "default": "string",
-                                "label": "$internal_value_906ac2db-7d01-4671-80e8-9718f90447ea",
-                                "name": "906ac2db-7d01-4671-80e8-9718f90447ea",
-                                "ngIf": "false",
-                                "optional": true,
-                                "type": "string"
-                              },
-                              {
-                                "control_type": "text",
-                                "default": "string",
                                 "label": "$internal_value_96427d5d-6a42-433f-a6d2-b4c6d5b6af25",
                                 "name": "96427d5d-6a42-433f-a6d2-b4c6d5b6af25",
                                 "ngIf": "false",
@@ -9650,8 +10124,17 @@
                               {
                                 "control_type": "text",
                                 "default": "string",
-                                "label": "$internal_value_b6cee089-62b2-42c7-85ac-2e8ef6c0bc53",
-                                "name": "b6cee089-62b2-42c7-85ac-2e8ef6c0bc53",
+                                "label": "$internal_value_28e0944d-969a-4c62-9a63-f31fb4c27029",
+                                "name": "28e0944d-969a-4c62-9a63-f31fb4c27029",
+                                "ngIf": "false",
+                                "optional": true,
+                                "type": "string"
+                              },
+                              {
+                                "control_type": "text",
+                                "default": "date_time",
+                                "label": "$internal_value_acce440d-700c-473c-8e7e-3d1b12d5e3c7",
+                                "name": "acce440d-700c-473c-8e7e-3d1b12d5e3c7",
                                 "ngIf": "false",
                                 "optional": true,
                                 "type": "string"
@@ -9659,8 +10142,8 @@
                               {
                                 "control_type": "text",
                                 "default": "string",
-                                "label": "$internal_value_28e0944d-969a-4c62-9a63-f31fb4c27029",
-                                "name": "28e0944d-969a-4c62-9a63-f31fb4c27029",
+                                "label": "$internal_value_7ce73953-29fa-49e1-9e19-280506bb500a",
+                                "name": "7ce73953-29fa-49e1-9e19-280506bb500a",
                                 "ngIf": "false",
                                 "optional": true,
                                 "type": "string"
@@ -9776,7 +10259,6 @@
                                     "payment_reason": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"PAYMENT_REASON\"]}')}",
                                     "recipe_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"RECIPE_ID\"]}').to_i",
                                     "service_level": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"SERVICE_LEVEL\"]}')}",
-                                    "tax_effective_from": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TAX_EFFECTIVE_FROM\"]}')}",
                                     "terms": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TERMS\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TERMS\"]}').slice(0,50) : null",
                                     "tr_allow_tx": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TR_ALLOW_TX\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TR_ALLOW_TX\"]}').slice(0,3) : null",
                                     "vendor_site_alternative": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"VENDOR_SITE_ALTERNATIVE\"]}')}",
@@ -9789,8 +10271,9 @@
                                     "verified": "N",
                                     "address_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"ADDRESS_NAME\"]}')}",
                                     "site_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"SITE_NAME\"]}').slice(0,20) ",
-                                    "registration_status_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"REGISTRATION_STATUS_CODE\"]}')}",
-                                    "tax_regime_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TAX_REGIME_CODE\"]}')}"
+                                    "tax_regime_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TAX_REGIME_CODE\"]}')}",
+                                    "tax_effective_from": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"TAX_EFFECTIVE_FROM\"]}')}",
+                                    "registration_status_code": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"REGISTRATION_STATUS_CODE\"]}')}"
                                   }
                                 },
                                 "extended_output_schema": [
@@ -10713,6 +11196,12 @@
                                     "name": "f1463fa9_a84a_4bab_8211_a74bac4dc569"
                                   },
                                   {
+                                    "control_type": "text",
+                                    "label": "BANK_TAX_PAYER_ID",
+                                    "type": "string",
+                                    "name": "365a6b95_dbd7_44ce_ad9e_026a7b10775f"
+                                  },
+                                  {
                                     "control_type": "date_time",
                                     "label": "Created at",
                                     "render_input": "date_time_conversion",
@@ -11002,6 +11491,15 @@
                               },
                               {
                                 "control_type": "text",
+                                "default": "string",
+                                "label": "$internal_value_365a6b95-dbd7-44ce-ad9e-026a7b10775f",
+                                "name": "365a6b95-dbd7-44ce-ad9e-026a7b10775f",
+                                "ngIf": "false",
+                                "optional": true,
+                                "type": "string"
+                              },
+                              {
+                                "control_type": "text",
                                 "default": "id",
                                 "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
                                 "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
@@ -11123,7 +11621,8 @@
                                     "is_intermediate_bank": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"54a78a4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"b0560a0c_d1bb_455a_873c_a8ca33224655\"]}')}",
                                     "recipe_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"54a78a4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"2e741f0c_814e_471c_ab78_b4bc8a5c7956\"]}').to_i",
                                     "bank_key": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"54a78a4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"f1463fa9_a84a_4bab_8211_a74bac4dc569\"]}')}",
-                                    "swift": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"54a78a4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"612334a5_9eb8_4a1d_b159_08fccabf4848\"]}')}"
+                                    "swift": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"54a78a4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"612334a5_9eb8_4a1d_b159_08fccabf4848\"]}')}",
+                                    "bank_tax_payer_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"54a78a4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"365a6b95_dbd7_44ce_ad9e_026a7b10775f\"]}')}"
                                   }
                                 },
                                 "extended_output_schema": [
@@ -11312,6 +11811,23 @@
                                         "hint": "varchar2, max length 30",
                                         "type": "string",
                                         "name": "bank_number"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "BANK_TAX_PAYER_ID",
+                                        "details": {
+                                          "primary_key": false,
+                                          "data_type": "varchar2",
+                                          "column_name": "BANK_TAX_PAYER_ID",
+                                          "length": 30,
+                                          "precision": null,
+                                          "scale": null,
+                                          "element_type": null
+                                        },
+                                        "optional": true,
+                                        "hint": "varchar2, max length 30",
+                                        "type": "string",
+                                        "name": "bank_tax_payer_id"
                                       },
                                       {
                                         "control_type": "text",
@@ -11684,7 +12200,8 @@
                                   "rows.int_account_name",
                                   "rows.recipe_id",
                                   "rows.bank_key",
-                                  "rows.swift"
+                                  "rows.swift",
+                                  "rows.bank_tax_payer_id"
                                 ],
                                 "comment": "Add Rows from Supplier BANK Temporary Table",
                                 "uuid": "352165bc-9ba4-4c96-a9ca-b979c098c718",
@@ -11911,6 +12428,12 @@
                                     "name": "7a67a2b9_6f1d_4630_b9f6_0b0e41060b4a"
                                   },
                                   {
+                                    "control_type": "text",
+                                    "label": "INT_BANK_TAX_PAYER_ID",
+                                    "type": "string",
+                                    "name": "05e56c99_1fbe_446e_9220_3e534cac3482"
+                                  },
+                                  {
                                     "control_type": "date_time",
                                     "label": "Created at",
                                     "render_input": "date_time_conversion",
@@ -12110,6 +12633,15 @@
                               },
                               {
                                 "control_type": "text",
+                                "default": "string",
+                                "label": "$internal_value_05e56c99-1fbe-446e-9220-3e534cac3482",
+                                "name": "05e56c99-1fbe-446e-9220-3e534cac3482",
+                                "ngIf": "false",
+                                "optional": true,
+                                "type": "string"
+                              },
+                              {
+                                "control_type": "text",
                                 "default": "id",
                                 "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
                                 "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
@@ -12188,7 +12720,8 @@
                                     "int_branch_type": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"66a398d9_f4f9_4a24_abb8_8b5eaa489ee7\"]}')  ? _dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"66a398d9_f4f9_4a24_abb8_8b5eaa489ee7\"]}').slice(0,10) : null",
                                     "int_iban": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"7a67a2b9_6f1d_4630_b9f6_0b0e41060b4a\"]}')}",
                                     "int_swift": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"62619092_4747_4fe1_a06f_48d0fc4d6f7f\"]}')}",
-                                    "int_bank_key": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"e624d501_a93d_40a6_9df0_1622658c6b80\"]}')}"
+                                    "int_bank_key": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"e624d501_a93d_40a6_9df0_1622658c6b80\"]}')}",
+                                    "int_bank_tax_payer_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"05e56c99_1fbe_446e_9220_3e534cac3482\"]}')}"
                                   }
                                 },
                                 "extended_output_schema": [
@@ -12380,6 +12913,23 @@
                                         "hint": "varchar2, max length 30",
                                         "type": "string",
                                         "name": "int_bank_number"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "INT_BANK_TAX_PAYER_ID",
+                                        "details": {
+                                          "primary_key": false,
+                                          "data_type": "varchar2",
+                                          "column_name": "INT_BANK_TAX_PAYER_ID",
+                                          "length": 30,
+                                          "precision": null,
+                                          "scale": null,
+                                          "element_type": null
+                                        },
+                                        "optional": true,
+                                        "hint": "varchar2, max length 30",
+                                        "type": "string",
+                                        "name": "int_bank_tax_payer_id"
                                       },
                                       {
                                         "control_type": "text",
@@ -12705,7 +13255,8 @@
                                   "rows.int_currency_code",
                                   "rows.int_iban",
                                   "rows.int_bank_key",
-                                  "rows.int_swift"
+                                  "rows.int_swift",
+                                  "rows.int_bank_tax_payer_id"
                                 ],
                                 "comment": "Add Rows from Supplier INTERMEDIATE BANK Temporary Table",
                                 "uuid": "7e5c966c-14a5-4509-b403-a5a35f6d5d46",
@@ -13619,6 +14170,7 @@
                       "output_schema",
                       "parameters.data"
                     ],
+                    "comment": "For Support / IT Team - Email Notifications",
                     "uuid": "812a2d48-929b-4d68-8c8d-0ba3526c42c6"
                   },
                   {
@@ -13752,10 +14304,764 @@
                       "template_input.Rows.SITE_CODE",
                       "template_input.Rows.INTERFACE_ID"
                     ],
+                    "comment": "For Support / IT Team - Email Notifications",
                     "uuid": "4e5cbd7d-02a1-4408-b712-ec70eeb50d11"
                   },
                   {
                     "number": 64,
+                    "provider": "oracle",
+                    "name": "search_rows_sql",
+                    "as": "477ad5e3",
+                    "keyword": "action",
+                    "input": {
+                      "sql": "select distinct RECIPE_ID, VENDOR_SITE_CODE, INTERFACE_ERROR, RECORD_METHOD, VENDOR_NAME, CREATION_DATE, INTERFACE_STATUS,ARIBA_VENDOR_ID,VENDOR_ID, INTERFACE_ID\n\tfrom XXRHFIN.XXRH_SUPPLIER_IMPORT_ALTER_STG\n    where RECIPE_ID = :RECIPE_ID and INTERFACE_STATUS <>  :INTERFACE_STATUS and CREATION_DATE > sysdate -1",
+                      "parameters": {
+                        "schema": "[{\"control_type\":\"integer\",\"label\":\"RECIPE_ID\",\"parse_output\":\"integer_conversion\",\"name\":\"RECIPE_ID\",\"type\":\"integer\",\"optional\":true,\"details\":{\"real_name\":\"RECIPE_ID\"},\"parent\":[\"parameters\",\"data\"]},{\"name\":\"INTERFACE_STATUS\",\"type\":\"string\",\"optional\":true,\"label\":\"INTERFACE_STATUS\",\"details\":{\"real_name\":\"INTERFACE_STATUS\"},\"control_type\":\"text\",\"parent\":[\"parameters\",\"data\"]}]",
+                        "data": {
+                          "RECIPE_ID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"Unique_ID\"]}')}",
+                          "INTERFACE_STATUS": "=\"C\""
+                        }
+                      },
+                      "output_schema": "[{\"name\":\"recipe_id\",\"type\":\"string\",\"optional\":false,\"label\":\"Recipe ID\",\"control_type\":\"text\"},{\"name\":\"record_method\",\"type\":\"string\",\"optional\":false,\"label\":\"Record method\",\"control_type\":\"text\"},{\"name\":\"ariba_vendor_id\",\"type\":\"string\",\"optional\":false,\"label\":\"Ariba vendor ID\",\"control_type\":\"text\"},{\"name\":\"vendor_name\",\"type\":\"string\",\"optional\":false,\"label\":\"Vendor name\",\"control_type\":\"text\"},{\"name\":\"creation_date\",\"type\":\"date_time\",\"optional\":false,\"label\":\"Creation date\",\"control_type\":\"date\",\"render_input\":\"date_conversion\",\"parse_output\":\"date_conversion\"},{\"name\":\"interface_status\",\"type\":\"string\",\"optional\":false,\"label\":\"interface_status\",\"control_type\":\"text\"},{\"name\":\"interface_error\",\"type\":\"string\",\"optional\":false,\"label\":\"interface_error\",\"control_type\":\"text\"},{\"name\":\"VENDOR_SITE_CODE\",\"type\":\"string\",\"optional\":false,\"label\":\"VENDOR_SITE_CODE\",\"control_type\":\"text\"},{\"name\":\"INTERFACE_ID\",\"type\":\"string\",\"optional\":true,\"label\":\"INTERFACE_ID\",\"control_type\":\"text\"}]"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Rows",
+                        "name": "rows",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "recipe_id",
+                            "details": {
+                              "primary_key": null,
+                              "data_type": "string",
+                              "column_name": "recipe_id",
+                              "length": null,
+                              "precision": null,
+                              "scale": null,
+                              "element_type": null
+                            },
+                            "hint": "string",
+                            "optional": true,
+                            "type": "string",
+                            "name": "recipe_id_31f66c90"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "record_method",
+                            "details": {
+                              "primary_key": null,
+                              "data_type": "string",
+                              "column_name": "record_method",
+                              "length": null,
+                              "precision": null,
+                              "scale": null,
+                              "element_type": null
+                            },
+                            "hint": "string",
+                            "optional": true,
+                            "type": "string",
+                            "name": "record_method_3fd0a942"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "ariba_vendor_id",
+                            "details": {
+                              "primary_key": null,
+                              "data_type": "string",
+                              "column_name": "ariba_vendor_id",
+                              "length": null,
+                              "precision": null,
+                              "scale": null,
+                              "element_type": null
+                            },
+                            "hint": "string",
+                            "optional": true,
+                            "type": "string",
+                            "name": "ariba_vendor_id_cd58d60d"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "vendor_name",
+                            "details": {
+                              "primary_key": null,
+                              "data_type": "string",
+                              "column_name": "vendor_name",
+                              "length": null,
+                              "precision": null,
+                              "scale": null,
+                              "element_type": null
+                            },
+                            "hint": "string",
+                            "optional": true,
+                            "type": "string",
+                            "name": "vendor_name_49552178"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "creation_date",
+                            "details": {
+                              "primary_key": null,
+                              "data_type": "date_time",
+                              "column_name": "creation_date",
+                              "length": null,
+                              "precision": null,
+                              "scale": null,
+                              "element_type": null
+                            },
+                            "hint": "date_time",
+                            "optional": true,
+                            "type": "string",
+                            "name": "creation_date_24cf53a8"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "interface_status",
+                            "details": {
+                              "primary_key": null,
+                              "data_type": "string",
+                              "column_name": "interface_status",
+                              "length": null,
+                              "precision": null,
+                              "scale": null,
+                              "element_type": null
+                            },
+                            "hint": "string",
+                            "optional": true,
+                            "type": "string",
+                            "name": "interface_status_e7947ef7"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "interface_error",
+                            "details": {
+                              "primary_key": null,
+                              "data_type": "string",
+                              "column_name": "interface_error",
+                              "length": null,
+                              "precision": null,
+                              "scale": null,
+                              "element_type": null
+                            },
+                            "hint": "string",
+                            "optional": true,
+                            "type": "string",
+                            "name": "interface_error_aec4a19d"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "VENDOR_SITE_CODE",
+                            "details": {
+                              "primary_key": null,
+                              "data_type": "string",
+                              "column_name": "VENDOR_SITE_CODE",
+                              "length": null,
+                              "precision": null,
+                              "scale": null,
+                              "element_type": null
+                            },
+                            "hint": "string",
+                            "optional": true,
+                            "type": "string",
+                            "name": "vendor_site_code"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "INTERFACE_ID",
+                            "details": {
+                              "primary_key": null,
+                              "data_type": "string",
+                              "column_name": "INTERFACE_ID",
+                              "length": null,
+                              "precision": null,
+                              "scale": null,
+                              "element_type": null
+                            },
+                            "hint": "string",
+                            "optional": true,
+                            "type": "string",
+                            "name": "interface_id"
+                          }
+                        ],
+                        "type": "array",
+                        "order_by_hint": false
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "form-schema-builder",
+                        "hint": "First provide the full name assigned to your bind variable in the WHERE condition. e.g. <b>id</b>\n                    Second, provide the actual parameter value. Parameter values can be static or datapills.\n                    Select the <b>closest corresponding data type</b> that your database is expecting for the bind variable\n                    ",
+                        "label": "Parameters",
+                        "name": "parameters",
+                        "optional": true,
+                        "override": true,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Schema",
+                            "extends_schema": true,
+                            "type": "string",
+                            "name": "schema"
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "integer",
+                                "label": "RECIPE_ID",
+                                "parse_output": "integer_conversion",
+                                "name": "RECIPE_ID",
+                                "type": "integer",
+                                "optional": true,
+                                "details": {
+                                  "real_name": "RECIPE_ID"
+                                },
+                                "parent": [
+                                  "parameters",
+                                  "data"
+                                ]
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "INTERFACE_STATUS",
+                                "name": "INTERFACE_STATUS",
+                                "type": "string",
+                                "optional": true,
+                                "details": {
+                                  "real_name": "INTERFACE_STATUS"
+                                },
+                                "parent": [
+                                  "parameters",
+                                  "data"
+                                ]
+                              }
+                            ],
+                            "label": "Data",
+                            "optional": true,
+                            "type": "object",
+                            "name": "data"
+                          }
+                        ],
+                        "sticky": true,
+                        "type": "object"
+                      }
+                    ],
+                    "visible_config_fields": [
+                      "sql",
+                      "parameters",
+                      "parameters.data.RECIPE_ID",
+                      "parameters.schema",
+                      "output_schema",
+                      "parameters.data",
+                      "parameters.data.INTERFACE_STATUS"
+                    ],
+                    "comment": "For BUSINESS TEAM - Email Notifications",
+                    "uuid": "1339eb4a-7ee3-4eb9-af7a-9f9c94b50e94"
+                  },
+                  {
+                    "number": 65,
+                    "provider": "workato_variable",
+                    "name": "declare_variable",
+                    "as": "dd4f7f27",
+                    "keyword": "action",
+                    "toggleCfg": {
+                      "variables.data.varOracleAPIFailure": true
+                    },
+                    "input": {
+                      "variables": {
+                        "schema": "[{\"name\":\"varOracleAPIFailure\",\"type\":\"boolean\",\"optional\":true,\"label\":\"varOracleAPIFailure\",\"details\":{\"real_name\":\"varOracleAPIFailure\"},\"control_type\":\"checkbox\",\"parent\":[\"variables\",\"data\"]}]",
+                        "data": {
+                          "varOracleAPIFailure": "false"
+                        }
+                      }
+                    },
+                    "extended_output_schema": [
+                      {
+                        "control_type": "checkbox",
+                        "label": "varOracleAPIFailure",
+                        "name": "varOracleAPIFailure",
+                        "optional": true,
+                        "parse_output": "boolean_conversion",
+                        "toggle_field": {
+                          "label": "varOracleAPIFailure",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "varOracleAPIFailure",
+                          "type": "boolean",
+                          "optional": true,
+                          "details": {
+                            "real_name": "varOracleAPIFailure"
+                          },
+                          "parent": [
+                            "variables",
+                            "data"
+                          ]
+                        },
+                        "toggle_hint": "Select from option list",
+                        "type": "boolean",
+                        "details": {
+                          "real_name": "varOracleAPIFailure"
+                        },
+                        "render_input": "boolean_conversion"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "add_field_label": "Add a variable",
+                        "control_type": "form-schema-builder",
+                        "empty_schema_title": "Add variables by giving them a name, type and default value",
+                        "exclude_fields": [
+                          "hint"
+                        ],
+                        "item_label": "variable",
+                        "label": "Variables",
+                        "mark_as_required": true,
+                        "name": "variables",
+                        "ngIf": "!input.name",
+                        "optional": true,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Schema",
+                            "extends_schema": true,
+                            "broadcast_change_event": true,
+                            "type": "string",
+                            "name": "schema"
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "checkbox",
+                                "label": "varOracleAPIFailure",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "name": "varOracleAPIFailure",
+                                "type": "boolean",
+                                "optional": true,
+                                "details": {
+                                  "real_name": "varOracleAPIFailure"
+                                },
+                                "parent": [
+                                  "variables",
+                                  "data"
+                                ],
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "varOracleAPIFailure",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "name": "varOracleAPIFailure",
+                                  "type": "boolean",
+                                  "optional": true,
+                                  "details": {
+                                    "real_name": "varOracleAPIFailure"
+                                  },
+                                  "parent": [
+                                    "variables",
+                                    "data"
+                                  ]
+                                },
+                                "hint": "Defaults to nil if not supplied.",
+                                "sticky": true
+                              }
+                            ],
+                            "label": "Data",
+                            "type": "object",
+                            "name": "data"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "visible_config_fields": [
+                      "variables.data.varOracleAPIFailure"
+                    ],
+                    "comment": "Defulat value = FALSE",
+                    "uuid": "0f162366-26a7-4be0-bc79-303b1ee9575f"
+                  },
+                  {
+                    "number": 66,
+                    "provider": "workato_variable",
+                    "name": "declare_variable",
+                    "as": "558b1cb2",
+                    "keyword": "action",
+                    "toggleCfg": {
+                      "variables.data.varOracleAPIFailure": true
+                    },
+                    "input": {
+                      "variables": {
+                        "schema": "[{\"control_type\":\"checkbox\",\"label\":\"varOracleValidationFailure\",\"name\":\"varOracleAPIFailure\",\"type\":\"boolean\",\"optional\":true,\"details\":{\"real_name\":\"varOracleAPIFailure\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true}]",
+                        "data": {
+                          "varOracleAPIFailure": "false"
+                        }
+                      }
+                    },
+                    "extended_output_schema": [
+                      {
+                        "control_type": "checkbox",
+                        "hint": "Defaults to nil if not supplied.",
+                        "label": "varOracleValidationFailure",
+                        "name": "varOracleAPIFailure",
+                        "optional": true,
+                        "parse_output": "boolean_conversion",
+                        "sticky": true,
+                        "toggle_field": {
+                          "label": "varOracleValidationFailure",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "varOracleAPIFailure",
+                          "type": "boolean",
+                          "optional": true,
+                          "details": {
+                            "real_name": "varOracleAPIFailure"
+                          },
+                          "parent": [
+                            "variables",
+                            "data"
+                          ],
+                          "hint": "Defaults to nil if not supplied.",
+                          "sticky": true
+                        },
+                        "toggle_hint": "Select from option list",
+                        "type": "boolean",
+                        "details": {
+                          "real_name": "varOracleAPIFailure"
+                        },
+                        "render_input": "boolean_conversion"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "add_field_label": "Add a variable",
+                        "control_type": "form-schema-builder",
+                        "empty_schema_title": "Add variables by giving them a name, type and default value",
+                        "exclude_fields": [
+                          "hint"
+                        ],
+                        "item_label": "variable",
+                        "label": "Variables",
+                        "mark_as_required": true,
+                        "name": "variables",
+                        "ngIf": "!input.name",
+                        "optional": true,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Schema",
+                            "extends_schema": true,
+                            "broadcast_change_event": true,
+                            "type": "string",
+                            "name": "schema"
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "checkbox",
+                                "label": "varOracleValidationFailure",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "name": "varOracleAPIFailure",
+                                "type": "boolean",
+                                "optional": true,
+                                "details": {
+                                  "real_name": "varOracleAPIFailure"
+                                },
+                                "parent": [
+                                  "variables",
+                                  "data"
+                                ],
+                                "hint": "Defaults to nil if not supplied.",
+                                "sticky": true,
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "varOracleValidationFailure",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "name": "varOracleAPIFailure",
+                                  "type": "boolean",
+                                  "optional": true,
+                                  "details": {
+                                    "real_name": "varOracleAPIFailure"
+                                  },
+                                  "parent": [
+                                    "variables",
+                                    "data"
+                                  ],
+                                  "hint": "Defaults to nil if not supplied.",
+                                  "sticky": true
+                                }
+                              }
+                            ],
+                            "label": "Data",
+                            "type": "object",
+                            "name": "data"
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "visible_config_fields": [
+                      "variables.data.varOracleAPIFailure"
+                    ],
+                    "comment": "Defulat value = FALSE",
+                    "uuid": "492cd95a-ab38-4868-9d42-7dd01caf320e"
+                  },
+                  {
+                    "number": 67,
+                    "as": "b9dcf0a1",
+                    "keyword": "foreach",
+                    "repeat_mode": "simple",
+                    "clear_scope": "false",
+                    "input": {
+                    },
+                    "block": [
+                      {
+                        "number": 68,
+                        "keyword": "if",
+                        "input": {
+                          "type": "compound",
+                          "operand": "and",
+                          "conditions": [
+                            {
+                              "operand": "equals_to",
+                              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"b9dcf0a1\",\"path\":[\"interface_status_e7947ef7\"]}')}",
+                              "rhs": "=\"F\"",
+                              "uuid": "b0d27bd0-074b-4ec5-b7a8-b0dae9c9adca"
+                            }
+                          ]
+                        },
+                        "block": [
+                          {
+                            "number": 69,
+                            "provider": "workato_variable",
+                            "name": "update_variables",
+                            "as": "29ec430a",
+                            "keyword": "action",
+                            "dynamicPickListSelection": {
+                              "name": [
+                                {
+                                  "label": "varOracleAPIFailure (step 66)",
+                                  "value": "0f162366-26a7-4be0-bc79-303b1ee9575f:dd4f7f27:varOracleAPIFailure"
+                                }
+                              ]
+                            },
+                            "toggleCfg": {
+                              "varOracleAPIFailure": true
+                            },
+                            "input": {
+                              "input_mode": "raw",
+                              "name": "0f162366-26a7-4be0-bc79-303b1ee9575f:dd4f7f27:varOracleAPIFailure",
+                              "varOracleAPIFailure": "true"
+                            },
+                            "extended_input_schema": [
+                              {
+                                "control_type": "checkbox",
+                                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                                "label": "varOracleAPIFailure",
+                                "name": "varOracleAPIFailure",
+                                "optional": true,
+                                "parse_output": "boolean_conversion",
+                                "sticky": true,
+                                "toggle_field": {
+                                  "label": "varOracleAPIFailure",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                                  "strip_interpolation": true,
+                                  "sticky": true,
+                                  "optional": true,
+                                  "type": "boolean",
+                                  "name": "varOracleAPIFailure"
+                                },
+                                "toggle_hint": "Select from option list",
+                                "type": "boolean",
+                                "render_input": "boolean_conversion",
+                                "strip_interpolation": true
+                              }
+                            ],
+                            "comment": "Set value as TRUE",
+                            "uuid": "c685bba9-90db-4ebb-93e3-f3514e28aeeb"
+                          },
+                          {
+                            "number": 70,
+                            "keyword": "elsif",
+                            "input": {
+                              "type": "compound",
+                              "operand": "and",
+                              "conditions": [
+                                {
+                                  "operand": "equals_to",
+                                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"b9dcf0a1\",\"path\":[\"interface_status_e7947ef7\"]}')}",
+                                  "rhs": "=\"E\"",
+                                  "uuid": "d11c0ae0-21a5-4154-80c4-6438b2fe66da"
+                                }
+                              ]
+                            },
+                            "block": [
+                              {
+                                "number": 71,
+                                "provider": "workato_variable",
+                                "name": "update_variables",
+                                "as": "8c854f0a",
+                                "keyword": "action",
+                                "dynamicPickListSelection": {
+                                  "name": [
+                                    {
+                                      "label": "varOracleValidationFailure (step 67)",
+                                      "value": "492cd95a-ab38-4868-9d42-7dd01caf320e:558b1cb2:varOracleAPIFailure"
+                                    }
+                                  ]
+                                },
+                                "toggleCfg": {
+                                  "varOracleAPIFailure": true
+                                },
+                                "input": {
+                                  "input_mode": "raw",
+                                  "name": "492cd95a-ab38-4868-9d42-7dd01caf320e:558b1cb2:varOracleAPIFailure",
+                                  "varOracleAPIFailure": "true"
+                                },
+                                "extended_input_schema": [
+                                  {
+                                    "control_type": "checkbox",
+                                    "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                                    "label": "varOracleValidationFailure",
+                                    "name": "varOracleAPIFailure",
+                                    "optional": true,
+                                    "parse_output": "boolean_conversion",
+                                    "sticky": true,
+                                    "toggle_field": {
+                                      "label": "varOracleValidationFailure",
+                                      "control_type": "text",
+                                      "toggle_hint": "Use custom value",
+                                      "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                                      "strip_interpolation": true,
+                                      "sticky": true,
+                                      "optional": true,
+                                      "type": "boolean",
+                                      "name": "varOracleAPIFailure"
+                                    },
+                                    "toggle_hint": "Select from option list",
+                                    "type": "boolean",
+                                    "render_input": "boolean_conversion",
+                                    "strip_interpolation": true
+                                  }
+                                ],
+                                "comment": "Set value as TRUE",
+                                "uuid": "6c500e27-98bb-488c-af4c-34ff218cde44"
+                              }
+                            ],
+                            "uuid": "4d513f23-e5b7-43bd-85c7-49ce0b390c44"
+                          }
+                        ],
+                        "uuid": "541bde5d-eefb-485d-b9f4-a50cc8fb3add"
+                      }
+                    ],
+                    "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"477ad5e3\",\"path\":[\"rows\"]}')}",
+                    "uuid": "3fca48c5-85fb-4ae4-95ed-6b2c2ec5c702"
+                  },
+                  {
+                    "number": 72,
+                    "provider": "workato_template",
+                    "name": "create_document",
+                    "as": "3308c4eb",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "template_id": "[S2P] Business Notification"
+                    },
+                    "input": {
+                      "template_id": {
+                        "zip_name": "s2p_business_notification_for_validation_errors.workato_template.json",
+                        "name": "[S2P] Business Notification for Validation Errors",
+                        "folder": ""
+                      },
+                      "template_input": {
+                        "Rows": {
+                          "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"477ad5e3\",\"path\":[\"rows\"]}')}",
+                          "SerialNo": "=_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"477ad5e3\",\"path\":[\"rows\",{\"path_element_type\":\"current_index\"}]}') + 1",
+                          "VendorName": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"477ad5e3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"vendor_name_49552178\"]}')}",
+                          "InterfaceError": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"477ad5e3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"interface_error_aec4a19d\"]}')}",
+                          "InterfaceStatus": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"477ad5e3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"interface_status_e7947ef7\"]}')}",
+                          "VendorSiteCode": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"477ad5e3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"vendor_site_code\"]}')}"
+                        },
+                        "VendorID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"477ad5e3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"ariba_vendor_id_cd58d60d\"]}')}"
+                      }
+                    },
+                    "extended_input_schema": [
+                      {
+                        "label": "Template input",
+                        "name": "template_input",
+                        "properties": [
+                          {
+                            "label": "Rows",
+                            "name": "Rows",
+                            "type": "array",
+                            "optional": false,
+                            "of": "object",
+                            "properties": [
+                              {
+                                "control_type": "integer",
+                                "label": "SerialNo",
+                                "parse_output": "integer_conversion",
+                                "name": "SerialNo",
+                                "type": "integer",
+                                "optional": true,
+                                "render_input": "integer_conversion"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "VendorName",
+                                "name": "VendorName",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "InterfaceError",
+                                "name": "InterfaceError",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "InterfaceStatus",
+                                "name": "InterfaceStatus",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "VendorSiteCode",
+                                "name": "VendorSiteCode",
+                                "type": "string",
+                                "optional": true
+                              }
+                            ]
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "VendorID",
+                            "name": "VendorID",
+                            "type": "string",
+                            "optional": true
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "visible_config_fields": [
+                      "template_id",
+                      "template_input.Rows.SerialNo",
+                      "template_input.Rows.VendorName",
+                      "template_input.Rows.InterfaceError",
+                      "template_input.Rows.InterfaceStatus",
+                      "template_input.Rows.VendorSiteCode",
+                      "template_input.VendorID"
+                    ],
+                    "comment": "For BUSINESS TEAM - Email Notifications with - E - Status",
+                    "uuid": "d8283b57-6ace-4cd0-8fc2-228487c1d817"
+                  },
+                  {
+                    "number": 73,
                     "keyword": "if",
                     "input": {
                       "type": "compound",
@@ -13771,16 +15077,15 @@
                     },
                     "block": [
                       {
-                        "number": 65,
+                        "number": 74,
                         "provider": "email",
                         "name": "send_mail",
                         "as": "8c11b73c",
                         "keyword": "action",
                         "input": {
                           "email_type": "html",
-                          "to": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2r_mail_support\"}')}",
+                          "to": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2p_ariba_IT_Support_Team\"}')}",
                           "subject": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')}: New Record for Supplier Master created Successfully",
-                          "cc": "pputhran@redhat.com,sipawar@redhat.com,sdepa@redhat.com",
                           "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Vendor Data has been processed</title>\n    <style>\n        table {\n            width: 80%;\n            border-collapse: collapse;\n            margin: 20px auto;\n        }\n        th, td {\n            border: 1px solid #ccc;\n            padding: 8px;\n            text-align: left;\n        }\n        th {\n            background-color: #f2f2f2;\n            font-weight: bold;\n        }\n        h3 {\n        color: darkgreen;\n         }\n    </style>\n</head>\n<body>\n\n    <h2> Supplier Master Data </h2>\n     <h3> New record has got processed from Workato towards Oracle ERP. </h3>\n    <table>\n        <tbody>\n            <tr>\n            <tr><th>Vendor ID </th><td style=\" text-align: center;\"><b> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"Vendor IDs\"]}')}</b></td>  <td style=\"background-color: #f2f2f2; text-align: center;\"><b>API Pagination Count </b></td> <td style=\" text-align: center;\"> <b>#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1fa8baf6\",\"path\":[\"varAPIListCount\"]}')} </b></td> </tr> \n               <tr><th>Job Started At</th><td colspan=\"3\">#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"Job Created At\"]}')}</td> </tr>\n            <tr><th>Vendor Name </th><td colspan=\"3\"> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"Vendor Name\"]}')} </td> </tr>\n            <tr><th> Total Site(s)</th><td colspan=\"3\"> <b>#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"574e5f45\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}</b> Supplier Site Address(s)  with  <b>#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}</b> Operating Unit (s) has been recorded to Oracle table</td></tr>\n            <tr><th>Total Bank(s)</th><td colspan=\"3\"><b>#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"54a78a4c\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}</b>  Supplier Bank(s) details with <b>#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}</b> Intermediate Bank(s) has been recorded to Oracle tables</td></tr>\n            <tr><th>Oracle Request ID</th><td colspan=\"3\"> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"ORA Request ID\"]}')} </td> </tr>\n             <tr><th>Oracle ERP Vendor ID</th><td colspan=\"3\"> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"ORA ERP Vendor ID\"]}')} </td> </tr>\n             <tr><th>Oracle Return Status</th><td colspan=\"3\"> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"ORA Return Status\"]}')} </td> </tr>\n              <tr><th>Job Completed At</th><td colspan=\"3\"> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"Job Completed At\"]}')} </td> </tr>\n            </tr>\n        </tbody>\n    </table>\n#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_template\",\"line\":\"58a8af79\",\"path\":[\"document\"]}')}\n</body>\n</html>"
                         },
                         "visible_config_fields": [
@@ -13792,7 +15097,109 @@
                         "skip": false
                       },
                       {
-                        "number": 66,
+                        "number": 75,
+                        "keyword": "if",
+                        "input": {
+                          "type": "compound",
+                          "operand": "and",
+                          "conditions": [
+                            {
+                              "operand": "present",
+                              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"477ad5e3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"interface_id\"]}')}",
+                              "rhs": "",
+                              "uuid": "a5688c10-abc5-4ee1-95be-c83e0d7690be"
+                            },
+                            {
+                              "operand": "is_true",
+                              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"558b1cb2\",\"path\":[\"varOracleAPIFailure\"]}')}",
+                              "rhs": "",
+                              "uuid": "07d1861e-aeb8-4217-a56a-a1d4de17fbe6"
+                            }
+                          ]
+                        },
+                        "block": [
+                          {
+                            "number": 76,
+                            "provider": "email",
+                            "name": "send_mail",
+                            "as": "04f596bd",
+                            "keyword": "action",
+                            "input": {
+                              "email_type": "html",
+                              "subject": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')} - Action Required : Submission Partially failed in Oracle for NEW Supplier creation",
+                              "to": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2p_ariba_Business_Support_Team\"}')}",
+                              "body": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_template\",\"line\":\"3308c4eb\",\"path\":[\"document\"]}')}",
+                              "cc": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2p_ariba_IT_Support_Team\"}')}"
+                            },
+                            "visible_config_fields": [
+                              "to",
+                              "subject",
+                              "email_type",
+                              "body",
+                              "cc"
+                            ],
+                            "comment": "Notify BUSINESS Team for Partial Failure in Validations",
+                            "uuid": "c103836c-3f91-40bd-91de-9fdba1dcd494"
+                          },
+                          {
+                            "number": 77,
+                            "keyword": "elsif",
+                            "input": {
+                              "type": "compound",
+                              "operand": "and",
+                              "conditions": [
+                                {
+                                  "operand": "present",
+                                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"oracle\",\"line\":\"477ad5e3\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"interface_id\"]}')}",
+                                  "rhs": "",
+                                  "uuid": "7294cecd-5c0b-4027-b62b-b9e57fa8b820"
+                                },
+                                {
+                                  "operand": "is_true",
+                                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"dd4f7f27\",\"path\":[\"varOracleAPIFailure\"]}')}",
+                                  "rhs": "",
+                                  "uuid": "2f10902b-333d-4621-888b-fe69c908f78d"
+                                },
+                                {
+                                  "operand": "is_not_true",
+                                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"558b1cb2\",\"path\":[\"varOracleAPIFailure\"]}')}",
+                                  "rhs": "",
+                                  "uuid": "2f29ff58-b634-4945-bd6b-1d59bccb0354"
+                                }
+                              ]
+                            },
+                            "block": [
+                              {
+                                "number": 78,
+                                "provider": "email",
+                                "name": "send_mail",
+                                "as": "ba947c99",
+                                "keyword": "action",
+                                "input": {
+                                  "email_type": "html",
+                                  "to": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2p_ariba_Business_Support_Team\"}')}",
+                                  "subject": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')} -  Action Required : Submission Partially failed in Oracle for NEW Supplier creation - #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"Vendor IDs\"]}')}",
+                                  "body": "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\" style=\"font-family:arial, 'helvetica neue', helvetica, sans-serif\"> \n<head>\n  <title>Supplier Master Data Submission Status</title>\n     <style>\n        table {\n            width: 80%;\n            border-collapse: collapse;\n            margin: 20px auto;\n        }\n        th, td {\n            border: 1px solid #ccc;\n            padding: 8px;\n            text-align: left;\n        }\n        th {\n            background-color: #f2f2f2;\n            font-weight: bold;\n        }\n       .right-aligned-table {\n            float: right;\n            margin-left: 15px; /* Adds some space between the table and text */\n        }\n    </style>\n </head> \n <body>\n   <h4>Hello Team,</h4>\n   <div/>\n   <n>We have encountered failure during processing of this request for Ariba Supplier - <b> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"Vendor Name\"]}')}</b></n>\n   <div />\n   <n>IT Team is looking into this issue, and will get back to you shortly.</n>\n   <div/>   <div/>\n   <h4>Best Regards,</h4>\n   <n>IT Support Team</n>\n</body>\n</html>",
+                                  "cc": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2p_ariba_IT_Support_Team\"}')}"
+                                },
+                                "visible_config_fields": [
+                                  "to",
+                                  "subject",
+                                  "email_type",
+                                  "body",
+                                  "cc"
+                                ],
+                                "comment": "Notify BUSINESS TEAM for Partial API Failure",
+                                "uuid": "22518f01-36b1-4bca-917f-d74b250e0fa7"
+                              }
+                            ],
+                            "uuid": "a0141859-a11f-43c7-ad61-586230dd5ff7"
+                          }
+                        ],
+                        "uuid": "19abd9f1-5929-4a43-be28-0235e6e843b9"
+                      },
+                      {
+                        "number": 79,
                         "keyword": "elsif",
                         "input": {
                           "type": "compound",
@@ -13808,16 +15215,15 @@
                         },
                         "block": [
                           {
-                            "number": 67,
+                            "number": 80,
                             "provider": "email",
                             "name": "send_mail",
                             "as": "4d1b9345",
                             "keyword": "action",
                             "input": {
                               "email_type": "html",
-                              "to": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2r_mail_support\"}')}",
+                              "to": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2p_ariba_IT_Support_Team\"}')}",
                               "subject": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')}: New Record for Supplier Master created with Errors",
-                              "cc": "pputhran@redhat.com,sipawar@redhat.com,\nsdepa@redhat.com",
                               "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Vendor Data processed with Errors</title>\n    <style>\n        table {\n            width: 80%;\n            border-collapse: collapse;\n            margin: 20px auto;\n        }\n        th, td {\n            border: 1px solid #ccc;\n            padding: 8px;\n            text-align: left;\n        }\n        th {\n            background-color: #f2f2f2;\n            font-weight: bold;\n        }\n        h3 {\n        color: darkred;\n          }\n    </style>\n</head>\n<body>\n\n    <h2> Supplier Master Data </h2>\n     <h3> New record processed from Workato towards Oracle ERP Staging with Errors </h3>\n    <table>\n        <tbody>\n            <tr><th>Vendor ID </th><td style=\" text-align: center;\"> <b>#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d9126f4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"ARIBA_VENDOR_ID\"]}')}</b></td>  <td style=\"background-color: #f2f2f2;text-align: center;\"><b>API Pagination Count<b></td> <td style=\" text-align: center;\"> <b>#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1fa8baf6\",\"path\":[\"varAPIListCount\"]}')} </b></td> </tr> \n              <tr><th>Job Started At</th><td colspan=\"3\">#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"Job Created At\"]}')}</td></tr>\n            <tr><th>Vendor Name </th><td colspan=\"3\"> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d9126f4c\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"VENDOR_NAME\"]}')} </td> </tr>\n            <tr><th> Total Site(s)</th><td colspan=\"3\"><b>#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"574e5f45\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}</b> Supplier Site Address(s)  with <b>#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"495aca1b\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}</b> Operating Unit(s) has been recorded to Oracle table</td></tr>\n             <tr><th>Total Bank(s)</th><td colspan=\"3\"><b>#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"54a78a4c\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}</b> Supplier Bank(s) details with <b>#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d7f9e1c9\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}</b> Intermediate Bank(s) has been recorded in Oracle tables</td></tr>\n             <tr><th>Oracle ERP Vendor ID</th><td colspan=\"3\"> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"ORA ERP Vendor ID\"]}')} </td> </tr>\n             <tr><th>Oracle Return Status</th><td colspan=\"3\"> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"ORA Return Status\"]}')} </td> </tr>\n              <tr><th>Job Completed At</th><td colspan=\"3\">#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"Job Completed At\"]}')}</td> </tr>\n        </tbody>\n    </table>\n#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_template\",\"line\":\"58a8af79\",\"path\":[\"document\"]}')}\n</body>\n</html>"
                             },
                             "visible_config_fields": [
@@ -13827,6 +15233,96 @@
                             "comment": "Trigger FAILURE Email to Stakeholders",
                             "uuid": "5d8ab991-575d-4379-85ca-9e7c37519033",
                             "skip": false
+                          },
+                          {
+                            "number": 81,
+                            "keyword": "if",
+                            "input": {
+                              "type": "compound",
+                              "operand": "and",
+                              "conditions": [
+                                {
+                                  "operand": "is_true",
+                                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"558b1cb2\",\"path\":[\"varOracleAPIFailure\"]}')}",
+                                  "rhs": "",
+                                  "uuid": "5a50bbda-b8eb-4bc6-baa0-57b798bc3d74"
+                                }
+                              ]
+                            },
+                            "block": [
+                              {
+                                "number": 82,
+                                "provider": "email",
+                                "name": "send_mail",
+                                "as": "5f4d9f63",
+                                "keyword": "action",
+                                "input": {
+                                  "email_type": "html",
+                                  "body": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_template\",\"line\":\"3308c4eb\",\"path\":[\"document\"]}')}",
+                                  "subject": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')}- Action Required : Submission failed in Oracle for NEW Supplier creation",
+                                  "to": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2p_ariba_Business_Support_Team\"}')}",
+                                  "cc": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2p_ariba_IT_Support_Team\"}')}"
+                                },
+                                "visible_config_fields": [
+                                  "to",
+                                  "subject",
+                                  "email_type",
+                                  "body",
+                                  "cc"
+                                ],
+                                "comment": "Notify BUSINESS TEAM for any ORA Validation Error(s)",
+                                "uuid": "b437120a-b5cc-4845-897d-432dcb77b345"
+                              },
+                              {
+                                "number": 83,
+                                "keyword": "elsif",
+                                "input": {
+                                  "type": "compound",
+                                  "operand": "and",
+                                  "conditions": [
+                                    {
+                                      "operand": "is_true",
+                                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"dd4f7f27\",\"path\":[\"varOracleAPIFailure\"]}')}",
+                                      "rhs": "",
+                                      "uuid": "16e91c09-44c0-4d43-b7e7-11357d8ef5d9"
+                                    },
+                                    {
+                                      "operand": "is_not_true",
+                                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"558b1cb2\",\"path\":[\"varOracleAPIFailure\"]}')}",
+                                      "rhs": "",
+                                      "uuid": "dc58584a-5d58-4fdb-bd4d-684b5c7138a2"
+                                    }
+                                  ]
+                                },
+                                "block": [
+                                  {
+                                    "number": 84,
+                                    "provider": "email",
+                                    "name": "send_mail",
+                                    "as": "e4e85e3e",
+                                    "keyword": "action",
+                                    "input": {
+                                      "email_type": "html",
+                                      "to": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2p_ariba_Business_Support_Team\"}')}",
+                                      "subject": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_workato_instance\"}')} -  Action Required : Submission failed in Oracle for NEW Supplier creation - #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"Vendor IDs\"]}')}",
+                                      "body": "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\" style=\"font-family:arial, 'helvetica neue', helvetica, sans-serif\"> \n<head>\n  <title>Supplier Master Data Submission Status</title>\n     <style>\n        table {\n            width: 80%;\n            border-collapse: collapse;\n            margin: 20px auto;\n        }\n        th, td {\n            border: 1px solid #ccc;\n            padding: 8px;\n            text-align: left;\n        }\n        th {\n            background-color: #f2f2f2;\n            font-weight: bold;\n        }\n       .right-aligned-table {\n            float: right;\n            margin-left: 15px; /* Adds some space between the table and text */\n        }\n    </style>\n </head> \n <body>\n   <h4>Hello Team,</h4>\n   <div/>\n   <n>We have encountered failure during processing of this request for Ariba Supplier - <b> #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"0658825c\",\"path\":[\"record\",\"Vendor Name\"]}')}</b></n>\n   <div />\n   <n>IT Team is looking into this issue, and will get back to you shortly.</n>\n   <div/>   <div/>\n   <h4>Best Regards,</h4>\n   <n>IT Support Team</n>\n</body>\n</html>",
+                                      "cc": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"p_s2p_ariba_IT_Support_Team\"}')}"
+                                    },
+                                    "visible_config_fields": [
+                                      "to",
+                                      "subject",
+                                      "email_type",
+                                      "body",
+                                      "cc"
+                                    ],
+                                    "comment": "Notify BUSINESS TEAM for only ORA API Failure",
+                                    "uuid": "411c1960-95b4-48ba-8d7a-72311f6b5809"
+                                  }
+                                ],
+                                "uuid": "db9e326b-1d00-44d1-b952-48ff0d2bc818"
+                              }
+                            ],
+                            "uuid": "8c02d4b8-a19a-47d2-9bb7-43adbf387a42"
                           }
                         ],
                         "comment": "In Case of - ANY  Oracle Package ERROR",
@@ -13848,7 +15344,7 @@
             "uuid": "645a6544-aba2-4430-9bd9-f683db3642c7"
           },
           {
-            "number": 68,
+            "number": 85,
             "provider": "workato_recipe_function",
             "name": "return_result",
             "as": "28186d5e",
@@ -13858,7 +15354,7 @@
             "uuid": "3c7bae6b-b7bb-4c34-9ff2-055b6448ffb5"
           },
           {
-            "number": 69,
+            "number": 86,
             "as": "b907e6f7",
             "keyword": "catch",
             "input": {
@@ -13867,7 +15363,7 @@
             },
             "block": [
               {
-                "number": 70,
+                "number": 87,
                 "provider": "workato_recipe_function",
                 "name": "call_recipe",
                 "as": "bafd052f",
