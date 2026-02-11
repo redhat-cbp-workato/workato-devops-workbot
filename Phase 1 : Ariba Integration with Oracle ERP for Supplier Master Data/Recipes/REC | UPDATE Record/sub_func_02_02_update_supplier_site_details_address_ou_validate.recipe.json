@@ -1,7 +1,7 @@
 {
   "name": "SUB FUNC | 02 - 02 | UPDATE | Supplier Site Details - Address + OU Validate",
-  "description": "",
-  "version": 12,
+  "description": "This recipe automates the process of updating supplier address and operational unit data in a database based on provided vendor information.\n\n- The process begins by executing a recipe function that accepts parameters related to a vendor, including a vendor ID and other relevant details.\n- It first truncates existing records in the Supplier Address and Supplier Operational Unit data tables to prepare for new data.\n- The recipe then retrieves records from a temporary data table based on the provided vendor ID and processes each record to extract relevant address details.\n- For each record, it checks for specific address-related information and updates or inserts records into the Supplier Address DataTable with the parsed address data.\n- It also checks for various flags and details related to tax applicability and purchasing status, updating corresponding variables as necessary.\n- The recipe continues to search for and update additional fields such as bank instructions, tax registration status, and payment methods based on the retrieved records.\n- Finally, it performs a final upsert operation to ensure all relevant data is accurately reflected in the Supplier Operational Unit DataTable.\n\nIn case of any errors during execution, the recipe logs the error and calls an error handling recipe to notify the relevant stakeholders via email, including details about the failure and any attached files if applicable.",
+  "version": 22,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -8272,7 +8272,7 @@
                     "number": 40,
                     "provider": "workato_db_table",
                     "name": "get_records",
-                    "as": "780a8a23",
+                    "as": "65d7dae4",
                     "keyword": "action",
                     "dynamicPickListSelection": {
                       "table_id": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
@@ -8293,7 +8293,7 @@
                       "filters": [
                         {
                           "op_default": "eq",
-                          "value_default": "Effective From",
+                          "value_default": "Supplier effective Date (Supplier Registration Date)",
                           "field_id": "75690224-c5ca-46bb-bc80-0734dd5030b9"
                         },
                         {
@@ -8580,8 +8580,8 @@
                         "type": "string"
                       }
                     ],
-                    "comment": "Get - Effective From - Filtered by Integer(Alternative)",
-                    "uuid": "a32bfa15-f39d-4691-b507-8631afeb2a89"
+                    "comment": "Get - Supplier effective Date",
+                    "uuid": "a35c4760-2a41-4d37-a468-b522e3e9f4aa"
                   },
                   {
                     "number": 41,
@@ -8984,7 +8984,7 @@
                       "operand": "and",
                       "conditions": [
                         {
-                          "operand": "is_true",
+                          "operand": "present",
                           "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"5da062a9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
                           "rhs": "",
                           "uuid": "065a46c9-33c9-4bec-aeb0-09f4571fb29a"
@@ -9009,7 +9009,7 @@
                         "input": {
                           "input_mode": "raw",
                           "name": "4fb0863a-dab0-4d86-a163-1d5f699d6fd4:b3b8f850:varAllowTaxApplicability",
-                          "varAllowTaxApplicability": "YES"
+                          "varAllowTaxApplicability": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"5da062a9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}') == 'true' ? 'YES' : 'NO'"
                         },
                         "extended_input_schema": [
                           {
@@ -9662,7 +9662,7 @@
                     "number": 47,
                     "provider": "workato_db_table",
                     "name": "get_records",
-                    "as": "cecf556a",
+                    "as": "fea7b77e",
                     "keyword": "action",
                     "dynamicPickListSelection": {
                       "table_id": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
@@ -9970,8 +9970,8 @@
                         "type": "string"
                       }
                     ],
-                    "comment": "Get - Tax Registration Status",
-                    "uuid": "efe75cf1-9d42-48be-9e72-c4675cc4fb65"
+                    "comment": "Get - Tax Registration Status",
+                    "uuid": "cf800de8-fae1-4717-b119-2450c94aada3"
                   },
                   {
                     "number": 48,
@@ -10374,7 +10374,7 @@
                       "operand": "and",
                       "conditions": [
                         {
-                          "operand": "is_true",
+                          "operand": "present",
                           "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"237e893f\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
                           "rhs": "",
                           "uuid": "ac10f391-3f13-46c5-a9bf-a54969bc3e66"
@@ -10399,7 +10399,7 @@
                         "input": {
                           "input_mode": "raw",
                           "name": "70b114f3-229d-4d70-9290-28943030048a:9a0cb6b2:varPurchasingFlag",
-                          "varPurchasingFlag": "YES"
+                          "varPurchasingFlag": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"237e893f\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}') == 'true' ? 'YES' : 'NO'"
                         },
                         "extended_input_schema": [
                           {
@@ -10489,9 +10489,9 @@
                         },
                         {
                           "operand": "present",
-                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"780a8a23\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"65d7dae4\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
                           "rhs": "",
-                          "uuid": "5b015569-91a1-4b11-a3cb-1865004a28cd"
+                          "uuid": "f83e9006-1d12-45b9-a792-085bb6e229bd"
                         },
                         {
                           "operand": "present",
@@ -10513,9 +10513,9 @@
                         },
                         {
                           "operand": "present",
-                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"cecf556a\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"fea7b77e\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
                           "rhs": "",
-                          "uuid": "ab887beb-5525-4131-a18d-bef5b5e91896"
+                          "uuid": "75fae168-4d73-4b02-a353-98d21c2b1513"
                         },
                         {
                           "operand": "present",
@@ -10561,13 +10561,13 @@
                             "902ef841_6c57_4f94_a611_174b695e2790": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"4ea07580\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
                             "91dadd67_3179_41a1_b054_c172e0e693f2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"2edb6fd1\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
                             "cbab3cba_c250_476b_8047_6061fb6b1675": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"26e3a95b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
-                            "48a8505e_9f6f_4caa_a441_df638a79a06f": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"780a8a23\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
                             "22d67d10_6b1b_4d64_a4fa_0470e88c55c8": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"b3b8f850\",\"path\":[\"varAllowTaxApplicability\"]}')}",
                             "e1d493eb_e7a2_46d9_bf26_06727a176739": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"38eeb209\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
                             "4efa2e8b_b969_4f19_be89_8e6b22cee689": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"2bf1cb27\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
                             "48c7349e_fc96_4912_af47_b0e672193149": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"9a0cb6b2\",\"path\":[\"varPurchasingFlag\"]}')}",
-                            "ed1c336a_14e3_45c8_bc30_6d1e46a50afd": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"cecf556a\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
-                            "9bf69495_2392_4bd9_8884_93e46432b9f6": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d1795647\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"c4632826_e511_4e14_96ee_b0e8c75d9cbf\"]}')}"
+                            "9bf69495_2392_4bd9_8884_93e46432b9f6": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d1795647\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"c4632826_e511_4e14_96ee_b0e8c75d9cbf\"]}')}",
+                            "624c9bce_dd70_414a_b536_9777b395aace": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"65d7dae4\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
+                            "87e7b79d_bdce_45fc_8319_c7fb3b224aaf": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"fea7b77e\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}"
                           },
                           "output_format": "field_name_to_value",
                           "primary_field_id": "18eabaa6-6e2a-4a94-b1f7-3ab1a4879a0c"
@@ -10651,12 +10651,6 @@
                               },
                               {
                                 "control_type": "text",
-                                "label": "TAX_EFFECTIVE_FROM",
-                                "type": "string",
-                                "name": "TAX_EFFECTIVE_FROM"
-                              },
-                              {
-                                "control_type": "text",
                                 "label": "TR_ALLOW_TX",
                                 "type": "string",
                                 "name": "TR_ALLOW_TX"
@@ -10694,15 +10688,21 @@
                               },
                               {
                                 "control_type": "text",
-                                "label": "REGISTRATION_STATUS_CODE",
-                                "type": "string",
-                                "name": "REGISTRATION_STATUS_CODE"
-                              },
-                              {
-                                "control_type": "text",
                                 "label": "TAX_REGIME_CODE",
                                 "type": "string",
                                 "name": "TAX_REGIME_CODE"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "TAX_EFFECTIVE_FROM",
+                                "type": "string",
+                                "name": "TAX_EFFECTIVE_FROM"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "REGISTRATION_STATUS_CODE",
+                                "type": "string",
+                                "name": "REGISTRATION_STATUS_CODE"
                               },
                               {
                                 "control_type": "date_time",
@@ -10830,14 +10830,6 @@
                               },
                               {
                                 "control_type": "text",
-                                "label": "TAX_EFFECTIVE_FROM",
-                                "optional": true,
-                                "sticky": false,
-                                "type": "string",
-                                "name": "48a8505e_9f6f_4caa_a441_df638a79a06f"
-                              },
-                              {
-                                "control_type": "text",
                                 "label": "TR_ALLOW_TX",
                                 "optional": true,
                                 "sticky": false,
@@ -10878,19 +10870,27 @@
                               },
                               {
                                 "control_type": "text",
-                                "label": "REGISTRATION_STATUS_CODE",
-                                "optional": true,
-                                "sticky": false,
-                                "type": "string",
-                                "name": "ed1c336a_14e3_45c8_bc30_6d1e46a50afd"
-                              },
-                              {
-                                "control_type": "text",
                                 "label": "TAX_REGIME_CODE",
                                 "optional": true,
                                 "sticky": false,
                                 "type": "string",
                                 "name": "9bf69495_2392_4bd9_8884_93e46432b9f6"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "TAX_EFFECTIVE_FROM",
+                                "optional": true,
+                                "sticky": false,
+                                "type": "string",
+                                "name": "624c9bce_dd70_414a_b536_9777b395aace"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "REGISTRATION_STATUS_CODE",
+                                "optional": true,
+                                "sticky": false,
+                                "type": "string",
+                                "name": "87e7b79d_bdce_45fc_8319_c7fb3b224aaf"
                               }
                             ],
                             "type": "object"
@@ -10958,7 +10958,9 @@
                           "parameters.4efa2e8b_b969_4f19_be89_8e6b22cee689",
                           "parameters.48c7349e_fc96_4912_af47_b0e672193149",
                           "parameters.ed1c336a_14e3_45c8_bc30_6d1e46a50afd",
-                          "parameters.9bf69495_2392_4bd9_8884_93e46432b9f6"
+                          "parameters.9bf69495_2392_4bd9_8884_93e46432b9f6",
+                          "parameters.87e7b79d_bdce_45fc_8319_c7fb3b224aaf",
+                          "parameters.624c9bce_dd70_414a_b536_9777b395aace"
                         ],
                         "uuid": "ef4e48b3-b889-4168-8814-476f2ce117d2"
                       }
@@ -11017,7 +11019,7 @@
                     "input": {
                       "input_mode": "raw",
                       "name": "70b114f3-229d-4d70-9290-28943030048a:9a0cb6b2:varPurchasingFlag",
-                      "varPurchasingFlag": "NO"
+                      "varPurchasingFlag": "=null"
                     },
                     "extended_input_schema": [
                       {
@@ -11898,14 +11900,12 @@
                   "902ef841-6c57-4f94-a611-174b695e2790": "string",
                   "91dadd67-3179-41a1-b054-c172e0e693f2": "string",
                   "cbab3cba-c250-476b-8047-6061fb6b1675": "string",
-                  "48a8505e-9f6f-4caa-a441-df638a79a06f": "string",
                   "22d67d10-6b1b-4d64-a4fa-0470e88c55c8": "string",
                   "4f635fa4-95f4-4c74-98ae-b5ad9a9ca0d8": "string",
                   "18eabaa6-6e2a-4a94-b1f7-3ab1a4879a0c": "integer",
                   "e1d493eb-e7a2-46d9-bf26-06727a176739": "string",
                   "4efa2e8b-b969-4f19-be89-8e6b22cee689": "string",
                   "48c7349e-fc96-4912-af47-b0e672193149": "string",
-                  "ed1c336a-14e3-45c8-bc30-6d1e46a50afd": "string",
                   "9bf69495-2392-4bd9-8884-93e46432b9f6": "string"
                 },
                 "extended_output_schema": [
@@ -11988,12 +11988,6 @@
                       },
                       {
                         "control_type": "text",
-                        "label": "TAX_EFFECTIVE_FROM",
-                        "type": "string",
-                        "name": "48a8505e_9f6f_4caa_a441_df638a79a06f"
-                      },
-                      {
-                        "control_type": "text",
                         "label": "TR_ALLOW_TX",
                         "type": "string",
                         "name": "22d67d10_6b1b_4d64_a4fa_0470e88c55c8"
@@ -12031,15 +12025,21 @@
                       },
                       {
                         "control_type": "text",
-                        "label": "REGISTRATION_STATUS_CODE",
-                        "type": "string",
-                        "name": "ed1c336a_14e3_45c8_bc30_6d1e46a50afd"
-                      },
-                      {
-                        "control_type": "text",
                         "label": "TAX_REGIME_CODE",
                         "type": "string",
                         "name": "9bf69495_2392_4bd9_8884_93e46432b9f6"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "TAX_EFFECTIVE_FROM",
+                        "type": "string",
+                        "name": "624c9bce_dd70_414a_b536_9777b395aace"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "REGISTRATION_STATUS_CODE",
+                        "type": "string",
+                        "name": "87e7b79d_bdce_45fc_8319_c7fb3b224aaf"
                       },
                       {
                         "control_type": "date_time",
@@ -12170,15 +12170,6 @@
                   {
                     "control_type": "text",
                     "default": "string",
-                    "label": "$internal_value_48a8505e-9f6f-4caa-a441-df638a79a06f",
-                    "name": "48a8505e-9f6f-4caa-a441-df638a79a06f",
-                    "ngIf": "false",
-                    "optional": true,
-                    "type": "string"
-                  },
-                  {
-                    "control_type": "text",
-                    "default": "string",
                     "label": "$internal_value_22d67d10-6b1b-4d64-a4fa-0470e88c55c8",
                     "name": "22d67d10-6b1b-4d64-a4fa-0470e88c55c8",
                     "ngIf": "false",
@@ -12233,8 +12224,8 @@
                   {
                     "control_type": "text",
                     "default": "string",
-                    "label": "$internal_value_ed1c336a-14e3-45c8-bc30-6d1e46a50afd",
-                    "name": "ed1c336a-14e3-45c8-bc30-6d1e46a50afd",
+                    "label": "$internal_value_9bf69495-2392-4bd9-8884-93e46432b9f6",
+                    "name": "9bf69495-2392-4bd9-8884-93e46432b9f6",
                     "ngIf": "false",
                     "optional": true,
                     "type": "string"
@@ -12242,8 +12233,17 @@
                   {
                     "control_type": "text",
                     "default": "string",
-                    "label": "$internal_value_9bf69495-2392-4bd9-8884-93e46432b9f6",
-                    "name": "9bf69495-2392-4bd9-8884-93e46432b9f6",
+                    "label": "$internal_value_624c9bce-dd70-414a-b536-9777b395aace",
+                    "name": "624c9bce-dd70-414a-b536-9777b395aace",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_87e7b79d-bdce-45fc-8319-c7fb3b224aaf",
+                    "name": "87e7b79d-bdce-45fc-8319-c7fb3b224aaf",
                     "ngIf": "false",
                     "optional": true,
                     "type": "string"
@@ -12395,12 +12395,6 @@
                           },
                           {
                             "control_type": "text",
-                            "label": "TAX_EFFECTIVE_FROM",
-                            "type": "string",
-                            "name": "48a8505e_9f6f_4caa_a441_df638a79a06f"
-                          },
-                          {
-                            "control_type": "text",
                             "label": "TR_ALLOW_TX",
                             "type": "string",
                             "name": "22d67d10_6b1b_4d64_a4fa_0470e88c55c8"
@@ -12438,15 +12432,21 @@
                           },
                           {
                             "control_type": "text",
-                            "label": "REGISTRATION_STATUS_CODE",
-                            "type": "string",
-                            "name": "ed1c336a_14e3_45c8_bc30_6d1e46a50afd"
-                          },
-                          {
-                            "control_type": "text",
                             "label": "TAX_REGIME_CODE",
                             "type": "string",
                             "name": "9bf69495_2392_4bd9_8884_93e46432b9f6"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "TAX_EFFECTIVE_FROM",
+                            "type": "string",
+                            "name": "624c9bce_dd70_414a_b536_9777b395aace"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "REGISTRATION_STATUS_CODE",
+                            "type": "string",
+                            "name": "87e7b79d_bdce_45fc_8319_c7fb3b224aaf"
                           },
                           {
                             "control_type": "date_time",
@@ -12564,14 +12564,6 @@
                           },
                           {
                             "control_type": "text",
-                            "label": "TAX_EFFECTIVE_FROM",
-                            "optional": true,
-                            "sticky": false,
-                            "type": "string",
-                            "name": "48a8505e_9f6f_4caa_a441_df638a79a06f"
-                          },
-                          {
-                            "control_type": "text",
                             "label": "TR_ALLOW_TX",
                             "optional": true,
                             "sticky": false,
@@ -12622,19 +12614,27 @@
                           },
                           {
                             "control_type": "text",
-                            "label": "REGISTRATION_STATUS_CODE",
-                            "optional": true,
-                            "sticky": false,
-                            "type": "string",
-                            "name": "ed1c336a_14e3_45c8_bc30_6d1e46a50afd"
-                          },
-                          {
-                            "control_type": "text",
                             "label": "TAX_REGIME_CODE",
                             "optional": true,
                             "sticky": false,
                             "type": "string",
                             "name": "9bf69495_2392_4bd9_8884_93e46432b9f6"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "TAX_EFFECTIVE_FROM",
+                            "optional": true,
+                            "sticky": false,
+                            "type": "string",
+                            "name": "624c9bce_dd70_414a_b536_9777b395aace"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "REGISTRATION_STATUS_CODE",
+                            "optional": true,
+                            "sticky": false,
+                            "type": "string",
+                            "name": "87e7b79d_bdce_45fc_8319_c7fb3b224aaf"
                           }
                         ],
                         "type": "object"
@@ -13145,12 +13145,6 @@
                                   },
                                   {
                                     "control_type": "text",
-                                    "label": "TAX_EFFECTIVE_FROM",
-                                    "type": "string",
-                                    "name": "48a8505e_9f6f_4caa_a441_df638a79a06f"
-                                  },
-                                  {
-                                    "control_type": "text",
                                     "label": "TR_ALLOW_TX",
                                     "type": "string",
                                     "name": "22d67d10_6b1b_4d64_a4fa_0470e88c55c8"
@@ -13188,15 +13182,21 @@
                                   },
                                   {
                                     "control_type": "text",
-                                    "label": "REGISTRATION_STATUS_CODE",
-                                    "type": "string",
-                                    "name": "ed1c336a_14e3_45c8_bc30_6d1e46a50afd"
-                                  },
-                                  {
-                                    "control_type": "text",
                                     "label": "TAX_REGIME_CODE",
                                     "type": "string",
                                     "name": "9bf69495_2392_4bd9_8884_93e46432b9f6"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "TAX_EFFECTIVE_FROM",
+                                    "type": "string",
+                                    "name": "624c9bce_dd70_414a_b536_9777b395aace"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "REGISTRATION_STATUS_CODE",
+                                    "type": "string",
+                                    "name": "87e7b79d_bdce_45fc_8319_c7fb3b224aaf"
                                   },
                                   {
                                     "control_type": "date_time",
@@ -13314,14 +13314,6 @@
                                   },
                                   {
                                     "control_type": "text",
-                                    "label": "TAX_EFFECTIVE_FROM",
-                                    "optional": true,
-                                    "sticky": false,
-                                    "type": "string",
-                                    "name": "48a8505e_9f6f_4caa_a441_df638a79a06f"
-                                  },
-                                  {
-                                    "control_type": "text",
                                     "label": "TR_ALLOW_TX",
                                     "optional": true,
                                     "sticky": false,
@@ -13372,19 +13364,27 @@
                                   },
                                   {
                                     "control_type": "text",
-                                    "label": "REGISTRATION_STATUS_CODE",
-                                    "optional": true,
-                                    "sticky": false,
-                                    "type": "string",
-                                    "name": "ed1c336a_14e3_45c8_bc30_6d1e46a50afd"
-                                  },
-                                  {
-                                    "control_type": "text",
                                     "label": "TAX_REGIME_CODE",
                                     "optional": true,
                                     "sticky": false,
                                     "type": "string",
                                     "name": "9bf69495_2392_4bd9_8884_93e46432b9f6"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "TAX_EFFECTIVE_FROM",
+                                    "optional": true,
+                                    "sticky": false,
+                                    "type": "string",
+                                    "name": "624c9bce_dd70_414a_b536_9777b395aace"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "REGISTRATION_STATUS_CODE",
+                                    "optional": true,
+                                    "sticky": false,
+                                    "type": "string",
+                                    "name": "87e7b79d_bdce_45fc_8319_c7fb3b224aaf"
                                   }
                                 ],
                                 "type": "object"
@@ -13460,7 +13460,7 @@
                     "default": false,
                     "disable_formula": true,
                     "extends_schema": true,
-                    "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                    "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
                     "label": "Send to Workato log service",
                     "name": "user_logs_enabled",
                     "optional": true,
@@ -13480,9 +13480,9 @@
                 },
                 "input": {
                   "flow_id": {
-                    "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | Error Handling/sap_ariba_error_handling_recipe.recipe.json",
+                    "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | UPDATE Record/REC | UPDATE | Error Handling/sap_ariba_error_handling_recipe.recipe.json",
                     "name": "SAP ARIBA | Error Handling Recipe",
-                    "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | Error Handling"
+                    "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | UPDATE Record/REC | UPDATE | Error Handling"
                   },
                   "parameters": {
                     "recipe_name": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_name\"]}')}",
@@ -13663,6 +13663,7 @@
     }
   ],
   "tags": [
-    "QA"
+    "QA",
+    "Recipe No - 3"
   ]
 }

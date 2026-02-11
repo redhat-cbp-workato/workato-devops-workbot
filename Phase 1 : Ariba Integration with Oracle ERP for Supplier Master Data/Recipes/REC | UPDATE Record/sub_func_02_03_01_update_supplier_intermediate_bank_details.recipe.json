@@ -1,7 +1,7 @@
 {
   "name": "SUB FUNC | 02 - 03.01 | UPDATE | Supplier Intermediate Bank Details",
-  "description": "",
-  "version": 13,
+  "description": "This recipe automates the processing of vendor data and handles errors that may occur during the process.\n\n- The process begins by executing a recipe function that accepts parameters related to a vendor, including a vendor ID and an alternative value.\n- It searches for records in a temporary data table based on the provided vendor ID and alternative value.\n- For each record found, it declares variables for bank information and vendor site codes.\n- The recipe parses JSON data from the records to extract relevant bank details such as the bank name, account number, and branch information.\n- It checks if any critical information is present and updates the vendor site code variable accordingly.\n- New records are created in another data table with the extracted bank details and vendor information.\n- The recipe also updates variables for bank identification codes (BIC) and branch numbers, logging these updates for reporting purposes.\n- If an error occurs during the execution, the recipe captures the error details and calls another recipe to log the error information into a separate data table.\n- An email notification is sent to inform relevant stakeholders about the failure, including detailed error information and context.\n\nOverall, this recipe ensures that vendor data is processed correctly while providing robust error handling and notification mechanisms.",
+  "version": 15,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -1573,6 +1573,322 @@
               },
               {
                 "number": 10,
+                "provider": "workato_db_table",
+                "name": "get_records",
+                "as": "419505b2",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "table_id": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                  "filters.0.field_id": "alternative",
+                  "filters.1.field_id": "questionLabel"
+                },
+                "input": {
+                  "order_direction": "asc",
+                  "limit": "100",
+                  "table_id": {
+                    "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables/s2p_dt_func_02_update_qna_temporary_datatable.workato_db_table.json",
+                    "name": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                    "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables"
+                  },
+                  "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+                  "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+                  "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+                  "filters": [
+                    {
+                      "op_number": "eq",
+                      "value_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"a3860f92\",\"path\":[\"88487651_73a1_4f9d_85ae_82c6ce98d9e9\"]}')}",
+                      "field_id": "88487651-73a1-4f9d-85ae-82c6ce98d9e9"
+                    },
+                    {
+                      "op_default": "eq",
+                      "value_default": "Bank Entity Tax ID",
+                      "field_id": "75690224-c5ca-46bb-bc80-0734dd5030b9"
+                    }
+                  ],
+                  "df0a7445-ebf1-43d4-aaee-211341a35fca": "string",
+                  "8592cf8a-33a9-4220-9212-a751aceeacc3": "string",
+                  "5eb10546-eeb3-4443-af64-20690a89e51b": "string",
+                  "5f423414-cde0-4622-b532-167a178978e9": "string",
+                  "763f9443-4020-49d2-b4af-8dfd0336617a": "string",
+                  "88487651-73a1-4f9d-85ae-82c6ce98d9e9": "number",
+                  "009d70fd-2945-4b5e-97f0-d3f586f87942": "string",
+                  "37d6ee65-cf65-4fad-a376-d2f9e20412a5": "string",
+                  "75690224-c5ca-46bb-bc80-0734dd5030b9": "string",
+                  "a7e29481-f5e3-4c90-bfad-98b050fc87c7": "string",
+                  "2afa9266-b625-47b7-bb16-30ad28d0db9e": "string",
+                  "32ba9c2f-8bfd-4b91-b03d-b50baf48156d": "string",
+                  "e38453ee-253a-454c-8f81-df2326bd0045": "integer"
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Records",
+                    "name": "records",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Record ID",
+                        "type": "string",
+                        "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "smVendorId",
+                        "type": "string",
+                        "name": "df0a7445_ebf1_43d4_aaee_211341a35fca"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "workspaceId",
+                        "type": "string",
+                        "name": "8592cf8a_33a9_4220_9212_a751aceeacc3"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "uniqueName",
+                        "type": "string",
+                        "name": "5eb10546_eeb3_4443_af64_20690a89e51b"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "rootId",
+                        "type": "string",
+                        "name": "5f423414_cde0_4622_b532_167a178978e9"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "processId",
+                        "type": "string",
+                        "name": "763f9443_4020_49d2_b4af_8dfd0336617a"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "alternative",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "88487651_73a1_4f9d_85ae_82c6ce98d9e9"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "externalSystemCorrelationId",
+                        "type": "string",
+                        "name": "009d70fd_2945_4b5e_97f0_d3f586f87942"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "questionnaireLabel",
+                        "type": "string",
+                        "name": "37d6ee65_cf65_4fad_a376_d2f9e20412a5"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "questionLabel",
+                        "type": "string",
+                        "name": "75690224_c5ca_46bb_bc80_0734dd5030b9"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "answer",
+                        "type": "string",
+                        "name": "a7e29481_f5e3_4c90_bfad_98b050fc87c7"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "dataType",
+                        "type": "string",
+                        "name": "2afa9266_b625_47b7_bb16_30ad28d0db9e"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "type",
+                        "type": "string",
+                        "name": "32ba9c2f_8bfd_4b91_b03d_b50baf48156d"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "APIListSize",
+                        "parse_output": "integer_conversion",
+                        "type": "integer",
+                        "name": "e38453ee_253a_454c_8f81_df2326bd0045"
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "Created at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "type": "date_time",
+                        "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "Updated at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "type": "date_time",
+                        "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Next Page Token",
+                    "name": "continuation_token",
+                    "type": "string"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_df0a7445-ebf1-43d4-aaee-211341a35fca",
+                    "name": "df0a7445-ebf1-43d4-aaee-211341a35fca",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_8592cf8a-33a9-4220-9212-a751aceeacc3",
+                    "name": "8592cf8a-33a9-4220-9212-a751aceeacc3",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_5eb10546-eeb3-4443-af64-20690a89e51b",
+                    "name": "5eb10546-eeb3-4443-af64-20690a89e51b",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_5f423414-cde0-4622-b532-167a178978e9",
+                    "name": "5f423414-cde0-4622-b532-167a178978e9",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_763f9443-4020-49d2-b4af-8dfd0336617a",
+                    "name": "763f9443-4020-49d2-b4af-8dfd0336617a",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "number",
+                    "label": "$internal_value_88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                    "name": "88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_009d70fd-2945-4b5e-97f0-d3f586f87942",
+                    "name": "009d70fd-2945-4b5e-97f0-d3f586f87942",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                    "name": "37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_75690224-c5ca-46bb-bc80-0734dd5030b9",
+                    "name": "75690224-c5ca-46bb-bc80-0734dd5030b9",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                    "name": "a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                    "name": "2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                    "name": "32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "integer",
+                    "label": "$internal_value_e38453ee-253a-454c-8f81-df2326bd0045",
+                    "name": "e38453ee-253a-454c-8f81-df2326bd0045",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "id",
+                    "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                    "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "date_time",
+                    "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                    "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "date_time",
+                    "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                    "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "comment": "Check \"BANK TAX PAYER ID\" filter by Alternative",
+                "uuid": "77bae859-cbdc-4204-b804-bcef3d51d708",
+                "skip": false
+              },
+              {
+                "number": 11,
                 "keyword": "if",
                 "input": {
                   "type": "compound",
@@ -1642,7 +1958,7 @@
                 },
                 "block": [
                   {
-                    "number": 11,
+                    "number": 12,
                     "provider": "workato_variable",
                     "name": "update_variables",
                     "as": "3985d5eb",
@@ -1695,7 +2011,7 @@
                 "uuid": "32b6916d-2411-481e-8797-072455f6bfdd"
               },
               {
-                "number": 12,
+                "number": 13,
                 "provider": "workato_db_table",
                 "name": "create_records_batch",
                 "as": "5d872609",
@@ -1728,7 +2044,8 @@
                       "b0400588_c614_4c87_b42d_0a848a51260b": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"f5a7c473\",\"path\":[\"document\",\"bankAccountExternalID\"]}')}",
                       "a93f35a2_f62e_4c9e_a559_c8e05f3916e4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"f5a7c473\",\"path\":[\"document\",\"key\"]}')}",
                       "76d7cbaa_359d_4ce0_8128_882e011d948c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"f5a7c473\",\"path\":[\"document\",\"bankAccountStandardID\"]}')}",
-                      "96119e37_74a0_4ba1_82bf_8918fff88409": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c26e9170\",\"path\":[\"varVendorSiteCode\"]}')}"
+                      "96119e37_74a0_4ba1_82bf_8918fff88409": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c26e9170\",\"path\":[\"varVendorSiteCode\"]}')}",
+                      "7b9a7c85_67cb_422f_a9b6_e88a3d0c3e89": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"419505b2\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}"
                     }
                   }
                 },
@@ -1805,6 +2122,12 @@
                             "label": "INT_BRANCH_NUMBER",
                             "type": "string",
                             "name": "INT_BRANCH_NUMBER"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "INT_BANK_TAX_PAYER_ID",
+                            "type": "string",
+                            "name": "INT_BANK_TAX_PAYER_ID"
                           },
                           {
                             "control_type": "text",
@@ -1977,6 +2300,14 @@
                           },
                           {
                             "control_type": "text",
+                            "label": "INT_BANK_TAX_PAYER_ID",
+                            "optional": true,
+                            "sticky": false,
+                            "type": "string",
+                            "name": "7b9a7c85_67cb_422f_a9b6_e88a3d0c3e89"
+                          },
+                          {
+                            "control_type": "text",
                             "label": "INT_ACCOUNT_NUMBER",
                             "optional": true,
                             "sticky": false,
@@ -2142,14 +2473,15 @@
                   "records.parameters.e673b4ba_6dfb_4107_8f42_14ad34fdbc59",
                   "records.parameters.b0400588_c614_4c87_b42d_0a848a51260b",
                   "records.parameters.a93f35a2_f62e_4c9e_a559_c8e05f3916e4",
-                  "records.parameters.76d7cbaa_359d_4ce0_8128_882e011d948c"
+                  "records.parameters.76d7cbaa_359d_4ce0_8128_882e011d948c",
+                  "records.parameters.7b9a7c85_67cb_422f_a9b6_e88a3d0c3e89"
                 ],
                 "comment": "For Each ALTERNATIVE - INSERT Intermediate BANK Record in Temporary Table",
                 "uuid": "0067261c-517c-4d21-8030-cc3394fb374a",
                 "skip": false
               },
               {
-                "number": 13,
+                "number": 14,
                 "provider": "workato_variable",
                 "name": "update_variables",
                 "as": "dc561dc7",
@@ -2183,7 +2515,7 @@
                 "uuid": "5645810b-22ef-4579-b46d-562568a34403"
               },
               {
-                "number": 14,
+                "number": 15,
                 "provider": "logger",
                 "name": "log_message",
                 "as": "49fdbcec",
@@ -2198,7 +2530,7 @@
                     "default": false,
                     "disable_formula": true,
                     "extends_schema": true,
-                    "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                    "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
                     "label": "Send to Workato log service",
                     "name": "user_logs_enabled",
                     "optional": true,
@@ -2209,7 +2541,7 @@
                 "uuid": "25b0fdde-5f41-4a67-9880-d1127ca9ef3c"
               },
               {
-                "number": 15,
+                "number": 16,
                 "provider": "workato_variable",
                 "name": "update_variables",
                 "as": "9644757e",
@@ -2243,7 +2575,7 @@
                 "uuid": "11e9dc20-d96e-4285-8eae-3a87b21d2aa6"
               },
               {
-                "number": 16,
+                "number": 17,
                 "provider": "workato_variable",
                 "name": "update_variables",
                 "as": "fb2294e6",
@@ -2277,7 +2609,7 @@
                 "uuid": "f6a15003-4008-4526-a8b5-98749868100e"
               },
               {
-                "number": 17,
+                "number": 18,
                 "provider": "logger",
                 "name": "log_message",
                 "as": "cc305215",
@@ -2292,7 +2624,7 @@
                     "default": false,
                     "disable_formula": true,
                     "extends_schema": true,
-                    "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                    "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
                     "label": "Send to Workato log service",
                     "name": "user_logs_enabled",
                     "optional": true,
@@ -2303,7 +2635,7 @@
                 "uuid": "76ca5b50-76d7-4df7-9ad6-07778d1a4e67"
               },
               {
-                "number": 18,
+                "number": 19,
                 "provider": "workato_variable",
                 "name": "update_variables",
                 "as": "9ed89437",
@@ -2341,7 +2673,7 @@
             "uuid": "5074d98b-824b-49e4-8109-9e2647d8148d"
           },
           {
-            "number": 19,
+            "number": 20,
             "provider": "workato_recipe_function",
             "name": "return_result",
             "as": "28186d5e",
@@ -2351,7 +2683,7 @@
             "uuid": "3c7bae6b-b7bb-4c34-9ff2-055b6448ffb5"
           },
           {
-            "number": 20,
+            "number": 21,
             "as": "b907e6f7",
             "keyword": "catch",
             "input": {
@@ -2360,7 +2692,7 @@
             },
             "block": [
               {
-                "number": 21,
+                "number": 22,
                 "provider": "workato_recipe_function",
                 "name": "call_recipe",
                 "as": "260629d1",
@@ -2641,6 +2973,7 @@
     }
   ],
   "tags": [
-    "QA"
+    "QA",
+    "Recipe No -5"
   ]
 }
