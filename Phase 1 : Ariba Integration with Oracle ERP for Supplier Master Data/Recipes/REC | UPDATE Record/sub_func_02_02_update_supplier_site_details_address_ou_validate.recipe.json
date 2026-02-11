@@ -1,7 +1,7 @@
 {
   "name": "SUB FUNC | 02 - 02 | UPDATE | Supplier Site Details - Address + OU Validate",
   "description": "This recipe automates the process of updating supplier address and operational unit data in a database based on provided vendor information.\n\n- The process begins by executing a recipe function that accepts parameters related to a vendor, including a vendor ID and other relevant details.\n- It first truncates existing records in the Supplier Address and Supplier Operational Unit data tables to prepare for new data.\n- The recipe then retrieves records from a temporary data table based on the provided vendor ID and processes each record to extract relevant address details.\n- For each record, it checks for specific address-related information and updates or inserts records into the Supplier Address DataTable with the parsed address data.\n- It also checks for various flags and details related to tax applicability and purchasing status, updating corresponding variables as necessary.\n- The recipe continues to search for and update additional fields such as bank instructions, tax registration status, and payment methods based on the retrieved records.\n- Finally, it performs a final upsert operation to ensure all relevant data is accurately reflected in the Supplier Operational Unit DataTable.\n\nIn case of any errors during execution, the recipe logs the error and calls an error handling recipe to notify the relevant stakeholders via email, including details about the failure and any attached files if applicable.",
-  "version": 18,
+  "version": 22,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -8270,6 +8270,321 @@
                   },
                   {
                     "number": 40,
+                    "provider": "workato_db_table",
+                    "name": "get_records",
+                    "as": "65d7dae4",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "table_id": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                      "filters.0.field_id": "questionLabel",
+                      "filters.1.field_id": "alternative"
+                    },
+                    "input": {
+                      "order_direction": "asc",
+                      "limit": "100",
+                      "table_id": {
+                        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables/s2p_dt_func_02_update_qna_temporary_datatable.workato_db_table.json",
+                        "name": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                        "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables"
+                      },
+                      "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+                      "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+                      "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+                      "filters": [
+                        {
+                          "op_default": "eq",
+                          "value_default": "Supplier effective Date (Supplier Registration Date)",
+                          "field_id": "75690224-c5ca-46bb-bc80-0734dd5030b9"
+                        },
+                        {
+                          "op_number": "eq",
+                          "value_number": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"732df9fe\",\"path\":[\"88487651_73a1_4f9d_85ae_82c6ce98d9e9\"]}').floor(0)",
+                          "field_id": "88487651-73a1-4f9d-85ae-82c6ce98d9e9"
+                        }
+                      ],
+                      "df0a7445-ebf1-43d4-aaee-211341a35fca": "string",
+                      "8592cf8a-33a9-4220-9212-a751aceeacc3": "string",
+                      "5eb10546-eeb3-4443-af64-20690a89e51b": "string",
+                      "5f423414-cde0-4622-b532-167a178978e9": "string",
+                      "763f9443-4020-49d2-b4af-8dfd0336617a": "string",
+                      "88487651-73a1-4f9d-85ae-82c6ce98d9e9": "number",
+                      "009d70fd-2945-4b5e-97f0-d3f586f87942": "string",
+                      "37d6ee65-cf65-4fad-a376-d2f9e20412a5": "string",
+                      "75690224-c5ca-46bb-bc80-0734dd5030b9": "string",
+                      "a7e29481-f5e3-4c90-bfad-98b050fc87c7": "string",
+                      "2afa9266-b625-47b7-bb16-30ad28d0db9e": "string",
+                      "32ba9c2f-8bfd-4b91-b03d-b50baf48156d": "string",
+                      "e38453ee-253a-454c-8f81-df2326bd0045": "integer"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Records",
+                        "name": "records",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Record ID",
+                            "type": "string",
+                            "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "smVendorId",
+                            "type": "string",
+                            "name": "df0a7445_ebf1_43d4_aaee_211341a35fca"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "workspaceId",
+                            "type": "string",
+                            "name": "8592cf8a_33a9_4220_9212_a751aceeacc3"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "uniqueName",
+                            "type": "string",
+                            "name": "5eb10546_eeb3_4443_af64_20690a89e51b"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "rootId",
+                            "type": "string",
+                            "name": "5f423414_cde0_4622_b532_167a178978e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "processId",
+                            "type": "string",
+                            "name": "763f9443_4020_49d2_b4af_8dfd0336617a"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "alternative",
+                            "parse_output": "float_conversion",
+                            "type": "number",
+                            "name": "88487651_73a1_4f9d_85ae_82c6ce98d9e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "externalSystemCorrelationId",
+                            "type": "string",
+                            "name": "009d70fd_2945_4b5e_97f0_d3f586f87942"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionnaireLabel",
+                            "type": "string",
+                            "name": "37d6ee65_cf65_4fad_a376_d2f9e20412a5"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionLabel",
+                            "type": "string",
+                            "name": "75690224_c5ca_46bb_bc80_0734dd5030b9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "answer",
+                            "type": "string",
+                            "name": "a7e29481_f5e3_4c90_bfad_98b050fc87c7"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "dataType",
+                            "type": "string",
+                            "name": "2afa9266_b625_47b7_bb16_30ad28d0db9e"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "type",
+                            "type": "string",
+                            "name": "32ba9c2f_8bfd_4b91_b03d_b50baf48156d"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "APIListSize",
+                            "parse_output": "integer_conversion",
+                            "type": "integer",
+                            "name": "e38453ee_253a_454c_8f81_df2326bd0045"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Created at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Updated at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next Page Token",
+                        "name": "continuation_token",
+                        "type": "string"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "name": "df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "name": "8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "name": "5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5f423414-cde0-4622-b532-167a178978e9",
+                        "name": "5f423414-cde0-4622-b532-167a178978e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "name": "763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "number",
+                        "label": "$internal_value_88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "name": "88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "name": "009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "name": "37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "name": "75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "name": "a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "name": "2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "name": "32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "integer",
+                        "label": "$internal_value_e38453ee-253a-454c-8f81-df2326bd0045",
+                        "name": "e38453ee-253a-454c-8f81-df2326bd0045",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "id",
+                        "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      }
+                    ],
+                    "comment": "Get - Supplier effective Date",
+                    "uuid": "a35c4760-2a41-4d37-a468-b522e3e9f4aa"
+                  },
+                  {
+                    "number": 41,
                     "provider": "workato_variable",
                     "name": "declare_variable",
                     "as": "b3b8f850",
@@ -8347,7 +8662,7 @@
                     "uuid": "4fb0863a-dab0-4d86-a163-1d5f699d6fd4"
                   },
                   {
-                    "number": 41,
+                    "number": 42,
                     "provider": "workato_db_table",
                     "name": "get_records",
                     "as": "5da062a9",
@@ -8662,7 +8977,7 @@
                     "uuid": "525ad6a5-94a4-4284-bcb6-b72f9c93ba45"
                   },
                   {
-                    "number": 42,
+                    "number": 43,
                     "keyword": "if",
                     "input": {
                       "type": "compound",
@@ -8678,7 +8993,7 @@
                     },
                     "block": [
                       {
-                        "number": 43,
+                        "number": 44,
                         "provider": "workato_variable",
                         "name": "update_variables",
                         "as": "40600a6b",
@@ -8714,7 +9029,7 @@
                     "uuid": "e8eef9a5-d53c-4b69-b307-d7d1331963cc"
                   },
                   {
-                    "number": 44,
+                    "number": 45,
                     "provider": "workato_db_table",
                     "name": "get_records",
                     "as": "2edb6fd1",
@@ -9029,7 +9344,7 @@
                     "uuid": "575b7f06-43f4-4970-a941-9b9dabfc3079"
                   },
                   {
-                    "number": 45,
+                    "number": 46,
                     "provider": "workato_db_table",
                     "name": "get_records",
                     "as": "26e3a95b",
@@ -9344,7 +9659,322 @@
                     "uuid": "356b0c22-ce25-4bbe-b678-9be89706a63e"
                   },
                   {
-                    "number": 46,
+                    "number": 47,
+                    "provider": "workato_db_table",
+                    "name": "get_records",
+                    "as": "fea7b77e",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "table_id": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                      "filters.0.field_id": "questionLabel",
+                      "filters.1.field_id": "alternative"
+                    },
+                    "input": {
+                      "order_direction": "asc",
+                      "limit": "100",
+                      "table_id": {
+                        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables/s2p_dt_func_02_update_qna_temporary_datatable.workato_db_table.json",
+                        "name": "[S2P] DT | FUNC | 02 | UPDATE | QNA Temporary dataTable",
+                        "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/DataTables/Update Tables"
+                      },
+                      "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+                      "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+                      "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+                      "filters": [
+                        {
+                          "op_default": "eq",
+                          "value_default": "Tax Registration Status",
+                          "field_id": "75690224-c5ca-46bb-bc80-0734dd5030b9"
+                        },
+                        {
+                          "op_number": "eq",
+                          "value_number": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"732df9fe\",\"path\":[\"88487651_73a1_4f9d_85ae_82c6ce98d9e9\"]}').floor(0)",
+                          "field_id": "88487651-73a1-4f9d-85ae-82c6ce98d9e9"
+                        }
+                      ],
+                      "df0a7445-ebf1-43d4-aaee-211341a35fca": "string",
+                      "8592cf8a-33a9-4220-9212-a751aceeacc3": "string",
+                      "5eb10546-eeb3-4443-af64-20690a89e51b": "string",
+                      "5f423414-cde0-4622-b532-167a178978e9": "string",
+                      "763f9443-4020-49d2-b4af-8dfd0336617a": "string",
+                      "88487651-73a1-4f9d-85ae-82c6ce98d9e9": "number",
+                      "009d70fd-2945-4b5e-97f0-d3f586f87942": "string",
+                      "37d6ee65-cf65-4fad-a376-d2f9e20412a5": "string",
+                      "75690224-c5ca-46bb-bc80-0734dd5030b9": "string",
+                      "a7e29481-f5e3-4c90-bfad-98b050fc87c7": "string",
+                      "2afa9266-b625-47b7-bb16-30ad28d0db9e": "string",
+                      "32ba9c2f-8bfd-4b91-b03d-b50baf48156d": "string",
+                      "e38453ee-253a-454c-8f81-df2326bd0045": "integer"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Records",
+                        "name": "records",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Record ID",
+                            "type": "string",
+                            "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "smVendorId",
+                            "type": "string",
+                            "name": "df0a7445_ebf1_43d4_aaee_211341a35fca"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "workspaceId",
+                            "type": "string",
+                            "name": "8592cf8a_33a9_4220_9212_a751aceeacc3"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "uniqueName",
+                            "type": "string",
+                            "name": "5eb10546_eeb3_4443_af64_20690a89e51b"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "rootId",
+                            "type": "string",
+                            "name": "5f423414_cde0_4622_b532_167a178978e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "processId",
+                            "type": "string",
+                            "name": "763f9443_4020_49d2_b4af_8dfd0336617a"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "alternative",
+                            "parse_output": "float_conversion",
+                            "type": "number",
+                            "name": "88487651_73a1_4f9d_85ae_82c6ce98d9e9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "externalSystemCorrelationId",
+                            "type": "string",
+                            "name": "009d70fd_2945_4b5e_97f0_d3f586f87942"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionnaireLabel",
+                            "type": "string",
+                            "name": "37d6ee65_cf65_4fad_a376_d2f9e20412a5"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "questionLabel",
+                            "type": "string",
+                            "name": "75690224_c5ca_46bb_bc80_0734dd5030b9"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "answer",
+                            "type": "string",
+                            "name": "a7e29481_f5e3_4c90_bfad_98b050fc87c7"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "dataType",
+                            "type": "string",
+                            "name": "2afa9266_b625_47b7_bb16_30ad28d0db9e"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "type",
+                            "type": "string",
+                            "name": "32ba9c2f_8bfd_4b91_b03d_b50baf48156d"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "APIListSize",
+                            "parse_output": "integer_conversion",
+                            "type": "integer",
+                            "name": "e38453ee_253a_454c_8f81_df2326bd0045"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Created at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Updated at",
+                            "render_input": "date_time_conversion",
+                            "parse_output": "date_time_conversion",
+                            "type": "date_time",
+                            "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Next Page Token",
+                        "name": "continuation_token",
+                        "type": "string"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "name": "df0a7445-ebf1-43d4-aaee-211341a35fca",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "name": "8592cf8a-33a9-4220-9212-a751aceeacc3",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "name": "5eb10546-eeb3-4443-af64-20690a89e51b",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_5f423414-cde0-4622-b532-167a178978e9",
+                        "name": "5f423414-cde0-4622-b532-167a178978e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "name": "763f9443-4020-49d2-b4af-8dfd0336617a",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "number",
+                        "label": "$internal_value_88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "name": "88487651-73a1-4f9d-85ae-82c6ce98d9e9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "name": "009d70fd-2945-4b5e-97f0-d3f586f87942",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "name": "37d6ee65-cf65-4fad-a376-d2f9e20412a5",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "name": "75690224-c5ca-46bb-bc80-0734dd5030b9",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "name": "a7e29481-f5e3-4c90-bfad-98b050fc87c7",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "name": "2afa9266-b625-47b7-bb16-30ad28d0db9e",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "string",
+                        "label": "$internal_value_32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "name": "32ba9c2f-8bfd-4b91-b03d-b50baf48156d",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "integer",
+                        "label": "$internal_value_e38453ee-253a-454c-8f81-df2326bd0045",
+                        "name": "e38453ee-253a-454c-8f81-df2326bd0045",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "id",
+                        "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "default": "date_time",
+                        "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                        "ngIf": "false",
+                        "optional": true,
+                        "type": "string"
+                      }
+                    ],
+                    "comment": "Get - Tax Registration Status",
+                    "uuid": "cf800de8-fae1-4717-b119-2450c94aada3"
+                  },
+                  {
+                    "number": 48,
                     "provider": "workato_variable",
                     "name": "declare_variable",
                     "as": "9a0cb6b2",
@@ -9422,7 +10052,7 @@
                     "uuid": "70b114f3-229d-4d70-9290-28943030048a"
                   },
                   {
-                    "number": 47,
+                    "number": 49,
                     "provider": "workato_db_table",
                     "name": "get_records",
                     "as": "237e893f",
@@ -9737,7 +10367,7 @@
                     "uuid": "d54b462b-ccf4-49ad-aa8b-ec7a36598279"
                   },
                   {
-                    "number": 48,
+                    "number": 50,
                     "keyword": "if",
                     "input": {
                       "type": "compound",
@@ -9753,7 +10383,7 @@
                     },
                     "block": [
                       {
-                        "number": 49,
+                        "number": 51,
                         "provider": "workato_variable",
                         "name": "update_variables",
                         "as": "1d3185fc",
@@ -9791,7 +10421,7 @@
                     "skip": false
                   },
                   {
-                    "number": 50,
+                    "number": 52,
                     "keyword": "if",
                     "input": {
                       "type": "compound",
@@ -9859,6 +10489,12 @@
                         },
                         {
                           "operand": "present",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"65d7dae4\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
+                          "rhs": "",
+                          "uuid": "f83e9006-1d12-45b9-a792-085bb6e229bd"
+                        },
+                        {
+                          "operand": "present",
                           "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"5da062a9\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
                           "rhs": "",
                           "uuid": "31231244-e6aa-4fcb-b624-14b0bec8e8f3"
@@ -9877,6 +10513,12 @@
                         },
                         {
                           "operand": "present",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"fea7b77e\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
+                          "rhs": "",
+                          "uuid": "75fae168-4d73-4b02-a353-98d21c2b1513"
+                        },
+                        {
+                          "operand": "present",
                           "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"237e893f\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}",
                           "rhs": "",
                           "uuid": "8aa0f253-631c-4018-9310-b5bdb360dbe2"
@@ -9891,7 +10533,7 @@
                     },
                     "block": [
                       {
-                        "number": 51,
+                        "number": 53,
                         "provider": "workato_db_table",
                         "name": "upsert_record",
                         "as": "33f7ee6d",
@@ -9923,7 +10565,9 @@
                             "e1d493eb_e7a2_46d9_bf26_06727a176739": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"38eeb209\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
                             "4efa2e8b_b969_4f19_be89_8e6b22cee689": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"2bf1cb27\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
                             "48c7349e_fc96_4912_af47_b0e672193149": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"9a0cb6b2\",\"path\":[\"varPurchasingFlag\"]}')}",
-                            "9bf69495_2392_4bd9_8884_93e46432b9f6": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d1795647\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"c4632826_e511_4e14_96ee_b0e8c75d9cbf\"]}')}"
+                            "9bf69495_2392_4bd9_8884_93e46432b9f6": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d1795647\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"c4632826_e511_4e14_96ee_b0e8c75d9cbf\"]}')}",
+                            "624c9bce_dd70_414a_b536_9777b395aace": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"65d7dae4\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
+                            "87e7b79d_bdce_45fc_8319_c7fb3b224aaf": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"fea7b77e\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}"
                           },
                           "output_format": "field_name_to_value",
                           "primary_field_id": "18eabaa6-6e2a-4a94-b1f7-3ab1a4879a0c"
@@ -10047,6 +10691,18 @@
                                 "label": "TAX_REGIME_CODE",
                                 "type": "string",
                                 "name": "TAX_REGIME_CODE"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "TAX_EFFECTIVE_FROM",
+                                "type": "string",
+                                "name": "TAX_EFFECTIVE_FROM"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "REGISTRATION_STATUS_CODE",
+                                "type": "string",
+                                "name": "REGISTRATION_STATUS_CODE"
                               },
                               {
                                 "control_type": "date_time",
@@ -10219,6 +10875,22 @@
                                 "sticky": false,
                                 "type": "string",
                                 "name": "9bf69495_2392_4bd9_8884_93e46432b9f6"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "TAX_EFFECTIVE_FROM",
+                                "optional": true,
+                                "sticky": false,
+                                "type": "string",
+                                "name": "624c9bce_dd70_414a_b536_9777b395aace"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "REGISTRATION_STATUS_CODE",
+                                "optional": true,
+                                "sticky": false,
+                                "type": "string",
+                                "name": "87e7b79d_bdce_45fc_8319_c7fb3b224aaf"
                               }
                             ],
                             "type": "object"
@@ -10286,7 +10958,9 @@
                           "parameters.4efa2e8b_b969_4f19_be89_8e6b22cee689",
                           "parameters.48c7349e_fc96_4912_af47_b0e672193149",
                           "parameters.ed1c336a_14e3_45c8_bc30_6d1e46a50afd",
-                          "parameters.9bf69495_2392_4bd9_8884_93e46432b9f6"
+                          "parameters.9bf69495_2392_4bd9_8884_93e46432b9f6",
+                          "parameters.87e7b79d_bdce_45fc_8319_c7fb3b224aaf",
+                          "parameters.624c9bce_dd70_414a_b536_9777b395aace"
                         ],
                         "uuid": "ef4e48b3-b889-4168-8814-476f2ce117d2"
                       }
@@ -10295,7 +10969,7 @@
                     "uuid": "f6777aac-9439-4bc5-9086-8a2041d418ed"
                   },
                   {
-                    "number": 52,
+                    "number": 54,
                     "provider": "workato_variable",
                     "name": "update_variables",
                     "as": "b240afe4",
@@ -10329,7 +11003,7 @@
                     "uuid": "4796bc49-8887-4214-83a9-07e76835bbe6"
                   },
                   {
-                    "number": 53,
+                    "number": 55,
                     "provider": "workato_variable",
                     "name": "update_variables",
                     "as": "5c62d77c",
@@ -10363,7 +11037,7 @@
                     "uuid": "14644d24-2f8b-4306-8c3c-972e92ef9ce9"
                   },
                   {
-                    "number": 54,
+                    "number": 56,
                     "provider": "workato_variable",
                     "name": "update_variables",
                     "as": "557ca4a8",
@@ -10401,7 +11075,7 @@
                 "uuid": "397b376c-9aae-4e33-a683-c5ffbb6adce4"
               },
               {
-                "number": 55,
+                "number": 57,
                 "provider": "workato_db_table",
                 "name": "get_records",
                 "as": "d4ec01d1",
@@ -10821,7 +11495,7 @@
                 "uuid": "eeea4f61-036d-44b5-875b-34c3b45329f6"
               },
               {
-                "number": 56,
+                "number": 58,
                 "keyword": "if",
                 "input": {
                   "type": "compound",
@@ -10837,7 +11511,7 @@
                 },
                 "block": [
                   {
-                    "number": 57,
+                    "number": 59,
                     "provider": "workato_db_table",
                     "name": "update_record",
                     "as": "d196cc46",
@@ -11188,7 +11862,7 @@
                 "uuid": "eb4b3e78-ef35-4215-ba44-f4839aef4c4a"
               },
               {
-                "number": 58,
+                "number": 60,
                 "provider": "workato_db_table",
                 "name": "get_records",
                 "as": "4d0bc7a8",
@@ -11354,6 +12028,18 @@
                         "label": "TAX_REGIME_CODE",
                         "type": "string",
                         "name": "9bf69495_2392_4bd9_8884_93e46432b9f6"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "TAX_EFFECTIVE_FROM",
+                        "type": "string",
+                        "name": "624c9bce_dd70_414a_b536_9777b395aace"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "REGISTRATION_STATUS_CODE",
+                        "type": "string",
+                        "name": "87e7b79d_bdce_45fc_8319_c7fb3b224aaf"
                       },
                       {
                         "control_type": "date_time",
@@ -11546,6 +12232,24 @@
                   },
                   {
                     "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_624c9bce-dd70-414a-b536-9777b395aace",
+                    "name": "624c9bce-dd70-414a-b536-9777b395aace",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "default": "string",
+                    "label": "$internal_value_87e7b79d-bdce-45fc-8319-c7fb3b224aaf",
+                    "name": "87e7b79d-bdce-45fc-8319-c7fb3b224aaf",
+                    "ngIf": "false",
+                    "optional": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
                     "default": "id",
                     "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
                     "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
@@ -11576,7 +12280,7 @@
                 "uuid": "d5107179-072c-4fa3-9b47-f75259d1bb0f"
               },
               {
-                "number": 59,
+                "number": 61,
                 "keyword": "if",
                 "input": {
                   "type": "compound",
@@ -11592,7 +12296,7 @@
                 },
                 "block": [
                   {
-                    "number": 60,
+                    "number": 62,
                     "provider": "workato_db_table",
                     "name": "update_record",
                     "as": "a6170aef",
@@ -11731,6 +12435,18 @@
                             "label": "TAX_REGIME_CODE",
                             "type": "string",
                             "name": "9bf69495_2392_4bd9_8884_93e46432b9f6"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "TAX_EFFECTIVE_FROM",
+                            "type": "string",
+                            "name": "624c9bce_dd70_414a_b536_9777b395aace"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "REGISTRATION_STATUS_CODE",
+                            "type": "string",
+                            "name": "87e7b79d_bdce_45fc_8319_c7fb3b224aaf"
                           },
                           {
                             "control_type": "date_time",
@@ -11903,6 +12619,22 @@
                             "sticky": false,
                             "type": "string",
                             "name": "9bf69495_2392_4bd9_8884_93e46432b9f6"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "TAX_EFFECTIVE_FROM",
+                            "optional": true,
+                            "sticky": false,
+                            "type": "string",
+                            "name": "624c9bce_dd70_414a_b536_9777b395aace"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "REGISTRATION_STATUS_CODE",
+                            "optional": true,
+                            "sticky": false,
+                            "type": "string",
+                            "name": "87e7b79d_bdce_45fc_8319_c7fb3b224aaf"
                           }
                         ],
                         "type": "object"
@@ -11932,7 +12664,7 @@
                 "uuid": "1b3c2598-6911-4f3d-a44b-f1538f3da941"
               },
               {
-                "number": 61,
+                "number": 63,
                 "as": "ea4c749d",
                 "keyword": "foreach",
                 "repeat_mode": "simple",
@@ -11941,7 +12673,7 @@
                 },
                 "block": [
                   {
-                    "number": 62,
+                    "number": 64,
                     "as": "2b1d02ea",
                     "keyword": "foreach",
                     "repeat_mode": "simple",
@@ -11950,7 +12682,7 @@
                     },
                     "block": [
                       {
-                        "number": 63,
+                        "number": 65,
                         "keyword": "if",
                         "input": {
                           "type": "compound",
@@ -11966,7 +12698,7 @@
                         },
                         "block": [
                           {
-                            "number": 64,
+                            "number": 66,
                             "provider": "workato_db_table",
                             "name": "update_record",
                             "as": "80f24d13",
@@ -12314,7 +13046,7 @@
                             "uuid": "73d2f992-79a5-4b07-92db-5d1de42eff0e"
                           },
                           {
-                            "number": 65,
+                            "number": 67,
                             "provider": "workato_db_table",
                             "name": "update_record",
                             "as": "96e998c0",
@@ -12453,6 +13185,18 @@
                                     "label": "TAX_REGIME_CODE",
                                     "type": "string",
                                     "name": "9bf69495_2392_4bd9_8884_93e46432b9f6"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "TAX_EFFECTIVE_FROM",
+                                    "type": "string",
+                                    "name": "624c9bce_dd70_414a_b536_9777b395aace"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "REGISTRATION_STATUS_CODE",
+                                    "type": "string",
+                                    "name": "87e7b79d_bdce_45fc_8319_c7fb3b224aaf"
                                   },
                                   {
                                     "control_type": "date_time",
@@ -12625,6 +13369,22 @@
                                     "sticky": false,
                                     "type": "string",
                                     "name": "9bf69495_2392_4bd9_8884_93e46432b9f6"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "TAX_EFFECTIVE_FROM",
+                                    "optional": true,
+                                    "sticky": false,
+                                    "type": "string",
+                                    "name": "624c9bce_dd70_414a_b536_9777b395aace"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "REGISTRATION_STATUS_CODE",
+                                    "optional": true,
+                                    "sticky": false,
+                                    "type": "string",
+                                    "name": "87e7b79d_bdce_45fc_8319_c7fb3b224aaf"
                                   }
                                 ],
                                 "type": "object"
@@ -12666,7 +13426,7 @@
             "uuid": "78e6152b-8260-46b5-bc9d-e30cb78b358b"
           },
           {
-            "number": 66,
+            "number": 68,
             "provider": "workato_recipe_function",
             "name": "return_result",
             "as": "cb9ba54d",
@@ -12676,7 +13436,7 @@
             "uuid": "e4037107-fee9-40b4-af77-3801f2c2696f"
           },
           {
-            "number": 67,
+            "number": 69,
             "as": "5c31c400",
             "keyword": "catch",
             "input": {
@@ -12685,7 +13445,7 @@
             },
             "block": [
               {
-                "number": 68,
+                "number": 70,
                 "provider": "logger",
                 "name": "log_message",
                 "as": "328bb663",
@@ -12710,7 +13470,7 @@
                 "uuid": "e14e3a35-0f80-49f5-880e-3190cf3ea797"
               },
               {
-                "number": 69,
+                "number": 71,
                 "provider": "workato_recipe_function",
                 "name": "call_recipe",
                 "as": "f5d2fc75",

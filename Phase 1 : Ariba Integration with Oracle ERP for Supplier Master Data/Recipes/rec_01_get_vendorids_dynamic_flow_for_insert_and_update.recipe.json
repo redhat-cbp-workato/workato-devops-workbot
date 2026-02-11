@@ -1,7 +1,7 @@
 {
   "name": "REC | 01 | Get VendorIDs - Dynamic flow for INSERT and UPDATE",
   "description": "This recipe automates the process of synchronizing vendor data from SAP Ariba to an Oracle ERP system.\n\n- The process is triggered on a specified schedule, initiating a request to the Ariba API to fetch updated vendor data based on a defined time range.\n- If new vendor data is retrieved, the recipe checks if each vendor already exists in the Oracle database.\n- For vendors that do not exist, new records are created in the relevant Oracle staging tables for suppliers, supplier sites, and bank details.\n- If existing vendors are found, their records are updated accordingly.\n- The recipe also handles the creation of new records for supplier sites and banks, ensuring that all relevant details are captured.\n- After processing, the recipe sends notifications via email to stakeholders, summarizing the results of the synchronization, including any errors encountered during the process.\n- In case of errors, the recipe calls an error handling function to log the error details and notify the appropriate personnel.\n\nOverall, this recipe ensures that vendor information in the Oracle ERP system is kept up-to-date with the latest data from SAP Ariba, facilitating efficient vendor management and compliance.",
-  "version": 18,
+  "version": 19,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -2406,69 +2406,69 @@
                     ],
                     "comment": "For New Supplier",
                     "uuid": "3c8bc8da-82cc-44f6-a9a8-499f5ee8a235"
+                  },
+                  {
+                    "number": 18,
+                    "keyword": "if",
+                    "input": {
+                      "type": "compound",
+                      "operand": "and",
+                      "conditions": [
+                        {
+                          "operand": "is_true",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"bf35553b\",\"path\":[\"var_Insert\"]}')}",
+                          "rhs": "",
+                          "uuid": "b699b9a1-fb53-412a-97eb-f0aa2c4a8fd1"
+                        }
+                      ]
+                    },
+                    "block": [
+                      {
+                        "number": 19,
+                        "provider": "workato_recipe_function",
+                        "name": "call_recipe",
+                        "as": "4cac13d4",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "flow_id": "FUNC | 02 | SupplierMasterData_ARIBA_To_ERP"
+                        },
+                        "input": {
+                          "flow_id": {
+                            "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | NEW Record/func_02_suppliermasterdata_ariba_to_erp.recipe.json",
+                            "name": "FUNC | 02 | SupplierMasterData_ARIBA_To_ERP",
+                            "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | NEW Record"
+                          },
+                          "parameters": {
+                            "RecordID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"af470417\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}"
+                          }
+                        },
+                        "extended_input_schema": [
+                          {
+                            "label": "Parameters",
+                            "name": "parameters",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "RecordID",
+                                "name": "RecordID",
+                                "type": "string",
+                                "optional": false
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "comment": "Call Next Recipe to INSERT NEW SUPPLIER Record",
+                        "uuid": "f89e574c-bfef-4d70-b627-874f8f2dd801",
+                        "skip": false
+                      }
+                    ],
+                    "uuid": "6864c6b1-8460-408e-8a4b-108058484124"
                   }
                 ],
                 "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"f0e54157\",\"path\":[\"response\",\"array\"]}')}",
                 "comment": "For Each - VENDOR ID",
                 "uuid": "9cc0ab3c-ed9f-43ae-80e2-ba204d2cd518"
-              },
-              {
-                "number": 18,
-                "keyword": "if",
-                "input": {
-                  "type": "compound",
-                  "operand": "and",
-                  "conditions": [
-                    {
-                      "operand": "is_true",
-                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"bf35553b\",\"path\":[\"var_Insert\"]}')}",
-                      "rhs": "",
-                      "uuid": "b699b9a1-fb53-412a-97eb-f0aa2c4a8fd1"
-                    }
-                  ]
-                },
-                "block": [
-                  {
-                    "number": 19,
-                    "provider": "workato_recipe_function",
-                    "name": "call_recipe",
-                    "as": "4cac13d4",
-                    "keyword": "action",
-                    "dynamicPickListSelection": {
-                      "flow_id": "FUNC | 02 | SupplierMasterData_ARIBA_To_ERP"
-                    },
-                    "input": {
-                      "flow_id": {
-                        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | NEW Record/func_02_suppliermasterdata_ariba_to_erp.recipe.json",
-                        "name": "FUNC | 02 | SupplierMasterData_ARIBA_To_ERP",
-                        "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Recipes/REC | NEW Record"
-                      },
-                      "parameters": {
-                        "RecordID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"af470417\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"record\",\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}"
-                      }
-                    },
-                    "extended_input_schema": [
-                      {
-                        "label": "Parameters",
-                        "name": "parameters",
-                        "properties": [
-                          {
-                            "control_type": "text",
-                            "label": "RecordID",
-                            "name": "RecordID",
-                            "type": "string",
-                            "optional": false
-                          }
-                        ],
-                        "type": "object"
-                      }
-                    ],
-                    "comment": "Call Next Recipe to INSERT NEW SUPPLIER Record",
-                    "uuid": "f89e574c-bfef-4d70-b627-874f8f2dd801",
-                    "skip": false
-                  }
-                ],
-                "uuid": "6864c6b1-8460-408e-8a4b-108058484124"
               }
             ],
             "uuid": "6e4965c5-8e41-4e85-8313-35353534a3a5",
@@ -2941,8 +2941,8 @@
       "provider": "oracle",
       "skip_validation": false,
       "account_id": {
-        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection/s2p_con_qa_xxrhfin.connection.json",
-        "name": "S2P | CON | QA | XXRHFIN",
+        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection/s2p_con_xxrhfin.connection.json",
+        "name": "S2P | CON | XXRHFIN",
         "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection"
       }
     },

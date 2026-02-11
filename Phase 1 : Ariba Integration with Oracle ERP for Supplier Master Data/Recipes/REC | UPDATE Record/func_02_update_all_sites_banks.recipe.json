@@ -1,7 +1,7 @@
 {
   "name": "FUNC | 02 | UPDATE | All Sites & Banks",
   "description": "This Workato recipe automates the process of updating supplier information in an Oracle database based on data retrieved from an Ariba vendor ID lookup.\n\n### Key Actions and Outcomes:\n\n- **Trigger and Input Parameters**: The recipe is initiated by executing a function that requires parameters such as `RecordID`, `AribaVendorID`, and `RecipeID`.\n\n- **Data Retrieval**: It searches for records in the Ariba VendorID Lookup data table to find relevant supplier information based on the provided `RecordID` and `AribaVendorID`.\n\n- **Data Processing**:\n  - If records are found, it truncates a temporary data table to prepare for new data.\n  - It retrieves additional records related to the supplier and their bank details from the data table.\n  - The recipe then makes HTTP requests to the Ariba API to fetch questionnaires and other supplier-related data.\n\n- **Data Upsert**: The recipe processes the retrieved data and upserts it into the appropriate data tables, ensuring that all relevant supplier information, including addresses and bank details, is updated or inserted as necessary.\n\n- **Error Handling**: If any errors occur during the process, the recipe logs the error and updates the status in the Ariba VendorID Lookup table to indicate failure. It also calls an error handling recipe to notify stakeholders of the issue.\n\n- **Final Notifications**: Upon successful completion, the recipe sends notifications about the status of the supplier data synchronization, including details about the number of records processed and any relevant Oracle request IDs.\n\n### Summary:\nThis recipe streamlines the process of updating supplier information in Oracle by integrating data from Ariba, ensuring that all relevant details are accurately reflected in the database while providing error handling and notifications for stakeholders.",
-  "version": 22,
+  "version": 24,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -1751,250 +1751,6 @@
                           }
                         ],
                         "extended_input_schema": [
-                          {
-                            "label": "Request",
-                            "name": "request",
-                            "override": true,
-                            "properties": [
-                              {
-                                "control_type": "select",
-                                "label": "Method",
-                                "pick_list": [
-                                  [
-                                    "GET",
-                                    "GET"
-                                  ],
-                                  [
-                                    "POST",
-                                    "POST"
-                                  ],
-                                  [
-                                    "PUT",
-                                    "PUT"
-                                  ],
-                                  [
-                                    "DELETE",
-                                    "DELETE"
-                                  ],
-                                  [
-                                    "HEAD",
-                                    "HEAD"
-                                  ],
-                                  [
-                                    "PATCH",
-                                    "PATCH"
-                                  ]
-                                ],
-                                "hint": "Select a HTTP method",
-                                "default": "GET",
-                                "type": "string",
-                                "name": "method"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Request URL",
-                                "check_secrets": true,
-                                "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
-                                "placeholder": "https://api.example.com/v1/leads",
-                                "type": "string",
-                                "name": "url"
-                              },
-                              {
-                                "control_type": "select",
-                                "label": "Request content type",
-                                "extends_schema": true,
-                                "pick_list": [
-                                  [
-                                    "JSON request body",
-                                    "json"
-                                  ],
-                                  [
-                                    "Raw JSON request body",
-                                    "application/json"
-                                  ],
-                                  [
-                                    "XML",
-                                    "application/xml"
-                                  ],
-                                  [
-                                    "Text",
-                                    "text/plain"
-                                  ],
-                                  [
-                                    "URL encoded form",
-                                    "application/x-www-form-urlencoded"
-                                  ],
-                                  [
-                                    "Binary",
-                                    "application/octet-stream"
-                                  ],
-                                  [
-                                    "Multipart form",
-                                    "multipart/form-data"
-                                  ],
-                                  [
-                                    "Multipart alternative",
-                                    "multipart/alternative"
-                                  ],
-                                  [
-                                    "Multipart digest",
-                                    "multipart/digest"
-                                  ],
-                                  [
-                                    "Multipart mixed",
-                                    "multipart/mixed"
-                                  ],
-                                  [
-                                    "Multipart related",
-                                    "multipart/related"
-                                  ]
-                                ],
-                                "hint": "The API endpoint documentation should define what data it expects",
-                                "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
-                                "optional": true,
-                                "default": "application/json",
-                                "type": "string",
-                                "name": "content_type"
-                              },
-                              {
-                                "control_type": "text-area",
-                                "label": "Request body",
-                                "hint": "HTTP request body to send with the request. <a href=\"https://docs.workato.com/developing-connectors/http.html#request-body\" target=\"_blank\">Learn more</a>",
-                                "sticky": true,
-                                "check_secrets": true,
-                                "ngIf": "input.request.content_type !== 'json' && input.request.content_type !== 'application/x-www-form-urlencoded' && input.request.content_type !== 'multipart/form-data' && input.request.content_type !== 'multipart/alternative' && input.request.content_type !== 'multipart/digest' && input.request.content_type !== 'multipart/mixed' && input.request.content_type !== 'multipart/related' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
-                                "optional": true,
-                                "type": "string",
-                                "name": "body"
-                              },
-                              {
-                                "label": "Request body",
-                                "control_type": "key_value",
-                                "optional": true,
-                                "empty_list_title": "Does this HTTP request require form data?",
-                                "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
-                                "item_label": "Form data",
-                                "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
-                                "of": "object",
-                                "properties": [
-                                  {
-                                    "control_type": "text",
-                                    "label": "Key",
-                                    "type": "string",
-                                    "name": "param"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "Value",
-                                    "type": "string",
-                                    "name": "value"
-                                  }
-                                ],
-                                "type": "array",
-                                "name": "form_body"
-                              },
-                              {
-                                "label": "Request parts",
-                                "optional": true,
-                                "item_label": "Part",
-                                "ngIf": "(input.request.content_type === 'multipart/alternative'|| input.request.content_type === 'multipart/digest'|| input.request.content_type === 'multipart/mixed'|| input.request.content_type === 'multipart/related') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
-                                "of": "object",
-                                "properties": [
-                                  {
-                                    "label": "Headers",
-                                    "optional": true,
-                                    "sticky": true,
-                                    "of": "object",
-                                    "properties": [
-                                      {
-                                        "control_type": "text",
-                                        "label": "Header name",
-                                        "optional": false,
-                                        "type": "string",
-                                        "name": "name"
-                                      },
-                                      {
-                                        "control_type": "text",
-                                        "label": "Value",
-                                        "optional": true,
-                                        "sticky": true,
-                                        "type": "string",
-                                        "name": "value"
-                                      }
-                                    ],
-                                    "type": "array",
-                                    "name": "headers"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "Raw body",
-                                    "optional": true,
-                                    "sticky": true,
-                                    "hint": "Raw content of the part",
-                                    "type": "string",
-                                    "name": "body"
-                                  }
-                                ],
-                                "type": "array",
-                                "name": "parts"
-                              },
-                              {
-                                "label": "Request URL parameters",
-                                "control_type": "key_value",
-                                "check_secrets": true,
-                                "optional": true,
-                                "empty_list_title": "Does this HTTP request contain a query string?",
-                                "empty_list_text": "Add URL parameters to the query string",
-                                "item_label": "URL parameter",
-                                "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
-                                "of": "object",
-                                "properties": [
-                                  {
-                                    "control_type": "text",
-                                    "label": "Parameter name",
-                                    "type": "string",
-                                    "name": "param"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "Value",
-                                    "type": "string",
-                                    "name": "value"
-                                  }
-                                ],
-                                "type": "array",
-                                "name": "parameters"
-                              },
-                              {
-                                "label": "Request headers",
-                                "control_type": "key_value",
-                                "optional": true,
-                                "check_secrets": true,
-                                "empty_list_title": "Does this HTTP request require headers?",
-                                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
-                                "item_label": "Header",
-                                "sticky": true,
-                                "of": "object",
-                                "properties": [
-                                  {
-                                    "control_type": "text",
-                                    "label": "Header name",
-                                    "type": "string",
-                                    "name": "header"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "Value",
-                                    "type": "string",
-                                    "name": "value"
-                                  }
-                                ],
-                                "type": "array",
-                                "name": "headers"
-                              }
-                            ],
-                            "type": "object"
-                          },
                           {
                             "label": "Request",
                             "name": "request",
@@ -6070,14 +5826,12 @@
                                   "902ef841-6c57-4f94-a611-174b695e2790": "string",
                                   "91dadd67-3179-41a1-b054-c172e0e693f2": "string",
                                   "cbab3cba-c250-476b-8047-6061fb6b1675": "string",
-                                  "48a8505e-9f6f-4caa-a441-df638a79a06f": "string",
                                   "22d67d10-6b1b-4d64-a4fa-0470e88c55c8": "string",
                                   "4f635fa4-95f4-4c74-98ae-b5ad9a9ca0d8": "string",
                                   "18eabaa6-6e2a-4a94-b1f7-3ab1a4879a0c": "integer",
                                   "e1d493eb-e7a2-46d9-bf26-06727a176739": "string",
                                   "4efa2e8b-b969-4f19-be89-8e6b22cee689": "string",
                                   "48c7349e-fc96-4912-af47-b0e672193149": "string",
-                                  "ed1c336a-14e3-45c8-bc30-6d1e46a50afd": "string",
                                   "9bf69495-2392-4bd9-8884-93e46432b9f6": "string",
                                   "order_by_field_id": "18eabaa6-6e2a-4a94-b1f7-3ab1a4879a0c"
                                 },
@@ -6161,12 +5915,6 @@
                                       },
                                       {
                                         "control_type": "text",
-                                        "label": "TAX_EFFECTIVE_FROM",
-                                        "type": "string",
-                                        "name": "TAX_EFFECTIVE_FROM"
-                                      },
-                                      {
-                                        "control_type": "text",
                                         "label": "TR_ALLOW_TX",
                                         "type": "string",
                                         "name": "TR_ALLOW_TX"
@@ -6204,15 +5952,21 @@
                                       },
                                       {
                                         "control_type": "text",
-                                        "label": "REGISTRATION_STATUS_CODE",
-                                        "type": "string",
-                                        "name": "REGISTRATION_STATUS_CODE"
-                                      },
-                                      {
-                                        "control_type": "text",
                                         "label": "TAX_REGIME_CODE",
                                         "type": "string",
                                         "name": "TAX_REGIME_CODE"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "TAX_EFFECTIVE_FROM",
+                                        "type": "string",
+                                        "name": "TAX_EFFECTIVE_FROM"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "REGISTRATION_STATUS_CODE",
+                                        "type": "string",
+                                        "name": "REGISTRATION_STATUS_CODE"
                                       },
                                       {
                                         "control_type": "date_time",
@@ -6343,15 +6097,6 @@
                                   {
                                     "control_type": "text",
                                     "default": "string",
-                                    "label": "$internal_value_48a8505e-9f6f-4caa-a441-df638a79a06f",
-                                    "name": "48a8505e-9f6f-4caa-a441-df638a79a06f",
-                                    "ngIf": "false",
-                                    "optional": true,
-                                    "type": "string"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "default": "string",
                                     "label": "$internal_value_22d67d10-6b1b-4d64-a4fa-0470e88c55c8",
                                     "name": "22d67d10-6b1b-4d64-a4fa-0470e88c55c8",
                                     "ngIf": "false",
@@ -6406,8 +6151,8 @@
                                   {
                                     "control_type": "text",
                                     "default": "string",
-                                    "label": "$internal_value_ed1c336a-14e3-45c8-bc30-6d1e46a50afd",
-                                    "name": "ed1c336a-14e3-45c8-bc30-6d1e46a50afd",
+                                    "label": "$internal_value_9bf69495-2392-4bd9-8884-93e46432b9f6",
+                                    "name": "9bf69495-2392-4bd9-8884-93e46432b9f6",
                                     "ngIf": "false",
                                     "optional": true,
                                     "type": "string"
@@ -6415,8 +6160,17 @@
                                   {
                                     "control_type": "text",
                                     "default": "string",
-                                    "label": "$internal_value_9bf69495-2392-4bd9-8884-93e46432b9f6",
-                                    "name": "9bf69495-2392-4bd9-8884-93e46432b9f6",
+                                    "label": "$internal_value_624c9bce-dd70-414a-b536-9777b395aace",
+                                    "name": "624c9bce-dd70-414a-b536-9777b395aace",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_87e7b79d-bdce-45fc-8319-c7fb3b224aaf",
+                                    "name": "87e7b79d-bdce-45fc-8319-c7fb3b224aaf",
                                     "ngIf": "false",
                                     "optional": true,
                                     "type": "string"
@@ -6682,7 +6436,9 @@
                                             "supplier_notif_method": "EMAIL",
                                             "verified": "N",
                                             "site_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"SITE_NAME\"]}').presence",
-                                            "address_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"ADDRESS_NAME\"]}').presence"
+                                            "address_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"ADDRESS_NAME\"]}').presence",
+                                            "tax_effective_from": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"TAX_EFFECTIVE_FROM\"]}') ? ((_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"TAX_EFFECTIVE_FROM\"]}')).to_i/1000).to_time.strftime(\"%d-%m-%Y\") : null",
+                                            "registration_status_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"REGISTRATION_STATUS_CODE\"]}').presence"
                                           }
                                         },
                                         "extended_output_schema": [
@@ -11588,8 +11344,8 @@
       "provider": "oracle",
       "skip_validation": false,
       "account_id": {
-        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection/s2p_con_qa_xxrhfin.connection.json",
-        "name": "S2P | CON | QA | XXRHFIN",
+        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection/s2p_con_xxrhfin.connection.json",
+        "name": "S2P | CON | XXRHFIN",
         "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection"
       }
     },
