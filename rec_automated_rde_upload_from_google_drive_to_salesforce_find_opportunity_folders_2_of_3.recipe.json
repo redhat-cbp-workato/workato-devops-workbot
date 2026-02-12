@@ -1,0 +1,194 @@
+{
+  "name": "REC | Automated RDE Upload from Google Drive to Salesforce | Find Opportunity Folders | 2 of 3",
+  "description": "",
+  "version": 15,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "85883bc4",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"geo_customer_folder_id\",\"type\":\"string\",\"optional\":false,\"label\":\"Geo Customer Folder ID\",\"control_type\":\"text\"},{\"name\":\"last_run_time\",\"type\":\"date_time\",\"optional\":false,\"label\":\"last_run_time\",\"control_type\":\"date_time\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Geo Customer Folder ID",
+            "name": "geo_customer_folder_id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "date_time",
+            "label": "last_run_time",
+            "render_input": "date_time_conversion",
+            "parse_output": "date_time_conversion",
+            "name": "last_run_time",
+            "type": "date_time",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 2,
+            "provider": "google_drive",
+            "name": "search_file_or_folder",
+            "as": "52f91e15",
+            "keyword": "action",
+            "toggleCfg": {
+              "folderId": false
+            },
+            "input": {
+              "kind": "Folders",
+              "folderId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"85883bc4\",\"path\":[\"parameters\",\"geo_customer_folder_id\"]}')}",
+              "query": "'#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"85883bc4\",\"path\":[\"parameters\",\"geo_customer_folder_id\"]}')}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
+            },
+            "uuid": "a52d5925-06ab-4eeb-bcee-743b8df61c2c"
+          },
+          {
+            "number": 3,
+            "as": "bb68d952",
+            "keyword": "foreach",
+            "repeat_mode": "simple",
+            "clear_scope": "false",
+            "input": {
+            },
+            "block": [
+              {
+                "number": 4,
+                "provider": "workato_recipe_function",
+                "name": "call_recipe_async",
+                "as": "a7e1dd70",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "flow_id": "REC | Automated RDE Upload from Google Drive to Salesforce | Process Files | 3 of 4"
+                },
+                "input": {
+                  "flow_id": {
+                    "zip_name": "rec_automated_rde_upload_from_google_drive_to_salesforce_find_and_process_files_or_shortcuts_3_of_3.recipe.json",
+                    "name": "REC | Automated RDE Upload from Google Drive to Salesforce | Find and Process Files or Shortcuts | 3 of 3",
+                    "folder": ""
+                  },
+                  "parameters": {
+                    "opportunity_folder_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"bb68d952\",\"path\":[\"id\"]}')}",
+                    "last_run_time": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"85883bc4\",\"path\":[\"parameters\",\"last_run_time\"]}')}"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "label": "Parameters",
+                    "name": "parameters",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Opportunity Folder ID",
+                        "name": "opportunity_folder_id",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "last_run_time",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "name": "last_run_time",
+                        "type": "date_time",
+                        "optional": false
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "74f4dc39-54a1-4aab-8566-8951e45bcf44"
+              }
+            ],
+            "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_drive\",\"line\":\"52f91e15\",\"path\":[\"files\"]}')}",
+            "uuid": "1beb0148-8551-4b94-b275-c546945d5267"
+          },
+          {
+            "number": 5,
+            "as": "fee4035f",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 6,
+                "provider": "logger",
+                "name": "log_message",
+                "as": "6e9b1614",
+                "keyword": "action",
+                "input": {
+                  "user_logs_enabled": "false",
+                  "message": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"fee4035f\",\"path\":[\"line_number\"]}')}#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"fee4035f\",\"path\":[\"adapter\"]}')}#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"fee4035f\",\"path\":[\"action\"]}')}#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"fee4035f\",\"path\":[\"type\"]}')}#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"fee4035f\",\"path\":[\"message\"]}')}#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"fee4035f\",\"path\":[\"error_at\"]}')}"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "switch",
+                    "default": false,
+                    "disable_formula": true,
+                    "extends_schema": true,
+                    "hint": "                Send a copy of the message to Workato logs.\n                <a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n                  Learn more\n                </a>\n",
+                    "label": "Send to Workato log service",
+                    "name": "user_logs_enabled",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "uuid": "faad1e80-84f1-441f-b035-12cbce6ca63d"
+              }
+            ],
+            "uuid": "226cf50f-d753-4773-bd3c-9b99a1bdbb7b"
+          }
+        ],
+        "uuid": "b60d4b66-f0df-4b4b-8638-742d61e47511"
+      }
+    ],
+    "uuid": "344460e7-5b88-4956-8ef0-85723f5c8ad7"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "google_drive",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "busarchdrive.connection.json",
+        "name": "BusArchDrive",
+        "folder": ""
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "logger",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ],
+  "tags": [
+    "RDE Upload M1"
+  ]
+}
