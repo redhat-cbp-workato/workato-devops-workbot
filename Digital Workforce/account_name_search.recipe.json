@@ -1,6 +1,6 @@
 {
   "name": "Account Name Search",
-  "version": 19,
+  "version": 24,
   "private": true,
   "concurrency": 20,
   "code": {
@@ -356,7 +356,7 @@
         "keyword": "action",
         "input": {
           "variables": {
-            "schema": "[{\"control_type\":\"text\",\"label\":\"On_behalf_of_user_email\",\"name\":\"output\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"output\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true}]",
+            "schema": "[{\"control_type\":\"text\",\"label\":\"On_behalf_of_user_email\",\"name\":\"output\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"output\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true},{\"name\":\"rhatUUID\",\"type\":\"string\",\"optional\":true,\"label\":\"rhatUUID\",\"details\":{\"real_name\":\"rhatUUID\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
             "data": {
               "output": "="
             }
@@ -373,6 +373,16 @@
             "type": "string",
             "details": {
               "real_name": "output"
+            }
+          },
+          {
+            "control_type": "text",
+            "label": "rhatUUID",
+            "name": "rhatUUID",
+            "optional": true,
+            "type": "string",
+            "details": {
+              "real_name": "rhatUUID"
             }
           }
         ],
@@ -416,6 +426,22 @@
                     ],
                     "hint": "Defaults to nil if not supplied.",
                     "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "rhatUUID",
+                    "name": "rhatUUID",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "rhatUUID"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
                   }
                 ],
                 "label": "Data",
@@ -427,7 +453,11 @@
           }
         ],
         "visible_config_fields": [
-          "variables.data.output"
+          "variables.data.output",
+          "variables",
+          "variables.schema",
+          "variables.data",
+          "variables.data.rhatUUID"
         ],
         "uuid": "fe8ebf7c-a797-42a2-9109-a7a319d03b2a"
       },
@@ -450,6 +480,128 @@
             "number": 4,
             "provider": "workato_variable",
             "name": "update_variables",
+            "as": "faa11668",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": [
+                {
+                  "label": "rhatUUID (step 3)",
+                  "value": "fe8ebf7c-a797-42a2-9109-a7a319d03b2a:90849077:rhatUUID"
+                }
+              ]
+            },
+            "input": {
+              "input_mode": "raw",
+              "name": "fe8ebf7c-a797-42a2-9109-a7a319d03b2a:90849077:rhatUUID",
+              "rhatUUID": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"jwt_payload\"]}')[\"email\"]_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"jwt_payload\"]}')[\"rhatUUID\"]"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "rhatUUID",
+                "name": "rhatUUID",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              }
+            ],
+            "uuid": "434b931f-5d56-4655-840b-14572f71f01f"
+          },
+          {
+            "number": 5,
+            "provider": "salesforce",
+            "name": "search_sobjects_soql_v2",
+            "as": "3eca17de",
+            "keyword": "action",
+            "input": {
+              "limit": "150",
+              "query": "=SELECT Username,Id, FederationIdentifier ,Email FROM User where FederationIdentifier = '_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"90849077\",\"path\":[\"rhatUUID\"]}')'",
+              "output_schema": "[{\"properties\":[{\"control_type\":\"text\",\"label\":\"Type\",\"type\":\"string\",\"name\":\"type\"},{\"control_type\":\"text\",\"label\":\"URL\",\"type\":\"string\",\"name\":\"url\"}],\"label\":\"Attributes\",\"type\":\"object\",\"name\":\"attributes\"},{\"control_type\":\"text\",\"label\":\"Username\",\"type\":\"string\",\"name\":\"Username\"},{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"Id\"},{\"control_type\":\"text\",\"label\":\"Federation identifier\",\"type\":\"string\",\"name\":\"FederationIdentifier\"},{\"control_type\":\"text\",\"label\":\"Email\",\"type\":\"string\",\"name\":\"Email\"}]"
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "checkbox",
+                "label": "Done",
+                "name": "done",
+                "toggle_field": {
+                  "label": "Done",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "render_input": null,
+                  "parse_output": null,
+                  "type": "boolean",
+                  "name": "done"
+                },
+                "toggle_hint": "Select from option list",
+                "type": "boolean"
+              },
+              {
+                "control_type": "integer",
+                "label": "Total size",
+                "name": "totalSize",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              },
+              {
+                "label": "Records",
+                "name": "records",
+                "of": "object",
+                "properties": [
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Type",
+                        "type": "string",
+                        "name": "type"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "URL",
+                        "type": "string",
+                        "name": "url"
+                      }
+                    ],
+                    "label": "Attributes",
+                    "type": "object",
+                    "name": "attributes"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Username",
+                    "type": "string",
+                    "name": "Username"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "type": "string",
+                    "name": "Id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Federation identifier",
+                    "type": "string",
+                    "name": "FederationIdentifier"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Email",
+                    "type": "string",
+                    "name": "Email"
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "uuid": "5154e91a-91d1-4103-a7f2-8d57b6ee2a19"
+          },
+          {
+            "number": 6,
+            "provider": "workato_variable",
+            "name": "update_variables",
             "as": "f62c0f41",
             "keyword": "action",
             "dynamicPickListSelection": {
@@ -463,7 +615,7 @@
             "input": {
               "input_mode": "structured",
               "name": "4b6e614b-89e9-4e88-9747-a5273b1b3657:c6363d75:output",
-              "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"jwt_payload\"]}')[\"email\"]"
+              "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"3eca17de\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Username\"]}')"
             },
             "extended_input_schema": [
               {
@@ -480,13 +632,13 @@
             "uuid": "c1f8f366-58a4-4e6f-90f8-68bb8244de9b"
           },
           {
-            "number": 5,
+            "number": 7,
             "keyword": "else",
             "input": {
             },
             "block": [
               {
-                "number": 6,
+                "number": 8,
                 "provider": "workato_api_platform",
                 "name": "return_response",
                 "as": "18c6063e",
@@ -614,7 +766,7 @@
         "uuid": "8e715824-ad3d-4ef7-b50d-47ffbb64dafa"
       },
       {
-        "number": 7,
+        "number": 9,
         "keyword": "if",
         "input": {
           "type": "compound",
@@ -630,13 +782,13 @@
         },
         "block": [
           {
-            "number": 8,
+            "number": 10,
             "keyword": "try",
             "input": {
             },
             "block": [
               {
-                "number": 9,
+                "number": 11,
                 "provider": "salesforce",
                 "name": "search_sobjects_soql",
                 "as": "07895259",
@@ -653,7 +805,8 @@
                 "input": {
                   "sobject_name": "User",
                   "query": "Email = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"output\"]}')}'",
-                  "field_list": "Username"
+                  "field_list": "Username",
+                  "limit": "150"
                 },
                 "extended_output_schema": [
                   {
@@ -798,7 +951,7 @@
                 "uuid": "176577ae-a299-4d19-9530-b46ec3b794bd"
               },
               {
-                "number": 10,
+                "number": 12,
                 "as": "3f2ca3a5",
                 "keyword": "catch",
                 "input": {
@@ -807,7 +960,7 @@
                 },
                 "block": [
                   {
-                    "number": 11,
+                    "number": 13,
                     "provider": "workato_api_platform",
                     "name": "return_response",
                     "as": "03d3ea5f",
@@ -935,13 +1088,13 @@
             "uuid": "79e8b6eb-9514-41f3-91ad-988ce8b17daf"
           },
           {
-            "number": 12,
+            "number": 14,
             "keyword": "else",
             "input": {
             },
             "block": [
               {
-                "number": 13,
+                "number": 15,
                 "provider": "workato_api_platform",
                 "name": "return_response",
                 "as": "9ac20303",
@@ -1069,7 +1222,7 @@
         "uuid": "8e8e568f-947f-449f-9f03-dab3f2d3f102"
       },
       {
-        "number": 14,
+        "number": 16,
         "provider": "workato_variable",
         "name": "update_variables",
         "as": "1179de0b",
@@ -1102,7 +1255,7 @@
         "uuid": "c1fbe373-c8fc-4ee3-bbdb-62be4bec76d9"
       },
       {
-        "number": 15,
+        "number": 17,
         "provider": "workato_variable",
         "name": "declare_variable",
         "as": "3eb58038",
@@ -1185,7 +1338,7 @@
         "uuid": "749bed15-6fc5-4f52-a523-14c849385f47"
       },
       {
-        "number": 16,
+        "number": 18,
         "provider": "workato_variable",
         "name": "declare_variable",
         "as": "97a3a6e0",
@@ -1268,7 +1421,7 @@
         "uuid": "c6286bda-5347-4ec5-902c-35a449ce114f"
       },
       {
-        "number": 17,
+        "number": 19,
         "keyword": "if",
         "input": {
           "type": "compound",
@@ -1284,7 +1437,7 @@
         },
         "block": [
           {
-            "number": 18,
+            "number": 20,
             "provider": "workato_variable",
             "name": "update_variables",
             "as": "08a4ee11",
@@ -1317,13 +1470,13 @@
             "uuid": "6b79c4d5-5f6a-43dc-98c9-a3358986f44d"
           },
           {
-            "number": 19,
+            "number": 21,
             "keyword": "else",
             "input": {
             },
             "block": [
               {
-                "number": 20,
+                "number": 22,
                 "provider": "workato_variable",
                 "name": "update_variables",
                 "as": "383c99a8",
@@ -1362,7 +1515,7 @@
         "uuid": "5200261b-9858-4d63-a65f-42bcb77db580"
       },
       {
-        "number": 21,
+        "number": 23,
         "keyword": "if",
         "input": {
           "type": "compound",
@@ -1378,7 +1531,7 @@
         },
         "block": [
           {
-            "number": 22,
+            "number": 24,
             "provider": "workato_variable",
             "name": "update_variables",
             "as": "55cc95f1",
@@ -1411,13 +1564,13 @@
             "uuid": "8824563f-d7ff-41a1-bf10-d5efb1198982"
           },
           {
-            "number": 23,
+            "number": 25,
             "keyword": "else",
             "input": {
             },
             "block": [
               {
-                "number": 24,
+                "number": 26,
                 "provider": "workato_variable",
                 "name": "update_variables",
                 "as": "053e12e9",
@@ -1456,7 +1609,7 @@
         "uuid": "22212d6e-f8c9-4fed-955e-aa27dd98b244"
       },
       {
-        "number": 25,
+        "number": 27,
         "keyword": "if",
         "input": {
           "type": "compound",
@@ -1472,13 +1625,13 @@
         },
         "block": [
           {
-            "number": 26,
+            "number": 28,
             "keyword": "try",
             "input": {
             },
             "block": [
               {
-                "number": 27,
+                "number": 29,
                 "provider": "salesforce",
                 "name": "search_sobjects_soql",
                 "as": "a8a29dfd",
@@ -1513,7 +1666,7 @@
                   "sobject_name": "Account",
                   "field_list": "Id\nName\nBillingCity\nBillingState\nBillingCountry",
                   "query": "Name LIKE '%#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"account_name\"]}')}%' ORDER BY Name",
-                  "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"output\"]}')}",
+                  "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"90849077\",\"path\":[\"output\"]}')}",
                   "offset": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"97a3a6e0\",\"path\":[\"output\"]}')}"
                 },
                 "extended_output_schema": [
@@ -1700,7 +1853,7 @@
                 "uuid": "d3565bbf-f804-41c6-b971-85162675cb85"
               },
               {
-                "number": 28,
+                "number": 30,
                 "provider": "salesforce",
                 "name": "search_sobjects_soql_v2",
                 "as": "3cf69812",
@@ -1716,7 +1869,7 @@
                 },
                 "input": {
                   "query": "SELECT COUNT() FROM Account WHERE Name LIKE '%#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"account_name\"]}')}%'",
-                  "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"output\"]}')}",
+                  "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"90849077\",\"path\":[\"output\"]}')}",
                   "limit": "2000",
                   "output_schema": "[{\"control_type\":\"text\",\"label\":\"count\",\"type\":\"string\",\"name\":\"count\"}]"
                 },
@@ -1762,7 +1915,7 @@
                 "uuid": "fd3427ec-565f-4daa-aeda-fe02da13067f"
               },
               {
-                "number": 29,
+                "number": 31,
                 "as": "85bde6a5",
                 "keyword": "catch",
                 "input": {
@@ -1771,7 +1924,7 @@
                 },
                 "block": [
                   {
-                    "number": 30,
+                    "number": 32,
                     "provider": "workato_api_platform",
                     "name": "return_response",
                     "as": "5a933a81",
@@ -1899,7 +2052,7 @@
             "uuid": "a4d315cd-2789-4b7c-80f6-3608556b08e9"
           },
           {
-            "number": 31,
+            "number": 33,
             "provider": "workato_api_platform",
             "name": "return_response",
             "as": "2887b0fa",
@@ -2028,7 +2181,7 @@
         "uuid": "588f594f-163a-4172-9873-0a75b24a2b2f"
       },
       {
-        "number": 32,
+        "number": 34,
         "provider": "workato_api_platform",
         "name": "return_response",
         "as": "df2039a0",
