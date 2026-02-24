@@ -1,6 +1,6 @@
 {
   "name": "Opportunity Search by Account ID, Opportunity ID, Opportunity Name, and Opportunity Number",
-  "version": 42,
+  "version": 45,
   "private": true,
   "concurrency": 20,
   "code": {
@@ -277,7 +277,7 @@
         "keyword": "action",
         "input": {
           "variables": {
-            "schema": "[{\"control_type\":\"text\",\"label\":\"On_behalf_of_user_email\",\"name\":\"output\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"output\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true}]",
+            "schema": "[{\"control_type\":\"text\",\"label\":\"On_behalf_of_user_email\",\"name\":\"output\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"output\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true},{\"name\":\"rhatUUID\",\"type\":\"string\",\"optional\":true,\"label\":\"rhatUUID\",\"details\":{\"real_name\":\"rhatUUID\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
             "data": {
               "output": "="
             }
@@ -294,6 +294,16 @@
             "type": "string",
             "details": {
               "real_name": "output"
+            }
+          },
+          {
+            "control_type": "text",
+            "label": "rhatUUID",
+            "name": "rhatUUID",
+            "optional": true,
+            "type": "string",
+            "details": {
+              "real_name": "rhatUUID"
             }
           }
         ],
@@ -337,6 +347,22 @@
                     ],
                     "hint": "Defaults to nil if not supplied.",
                     "sticky": true
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "rhatUUID",
+                    "name": "rhatUUID",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "rhatUUID"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
                   }
                 ],
                 "label": "Data",
@@ -348,7 +374,11 @@
           }
         ],
         "visible_config_fields": [
-          "variables.data.output"
+          "variables.data.output",
+          "variables",
+          "variables.schema",
+          "variables.data",
+          "variables.data.rhatUUID"
         ],
         "uuid": "6e4e9780-c188-4307-b000-13b01f365a09"
       },
@@ -371,6 +401,128 @@
             "number": 3,
             "provider": "workato_variable",
             "name": "update_variables",
+            "as": "54153314",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": [
+                {
+                  "label": "rhatUUID (step 2)",
+                  "value": "6e4e9780-c188-4307-b000-13b01f365a09:777be6a7:rhatUUID"
+                }
+              ]
+            },
+            "input": {
+              "input_mode": "raw",
+              "name": "6e4e9780-c188-4307-b000-13b01f365a09:777be6a7:rhatUUID",
+              "rhatUUID": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"jwt_payload\"]}')[\"rhatUUID\"]"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "rhatUUID",
+                "name": "rhatUUID",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              }
+            ],
+            "uuid": "7bd9a8c5-688d-4637-ba97-0962050b5046"
+          },
+          {
+            "number": 4,
+            "provider": "salesforce",
+            "name": "search_sobjects_soql_v2",
+            "as": "7f99cd10",
+            "keyword": "action",
+            "input": {
+              "limit": "150",
+              "query": "SELECT Username,Id, FederationIdentifier ,Email FROM User where FederationIdentifier = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"777be6a7\",\"path\":[\"rhatUUID\"]}')}'",
+              "output_schema": "[{\"properties\":[{\"control_type\":\"text\",\"label\":\"Type\",\"type\":\"string\",\"name\":\"type\"},{\"control_type\":\"text\",\"label\":\"URL\",\"type\":\"string\",\"name\":\"url\"}],\"label\":\"Attributes\",\"type\":\"object\",\"name\":\"attributes\"},{\"control_type\":\"text\",\"label\":\"Username\",\"type\":\"string\",\"name\":\"Username\"},{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"Id\"},{\"control_type\":\"text\",\"label\":\"Federation identifier\",\"type\":\"string\",\"name\":\"FederationIdentifier\"},{\"control_type\":\"text\",\"label\":\"Email\",\"type\":\"string\",\"name\":\"Email\"}]"
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "checkbox",
+                "label": "Done",
+                "name": "done",
+                "toggle_field": {
+                  "label": "Done",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "render_input": null,
+                  "parse_output": null,
+                  "type": "boolean",
+                  "name": "done"
+                },
+                "toggle_hint": "Select from option list",
+                "type": "boolean"
+              },
+              {
+                "control_type": "integer",
+                "label": "Total size",
+                "name": "totalSize",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              },
+              {
+                "label": "Records",
+                "name": "records",
+                "of": "object",
+                "properties": [
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Type",
+                        "type": "string",
+                        "name": "type"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "URL",
+                        "type": "string",
+                        "name": "url"
+                      }
+                    ],
+                    "label": "Attributes",
+                    "type": "object",
+                    "name": "attributes"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Username",
+                    "type": "string",
+                    "name": "Username"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "type": "string",
+                    "name": "Id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Federation identifier",
+                    "type": "string",
+                    "name": "FederationIdentifier"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Email",
+                    "type": "string",
+                    "name": "Email"
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "uuid": "353a3eef-6fdd-44f8-8568-7bc56eb6999a"
+          },
+          {
+            "number": 5,
+            "provider": "workato_variable",
+            "name": "update_variables",
             "as": "52a5c40f",
             "keyword": "action",
             "dynamicPickListSelection": {
@@ -384,7 +536,7 @@
             "input": {
               "input_mode": "structured",
               "name": "6e4e9780-c188-4307-b000-13b01f365a09:777be6a7:output",
-              "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"jwt_payload\"]}')[\"preferred_username\"]+_dp('{\"pill_type\":\"project_property\",\"property_name\":\"email_string\"}')"
+              "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"7f99cd10\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Username\"]}')"
             },
             "extended_input_schema": [
               {
@@ -404,7 +556,7 @@
         "uuid": "8e2a1ef3-77b2-4f2a-a573-bdac1f98f01a"
       },
       {
-        "number": 4,
+        "number": 6,
         "provider": "workato_variable",
         "name": "declare_variable",
         "as": "a7d0dee6",
@@ -487,7 +639,7 @@
         "uuid": "8877c7e1-94a3-42f7-9722-6e4a43e10f6b"
       },
       {
-        "number": 5,
+        "number": 7,
         "provider": "workato_variable",
         "name": "declare_variable",
         "as": "0befe193",
@@ -570,7 +722,7 @@
         "uuid": "cf19179f-75d8-47d8-8f42-abc1923e7c60"
       },
       {
-        "number": 6,
+        "number": 8,
         "keyword": "if",
         "input": {
           "type": "compound",
@@ -586,7 +738,7 @@
         },
         "block": [
           {
-            "number": 7,
+            "number": 9,
             "provider": "workato_variable",
             "name": "update_variables",
             "as": "48b212d5",
@@ -619,13 +771,13 @@
             "uuid": "61766b36-2396-418c-9450-1045f54cd89f"
           },
           {
-            "number": 8,
+            "number": 10,
             "keyword": "else",
             "input": {
             },
             "block": [
               {
-                "number": 9,
+                "number": 11,
                 "provider": "workato_variable",
                 "name": "update_variables",
                 "as": "88d6c7f9",
@@ -664,7 +816,7 @@
         "uuid": "4d5081a7-6b7d-48b5-a71c-7d9ee401663b"
       },
       {
-        "number": 10,
+        "number": 12,
         "keyword": "if",
         "input": {
           "type": "compound",
@@ -680,7 +832,7 @@
         },
         "block": [
           {
-            "number": 11,
+            "number": 13,
             "provider": "workato_variable",
             "name": "update_variables",
             "as": "e0cc7319",
@@ -713,13 +865,13 @@
             "uuid": "4ba6a4ba-5862-4eec-b09a-d95b1d7d3d18"
           },
           {
-            "number": 12,
+            "number": 14,
             "keyword": "else",
             "input": {
             },
             "block": [
               {
-                "number": 13,
+                "number": 15,
                 "provider": "workato_variable",
                 "name": "update_variables",
                 "as": "4c9d4ff7",
@@ -758,7 +910,7 @@
         "uuid": "7de7e332-ea4a-4cf7-9e0e-a4dda038a80c"
       },
       {
-        "number": 14,
+        "number": 16,
         "keyword": "if",
         "input": {
           "type": "compound",
@@ -774,13 +926,13 @@
         },
         "block": [
           {
-            "number": 15,
+            "number": 17,
             "keyword": "try",
             "input": {
             },
             "block": [
               {
-                "number": 16,
+                "number": 18,
                 "provider": "salesforce",
                 "name": "search_sobjects_soql",
                 "as": "96142c0e",
@@ -1091,7 +1243,7 @@
                 "uuid": "f4a7c95f-7935-4fe1-afb1-9315c4e2f023"
               },
               {
-                "number": 17,
+                "number": 19,
                 "provider": "salesforce",
                 "name": "search_sobjects_soql_v2",
                 "as": "9e62e315",
@@ -1153,7 +1305,7 @@
                 "uuid": "df7448f5-da8b-4915-8fc1-bdf01cd522ff"
               },
               {
-                "number": 18,
+                "number": 20,
                 "as": "f3f8331d",
                 "keyword": "catch",
                 "input": {
@@ -1162,7 +1314,7 @@
                 },
                 "block": [
                   {
-                    "number": 19,
+                    "number": 21,
                     "provider": "workato_api_platform",
                     "name": "return_response",
                     "as": "75de9233",
@@ -1289,7 +1441,7 @@
             "uuid": "17f00ef8-5bcd-4534-a921-5c4cb9721349"
           },
           {
-            "number": 20,
+            "number": 22,
             "provider": "workato_api_platform",
             "name": "return_response",
             "as": "63c2f101",
@@ -1415,7 +1567,7 @@
             "skip": false
           },
           {
-            "number": 21,
+            "number": 23,
             "keyword": "elsif",
             "input": {
               "type": "compound",
@@ -1431,13 +1583,13 @@
             },
             "block": [
               {
-                "number": 22,
+                "number": 24,
                 "keyword": "try",
                 "input": {
                 },
                 "block": [
                   {
-                    "number": 23,
+                    "number": 25,
                     "provider": "salesforce",
                     "name": "search_sobjects_soql",
                     "as": "d162e55e",
@@ -1748,7 +1900,7 @@
                     "uuid": "cb1b364c-2b6f-47b3-a774-2523d7d61e03"
                   },
                   {
-                    "number": 24,
+                    "number": 26,
                     "provider": "salesforce",
                     "name": "search_sobjects_soql_v2",
                     "as": "6e930915",
@@ -1810,7 +1962,7 @@
                     "uuid": "6f368f78-11fc-4baf-8c2b-390bdc8187f3"
                   },
                   {
-                    "number": 25,
+                    "number": 27,
                     "as": "e0e547f3",
                     "keyword": "catch",
                     "input": {
@@ -1819,7 +1971,7 @@
                     },
                     "block": [
                       {
-                        "number": 26,
+                        "number": 28,
                         "provider": "workato_api_platform",
                         "name": "return_response",
                         "as": "a6bf1810",
@@ -1946,7 +2098,7 @@
                 "uuid": "8314413c-6fb1-4b3f-8869-c012804128f3"
               },
               {
-                "number": 27,
+                "number": 29,
                 "provider": "workato_api_platform",
                 "name": "return_response",
                 "as": "6054eac6",
@@ -2076,7 +2228,7 @@
             "uuid": "dfa00e3f-8898-47f7-905f-c5a5eea5b6ab"
           },
           {
-            "number": 28,
+            "number": 30,
             "keyword": "elsif",
             "input": {
               "type": "compound",
@@ -2092,55 +2244,65 @@
             },
             "block": [
               {
-                "number": 29,
+                "number": 31,
                 "keyword": "try",
                 "input": {
                 },
                 "block": [
                   {
-                    "number": 30,
+                    "number": 32,
                     "provider": "salesforce",
                     "name": "search_sobjects_soql",
-                    "as": "998d7e2a",
+                    "as": "ddcc87dd",
                     "keyword": "action",
                     "dynamicPickListSelection": {
                       "sobject_name": "Opportunity",
+                      "table_list": [
+                        {
+                          "label": "Account",
+                          "value": "Account"
+                        }
+                      ],
                       "field_list": [
                         {
                           "label": "Name",
                           "value": "Name"
                         },
                         {
-                          "label": "Stage",
-                          "value": "StageName"
-                        },
-                        {
-                          "label": "Amount",
-                          "value": "Amount"
-                        },
-                        {
-                          "label": "Close Date",
-                          "value": "CloseDate"
-                        },
-                        {
-                          "label": "Account ID",
-                          "value": "AccountId"
+                          "label": "Account.Account Name",
+                          "value": "Account$Account ID.Name"
                         },
                         {
                           "label": "Opportunity ID",
                           "value": "Id"
                         },
                         {
-                          "label": "Opportunity Number",
-                          "value": "OpportunityNumber__c"
+                          "label": "Account ID",
+                          "value": "AccountId"
                         },
                         {
-                          "label": "Created Date",
-                          "value": "CreatedDate"
+                          "label": "Stage",
+                          "value": "StageName"
+                        },
+                        {
+                          "label": "Close Date",
+                          "value": "CloseDate"
+                        },
+                        {
+                          "label": "Opportunity Type",
+                          "value": "Type"
                         },
                         {
                           "label": "Closed",
                           "value": "IsClosed"
+                        },
+                        {
+                          "label": "Won",
+                          "value": "IsWon"
+                        },
+                        {
+                          "label": "Created Date",
+                          "value": "CreatedDate"
                         }
                       ]
                     },
@@ -2149,8 +2311,10 @@
                       "sobject_name": "Opportunity",
                       "query": "AccountId = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"707e915e\",\"path\":[\"context\",\"headers\",\"account_id\"]}')}' ORDER BY CreatedDate DESC",
                       "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"777be6a7\",\"path\":[\"output\"]}')}",
-                      "field_list": "Name\nStageName\nAmount\nCloseDate\nAccountId\nId\nOpportunityNumber__c\nCreatedDate\nIsClosed",
-                      "offset": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"0befe193\",\"path\":[\"output\"]}')}"
+                      "offset": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"0befe193\",\"path\":[\"output\"]}')}",
+                      "include_combined_attachments": "true",
+                      "table_list": "Account",
+                      "field_list": "Name\nAccount$Account ID.Name\nId\nAccountId\nStageName\nCloseDate\nType\nIsClosed\nIsWon\nCreatedDate"
                     },
                     "extended_output_schema": [
                       {
@@ -2167,17 +2331,6 @@
                             "sfdc_updateable": true,
                             "type": "string",
                             "name": "AccountId"
-                          },
-                          {
-                            "control_type": "number",
-                            "label": "Amount",
-                            "parse_output": "float_conversion",
-                            "optional": true,
-                            "custom": false,
-                            "sfdc_createable": true,
-                            "sfdc_updateable": true,
-                            "type": "number",
-                            "name": "Amount"
                           },
                           {
                             "control_type": "date",
@@ -2248,6 +2401,33 @@
                           },
                           {
                             "control_type": "select",
+                            "label": "Opportunity Type",
+                            "pick_list": "sobject_field_values_list",
+                            "pick_list_params": {
+                              "sobject_name": "\"Opportunity\"",
+                              "field_name": "\"Type\""
+                            },
+                            "toggle_hint": "Select from list",
+                            "toggle_field": {
+                              "control_type": "text",
+                              "label": "Opportunity Type",
+                              "toggle_hint": "Enter custom value",
+                              "optional": true,
+                              "custom": false,
+                              "sfdc_createable": true,
+                              "sfdc_updateable": true,
+                              "type": "string",
+                              "name": "Type"
+                            },
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "Type"
+                          },
+                          {
+                            "control_type": "select",
                             "label": "Stage",
                             "pick_list": "sobject_field_values_list",
                             "pick_list_params": {
@@ -2272,14 +2452,45 @@
                             "name": "StageName"
                           },
                           {
-                            "control_type": "text",
-                            "label": "Opportunity Number",
+                            "control_type": "checkbox",
+                            "label": "Won",
                             "optional": true,
-                            "custom": true,
-                            "sfdc_createable": true,
-                            "sfdc_updateable": true,
-                            "type": "string",
-                            "name": "OpportunityNumber__c"
+                            "custom": false,
+                            "sfdc_createable": false,
+                            "sfdc_updateable": false,
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Won",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "render_input": null,
+                              "parse_output": null,
+                              "optional": true,
+                              "custom": false,
+                              "sfdc_createable": false,
+                              "sfdc_updateable": false,
+                              "type": "boolean",
+                              "name": "IsWon"
+                            },
+                            "type": "boolean",
+                            "name": "IsWon"
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Account Name",
+                                "event_title": true,
+                                "custom": false,
+                                "sfdc_createable": true,
+                                "sfdc_updateable": true,
+                                "type": "string",
+                                "name": "Name"
+                              }
+                            ],
+                            "label": "Account",
+                            "type": "object",
+                            "name": "Account"
                           },
                           {
                             "properties": [
@@ -2406,10 +2617,20 @@
                         "type": "boolean"
                       }
                     ],
-                    "uuid": "7f694ade-19ac-4288-90ae-96ab6012bf52"
+                    "visible_config_fields": [
+                      "sobject_name",
+                      "query",
+                      "field_list",
+                      "limit",
+                      "offset",
+                      "requester_email",
+                      "include_combined_attachments",
+                      "table_list"
+                    ],
+                    "uuid": "76f8fbf4-a81c-4af0-8ba0-4b4dc965ef94"
                   },
                   {
-                    "number": 31,
+                    "number": 33,
                     "provider": "salesforce",
                     "name": "search_sobjects_soql_v2",
                     "as": "6b014c6e",
@@ -2471,7 +2692,7 @@
                     "uuid": "1e5264e6-0c6f-4dbb-88a8-70a952c5c4ff"
                   },
                   {
-                    "number": 32,
+                    "number": 34,
                     "as": "d9b933a5",
                     "keyword": "catch",
                     "input": {
@@ -2480,7 +2701,7 @@
                     },
                     "block": [
                       {
-                        "number": 33,
+                        "number": 35,
                         "provider": "workato_api_platform",
                         "name": "return_response",
                         "as": "d9a6a670",
@@ -2607,7 +2828,7 @@
                 "uuid": "90ee9641-2aaa-438b-9316-5faf46983aa1"
               },
               {
-                "number": 34,
+                "number": 36,
                 "provider": "workato_api_platform",
                 "name": "return_response",
                 "as": "81902358",
@@ -2615,8 +2836,8 @@
                 "input": {
                   "http_status_code": "200",
                   "response": {
-                    "opportunities": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"998d7e2a\",\"path\":[\"Opportunity\"]}')",
-                    "opportunities_list_size": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"998d7e2a\",\"path\":[\"list_size\"]}')}",
+                    "opportunities": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ddcc87dd\",\"path\":[\"Opportunity\"]}')",
+                    "opportunities_list_size": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ddcc87dd\",\"path\":[\"list_size\"]}')}",
                     "total_opportunities": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"6b014c6e\",\"path\":[\"totalSize\"]}')}"
                   }
                 },
@@ -2737,7 +2958,7 @@
             "uuid": "9446ef36-6161-40d7-8bc4-00816e422f38"
           },
           {
-            "number": 35,
+            "number": 37,
             "keyword": "elsif",
             "input": {
               "type": "compound",
@@ -2753,13 +2974,13 @@
             },
             "block": [
               {
-                "number": 36,
+                "number": 38,
                 "keyword": "try",
                 "input": {
                 },
                 "block": [
                   {
-                    "number": 37,
+                    "number": 39,
                     "provider": "salesforce",
                     "name": "search_sobjects_soql",
                     "as": "7049adc9",
@@ -3070,7 +3291,7 @@
                     "uuid": "d5ef29fc-2101-44db-b544-063c526d6272"
                   },
                   {
-                    "number": 38,
+                    "number": 40,
                     "provider": "salesforce",
                     "name": "search_sobjects_soql_v2",
                     "as": "63dea707",
@@ -3132,7 +3353,7 @@
                     "uuid": "e31b9d31-ae5f-4a08-a383-b584d59a5aed"
                   },
                   {
-                    "number": 39,
+                    "number": 41,
                     "as": "6752ddc1",
                     "keyword": "catch",
                     "input": {
@@ -3141,7 +3362,7 @@
                     },
                     "block": [
                       {
-                        "number": 40,
+                        "number": 42,
                         "provider": "workato_api_platform",
                         "name": "return_response",
                         "as": "26a37acb",
@@ -3268,7 +3489,7 @@
                 "uuid": "8e2b0d26-c692-4207-a941-52fa3278ac87"
               },
               {
-                "number": 41,
+                "number": 43,
                 "provider": "workato_api_platform",
                 "name": "return_response",
                 "as": "41a4090c",
@@ -3401,7 +3622,7 @@
         "uuid": "942a882d-8c05-4975-a614-86692b5a43a0"
       },
       {
-        "number": 42,
+        "number": 44,
         "provider": "workato_api_platform",
         "name": "return_response",
         "as": "d5e46821",
