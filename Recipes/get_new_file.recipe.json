@@ -1,7 +1,7 @@
 {
   "name": "Get_New_File",
   "description": "",
-  "version": 87,
+  "version": 97,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -11,11 +11,11 @@
     "as": "a3fcbd0f",
     "keyword": "trigger",
     "dynamicPickListSelection": {
-      "time_unit": "Hours"
+      "time_unit": "Minutes"
     },
     "input": {
-      "time_unit": "hours",
-      "trigger_every": "1"
+      "time_unit": "minutes",
+      "trigger_every": "15"
     },
     "extended_input_schema": [
       {
@@ -28,7 +28,7 @@
         "name": "trigger_every",
         "optional": false,
         "suffix": {
-          "text": "hours"
+          "text": "minutes"
         },
         "type": "string"
       },
@@ -661,19 +661,19 @@
                 "number": 11,
                 "provider": "sftp",
                 "name": "search_files_folders",
-                "as": "a3b7fb8f",
+                "as": "d1ddcb49",
                 "keyword": "action",
                 "input": {
                   "type": "File",
                   "foldername": "/Red Hat/#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"8ba2b240\",\"path\":[\"path\"]}')}/From_Benefex/",
                   "search": "*.*"
                 },
-                "uuid": "1e4e90f5-62ae-4ce5-a2e8-4298a3edeb56",
-                "skip": false
+                "uuid": "8ada9c9c-fc2e-44a7-9b73-b7fd2a86653b",
+                "skip": true
               },
               {
                 "number": 12,
-                "as": "c69b5770",
+                "as": "2750f007",
                 "keyword": "catch",
                 "input": {
                   "max_retry_count": "0",
@@ -682,6 +682,160 @@
                 "block": [
                   {
                     "number": 13,
+                    "provider": "workato_variable",
+                    "name": "insert_to_list_batch",
+                    "as": "be0957db",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": "error_file_path (step 7)"
+                    },
+                    "input": {
+                      "location": "end",
+                      "name": "e017d694-ec4c-4a3a-b9e1-cb710dd0be49:39b28404",
+                      "list_items": {
+                        "file": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"2750f007\",\"path\":[\"message\"]}')} : /Red Hat/#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"8ba2b240\",\"path\":[\"path\"]}')}/From_Benefex/"
+                      }
+                    },
+                    "extended_input_schema": [
+                      {
+                        "hint": "",
+                        "label": "List items",
+                        "name": "list_items",
+                        "of": "object",
+                        "optional": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "File",
+                            "name": "file",
+                            "type": "string",
+                            "optional": false
+                          }
+                        ],
+                        "type": "array"
+                      }
+                    ],
+                    "uuid": "da3a13fa-5822-46e3-adba-3e74f7f4cc84",
+                    "skip": true
+                  }
+                ],
+                "uuid": "a2c56a0d-0b9b-4dd9-8544-d783a1fa1053",
+                "skip": true
+              }
+            ],
+            "uuid": "dc3efcf1-59f7-4e30-a68b-05a73558d6b8",
+            "skip": true
+          },
+          {
+            "number": 14,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "is_not_true",
+                  "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"sftp\",\"line\":\"d1ddcb49\",\"path\":[\"entries\"]}').blank?",
+                  "rhs": "",
+                  "uuid": "cc87cd25-6293-411b-ba57-52e3d6faa4e7"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 15,
+                "provider": "workato_variable",
+                "name": "insert_to_list_batch",
+                "as": "d3ab1014",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": "file_path (step 4)"
+                },
+                "input": {
+                  "location": "end",
+                  "name": "16edd597-40af-4cfc-a9a3-51642326fb32:4a26f596",
+                  "list_items": {
+                    "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"sftp\",\"line\":\"d1ddcb49\",\"path\":[\"entries\"]}')}",
+                    "file": "/Red Hat/#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"8ba2b240\",\"path\":[\"path\"]}')}/From_Benefex/#{_dp('{\"pill_type\":\"output\",\"provider\":\"sftp\",\"line\":\"d1ddcb49\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"name\"]}')}",
+                    "upload_date": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"sftp\",\"line\":\"d1ddcb49\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"mtime\"]}')}",
+                    "upload_time": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"sftp\",\"line\":\"d1ddcb49\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"mtime\"]}')}"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "hint": "",
+                    "label": "List items",
+                    "name": "list_items",
+                    "of": "object",
+                    "optional": false,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "File",
+                        "name": "file",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "date",
+                        "label": "Upload date",
+                        "render_input": "date_conversion",
+                        "parse_output": "date_conversion",
+                        "name": "upload_date",
+                        "type": "date_time",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "Upload time",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "name": "upload_time",
+                        "type": "date_time",
+                        "optional": false
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "uuid": "1bc28d27-2ec7-4ee4-bd7d-c218c710de55",
+                "skip": true
+              }
+            ],
+            "uuid": "9114bf1f-465f-460f-9cb1-52311adf735d",
+            "skip": true
+          },
+          {
+            "number": 16,
+            "keyword": "try",
+            "input": {
+            },
+            "block": [
+              {
+                "number": 17,
+                "provider": "sftp",
+                "name": "search_files_folders",
+                "as": "a3b7fb8f",
+                "keyword": "action",
+                "input": {
+                  "type": "File",
+                  "foldername": "/Red Hat - Payroll/#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"8ba2b240\",\"path\":[\"path\"]}')}/From Benefex/",
+                  "search": "*.*"
+                },
+                "uuid": "1e4e90f5-62ae-4ce5-a2e8-4298a3edeb56",
+                "skip": false
+              },
+              {
+                "number": 18,
+                "as": "c69b5770",
+                "keyword": "catch",
+                "input": {
+                  "max_retry_count": "0",
+                  "retry_interval": "2"
+                },
+                "block": [
+                  {
+                    "number": 19,
                     "provider": "workato_variable",
                     "name": "insert_to_list_batch",
                     "as": "0ba867ef",
@@ -727,7 +881,7 @@
             "skip": false
           },
           {
-            "number": 14,
+            "number": 20,
             "keyword": "if",
             "input": {
               "type": "compound",
@@ -743,7 +897,7 @@
             },
             "block": [
               {
-                "number": 15,
+                "number": 21,
                 "provider": "workato_variable",
                 "name": "insert_to_list_batch",
                 "as": "d3ff181c",
@@ -756,7 +910,7 @@
                   "name": "16edd597-40af-4cfc-a9a3-51642326fb32:4a26f596",
                   "list_items": {
                     "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"sftp\",\"line\":\"a3b7fb8f\",\"path\":[\"entries\"]}')}",
-                    "file": "/Red Hat/#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"8ba2b240\",\"path\":[\"path\"]}')}/From_Benefex/#{_dp('{\"pill_type\":\"output\",\"provider\":\"sftp\",\"line\":\"a3b7fb8f\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"name\"]}')}",
+                    "file": "/Red Hat - Payroll/#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"8ba2b240\",\"path\":[\"path\"]}')}/From Benefex/#{_dp('{\"pill_type\":\"output\",\"provider\":\"sftp\",\"line\":\"a3b7fb8f\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"name\"]}')}",
                     "upload_date": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"sftp\",\"line\":\"a3b7fb8f\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"mtime\"]}')}",
                     "upload_time": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"sftp\",\"line\":\"a3b7fb8f\",\"path\":[\"entries\",{\"path_element_type\":\"current_item\"},\"mtime\"]}')}"
                   }
@@ -811,7 +965,7 @@
         "skip": false
       },
       {
-        "number": 16,
+        "number": 22,
         "provider": "workato_smart_list",
         "name": "insert_rows",
         "as": "cb4a18f5",
@@ -927,7 +1081,7 @@
         "skip": false
       },
       {
-        "number": 17,
+        "number": 23,
         "provider": "workato_smart_list",
         "name": "query_list",
         "as": "878fd68a",
@@ -983,7 +1137,7 @@
         "skip": false
       },
       {
-        "number": 18,
+        "number": 24,
         "provider": "workato_smart_list",
         "name": "query_list",
         "as": "d8a8e0d5",
@@ -1039,7 +1193,7 @@
         "skip": false
       },
       {
-        "number": 19,
+        "number": 25,
         "provider": "workato_smart_list",
         "name": "insert_rows",
         "as": "20f3d959",
@@ -1123,7 +1277,7 @@
         "skip": false
       },
       {
-        "number": 20,
+        "number": 26,
         "provider": "workato_smart_list",
         "name": "query_list",
         "as": "8cf2caf2",
@@ -1161,7 +1315,7 @@
         "skip": false
       },
       {
-        "number": 21,
+        "number": 27,
         "as": "5cbc793c",
         "keyword": "foreach",
         "repeat_mode": "simple",
@@ -1170,7 +1324,7 @@
         },
         "block": [
           {
-            "number": 22,
+            "number": 28,
             "provider": "workato_recipe_function",
             "name": "call_recipe",
             "as": "29e1f7ec",
@@ -1208,7 +1362,7 @@
             "skip": false
           },
           {
-            "number": 23,
+            "number": 29,
             "keyword": "if",
             "input": {
               "type": "compound",
