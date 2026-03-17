@@ -1,7 +1,7 @@
 {
   "name": "FUNC | 02 | UPDATE | SupplierMasterData_Ariba_To_ERP",
   "description": "This Workato recipe automates the process of updating supplier information in the Oracle ERP system based on data retrieved from SAP Ariba.\n\n### Key Actions and Outcomes:\n\n- **Trigger and Input Parameters**: The process is initiated by executing a recipe function that requires parameters such as `RecordID`, `RecipeID`, and `AribaVendorID`.\n\n- **Data Retrieval**: The recipe searches for existing records in the Ariba VendorID Lookup data table to gather relevant supplier information.\n\n- **Data Processing**:\n  - If records are found, it truncates a temporary data table to prepare for new data.\n  - It retrieves and processes supplier details, including names, addresses, and bank information, from various data tables.\n  - The recipe makes HTTP requests to the Ariba API to fetch additional supplier data, specifically Q&amp;A details related to the vendor.\n\n- **Data Insertion and Updates**:\n  - The recipe creates or updates records in temporary data tables based on the retrieved data.\n  - It checks for specific conditions (e.g., whether the supplier is a direct supplier or has certain attributes) and updates variables accordingly.\n  - It inserts or updates supplier bank and address details in the Oracle staging tables.\n\n- **Error Handling**: If any errors occur during the process, the recipe logs the error and calls an error handling recipe to notify stakeholders about the failure, including details about the job and the error encountered.\n\n- **Final Notification**: Upon successful completion, the recipe sends an email notification summarizing the actions taken, including the number of records processed and any relevant details about the supplier updates.\n\n### Summary:\nThis recipe effectively manages the synchronization of supplier data between SAP Ariba and Oracle ERP, ensuring that all relevant information is accurately updated and stakeholders are informed of the process status.",
-  "version": 44,
+  "version": 48,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -1756,250 +1756,6 @@
                     ],
                     "extended_input_schema": [
                       {
-                        "label": "Request",
-                        "name": "request",
-                        "override": true,
-                        "properties": [
-                          {
-                            "control_type": "select",
-                            "label": "Method",
-                            "pick_list": [
-                              [
-                                "GET",
-                                "GET"
-                              ],
-                              [
-                                "POST",
-                                "POST"
-                              ],
-                              [
-                                "PUT",
-                                "PUT"
-                              ],
-                              [
-                                "DELETE",
-                                "DELETE"
-                              ],
-                              [
-                                "HEAD",
-                                "HEAD"
-                              ],
-                              [
-                                "PATCH",
-                                "PATCH"
-                              ]
-                            ],
-                            "hint": "Select a HTTP method",
-                            "default": "GET",
-                            "type": "string",
-                            "name": "method"
-                          },
-                          {
-                            "control_type": "text",
-                            "label": "Request URL",
-                            "check_secrets": true,
-                            "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
-                            "placeholder": "https://api.example.com/v1/leads",
-                            "type": "string",
-                            "name": "url"
-                          },
-                          {
-                            "control_type": "select",
-                            "label": "Request content type",
-                            "extends_schema": true,
-                            "pick_list": [
-                              [
-                                "JSON request body",
-                                "json"
-                              ],
-                              [
-                                "Raw JSON request body",
-                                "application/json"
-                              ],
-                              [
-                                "XML",
-                                "application/xml"
-                              ],
-                              [
-                                "Text",
-                                "text/plain"
-                              ],
-                              [
-                                "URL encoded form",
-                                "application/x-www-form-urlencoded"
-                              ],
-                              [
-                                "Binary",
-                                "application/octet-stream"
-                              ],
-                              [
-                                "Multipart form",
-                                "multipart/form-data"
-                              ],
-                              [
-                                "Multipart alternative",
-                                "multipart/alternative"
-                              ],
-                              [
-                                "Multipart digest",
-                                "multipart/digest"
-                              ],
-                              [
-                                "Multipart mixed",
-                                "multipart/mixed"
-                              ],
-                              [
-                                "Multipart related",
-                                "multipart/related"
-                              ]
-                            ],
-                            "hint": "The API endpoint documentation should define what data it expects",
-                            "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
-                            "optional": true,
-                            "default": "application/json",
-                            "type": "string",
-                            "name": "content_type"
-                          },
-                          {
-                            "control_type": "text-area",
-                            "label": "Request body",
-                            "hint": "HTTP request body to send with the request. <a href=\"https://docs.workato.com/developing-connectors/http.html#request-body\" target=\"_blank\">Learn more</a>",
-                            "sticky": true,
-                            "check_secrets": true,
-                            "ngIf": "input.request.content_type !== 'json' && input.request.content_type !== 'application/x-www-form-urlencoded' && input.request.content_type !== 'multipart/form-data' && input.request.content_type !== 'multipart/alternative' && input.request.content_type !== 'multipart/digest' && input.request.content_type !== 'multipart/mixed' && input.request.content_type !== 'multipart/related' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
-                            "optional": true,
-                            "type": "string",
-                            "name": "body"
-                          },
-                          {
-                            "label": "Request body",
-                            "control_type": "key_value",
-                            "optional": true,
-                            "empty_list_title": "Does this HTTP request require form data?",
-                            "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
-                            "item_label": "Form data",
-                            "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
-                            "of": "object",
-                            "properties": [
-                              {
-                                "control_type": "text",
-                                "label": "Key",
-                                "type": "string",
-                                "name": "param"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Value",
-                                "type": "string",
-                                "name": "value"
-                              }
-                            ],
-                            "type": "array",
-                            "name": "form_body"
-                          },
-                          {
-                            "label": "Request parts",
-                            "optional": true,
-                            "item_label": "Part",
-                            "ngIf": "(input.request.content_type === 'multipart/alternative'|| input.request.content_type === 'multipart/digest'|| input.request.content_type === 'multipart/mixed'|| input.request.content_type === 'multipart/related') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
-                            "of": "object",
-                            "properties": [
-                              {
-                                "label": "Headers",
-                                "optional": true,
-                                "sticky": true,
-                                "of": "object",
-                                "properties": [
-                                  {
-                                    "control_type": "text",
-                                    "label": "Header name",
-                                    "optional": false,
-                                    "type": "string",
-                                    "name": "name"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "Value",
-                                    "optional": true,
-                                    "sticky": true,
-                                    "type": "string",
-                                    "name": "value"
-                                  }
-                                ],
-                                "type": "array",
-                                "name": "headers"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Raw body",
-                                "optional": true,
-                                "sticky": true,
-                                "hint": "Raw content of the part",
-                                "type": "string",
-                                "name": "body"
-                              }
-                            ],
-                            "type": "array",
-                            "name": "parts"
-                          },
-                          {
-                            "label": "Request URL parameters",
-                            "control_type": "key_value",
-                            "check_secrets": true,
-                            "optional": true,
-                            "empty_list_title": "Does this HTTP request contain a query string?",
-                            "empty_list_text": "Add URL parameters to the query string",
-                            "item_label": "URL parameter",
-                            "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
-                            "of": "object",
-                            "properties": [
-                              {
-                                "control_type": "text",
-                                "label": "Parameter name",
-                                "type": "string",
-                                "name": "param"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Value",
-                                "type": "string",
-                                "name": "value"
-                              }
-                            ],
-                            "type": "array",
-                            "name": "parameters"
-                          },
-                          {
-                            "label": "Request headers",
-                            "control_type": "key_value",
-                            "optional": true,
-                            "check_secrets": true,
-                            "empty_list_title": "Does this HTTP request require headers?",
-                            "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
-                            "item_label": "Header",
-                            "sticky": true,
-                            "of": "object",
-                            "properties": [
-                              {
-                                "control_type": "text",
-                                "label": "Header name",
-                                "type": "string",
-                                "name": "header"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Value",
-                                "type": "string",
-                                "name": "value"
-                              }
-                            ],
-                            "type": "array",
-                            "name": "headers"
-                          }
-                        ],
-                        "type": "object"
-                      },
-                      {
                         "label": "Response",
                         "name": "response",
                         "override": true,
@@ -2491,250 +2247,6 @@
                           }
                         ],
                         "extended_input_schema": [
-                          {
-                            "label": "Request",
-                            "name": "request",
-                            "override": true,
-                            "properties": [
-                              {
-                                "control_type": "select",
-                                "label": "Method",
-                                "pick_list": [
-                                  [
-                                    "GET",
-                                    "GET"
-                                  ],
-                                  [
-                                    "POST",
-                                    "POST"
-                                  ],
-                                  [
-                                    "PUT",
-                                    "PUT"
-                                  ],
-                                  [
-                                    "DELETE",
-                                    "DELETE"
-                                  ],
-                                  [
-                                    "HEAD",
-                                    "HEAD"
-                                  ],
-                                  [
-                                    "PATCH",
-                                    "PATCH"
-                                  ]
-                                ],
-                                "hint": "Select a HTTP method",
-                                "default": "GET",
-                                "type": "string",
-                                "name": "method"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Request URL",
-                                "check_secrets": true,
-                                "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
-                                "placeholder": "https://api.example.com/v1/leads",
-                                "type": "string",
-                                "name": "url"
-                              },
-                              {
-                                "control_type": "select",
-                                "label": "Request content type",
-                                "extends_schema": true,
-                                "pick_list": [
-                                  [
-                                    "JSON request body",
-                                    "json"
-                                  ],
-                                  [
-                                    "Raw JSON request body",
-                                    "application/json"
-                                  ],
-                                  [
-                                    "XML",
-                                    "application/xml"
-                                  ],
-                                  [
-                                    "Text",
-                                    "text/plain"
-                                  ],
-                                  [
-                                    "URL encoded form",
-                                    "application/x-www-form-urlencoded"
-                                  ],
-                                  [
-                                    "Binary",
-                                    "application/octet-stream"
-                                  ],
-                                  [
-                                    "Multipart form",
-                                    "multipart/form-data"
-                                  ],
-                                  [
-                                    "Multipart alternative",
-                                    "multipart/alternative"
-                                  ],
-                                  [
-                                    "Multipart digest",
-                                    "multipart/digest"
-                                  ],
-                                  [
-                                    "Multipart mixed",
-                                    "multipart/mixed"
-                                  ],
-                                  [
-                                    "Multipart related",
-                                    "multipart/related"
-                                  ]
-                                ],
-                                "hint": "The API endpoint documentation should define what data it expects",
-                                "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
-                                "optional": true,
-                                "default": "application/json",
-                                "type": "string",
-                                "name": "content_type"
-                              },
-                              {
-                                "control_type": "text-area",
-                                "label": "Request body",
-                                "hint": "HTTP request body to send with the request. <a href=\"https://docs.workato.com/developing-connectors/http.html#request-body\" target=\"_blank\">Learn more</a>",
-                                "sticky": true,
-                                "check_secrets": true,
-                                "ngIf": "input.request.content_type !== 'json' && input.request.content_type !== 'application/x-www-form-urlencoded' && input.request.content_type !== 'multipart/form-data' && input.request.content_type !== 'multipart/alternative' && input.request.content_type !== 'multipart/digest' && input.request.content_type !== 'multipart/mixed' && input.request.content_type !== 'multipart/related' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
-                                "optional": true,
-                                "type": "string",
-                                "name": "body"
-                              },
-                              {
-                                "label": "Request body",
-                                "control_type": "key_value",
-                                "optional": true,
-                                "empty_list_title": "Does this HTTP request require form data?",
-                                "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
-                                "item_label": "Form data",
-                                "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
-                                "of": "object",
-                                "properties": [
-                                  {
-                                    "control_type": "text",
-                                    "label": "Key",
-                                    "type": "string",
-                                    "name": "param"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "Value",
-                                    "type": "string",
-                                    "name": "value"
-                                  }
-                                ],
-                                "type": "array",
-                                "name": "form_body"
-                              },
-                              {
-                                "label": "Request parts",
-                                "optional": true,
-                                "item_label": "Part",
-                                "ngIf": "(input.request.content_type === 'multipart/alternative'|| input.request.content_type === 'multipart/digest'|| input.request.content_type === 'multipart/mixed'|| input.request.content_type === 'multipart/related') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
-                                "of": "object",
-                                "properties": [
-                                  {
-                                    "label": "Headers",
-                                    "optional": true,
-                                    "sticky": true,
-                                    "of": "object",
-                                    "properties": [
-                                      {
-                                        "control_type": "text",
-                                        "label": "Header name",
-                                        "optional": false,
-                                        "type": "string",
-                                        "name": "name"
-                                      },
-                                      {
-                                        "control_type": "text",
-                                        "label": "Value",
-                                        "optional": true,
-                                        "sticky": true,
-                                        "type": "string",
-                                        "name": "value"
-                                      }
-                                    ],
-                                    "type": "array",
-                                    "name": "headers"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "Raw body",
-                                    "optional": true,
-                                    "sticky": true,
-                                    "hint": "Raw content of the part",
-                                    "type": "string",
-                                    "name": "body"
-                                  }
-                                ],
-                                "type": "array",
-                                "name": "parts"
-                              },
-                              {
-                                "label": "Request URL parameters",
-                                "control_type": "key_value",
-                                "check_secrets": true,
-                                "optional": true,
-                                "empty_list_title": "Does this HTTP request contain a query string?",
-                                "empty_list_text": "Add URL parameters to the query string",
-                                "item_label": "URL parameter",
-                                "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
-                                "of": "object",
-                                "properties": [
-                                  {
-                                    "control_type": "text",
-                                    "label": "Parameter name",
-                                    "type": "string",
-                                    "name": "param"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "Value",
-                                    "type": "string",
-                                    "name": "value"
-                                  }
-                                ],
-                                "type": "array",
-                                "name": "parameters"
-                              },
-                              {
-                                "label": "Request headers",
-                                "control_type": "key_value",
-                                "optional": true,
-                                "check_secrets": true,
-                                "empty_list_title": "Does this HTTP request require headers?",
-                                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
-                                "item_label": "Header",
-                                "sticky": true,
-                                "of": "object",
-                                "properties": [
-                                  {
-                                    "control_type": "text",
-                                    "label": "Header name",
-                                    "type": "string",
-                                    "name": "header"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "Value",
-                                    "type": "string",
-                                    "name": "value"
-                                  }
-                                ],
-                                "type": "array",
-                                "name": "headers"
-                              }
-                            ],
-                            "type": "object"
-                          },
                           {
                             "label": "Response",
                             "name": "response",
@@ -8396,6 +7908,24 @@
                                         "name": "76d7cbaa_359d_4ce0_8128_882e011d948c"
                                       },
                                       {
+                                        "control_type": "text",
+                                        "label": "INT_BANK_CITY",
+                                        "type": "string",
+                                        "name": "0e39ccb4_cf9e_4357_9a8f_ab5737b043da"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "INT_BANK_POSTAL_CODE",
+                                        "type": "string",
+                                        "name": "1544b3eb_dca8_4a4f_ac16_15da84803e60"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "INT_BANK_STATE",
+                                        "type": "string",
+                                        "name": "54fb1a7a_ed23_4a48_af80_48dcfc48e0c1"
+                                      },
+                                      {
                                         "control_type": "date_time",
                                         "label": "Created at",
                                         "render_input": "date_time_conversion",
@@ -8598,6 +8128,33 @@
                                     "default": "string",
                                     "label": "$internal_value_76d7cbaa-359d-4ce0-8128-882e011d948c",
                                     "name": "76d7cbaa-359d-4ce0-8128-882e011d948c",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_0e39ccb4-cf9e-4357-9a8f-ab5737b043da",
+                                    "name": "0e39ccb4-cf9e-4357-9a8f-ab5737b043da",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_1544b3eb-dca8-4a4f-ac16-15da84803e60",
+                                    "name": "1544b3eb-dca8-4a4f-ac16-15da84803e60",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_54fb1a7a-ed23-4a48-af80-48dcfc48e0c1",
+                                    "name": "54fb1a7a-ed23-4a48-af80-48dcfc48e0c1",
                                     "ngIf": "false",
                                     "optional": true,
                                     "type": "string"
@@ -10976,7 +10533,10 @@
                                             "is_intermediate_bank": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"26c50923_a852_4bc5_96e1_9eb06d3c4523\"]}').presence",
                                             "swift": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"fefac935_33b0_44d8_ac8f_1e71cb74dc86\"]}').presence",
                                             "bank_key": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"655a419b_bfc2_4bc5_a88f_5957dfcd5d9d\"]}').presence",
-                                            "bank_tax_payer_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"0e0e5ad6_c25d_4770_b9ef_92fcba65a89b\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"0e0e5ad6_c25d_4770_b9ef_92fcba65a89b\"]}').slice(0,30) : null "
+                                            "bank_tax_payer_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"0e0e5ad6_c25d_4770_b9ef_92fcba65a89b\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"0e0e5ad6_c25d_4770_b9ef_92fcba65a89b\"]}').slice(0,30) : null ",
+                                            "bank_state": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"514d9bc7_d789_4a36_9a87_6a35a5799c3b\"]}').presence",
+                                            "bank_postal_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"faa40c7b_4f3b_472b_8e4e_a1df104f92ad\"]}').presence",
+                                            "bank_city": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"15a38d5c_7ba6_4635_90d8_3e115c82a601\"]}').presence"
                                           }
                                         },
                                         "extended_output_schema": [
@@ -11100,6 +10660,40 @@
                                               },
                                               {
                                                 "control_type": "text",
+                                                "label": "BANK_ADDR_LINE1",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "BANK_ADDR_LINE1",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "bank_addr_line1"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "BANK_CITY",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "BANK_CITY",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "bank_city"
+                                              },
+                                              {
+                                                "control_type": "text",
                                                 "label": "BANK_COUNTRY",
                                                 "details": {
                                                   "primary_key": false,
@@ -11165,6 +10759,40 @@
                                                 "hint": "varchar2, max length 30",
                                                 "type": "string",
                                                 "name": "bank_number"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "BANK_POSTAL_CODE",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "BANK_POSTAL_CODE",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "bank_postal_code"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "BANK_STATE",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "BANK_STATE",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "bank_state"
                                               },
                                               {
                                                 "control_type": "text",
@@ -11550,7 +11178,10 @@
                                           "rows.is_intermediate_bank",
                                           "rows.swift",
                                           "rows.bank_key",
-                                          "rows.bank_tax_payer_id"
+                                          "rows.bank_tax_payer_id",
+                                          "rows.bank_state",
+                                          "rows.bank_postal_code",
+                                          "rows.bank_city"
                                         ],
                                         "comment": "UPDATE into BANK Staging Table",
                                         "uuid": "bb99e777-dbde-4329-b779-4065fa19d015",
@@ -11623,7 +11254,10 @@
                                             "int_iban": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"76d7cbaa_359d_4ce0_8128_882e011d948c\"]}').presence",
                                             "int_swift": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"b0400588_c614_4c87_b42d_0a848a51260b\"]}').presence",
                                             "int_bank_key": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"a93f35a2_f62e_4c9e_a559_c8e05f3916e4\"]}').presence",
-                                            "int_bank_tax_payer_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"7b9a7c85_67cb_422f_a9b6_e88a3d0c3e89\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"7b9a7c85_67cb_422f_a9b6_e88a3d0c3e89\"]}').slice(0,30) : null"
+                                            "int_bank_tax_payer_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"7b9a7c85_67cb_422f_a9b6_e88a3d0c3e89\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"7b9a7c85_67cb_422f_a9b6_e88a3d0c3e89\"]}').slice(0,30) : null",
+                                            "int_bank_state": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"54fb1a7a_ed23_4a48_af80_48dcfc48e0c1\"]}').presence",
+                                            "int_bank_postal_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"1544b3eb_dca8_4a4f_ac16_15da84803e60\"]}').presence",
+                                            "int_bank_city": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"0e39ccb4_cf9e_4357_9a8f_ab5737b043da\"]}').presence"
                                           }
                                         },
                                         "extended_output_schema": [
@@ -11750,6 +11384,40 @@
                                               },
                                               {
                                                 "control_type": "text",
+                                                "label": "INT_BANK_ADDR_LINE1",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "INT_BANK_ADDR_LINE1",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "int_bank_addr_line1"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "INT_BANK_CITY",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "INT_BANK_CITY",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "int_bank_city"
+                                              },
+                                              {
+                                                "control_type": "text",
                                                 "label": "INT_BANK_COUNTRY",
                                                 "details": {
                                                   "primary_key": false,
@@ -11815,6 +11483,40 @@
                                                 "hint": "varchar2, max length 30",
                                                 "type": "string",
                                                 "name": "int_bank_number"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "INT_BANK_POSTAL_CODE",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "INT_BANK_POSTAL_CODE",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "int_bank_postal_code"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "INT_BANK_STATE",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "INT_BANK_STATE",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "int_bank_state"
                                               },
                                               {
                                                 "control_type": "text",
@@ -12158,7 +11860,10 @@
                                           "rows.int_iban",
                                           "rows.int_swift",
                                           "rows.int_bank_key",
-                                          "rows.int_bank_tax_payer_id"
+                                          "rows.int_bank_tax_payer_id",
+                                          "rows.int_bank_state",
+                                          "rows.int_bank_postal_code",
+                                          "rows.int_bank_city"
                                         ],
                                         "comment": "UPDATE into INTERMEDIATE BANK Temporary Table",
                                         "uuid": "6ac8e838-5b63-458f-ac57-599f60e6d994",
