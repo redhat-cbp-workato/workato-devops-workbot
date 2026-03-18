@@ -1,7 +1,7 @@
 {
   "name": "SUB FUNC | 02 - 03.01 | UPDATE | Supplier Intermediate Bank Details",
   "description": "This recipe automates the processing of vendor data and handles errors that may occur during the process.\n\n- The process begins by executing a recipe function that accepts parameters related to a vendor, including a vendor ID and an alternative value.\n- It searches for records in a temporary data table based on the provided vendor ID and alternative value.\n- For each record found, it declares variables for bank information and vendor site codes.\n- The recipe parses JSON data from the records to extract relevant bank details such as the bank name, account number, and branch information.\n- It checks if any critical information is present and updates the vendor site code variable accordingly.\n- New records are created in another data table with the extracted bank details and vendor information.\n- The recipe also updates variables for bank identification codes (BIC) and branch numbers, logging these updates for reporting purposes.\n- If an error occurs during the execution, the recipe captures the error details and calls another recipe to log the error information into a separate data table.\n- An email notification is sent to inform relevant stakeholders about the failure, including detailed error information and context.\n\nOverall, this recipe ensures that vendor data is processed correctly while providing robust error handling and notification mechanisms.",
-  "version": 15,
+  "version": 21,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -2045,7 +2045,10 @@
                       "a93f35a2_f62e_4c9e_a559_c8e05f3916e4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"f5a7c473\",\"path\":[\"document\",\"key\"]}')}",
                       "76d7cbaa_359d_4ce0_8128_882e011d948c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"f5a7c473\",\"path\":[\"document\",\"bankAccountStandardID\"]}')}",
                       "96119e37_74a0_4ba1_82bf_8918fff88409": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c26e9170\",\"path\":[\"varVendorSiteCode\"]}')}",
-                      "7b9a7c85_67cb_422f_a9b6_e88a3d0c3e89": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"419505b2\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}"
+                      "7b9a7c85_67cb_422f_a9b6_e88a3d0c3e89": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"419505b2\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"a7e29481_f5e3_4c90_bfad_98b050fc87c7\"]}')}",
+                      "0e39ccb4_cf9e_4357_9a8f_ab5737b043da": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"f5a7c473\",\"path\":[\"document\",\"city\"]}')}",
+                      "1544b3eb_dca8_4a4f_ac16_15da84803e60": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"f5a7c473\",\"path\":[\"document\",\"postalCode\"]}')}",
+                      "54fb1a7a_ed23_4a48_af80_48dcfc48e0c1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"f5a7c473\",\"path\":[\"document\",\"state\"]}')}"
                     }
                   }
                 },
@@ -2182,6 +2185,24 @@
                             "label": "INT_IBAN",
                             "type": "string",
                             "name": "INT_IBAN"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "INT_BANK_CITY",
+                            "type": "string",
+                            "name": "INT_BANK_CITY"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "INT_BANK_POSTAL_CODE",
+                            "type": "string",
+                            "name": "INT_BANK_POSTAL_CODE"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "INT_BANK_STATE",
+                            "type": "string",
+                            "name": "INT_BANK_STATE"
                           },
                           {
                             "control_type": "date_time",
@@ -2377,6 +2398,30 @@
                             "sticky": false,
                             "type": "string",
                             "name": "76d7cbaa_359d_4ce0_8128_882e011d948c"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "INT_BANK_CITY",
+                            "optional": true,
+                            "sticky": false,
+                            "type": "string",
+                            "name": "0e39ccb4_cf9e_4357_9a8f_ab5737b043da"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "INT_BANK_POSTAL_CODE",
+                            "optional": true,
+                            "sticky": false,
+                            "type": "string",
+                            "name": "1544b3eb_dca8_4a4f_ac16_15da84803e60"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "INT_BANK_STATE",
+                            "optional": true,
+                            "sticky": false,
+                            "type": "string",
+                            "name": "54fb1a7a_ed23_4a48_af80_48dcfc48e0c1"
                           }
                         ],
                         "label": "New record fields",
@@ -2474,7 +2519,11 @@
                   "records.parameters.b0400588_c614_4c87_b42d_0a848a51260b",
                   "records.parameters.a93f35a2_f62e_4c9e_a559_c8e05f3916e4",
                   "records.parameters.76d7cbaa_359d_4ce0_8128_882e011d948c",
-                  "records.parameters.7b9a7c85_67cb_422f_a9b6_e88a3d0c3e89"
+                  "records.parameters.7b9a7c85_67cb_422f_a9b6_e88a3d0c3e89",
+                  "records.parameters.1544b3eb_dca8_4a4f_ac16_15da84803e60",
+                  "records.parameters.0e39ccb4_cf9e_4357_9a8f_ab5737b043da",
+                  "records.parameters.d0072053_1ccf_4bbe_bffc_50b1fdb59789",
+                  "records.parameters.54fb1a7a_ed23_4a48_af80_48dcfc48e0c1"
                 ],
                 "comment": "For Each ALTERNATIVE - INSERT Intermediate BANK Record in Temporary Table",
                 "uuid": "0067261c-517c-4d21-8030-cc3394fb374a",
