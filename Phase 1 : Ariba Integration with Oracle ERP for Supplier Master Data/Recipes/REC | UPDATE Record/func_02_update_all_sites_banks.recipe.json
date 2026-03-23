@@ -1,7 +1,7 @@
 {
   "name": "FUNC | 02 | UPDATE | All Sites & Banks",
   "description": "This Workato recipe automates the process of updating supplier information in an Oracle database based on data retrieved from an Ariba vendor ID lookup.\n\n### Key Actions and Outcomes:\n\n- **Trigger and Input Parameters**: The recipe is initiated by executing a function that requires parameters such as `RecordID`, `AribaVendorID`, and `RecipeID`.\n\n- **Data Retrieval**: It searches for records in the Ariba VendorID Lookup data table to find relevant supplier information based on the provided `RecordID` and `AribaVendorID`.\n\n- **Data Processing**:\n  - If records are found, it truncates a temporary data table to prepare for new data.\n  - It retrieves additional records related to the supplier and their bank details from the data table.\n  - The recipe then makes HTTP requests to the Ariba API to fetch questionnaires and other supplier-related data.\n\n- **Data Upsert**: The recipe processes the retrieved data and upserts it into the appropriate data tables, ensuring that all relevant supplier information, including addresses and bank details, is updated or inserted as necessary.\n\n- **Error Handling**: If any errors occur during the process, the recipe logs the error and updates the status in the Ariba VendorID Lookup table to indicate failure. It also calls an error handling recipe to notify stakeholders of the issue.\n\n- **Final Notifications**: Upon successful completion, the recipe sends notifications about the status of the supplier data synchronization, including details about the number of records processed and any relevant Oracle request IDs.\n\n### Summary:\nThis recipe streamlines the process of updating supplier information in Oracle by integrating data from Ariba, ensuring that all relevant details are accurately reflected in the database while providing error handling and notifications for stakeholders.",
-  "version": 26,
+  "version": 29,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -4584,7 +4584,6 @@
                                             "province": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"861c84d6_9b04_4724_8715_fc5d159e8f7e\"]}')}",
                                             "recipe_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"RecipeID\"]}').to_i",
                                             "state": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"ea70d8e7_3c65_4d46_834e_18907ac3aaa6\"]}').presence",
-                                            "tax_country": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"362a4856_9585_4c40_8781_f04b60b5aa7b\"]}').presence",
                                             "tax_payer_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"a236ed5b_0681_44f6_beb3_e767dc856f17\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"a236ed5b_0681_44f6_beb3_e767dc856f17\"]}').slice(0,50) : null",
                                             "tax_reg_num": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"05c826b2_ca03_4b91_81cb_2240dd0877be\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"05c826b2_ca03_4b91_81cb_2240dd0877be\"]}').slice(0,50) : null",
                                             "vendor_site_alternative": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"c2d68ebf_7a29_4c53_ae7e_e4400c62da0f\"]}')}",
@@ -4701,23 +4700,6 @@
                                                 "hint": "varchar2, max length 20",
                                                 "type": "string",
                                                 "name": "address_name"
-                                              },
-                                              {
-                                                "control_type": "text",
-                                                "label": "ALLOW_WHT_TAX",
-                                                "details": {
-                                                  "primary_key": false,
-                                                  "data_type": "varchar2",
-                                                  "column_name": "ALLOW_WHT_TAX",
-                                                  "length": 3,
-                                                  "precision": null,
-                                                  "scale": null,
-                                                  "element_type": null
-                                                },
-                                                "optional": true,
-                                                "hint": "varchar2, max length 3",
-                                                "type": "string",
-                                                "name": "allow_wht_tax"
                                               },
                                               {
                                                 "control_type": "text",
@@ -5118,23 +5100,6 @@
                                               },
                                               {
                                                 "control_type": "text",
-                                                "label": "TAX_COUNTRY",
-                                                "details": {
-                                                  "primary_key": false,
-                                                  "data_type": "varchar2",
-                                                  "column_name": "TAX_COUNTRY",
-                                                  "length": 100,
-                                                  "precision": null,
-                                                  "scale": null,
-                                                  "element_type": null
-                                                },
-                                                "optional": true,
-                                                "hint": "varchar2, max length 100",
-                                                "type": "string",
-                                                "name": "tax_country"
-                                              },
-                                              {
-                                                "control_type": "text",
                                                 "label": "TAX_PAYER_ID",
                                                 "details": {
                                                   "primary_key": false,
@@ -5481,6 +5446,98 @@
                                         "name": "REGISTRATION_STATUS_CODE"
                                       },
                                       {
+                                        "control_type": "text",
+                                        "label": "SELECT_COUNTRY",
+                                        "type": "string",
+                                        "name": "SELECT_COUNTRY"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "ALLOW_TAX_WATH",
+                                        "type": "string",
+                                        "name": "ALLOW_TAX_WATH"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "PAYMT_WATH_TAX_CODE",
+                                        "type": "string",
+                                        "name": "PAYMT_WATH_TAX_CODE"
+                                      },
+                                      {
+                                        "control_type": "date",
+                                        "label": "SUPP_REGISTRATION_DATE",
+                                        "render_input": "date_conversion",
+                                        "parse_output": "date_conversion",
+                                        "type": "date",
+                                        "name": "SUPP_REGISTRATION_DATE"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "ORGANIZATION_TYPE",
+                                        "type": "string",
+                                        "name": "ORGANIZATION_TYPE"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "BOOK_KEEPING_CERTIFICATE",
+                                        "type": "string",
+                                        "name": "BOOK_KEEPING_CERTIFICATE"
+                                      },
+                                      {
+                                        "control_type": "date",
+                                        "label": "BOOK_KEEPING_CTFT_EXPIRY_DATE",
+                                        "render_input": "date_conversion",
+                                        "parse_output": "date_conversion",
+                                        "type": "date",
+                                        "name": "BOOK_KEEPING_CTFT_EXPIRY_DATE"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "TAX_OFFICER_NUMBER",
+                                        "type": "string",
+                                        "name": "TAX_OFFICER_NUMBER"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "INCLUDE_IN_SHAAM_REPORTING",
+                                        "type": "string",
+                                        "name": "INCLUDE_IN_SHAAM_REPORTING"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "WATH_TAX_REPORT_GROUP",
+                                        "type": "string",
+                                        "name": "WATH_TAX_REPORT_GROUP"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "OCCUPATION_DESCRIPTION",
+                                        "type": "string",
+                                        "name": "OCCUPATION_DESCRIPTION"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "TRANSACTION_TAX",
+                                        "type": "string",
+                                        "name": "TRANSACTION_TAX"
+                                      },
+                                      {
+                                        "control_type": "date",
+                                        "label": "WATH_TAX_CERTI_START_DATE",
+                                        "render_input": "date_conversion",
+                                        "parse_output": "date_conversion",
+                                        "type": "date",
+                                        "name": "WATH_TAX_CERTI_START_DATE"
+                                      },
+                                      {
+                                        "control_type": "date",
+                                        "label": "WATH_TAX_CERTI_END_DATE",
+                                        "render_input": "date_conversion",
+                                        "parse_output": "date_conversion",
+                                        "type": "date",
+                                        "name": "WATH_TAX_CERTI_END_DATE"
+                                      },
+                                      {
                                         "control_type": "date_time",
                                         "label": "Created at",
                                         "render_input": "date_time_conversion",
@@ -5683,6 +5740,132 @@
                                     "default": "string",
                                     "label": "$internal_value_87e7b79d-bdce-45fc-8319-c7fb3b224aaf",
                                     "name": "87e7b79d-bdce-45fc-8319-c7fb3b224aaf",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_a4c79d16-31cb-4f24-9bba-8d86bc85dbde",
+                                    "name": "a4c79d16-31cb-4f24-9bba-8d86bc85dbde",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_5797eae7-8ff2-4207-bf42-93d103883051",
+                                    "name": "5797eae7-8ff2-4207-bf42-93d103883051",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_f7b8c8db-a0ea-4c67-aa2b-7a564ab7fda0",
+                                    "name": "f7b8c8db-a0ea-4c67-aa2b-7a564ab7fda0",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "date",
+                                    "label": "$internal_value_4722cc3a-d423-4145-b63f-92560b5c5f95",
+                                    "name": "4722cc3a-d423-4145-b63f-92560b5c5f95",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_fd89deba-5bce-4d75-857b-58c59adc25f8",
+                                    "name": "fd89deba-5bce-4d75-857b-58c59adc25f8",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_16097fee-40b5-42eb-8c3d-3152fe7f23a3",
+                                    "name": "16097fee-40b5-42eb-8c3d-3152fe7f23a3",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "date",
+                                    "label": "$internal_value_e98b2af7-3be1-47ec-b8f9-31dabf1acebe",
+                                    "name": "e98b2af7-3be1-47ec-b8f9-31dabf1acebe",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_f9ee51d9-1f21-4c9c-9aba-1881ef2e5d14",
+                                    "name": "f9ee51d9-1f21-4c9c-9aba-1881ef2e5d14",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_5983cf2c-e7e2-4a1a-b1e1-54153c684a4a",
+                                    "name": "5983cf2c-e7e2-4a1a-b1e1-54153c684a4a",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_82ebace9-25a9-4ea4-b73d-ac51138567d7",
+                                    "name": "82ebace9-25a9-4ea4-b73d-ac51138567d7",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_d966651c-db4c-4717-bb32-d54c9f57f388",
+                                    "name": "d966651c-db4c-4717-bb32-d54c9f57f388",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_153e7bf8-c89b-45d3-9642-669df949fcf6",
+                                    "name": "153e7bf8-c89b-45d3-9642-669df949fcf6",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "date",
+                                    "label": "$internal_value_351e1e4e-1743-4ae7-93b4-833fa17d3220",
+                                    "name": "351e1e4e-1743-4ae7-93b4-833fa17d3220",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "date",
+                                    "label": "$internal_value_9cf6e4f4-ee74-46a4-9166-cb4dde076f0f",
+                                    "name": "9cf6e4f4-ee74-46a4-9166-cb4dde076f0f",
                                     "ngIf": "false",
                                     "optional": true,
                                     "type": "string"
@@ -5950,7 +6133,22 @@
                                             "site_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"SITE_NAME\"]}').presence",
                                             "address_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"ADDRESS_NAME\"]}').presence",
                                             "tax_effective_from": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"TAX_EFFECTIVE_FROM\"]}') ? ((_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"TAX_EFFECTIVE_FROM\"]}')).to_i/1000).to_time.strftime(\"%d-%m-%Y\") : null",
-                                            "registration_status_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"REGISTRATION_STATUS_CODE\"]}').presence"
+                                            "registration_status_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"REGISTRATION_STATUS_CODE\"]}').presence",
+                                            "allow_tax_wth": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"ALLOW_TAX_WATH\"]}').presence",
+                                            "book_keeping_cert_expiry_date": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"BOOK_KEEPING_CTFT_EXPIRY_DATE\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"BOOK_KEEPING_CTFT_EXPIRY_DATE\"]}') : null",
+                                            "book_keeping_certificate": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"BOOK_KEEPING_CERTIFICATE\"]}').presence",
+                                            "include_in_shaam_reporting": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"INCLUDE_IN_SHAAM_REPORTING\"]}').presence",
+                                            "occupation_description": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"OCCUPATION_DESCRIPTION\"]}').presence",
+                                            "organization_type": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"ORGANIZATION_TYPE\"]}').presence",
+                                            "pmt_wth_tax_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"PAYMT_WATH_TAX_CODE\"]}').presence",
+                                            "supp_registration_date": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"SUPP_REGISTRATION_DATE\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"SUPP_REGISTRATION_DATE\"]}') : null",
+                                            "tax_classification": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"TRANSACTION_TAX\"]}').presence",
+                                            "tax_country": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"SELECT_COUNTRY\"]}').presence",
+                                            "tax_officer_number": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"TAX_OFFICER_NUMBER\"]}').presence",
+                                            "tax_regime_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"TAX_REGIME_CODE\"]}').presence",
+                                            "wth_tax_cert_end_date": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_CERTI_END_DATE\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_CERTI_END_DATE\"]}') : null",
+                                            "wth_tax_cert_start_date": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_CERTI_START_DATE\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_CERTI_START_DATE\"]}') : null",
+                                            "wth_tax_report_group": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_REPORT_GROUP\"]}').presence"
                                           }
                                         },
                                         "extended_output_schema": [
@@ -6006,6 +6204,23 @@
                                               },
                                               {
                                                 "control_type": "text",
+                                                "label": "ALLOW_TAX_WTH",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "ALLOW_TAX_WTH",
+                                                  "length": 10,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 10",
+                                                "type": "string",
+                                                "name": "allow_tax_wth"
+                                              },
+                                              {
+                                                "control_type": "text",
                                                 "label": "ARIBA_VENDOR_ID",
                                                 "details": {
                                                   "primary_key": false,
@@ -6054,6 +6269,42 @@
                                                 "hint": "varchar2, max length 100",
                                                 "type": "string",
                                                 "name": "bank_instr2"
+                                              },
+                                              {
+                                                "control_type": "date_time",
+                                                "label": "BOOK_KEEPING_CERT_EXPIRY_DATE",
+                                                "render_input": "render_date_time_format",
+                                                "parse_output": "parse_date_time_format",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "date",
+                                                  "column_name": "BOOK_KEEPING_CERT_EXPIRY_DATE",
+                                                  "length": 0,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "date",
+                                                "type": "date_time",
+                                                "name": "book_keeping_cert_expiry_date"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "BOOK_KEEPING_CERTIFICATE",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "BOOK_KEEPING_CERTIFICATE",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "book_keeping_certificate"
                                               },
                                               {
                                                 "control_type": "number",
@@ -6128,6 +6379,23 @@
                                               },
                                               {
                                                 "control_type": "text",
+                                                "label": "INCLUDE_IN_SHAAM_REPORTING",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "INCLUDE_IN_SHAAM_REPORTING",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "include_in_shaam_reporting"
+                                              },
+                                              {
+                                                "control_type": "text",
                                                 "label": "INTERFACE_ERROR",
                                                 "details": {
                                                   "primary_key": false,
@@ -6159,6 +6427,40 @@
                                                 "hint": "varchar2, max length 1",
                                                 "type": "string",
                                                 "name": "interface_status"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "OCCUPATION_DESCRIPTION",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "OCCUPATION_DESCRIPTION",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "occupation_description"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "ORGANIZATION_TYPE",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "ORGANIZATION_TYPE",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "organization_type"
                                               },
                                               {
                                                 "control_type": "text",
@@ -6210,6 +6512,23 @@
                                                 "hint": "varchar2, max length 100",
                                                 "type": "string",
                                                 "name": "payment_reason"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "PMT_WTH_TAX_CODE",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "PMT_WTH_TAX_CODE",
+                                                  "length": 30,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 30",
+                                                "type": "string",
+                                                "name": "pmt_wth_tax_code"
                                               },
                                               {
                                                 "control_type": "text",
@@ -6315,6 +6634,25 @@
                                                 "name": "site_name"
                                               },
                                               {
+                                                "control_type": "date_time",
+                                                "label": "SUPP_REGISTRATION_DATE",
+                                                "render_input": "render_date_time_format",
+                                                "parse_output": "parse_date_time_format",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "date",
+                                                  "column_name": "SUPP_REGISTRATION_DATE",
+                                                  "length": 0,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "date",
+                                                "type": "date_time",
+                                                "name": "supp_registration_date"
+                                              },
+                                              {
                                                 "control_type": "text",
                                                 "label": "SUPPLIER_NOTIF_METHOD",
                                                 "details": {
@@ -6350,6 +6688,40 @@
                                                 "name": "supplier_ou_rec_seq_id"
                                               },
                                               {
+                                                "control_type": "text",
+                                                "label": "TAX_CLASSIFICATION",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "TAX_CLASSIFICATION",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "tax_classification"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "TAX_COUNTRY",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "TAX_COUNTRY",
+                                                  "length": 30,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 30",
+                                                "type": "string",
+                                                "name": "tax_country"
+                                              },
+                                              {
                                                 "control_type": "date_time",
                                                 "label": "TAX_EFFECTIVE_FROM",
                                                 "render_input": "render_date_time_format",
@@ -6367,6 +6739,23 @@
                                                 "hint": "date",
                                                 "type": "date_time",
                                                 "name": "tax_effective_from"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "TAX_OFFICER_NUMBER",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "TAX_OFFICER_NUMBER",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "tax_officer_number"
                                               },
                                               {
                                                 "control_type": "text",
@@ -6469,6 +6858,61 @@
                                                 "hint": "varchar2, max length 1",
                                                 "type": "string",
                                                 "name": "verified"
+                                              },
+                                              {
+                                                "control_type": "date_time",
+                                                "label": "WTH_TAX_CERT_END_DATE",
+                                                "render_input": "render_date_time_format",
+                                                "parse_output": "parse_date_time_format",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "date",
+                                                  "column_name": "WTH_TAX_CERT_END_DATE",
+                                                  "length": 0,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "date",
+                                                "type": "date_time",
+                                                "name": "wth_tax_cert_end_date"
+                                              },
+                                              {
+                                                "control_type": "date_time",
+                                                "label": "WTH_TAX_CERT_START_DATE",
+                                                "render_input": "render_date_time_format",
+                                                "parse_output": "parse_date_time_format",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "date",
+                                                  "column_name": "WTH_TAX_CERT_START_DATE",
+                                                  "length": 0,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "date",
+                                                "type": "date_time",
+                                                "name": "wth_tax_cert_start_date"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "WTH_TAX_REPORT_GROUP",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "WTH_TAX_REPORT_GROUP",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "wth_tax_report_group"
                                               }
                                             ],
                                             "type": "array"
@@ -6501,7 +6945,22 @@
                                           "rows",
                                           "rows.registration_status_code",
                                           "rows.address_name",
-                                          "rows.site_name"
+                                          "rows.site_name",
+                                          "rows.wth_tax_report_group",
+                                          "rows.wth_tax_cert_start_date",
+                                          "rows.wth_tax_cert_end_date",
+                                          "rows.tax_regime_code",
+                                          "rows.tax_officer_number",
+                                          "rows.tax_country",
+                                          "rows.tax_classification",
+                                          "rows.supp_registration_date",
+                                          "rows.pmt_wth_tax_code",
+                                          "rows.organization_type",
+                                          "rows.occupation_description",
+                                          "rows.include_in_shaam_reporting",
+                                          "rows.book_keeping_certificate",
+                                          "rows.book_keeping_cert_expiry_date",
+                                          "rows.allow_tax_wth"
                                         ],
                                         "comment": "INSERT into Supplier SITE  Operating  Unit Temporary Table",
                                         "uuid": "984e3d5c-32c4-480b-ad78-6b10be1dc494",
