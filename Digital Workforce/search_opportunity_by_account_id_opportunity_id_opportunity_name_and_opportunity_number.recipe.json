@@ -1,6 +1,6 @@
 {
   "name": "Search opportunity by Account ID, Opportunity ID, Opportunity Name, and Opportunity Number",
-  "version": 85,
+  "version": 95,
   "private": true,
   "concurrency": 20,
   "code": {
@@ -326,7 +326,7 @@
         "keyword": "action",
         "input": {
           "variables": {
-            "schema": "[{\"control_type\":\"text\",\"label\":\"On_behalf_of_user_email\",\"name\":\"output\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"output\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"text\",\"label\":\"rhatUUID\",\"name\":\"rhatUUID\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"rhatUUID\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]",
+            "schema": "[{\"control_type\":\"text\",\"label\":\"On_behalf_of_user_email\",\"name\":\"output\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"output\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"text\",\"label\":\"rhatUUID\",\"name\":\"rhatUUID\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"rhatUUID\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"name\":\"where_clause\",\"type\":\"string\",\"optional\":true,\"label\":\"where_clause\",\"details\":{\"real_name\":\"where_clause\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
             "data": {
               "output": "="
             }
@@ -355,6 +355,16 @@
             "type": "string",
             "details": {
               "real_name": "rhatUUID"
+            }
+          },
+          {
+            "control_type": "text",
+            "label": "where_clause",
+            "name": "where_clause",
+            "optional": true,
+            "type": "string",
+            "details": {
+              "real_name": "where_clause"
             }
           }
         ],
@@ -414,6 +424,22 @@
                       "variables",
                       "data"
                     ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "where_clause",
+                    "name": "where_clause",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "where_clause"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
                   }
                 ],
                 "label": "Data",
@@ -1920,7 +1946,7 @@
                 "input": {
                   "limit": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"a7d0dee6\",\"path\":[\"output\"]}')}",
                   "sobject_name": "Opportunity",
-                  "query": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"6891077f\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"soql_value\"]}')}.join(\" AND \") ORDER BY CreatedDate DESC",
+                  "query": "=(_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"6891077f\",\"path\":[]}').pluck(\"soql_value\").join(\" AND \")).to_s + \"ORDER BY CreatedDate DESC\"",
                   "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"777be6a7\",\"path\":[\"output\"]}')}",
                   "offset": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"0befe193\",\"path\":[\"output\"]}')}",
                   "table_list": "Account\nOwner",
@@ -2363,7 +2389,7 @@
                   ]
                 },
                 "input": {
-                  "query": "SELECT COUNT() FROM Opportunity where #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"6891077f\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"soql_value\"]}')}.join(\" AND \")",
+                  "query": "=\"SELECT COUNT() FROM Opportunity where\" + (_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"6891077f\",\"path\":[]}').pluck(\"soql_value\").join(\" AND \")).to_s",
                   "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"777be6a7\",\"path\":[\"output\"]}')}",
                   "limit": "2000",
                   "output_schema": "[{\"control_type\":\"text\",\"label\":\"count\",\"type\":\"string\",\"name\":\"count\"}]"
