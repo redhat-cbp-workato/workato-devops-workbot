@@ -1,7 +1,7 @@
 {
   "name": "FUNC | 02 | UPDATE | All Sites & Banks",
   "description": "This Workato recipe automates the process of updating supplier information in an Oracle database based on data retrieved from an Ariba vendor ID lookup.\n\n### Key Actions and Outcomes:\n\n- **Trigger and Input Parameters**: The recipe is initiated by executing a function that requires parameters such as `RecordID`, `AribaVendorID`, and `RecipeID`.\n\n- **Data Retrieval**: It searches for records in the Ariba VendorID Lookup data table to find relevant supplier information based on the provided `RecordID` and `AribaVendorID`.\n\n- **Data Processing**:\n  - If records are found, it truncates a temporary data table to prepare for new data.\n  - It retrieves additional records related to the supplier and their bank details from the data table.\n  - The recipe then makes HTTP requests to the Ariba API to fetch questionnaires and other supplier-related data.\n\n- **Data Upsert**: The recipe processes the retrieved data and upserts it into the appropriate data tables, ensuring that all relevant supplier information, including addresses and bank details, is updated or inserted as necessary.\n\n- **Error Handling**: If any errors occur during the process, the recipe logs the error and updates the status in the Ariba VendorID Lookup table to indicate failure. It also calls an error handling recipe to notify stakeholders of the issue.\n\n- **Final Notifications**: Upon successful completion, the recipe sends notifications about the status of the supplier data synchronization, including details about the number of records processed and any relevant Oracle request IDs.\n\n### Summary:\nThis recipe streamlines the process of updating supplier information in Oracle by integrating data from Ariba, ensuring that all relevant details are accurately reflected in the database while providing error handling and notifications for stakeholders.",
-  "version": 29,
+  "version": 31,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -4596,7 +4596,8 @@
                                             "verified": "N",
                                             "address_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"3fd9efc4_58ca_4d36_9d42_536c2776180c\"]}').presence",
                                             "addr_line2": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"deefaa18_125f_4357_b14a_926398480f7d\"]}').presence",
-                                            "addr_line3": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"c4b4b213_22e7_498a_bb39_4b10e059d40b\"]}').presence"
+                                            "addr_line3": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"c4b4b213_22e7_498a_bb39_4b10e059d40b\"]}').presence",
+                                            "tax_country": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"362a4856_9585_4c40_8781_f04b60b5aa7b\"]}').presence"
                                           }
                                         },
                                         "extended_output_schema": [
@@ -5086,17 +5087,17 @@
                                                 "parse_output": "parse_numeric_output",
                                                 "details": {
                                                   "primary_key": false,
-                                                  "data_type": "number",
-                                                  "column_name": "SUPPLIER_ADDR_REC_SEQ_ID",
-                                                  "length": 0,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "TAX_COUNTRY",
+                                                  "length": 30,
                                                   "precision": null,
                                                   "scale": null,
                                                   "element_type": null
                                                 },
                                                 "optional": true,
-                                                "hint": "number",
-                                                "type": "number",
-                                                "name": "supplier_addr_rec_seq_id"
+                                                "hint": "varchar2, max length 30",
+                                                "type": "string",
+                                                "name": "tax_country"
                                               },
                                               {
                                                 "control_type": "text",
