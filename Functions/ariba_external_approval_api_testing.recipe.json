@@ -1,7 +1,7 @@
 {
   "name": "Ariba | External Approval API Testing",
   "description": "This recipe automates the process of synchronizing vendor data from SAP Ariba to an Oracle ERP system.\n\n- The process is triggered on a specified schedule, initiating a request to the Ariba API to fetch updated vendor data based on a defined time range.\n- If new vendor data is retrieved, the recipe checks if each vendor already exists in the Oracle database.\n- For vendors that do not exist, new records are created in the relevant Oracle staging tables for suppliers, supplier sites, and bank details.\n- If existing vendors are found, their records are updated accordingly.\n- The recipe also handles the creation of new records for supplier sites and banks, ensuring that all relevant details are captured.\n- After processing, the recipe sends notifications via email to stakeholders, summarizing the results of the synchronization, including any errors encountered during the process.\n- In case of errors, the recipe calls an error handling function to log the error details and notify the appropriate personnel.\n\nOverall, this recipe ensures that vendor information in the Oracle ERP system is kept up-to-date with the latest data from SAP Ariba, facilitating efficient vendor management and compliance.",
-  "version": 11,
+  "version": 29,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -684,22 +684,18 @@
             "number": 3,
             "provider": "rest",
             "name": "make_request_v2",
-            "as": "0ca01a6c",
+            "as": "dc1be383",
             "keyword": "action",
             "toggleCfg": {
               "response.ignore_http_errors": true,
-              "request.body.withQuestionnaire": true,
-              "request.body.withBankDetail": true,
-              "request.body.withTaxDetail": true,
-              "request.body.withCompanyCodeDetail": true,
               "disable_retries": true
             },
             "input": {
-              "request_name": "Call POST External Approval API ",
+              "request_name": "Call GET External Approval API ",
               "request": {
                 "method": "GET",
                 "content_type": "json",
-                "url": "=\"https://openapi.ariba.com/api/sourcing-approval/v4/prod/changes\"",
+                "url": "=\"https://openapi.ariba.com/api/sourcing-approval/v2/prod/changes\"",
                 "parameters": [
                   {
                     "param": "realm",
@@ -712,9 +708,1282 @@
                     "value": "B9zN8aXqap510VfZMQJGb0v4Py7TjfWa"
                   }
                 ],
-                "request_body_schema": "[]",
-                "body": {
-                }
+                "request_body_schema": "[]"
+              },
+              "response": {
+                "output_type": "json",
+                "expected_encoding": "UTF-8",
+                "ignore_http_errors": "false"
+              },
+              "wait_for_response": "false",
+              "disable_retries": "false",
+              "completion_threshold_seconds": "3600"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Headers",
+                "name": "headers",
+                "properties": [
+
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Response",
+                "name": "response",
+                "properties": [
+
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Request",
+                "name": "request",
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "select",
+                    "label": "Method",
+                    "pick_list": [
+                      [
+                        "GET",
+                        "GET"
+                      ],
+                      [
+                        "POST",
+                        "POST"
+                      ],
+                      [
+                        "PUT",
+                        "PUT"
+                      ],
+                      [
+                        "DELETE",
+                        "DELETE"
+                      ],
+                      [
+                        "HEAD",
+                        "HEAD"
+                      ],
+                      [
+                        "PATCH",
+                        "PATCH"
+                      ]
+                    ],
+                    "hint": "Select a HTTP method",
+                    "default": "GET",
+                    "type": "string",
+                    "name": "method"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Request URL",
+                    "check_secrets": true,
+                    "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
+                    "placeholder": "https://api.example.com/v1/leads",
+                    "type": "string",
+                    "name": "url"
+                  },
+                  {
+                    "control_type": "select",
+                    "label": "Request content type",
+                    "extends_schema": true,
+                    "pick_list": [
+                      [
+                        "JSON request body",
+                        "json"
+                      ],
+                      [
+                        "Raw JSON request body",
+                        "application/json"
+                      ],
+                      [
+                        "XML",
+                        "application/xml"
+                      ],
+                      [
+                        "Text",
+                        "text/plain"
+                      ],
+                      [
+                        "URL encoded form",
+                        "application/x-www-form-urlencoded"
+                      ],
+                      [
+                        "Binary",
+                        "application/octet-stream"
+                      ],
+                      [
+                        "Multipart form",
+                        "multipart/form-data"
+                      ],
+                      [
+                        "Multipart alternative",
+                        "multipart/alternative"
+                      ],
+                      [
+                        "Multipart digest",
+                        "multipart/digest"
+                      ],
+                      [
+                        "Multipart mixed",
+                        "multipart/mixed"
+                      ],
+                      [
+                        "Multipart related",
+                        "multipart/related"
+                      ]
+                    ],
+                    "hint": "The API endpoint documentation should define what data it expects",
+                    "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
+                    "optional": true,
+                    "default": "application/json",
+                    "type": "string",
+                    "name": "content_type"
+                  },
+                  {
+                    "label": "Request body",
+                    "control_type": "key_value",
+                    "optional": true,
+                    "empty_list_title": "Does this HTTP request require form data?",
+                    "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
+                    "item_label": "Form data",
+                    "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Key",
+                        "type": "string",
+                        "name": "param"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "form_body"
+                  },
+                  {
+                    "label": "Request parts",
+                    "list_mode": "static",
+                    "optional": true,
+                    "item_label": "Part",
+                    "ngIf": "(input.request.content_type === 'multipart/alternative'|| input.request.content_type === 'multipart/digest'|| input.request.content_type === 'multipart/mixed'|| input.request.content_type === 'multipart/related') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "label": "Headers",
+                        "list_mode": "static",
+                        "optional": true,
+                        "sticky": true,
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Header name",
+                            "optional": false,
+                            "type": "string",
+                            "name": "name"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Value",
+                            "optional": true,
+                            "sticky": true,
+                            "type": "string",
+                            "name": "value"
+                          }
+                        ],
+                        "type": "array",
+                        "name": "headers"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Raw body",
+                        "optional": true,
+                        "sticky": true,
+                        "hint": "Raw content of the part",
+                        "type": "string",
+                        "name": "body"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "parts"
+                  },
+                  {
+                    "label": "Request URL parameters",
+                    "control_type": "key_value",
+                    "check_secrets": true,
+                    "optional": true,
+                    "empty_list_title": "Does this HTTP request contain a query string?",
+                    "empty_list_text": "Add URL parameters to the query string",
+                    "item_label": "URL parameter",
+                    "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Parameter name",
+                        "type": "string",
+                        "name": "param"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "parameters"
+                  },
+                  {
+                    "label": "Request headers",
+                    "control_type": "key_value",
+                    "optional": true,
+                    "check_secrets": true,
+                    "empty_list_title": "Does this HTTP request require headers?",
+                    "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                    "item_label": "Header",
+                    "sticky": true,
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Header name",
+                        "type": "string",
+                        "name": "header"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "headers"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Request body schema",
+                    "sample_data_type": "json_input",
+                    "add_field_label": "Add json field",
+                    "empty_schema_title": "Provide JSON input.",
+                    "extends_schema": true,
+                    "change_on_blur": true,
+                    "optional": true,
+                    "sticky": true,
+                    "ngIf": "(input.request.content_type == 'json' || input.request.content_type == 'multipart/form-data' || input.request.content_type === 'json') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                    "hint": "Use this to define the JSON input.",
+                    "schema_field_name_regex": [
+                      "\\S",
+                      "Field name should not be empty"
+                    ],
+                    "type": "string",
+                    "name": "request_body_schema"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Response",
+                "name": "response",
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "select",
+                    "label": "Response content type",
+                    "pick_list": [
+                      [
+                        "Text",
+                        "rawdatatxt"
+                      ],
+                      [
+                        "Binary",
+                        "rawdata"
+                      ],
+                      [
+                        "JSON",
+                        "json"
+                      ],
+                      [
+                        "XML",
+                        "xml2"
+                      ],
+                      [
+                        "Multipart",
+                        "multipart"
+                      ]
+                    ],
+                    "hint": "Select expected format of data response type, e.g. JSON or XML. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "default": "json",
+                    "extends_schema": true,
+                    "type": "string",
+                    "name": "output_type"
+                  },
+                  {
+                    "control_type": "select",
+                    "label": "Encoding",
+                    "pick_list": "supported_encodings_without_binary_global_pick_list",
+                    "pick_list_connection_less": true,
+                    "optional": true,
+                    "default": "UTF-8",
+                    "hint": "Default encoding type is set to UTF-8, and typically doesn't need to be changed. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "type": "string",
+                    "name": "expected_encoding"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Response schema",
+                    "sample_data_type": "json_http",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all fields in your response.",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "response_schema"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "HTTP response headers",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all the response headers",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "headers_schema"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Multipart part headers",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe headers within each multipart part",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Define the headers that appear in each part of the multipart response (e.g., Content-Type, Content-ID)",
+                    "ngIf": "input.response.output_type == 'multipart'",
+                    "type": "string",
+                    "name": "part_headers_schema"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Mark non-2xx response codes as success?",
+                    "default": "false",
+                    "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                    "optional": true,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Mark non-2xx response codes as success?",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "default": false,
+                      "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                      "optional": true,
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "ignore_http_errors"
+                    },
+                    "type": "boolean",
+                    "name": "ignore_http_errors"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "comment": "GET /changes",
+            "uuid": "9ef05fb2-4819-4240-98bb-c30713fc2a4b",
+            "wizardFinished": true
+          },
+          {
+            "number": 4,
+            "provider": "rest",
+            "name": "make_request_v2",
+            "as": "0ca01a6c",
+            "keyword": "action",
+            "toggleCfg": {
+              "response.ignore_http_errors": true,
+              "disable_retries": true
+            },
+            "input": {
+              "request_name": "Call GET External Approval API ",
+              "request": {
+                "method": "GET",
+                "content_type": "json",
+                "url": "=\"https://openapi.ariba.com/api/sourcing-approval/v2/prod/pendingApprovables\"",
+                "parameters": [
+                  {
+                    "param": "realm",
+                    "value": "745312613-T"
+                  }
+                ],
+                "headers": [
+                  {
+                    "header": "APIKey",
+                    "value": "B9zN8aXqap510VfZMQJGb0v4Py7TjfWa"
+                  }
+                ],
+                "request_body_schema": "[]"
+              },
+              "response": {
+                "output_type": "json",
+                "expected_encoding": "UTF-8",
+                "ignore_http_errors": "false"
+              },
+              "wait_for_response": "false",
+              "disable_retries": "false",
+              "completion_threshold_seconds": "3600"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Headers",
+                "name": "headers",
+                "properties": [
+
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Response",
+                "name": "response",
+                "properties": [
+
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Request",
+                "name": "request",
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "select",
+                    "label": "Method",
+                    "pick_list": [
+                      [
+                        "GET",
+                        "GET"
+                      ],
+                      [
+                        "POST",
+                        "POST"
+                      ],
+                      [
+                        "PUT",
+                        "PUT"
+                      ],
+                      [
+                        "DELETE",
+                        "DELETE"
+                      ],
+                      [
+                        "HEAD",
+                        "HEAD"
+                      ],
+                      [
+                        "PATCH",
+                        "PATCH"
+                      ]
+                    ],
+                    "hint": "Select a HTTP method",
+                    "default": "GET",
+                    "type": "string",
+                    "name": "method"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Request URL",
+                    "check_secrets": true,
+                    "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
+                    "placeholder": "https://api.example.com/v1/leads",
+                    "type": "string",
+                    "name": "url"
+                  },
+                  {
+                    "control_type": "select",
+                    "label": "Request content type",
+                    "extends_schema": true,
+                    "pick_list": [
+                      [
+                        "JSON request body",
+                        "json"
+                      ],
+                      [
+                        "Raw JSON request body",
+                        "application/json"
+                      ],
+                      [
+                        "XML",
+                        "application/xml"
+                      ],
+                      [
+                        "Text",
+                        "text/plain"
+                      ],
+                      [
+                        "URL encoded form",
+                        "application/x-www-form-urlencoded"
+                      ],
+                      [
+                        "Binary",
+                        "application/octet-stream"
+                      ],
+                      [
+                        "Multipart form",
+                        "multipart/form-data"
+                      ],
+                      [
+                        "Multipart alternative",
+                        "multipart/alternative"
+                      ],
+                      [
+                        "Multipart digest",
+                        "multipart/digest"
+                      ],
+                      [
+                        "Multipart mixed",
+                        "multipart/mixed"
+                      ],
+                      [
+                        "Multipart related",
+                        "multipart/related"
+                      ]
+                    ],
+                    "hint": "The API endpoint documentation should define what data it expects",
+                    "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
+                    "optional": true,
+                    "default": "application/json",
+                    "type": "string",
+                    "name": "content_type"
+                  },
+                  {
+                    "label": "Request body",
+                    "control_type": "key_value",
+                    "optional": true,
+                    "empty_list_title": "Does this HTTP request require form data?",
+                    "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
+                    "item_label": "Form data",
+                    "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Key",
+                        "type": "string",
+                        "name": "param"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "form_body"
+                  },
+                  {
+                    "label": "Request parts",
+                    "list_mode": "static",
+                    "optional": true,
+                    "item_label": "Part",
+                    "ngIf": "(input.request.content_type === 'multipart/alternative'|| input.request.content_type === 'multipart/digest'|| input.request.content_type === 'multipart/mixed'|| input.request.content_type === 'multipart/related') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "label": "Headers",
+                        "list_mode": "static",
+                        "optional": true,
+                        "sticky": true,
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Header name",
+                            "optional": false,
+                            "type": "string",
+                            "name": "name"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Value",
+                            "optional": true,
+                            "sticky": true,
+                            "type": "string",
+                            "name": "value"
+                          }
+                        ],
+                        "type": "array",
+                        "name": "headers"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Raw body",
+                        "optional": true,
+                        "sticky": true,
+                        "hint": "Raw content of the part",
+                        "type": "string",
+                        "name": "body"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "parts"
+                  },
+                  {
+                    "label": "Request URL parameters",
+                    "control_type": "key_value",
+                    "check_secrets": true,
+                    "optional": true,
+                    "empty_list_title": "Does this HTTP request contain a query string?",
+                    "empty_list_text": "Add URL parameters to the query string",
+                    "item_label": "URL parameter",
+                    "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Parameter name",
+                        "type": "string",
+                        "name": "param"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "parameters"
+                  },
+                  {
+                    "label": "Request headers",
+                    "control_type": "key_value",
+                    "optional": true,
+                    "check_secrets": true,
+                    "empty_list_title": "Does this HTTP request require headers?",
+                    "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                    "item_label": "Header",
+                    "sticky": true,
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Header name",
+                        "type": "string",
+                        "name": "header"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "headers"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Request body schema",
+                    "sample_data_type": "json_input",
+                    "add_field_label": "Add json field",
+                    "empty_schema_title": "Provide JSON input.",
+                    "extends_schema": true,
+                    "change_on_blur": true,
+                    "optional": true,
+                    "sticky": true,
+                    "ngIf": "(input.request.content_type == 'json' || input.request.content_type == 'multipart/form-data' || input.request.content_type === 'json') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                    "hint": "Use this to define the JSON input.",
+                    "schema_field_name_regex": [
+                      "\\S",
+                      "Field name should not be empty"
+                    ],
+                    "type": "string",
+                    "name": "request_body_schema"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Response",
+                "name": "response",
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "select",
+                    "label": "Response content type",
+                    "pick_list": [
+                      [
+                        "Text",
+                        "rawdatatxt"
+                      ],
+                      [
+                        "Binary",
+                        "rawdata"
+                      ],
+                      [
+                        "JSON",
+                        "json"
+                      ],
+                      [
+                        "XML",
+                        "xml2"
+                      ],
+                      [
+                        "Multipart",
+                        "multipart"
+                      ]
+                    ],
+                    "hint": "Select expected format of data response type, e.g. JSON or XML. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "default": "json",
+                    "extends_schema": true,
+                    "type": "string",
+                    "name": "output_type"
+                  },
+                  {
+                    "control_type": "select",
+                    "label": "Encoding",
+                    "pick_list": "supported_encodings_without_binary_global_pick_list",
+                    "pick_list_connection_less": true,
+                    "optional": true,
+                    "default": "UTF-8",
+                    "hint": "Default encoding type is set to UTF-8, and typically doesn't need to be changed. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "type": "string",
+                    "name": "expected_encoding"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Response schema",
+                    "sample_data_type": "json_http",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all fields in your response.",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "response_schema"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "HTTP response headers",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all the response headers",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "headers_schema"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Multipart part headers",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe headers within each multipart part",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Define the headers that appear in each part of the multipart response (e.g., Content-Type, Content-ID)",
+                    "ngIf": "input.response.output_type == 'multipart'",
+                    "type": "string",
+                    "name": "part_headers_schema"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Mark non-2xx response codes as success?",
+                    "default": "false",
+                    "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                    "optional": true,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Mark non-2xx response codes as success?",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "default": false,
+                      "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                      "optional": true,
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "ignore_http_errors"
+                    },
+                    "type": "boolean",
+                    "name": "ignore_http_errors"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "comment": "GET /pendingApprovables",
+            "uuid": "d3bc74db-6865-419d-aaa6-b036ae4dc132",
+            "wizardFinished": true
+          },
+          {
+            "number": 5,
+            "provider": "rest",
+            "name": "make_request_v2",
+            "as": "4d9789fb",
+            "keyword": "action",
+            "toggleCfg": {
+              "response.ignore_http_errors": true,
+              "disable_retries": true
+            },
+            "input": {
+              "request_name": "Call GET External Approval API ",
+              "request": {
+                "method": "GET",
+                "content_type": "json",
+                "url": "=\"https://openapi.ariba.com/api/sourcing-approval/v2/prod/Task/TSK2091584168\"",
+                "parameters": [
+                  {
+                    "param": "realm",
+                    "value": "745312613-T"
+                  },
+                  {
+                    "param": "entity_type",
+                    "value": "TASK"
+                  },
+                  {
+                    "param": "entity_id",
+                    "value": "TSK1981841566"
+                  }
+                ],
+                "headers": [
+                  {
+                    "header": "APIKey",
+                    "value": "B9zN8aXqap510VfZMQJGb0v4Py7TjfWa"
+                  }
+                ],
+                "request_body_schema": "[]"
+              },
+              "response": {
+                "output_type": "json",
+                "expected_encoding": "UTF-8",
+                "ignore_http_errors": "false"
+              },
+              "wait_for_response": "false",
+              "disable_retries": "false",
+              "completion_threshold_seconds": "3600"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Headers",
+                "name": "headers",
+                "properties": [
+
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Response",
+                "name": "response",
+                "properties": [
+
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Request",
+                "name": "request",
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "select",
+                    "label": "Method",
+                    "pick_list": [
+                      [
+                        "GET",
+                        "GET"
+                      ],
+                      [
+                        "POST",
+                        "POST"
+                      ],
+                      [
+                        "PUT",
+                        "PUT"
+                      ],
+                      [
+                        "DELETE",
+                        "DELETE"
+                      ],
+                      [
+                        "HEAD",
+                        "HEAD"
+                      ],
+                      [
+                        "PATCH",
+                        "PATCH"
+                      ]
+                    ],
+                    "hint": "Select a HTTP method",
+                    "default": "GET",
+                    "type": "string",
+                    "name": "method"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Request URL",
+                    "check_secrets": true,
+                    "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
+                    "placeholder": "https://api.example.com/v1/leads",
+                    "type": "string",
+                    "name": "url"
+                  },
+                  {
+                    "control_type": "select",
+                    "label": "Request content type",
+                    "extends_schema": true,
+                    "pick_list": [
+                      [
+                        "JSON request body",
+                        "json"
+                      ],
+                      [
+                        "Raw JSON request body",
+                        "application/json"
+                      ],
+                      [
+                        "XML",
+                        "application/xml"
+                      ],
+                      [
+                        "Text",
+                        "text/plain"
+                      ],
+                      [
+                        "URL encoded form",
+                        "application/x-www-form-urlencoded"
+                      ],
+                      [
+                        "Binary",
+                        "application/octet-stream"
+                      ],
+                      [
+                        "Multipart form",
+                        "multipart/form-data"
+                      ],
+                      [
+                        "Multipart alternative",
+                        "multipart/alternative"
+                      ],
+                      [
+                        "Multipart digest",
+                        "multipart/digest"
+                      ],
+                      [
+                        "Multipart mixed",
+                        "multipart/mixed"
+                      ],
+                      [
+                        "Multipart related",
+                        "multipart/related"
+                      ]
+                    ],
+                    "hint": "The API endpoint documentation should define what data it expects",
+                    "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
+                    "optional": true,
+                    "default": "application/json",
+                    "type": "string",
+                    "name": "content_type"
+                  },
+                  {
+                    "label": "Request body",
+                    "control_type": "key_value",
+                    "optional": true,
+                    "empty_list_title": "Does this HTTP request require form data?",
+                    "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
+                    "item_label": "Form data",
+                    "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Key",
+                        "type": "string",
+                        "name": "param"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "form_body"
+                  },
+                  {
+                    "label": "Request parts",
+                    "list_mode": "static",
+                    "optional": true,
+                    "item_label": "Part",
+                    "ngIf": "(input.request.content_type === 'multipart/alternative'|| input.request.content_type === 'multipart/digest'|| input.request.content_type === 'multipart/mixed'|| input.request.content_type === 'multipart/related') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "label": "Headers",
+                        "list_mode": "static",
+                        "optional": true,
+                        "sticky": true,
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Header name",
+                            "optional": false,
+                            "type": "string",
+                            "name": "name"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Value",
+                            "optional": true,
+                            "sticky": true,
+                            "type": "string",
+                            "name": "value"
+                          }
+                        ],
+                        "type": "array",
+                        "name": "headers"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Raw body",
+                        "optional": true,
+                        "sticky": true,
+                        "hint": "Raw content of the part",
+                        "type": "string",
+                        "name": "body"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "parts"
+                  },
+                  {
+                    "label": "Request URL parameters",
+                    "control_type": "key_value",
+                    "check_secrets": true,
+                    "optional": true,
+                    "empty_list_title": "Does this HTTP request contain a query string?",
+                    "empty_list_text": "Add URL parameters to the query string",
+                    "item_label": "URL parameter",
+                    "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Parameter name",
+                        "type": "string",
+                        "name": "param"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "parameters"
+                  },
+                  {
+                    "label": "Request headers",
+                    "control_type": "key_value",
+                    "optional": true,
+                    "check_secrets": true,
+                    "empty_list_title": "Does this HTTP request require headers?",
+                    "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                    "item_label": "Header",
+                    "sticky": true,
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Header name",
+                        "type": "string",
+                        "name": "header"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Value",
+                        "type": "string",
+                        "name": "value"
+                      }
+                    ],
+                    "type": "array",
+                    "name": "headers"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Request body schema",
+                    "sample_data_type": "json_input",
+                    "add_field_label": "Add json field",
+                    "empty_schema_title": "Provide JSON input.",
+                    "extends_schema": true,
+                    "change_on_blur": true,
+                    "optional": true,
+                    "sticky": true,
+                    "ngIf": "(input.request.content_type == 'json' || input.request.content_type == 'multipart/form-data' || input.request.content_type === 'json') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
+                    "hint": "Use this to define the JSON input.",
+                    "schema_field_name_regex": [
+                      "\\S",
+                      "Field name should not be empty"
+                    ],
+                    "type": "string",
+                    "name": "request_body_schema"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Response",
+                "name": "response",
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "select",
+                    "label": "Response content type",
+                    "pick_list": [
+                      [
+                        "Text",
+                        "rawdatatxt"
+                      ],
+                      [
+                        "Binary",
+                        "rawdata"
+                      ],
+                      [
+                        "JSON",
+                        "json"
+                      ],
+                      [
+                        "XML",
+                        "xml2"
+                      ],
+                      [
+                        "Multipart",
+                        "multipart"
+                      ]
+                    ],
+                    "hint": "Select expected format of data response type, e.g. JSON or XML. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "default": "json",
+                    "extends_schema": true,
+                    "type": "string",
+                    "name": "output_type"
+                  },
+                  {
+                    "control_type": "select",
+                    "label": "Encoding",
+                    "pick_list": "supported_encodings_without_binary_global_pick_list",
+                    "pick_list_connection_less": true,
+                    "optional": true,
+                    "default": "UTF-8",
+                    "hint": "Default encoding type is set to UTF-8, and typically doesn't need to be changed. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "type": "string",
+                    "name": "expected_encoding"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Response schema",
+                    "sample_data_type": "json_http",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all fields in your response.",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "response_schema"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "HTTP response headers",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all the response headers",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "headers_schema"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Multipart part headers",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe headers within each multipart part",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Define the headers that appear in each part of the multipart response (e.g., Content-Type, Content-ID)",
+                    "ngIf": "input.response.output_type == 'multipart'",
+                    "type": "string",
+                    "name": "part_headers_schema"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Mark non-2xx response codes as success?",
+                    "default": "false",
+                    "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                    "optional": true,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Mark non-2xx response codes as success?",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "default": false,
+                      "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                      "optional": true,
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "ignore_http_errors"
+                    },
+                    "type": "boolean",
+                    "name": "ignore_http_errors"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "comment": "GET /{entity_type}/{entity_id}",
+            "uuid": "0ae84419-2ae9-43a9-ba42-ebf3142c7067",
+            "wizardFinished": true,
+            "skip": false
+          },
+          {
+            "number": 6,
+            "provider": "rest",
+            "name": "make_request_v2",
+            "as": "3a06971d",
+            "keyword": "action",
+            "toggleCfg": {
+              "response.ignore_http_errors": true,
+              "disable_retries": true
+            },
+            "input": {
+              "request_name": "Call POST External Approval API ",
+              "request": {
+                "method": "POST",
+                "content_type": "json",
+                "url": "=\"https://openapi.ariba.com/api/sourcing-approval/v2/prod/action\"",
+                "parameters": [
+                  {
+                    "param": "realm",
+                    "value": "745312613-T"
+                  }
+                ],
+                "headers": [
+                  {
+                    "header": "APIKey",
+                    "value": "B9zN8aXqap510VfZMQJGb0v4Py7TjfWa"
+                  }
+                ],
+                "request_body_schema": "[]"
               },
               "response": {
                 "output_type": "json",
@@ -1093,12 +2362,13 @@
                 "type": "object"
               }
             ],
-            "comment": "Query -VendorDataRequest API to get list of Vendor IDs",
-            "uuid": "d3bc74db-6865-419d-aaa6-b036ae4dc132",
-            "wizardFinished": true
+            "comment": "POST /action",
+            "uuid": "fcc5471b-5e76-4505-b100-979b2df8c816",
+            "wizardFinished": true,
+            "skip": true
           },
           {
-            "number": 4,
+            "number": 7,
             "keyword": "if",
             "input": {
               "type": "compound",
@@ -1114,7 +2384,7 @@
             },
             "block": [
               {
-                "number": 5,
+                "number": 8,
                 "provider": "workato_variable",
                 "name": "declare_variable",
                 "as": "bf35553b",
@@ -1242,7 +2512,7 @@
                 "skip": true
               },
               {
-                "number": 6,
+                "number": 9,
                 "as": "7f7bd44f",
                 "keyword": "foreach",
                 "repeat_mode": "simple",
@@ -1251,7 +2521,7 @@
                 },
                 "block": [
                   {
-                    "number": 7,
+                    "number": 10,
                     "provider": "oracle",
                     "name": "search_rows_sql",
                     "as": "3ce05254",
@@ -1344,7 +2614,7 @@
                     "skip": true
                   },
                   {
-                    "number": 8,
+                    "number": 11,
                     "keyword": "if",
                     "input": {
                       "type": "compound",
@@ -1360,7 +2630,7 @@
                     },
                     "block": [
                       {
-                        "number": 9,
+                        "number": 12,
                         "provider": "workato_db_table",
                         "name": "get_records",
                         "as": "1d7674ed",
@@ -1830,7 +3100,7 @@
                         "skip": true
                       },
                       {
-                        "number": 10,
+                        "number": 13,
                         "keyword": "if",
                         "input": {
                           "type": "compound",
@@ -1846,7 +3116,7 @@
                         },
                         "block": [
                           {
-                            "number": 11,
+                            "number": 14,
                             "provider": "workato_db_table",
                             "name": "create_records_batch",
                             "as": "af470417",
@@ -2330,7 +3600,7 @@
                             "skip": true
                           },
                           {
-                            "number": 12,
+                            "number": 15,
                             "as": "c8dd992a",
                             "keyword": "foreach",
                             "repeat_mode": "simple",
@@ -2339,7 +3609,7 @@
                             },
                             "block": [
                               {
-                                "number": 13,
+                                "number": 16,
                                 "provider": "workato_recipe_function",
                                 "name": "call_recipe",
                                 "as": "128f2b61",
@@ -2383,7 +3653,7 @@
                         "skip": true
                       },
                       {
-                        "number": 14,
+                        "number": 17,
                         "provider": "workato_variable",
                         "name": "update_variables",
                         "as": "8385e063",
@@ -2435,13 +3705,13 @@
                         "skip": true
                       },
                       {
-                        "number": 15,
+                        "number": 18,
                         "keyword": "else",
                         "input": {
                         },
                         "block": [
                           {
-                            "number": 16,
+                            "number": 19,
                             "provider": "workato_db_table",
                             "name": "create_records_batch",
                             "as": "b4f59044",
@@ -2740,7 +4010,7 @@
                             "skip": true
                           },
                           {
-                            "number": 17,
+                            "number": 20,
                             "as": "5e2096a2",
                             "keyword": "foreach",
                             "repeat_mode": "simple",
@@ -2749,7 +4019,7 @@
                             },
                             "block": [
                               {
-                                "number": 18,
+                                "number": 21,
                                 "provider": "workato_recipe_function",
                                 "name": "call_recipe",
                                 "as": "6144608f",
@@ -2817,7 +4087,7 @@
                     "skip": true
                   },
                   {
-                    "number": 19,
+                    "number": 22,
                     "keyword": "if",
                     "input": {
                       "type": "compound",
@@ -2833,7 +4103,7 @@
                     },
                     "block": [
                       {
-                        "number": 20,
+                        "number": 23,
                         "provider": "workato_recipe_function",
                         "name": "call_recipe",
                         "as": "4cac13d4",
@@ -2882,7 +4152,7 @@
             "skip": true
           },
           {
-            "number": 21,
+            "number": 24,
             "as": "d254b55a",
             "keyword": "catch",
             "input": {
@@ -2891,7 +4161,7 @@
             },
             "block": [
               {
-                "number": 22,
+                "number": 25,
                 "provider": "workato_recipe_function",
                 "name": "call_recipe",
                 "as": "fbea9086",
@@ -3020,7 +4290,7 @@
                 "skip": true
               },
               {
-                "number": 23,
+                "number": 26,
                 "provider": "workato_recipe_function",
                 "name": "call_recipe",
                 "as": "78e3f1a9",
@@ -3234,7 +4504,7 @@
                 "skip": true
               },
               {
-                "number": 24,
+                "number": 27,
                 "provider": "logger",
                 "name": "log_message",
                 "as": "a5b68cbe",
@@ -3259,7 +4529,7 @@
                 "uuid": "a6d85b8b-c4f5-4274-8426-dc27b6766f40"
               },
               {
-                "number": 25,
+                "number": 28,
                 "as": "4e35cf9d",
                 "keyword": "stop",
                 "input": {
