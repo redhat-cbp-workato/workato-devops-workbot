@@ -1,7 +1,7 @@
 {
   "name": "FUNC | 02 | UPDATE | All Sites & Banks",
   "description": "This Workato recipe automates the process of updating supplier information in an Oracle database based on data retrieved from an Ariba vendor ID lookup.\n\n### Key Actions and Outcomes:\n\n- **Trigger and Input Parameters**: The recipe is initiated by executing a function that requires parameters such as `RecordID`, `AribaVendorID`, and `RecipeID`.\n\n- **Data Retrieval**: It searches for records in the Ariba VendorID Lookup data table to find relevant supplier information based on the provided `RecordID` and `AribaVendorID`.\n\n- **Data Processing**:\n  - If records are found, it truncates a temporary data table to prepare for new data.\n  - It retrieves additional records related to the supplier and their bank details from the data table.\n  - The recipe then makes HTTP requests to the Ariba API to fetch questionnaires and other supplier-related data.\n\n- **Data Upsert**: The recipe processes the retrieved data and upserts it into the appropriate data tables, ensuring that all relevant supplier information, including addresses and bank details, is updated or inserted as necessary.\n\n- **Error Handling**: If any errors occur during the process, the recipe logs the error and updates the status in the Ariba VendorID Lookup table to indicate failure. It also calls an error handling recipe to notify stakeholders of the issue.\n\n- **Final Notifications**: Upon successful completion, the recipe sends notifications about the status of the supplier data synchronization, including details about the number of records processed and any relevant Oracle request IDs.\n\n### Summary:\nThis recipe streamlines the process of updating supplier information in Oracle by integrating data from Ariba, ensuring that all relevant details are accurately reflected in the database while providing error handling and notifications for stakeholders.",
-  "version": 24,
+  "version": 31,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -1016,250 +1016,6 @@
                     ],
                     "extended_input_schema": [
                       {
-                        "label": "Request",
-                        "name": "request",
-                        "override": true,
-                        "properties": [
-                          {
-                            "control_type": "select",
-                            "label": "Method",
-                            "pick_list": [
-                              [
-                                "GET",
-                                "GET"
-                              ],
-                              [
-                                "POST",
-                                "POST"
-                              ],
-                              [
-                                "PUT",
-                                "PUT"
-                              ],
-                              [
-                                "DELETE",
-                                "DELETE"
-                              ],
-                              [
-                                "HEAD",
-                                "HEAD"
-                              ],
-                              [
-                                "PATCH",
-                                "PATCH"
-                              ]
-                            ],
-                            "hint": "Select a HTTP method",
-                            "default": "GET",
-                            "type": "string",
-                            "name": "method"
-                          },
-                          {
-                            "control_type": "text",
-                            "label": "Request URL",
-                            "check_secrets": true,
-                            "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
-                            "placeholder": "https://api.example.com/v1/leads",
-                            "type": "string",
-                            "name": "url"
-                          },
-                          {
-                            "control_type": "select",
-                            "label": "Request content type",
-                            "extends_schema": true,
-                            "pick_list": [
-                              [
-                                "JSON request body",
-                                "json"
-                              ],
-                              [
-                                "Raw JSON request body",
-                                "application/json"
-                              ],
-                              [
-                                "XML",
-                                "application/xml"
-                              ],
-                              [
-                                "Text",
-                                "text/plain"
-                              ],
-                              [
-                                "URL encoded form",
-                                "application/x-www-form-urlencoded"
-                              ],
-                              [
-                                "Binary",
-                                "application/octet-stream"
-                              ],
-                              [
-                                "Multipart form",
-                                "multipart/form-data"
-                              ],
-                              [
-                                "Multipart alternative",
-                                "multipart/alternative"
-                              ],
-                              [
-                                "Multipart digest",
-                                "multipart/digest"
-                              ],
-                              [
-                                "Multipart mixed",
-                                "multipart/mixed"
-                              ],
-                              [
-                                "Multipart related",
-                                "multipart/related"
-                              ]
-                            ],
-                            "hint": "The API endpoint documentation should define what data it expects",
-                            "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
-                            "optional": true,
-                            "default": "application/json",
-                            "type": "string",
-                            "name": "content_type"
-                          },
-                          {
-                            "control_type": "text-area",
-                            "label": "Request body",
-                            "hint": "HTTP request body to send with the request. <a href=\"https://docs.workato.com/developing-connectors/http.html#request-body\" target=\"_blank\">Learn more</a>",
-                            "sticky": true,
-                            "check_secrets": true,
-                            "ngIf": "input.request.content_type !== 'json' && input.request.content_type !== 'application/x-www-form-urlencoded' && input.request.content_type !== 'multipart/form-data' && input.request.content_type !== 'multipart/alternative' && input.request.content_type !== 'multipart/digest' && input.request.content_type !== 'multipart/mixed' && input.request.content_type !== 'multipart/related' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
-                            "optional": true,
-                            "type": "string",
-                            "name": "body"
-                          },
-                          {
-                            "label": "Request body",
-                            "control_type": "key_value",
-                            "optional": true,
-                            "empty_list_title": "Does this HTTP request require form data?",
-                            "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
-                            "item_label": "Form data",
-                            "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
-                            "of": "object",
-                            "properties": [
-                              {
-                                "control_type": "text",
-                                "label": "Key",
-                                "type": "string",
-                                "name": "param"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Value",
-                                "type": "string",
-                                "name": "value"
-                              }
-                            ],
-                            "type": "array",
-                            "name": "form_body"
-                          },
-                          {
-                            "label": "Request parts",
-                            "optional": true,
-                            "item_label": "Part",
-                            "ngIf": "(input.request.content_type === 'multipart/alternative'|| input.request.content_type === 'multipart/digest'|| input.request.content_type === 'multipart/mixed'|| input.request.content_type === 'multipart/related') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
-                            "of": "object",
-                            "properties": [
-                              {
-                                "label": "Headers",
-                                "optional": true,
-                                "sticky": true,
-                                "of": "object",
-                                "properties": [
-                                  {
-                                    "control_type": "text",
-                                    "label": "Header name",
-                                    "optional": false,
-                                    "type": "string",
-                                    "name": "name"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "Value",
-                                    "optional": true,
-                                    "sticky": true,
-                                    "type": "string",
-                                    "name": "value"
-                                  }
-                                ],
-                                "type": "array",
-                                "name": "headers"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Raw body",
-                                "optional": true,
-                                "sticky": true,
-                                "hint": "Raw content of the part",
-                                "type": "string",
-                                "name": "body"
-                              }
-                            ],
-                            "type": "array",
-                            "name": "parts"
-                          },
-                          {
-                            "label": "Request URL parameters",
-                            "control_type": "key_value",
-                            "check_secrets": true,
-                            "optional": true,
-                            "empty_list_title": "Does this HTTP request contain a query string?",
-                            "empty_list_text": "Add URL parameters to the query string",
-                            "item_label": "URL parameter",
-                            "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
-                            "of": "object",
-                            "properties": [
-                              {
-                                "control_type": "text",
-                                "label": "Parameter name",
-                                "type": "string",
-                                "name": "param"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Value",
-                                "type": "string",
-                                "name": "value"
-                              }
-                            ],
-                            "type": "array",
-                            "name": "parameters"
-                          },
-                          {
-                            "label": "Request headers",
-                            "control_type": "key_value",
-                            "optional": true,
-                            "check_secrets": true,
-                            "empty_list_title": "Does this HTTP request require headers?",
-                            "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
-                            "item_label": "Header",
-                            "sticky": true,
-                            "of": "object",
-                            "properties": [
-                              {
-                                "control_type": "text",
-                                "label": "Header name",
-                                "type": "string",
-                                "name": "header"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Value",
-                                "type": "string",
-                                "name": "value"
-                              }
-                            ],
-                            "type": "array",
-                            "name": "headers"
-                          }
-                        ],
-                        "type": "object"
-                      },
-                      {
                         "label": "Response",
                         "name": "response",
                         "override": true,
@@ -1751,250 +1507,6 @@
                           }
                         ],
                         "extended_input_schema": [
-                          {
-                            "label": "Request",
-                            "name": "request",
-                            "override": true,
-                            "properties": [
-                              {
-                                "control_type": "select",
-                                "label": "Method",
-                                "pick_list": [
-                                  [
-                                    "GET",
-                                    "GET"
-                                  ],
-                                  [
-                                    "POST",
-                                    "POST"
-                                  ],
-                                  [
-                                    "PUT",
-                                    "PUT"
-                                  ],
-                                  [
-                                    "DELETE",
-                                    "DELETE"
-                                  ],
-                                  [
-                                    "HEAD",
-                                    "HEAD"
-                                  ],
-                                  [
-                                    "PATCH",
-                                    "PATCH"
-                                  ]
-                                ],
-                                "hint": "Select a HTTP method",
-                                "default": "GET",
-                                "type": "string",
-                                "name": "method"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Request URL",
-                                "check_secrets": true,
-                                "hint": "Provide an <b>absolute URL</b> or <b>relative URL</b> (if <b>Base URL</b> is configured in connection).",
-                                "placeholder": "https://api.example.com/v1/leads",
-                                "type": "string",
-                                "name": "url"
-                              },
-                              {
-                                "control_type": "select",
-                                "label": "Request content type",
-                                "extends_schema": true,
-                                "pick_list": [
-                                  [
-                                    "JSON request body",
-                                    "json"
-                                  ],
-                                  [
-                                    "Raw JSON request body",
-                                    "application/json"
-                                  ],
-                                  [
-                                    "XML",
-                                    "application/xml"
-                                  ],
-                                  [
-                                    "Text",
-                                    "text/plain"
-                                  ],
-                                  [
-                                    "URL encoded form",
-                                    "application/x-www-form-urlencoded"
-                                  ],
-                                  [
-                                    "Binary",
-                                    "application/octet-stream"
-                                  ],
-                                  [
-                                    "Multipart form",
-                                    "multipart/form-data"
-                                  ],
-                                  [
-                                    "Multipart alternative",
-                                    "multipart/alternative"
-                                  ],
-                                  [
-                                    "Multipart digest",
-                                    "multipart/digest"
-                                  ],
-                                  [
-                                    "Multipart mixed",
-                                    "multipart/mixed"
-                                  ],
-                                  [
-                                    "Multipart related",
-                                    "multipart/related"
-                                  ]
-                                ],
-                                "hint": "The API endpoint documentation should define what data it expects",
-                                "ngIf": "input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH'",
-                                "optional": true,
-                                "default": "application/json",
-                                "type": "string",
-                                "name": "content_type"
-                              },
-                              {
-                                "control_type": "text-area",
-                                "label": "Request body",
-                                "hint": "HTTP request body to send with the request. <a href=\"https://docs.workato.com/developing-connectors/http.html#request-body\" target=\"_blank\">Learn more</a>",
-                                "sticky": true,
-                                "check_secrets": true,
-                                "ngIf": "input.request.content_type !== 'json' && input.request.content_type !== 'application/x-www-form-urlencoded' && input.request.content_type !== 'multipart/form-data' && input.request.content_type !== 'multipart/alternative' && input.request.content_type !== 'multipart/digest' && input.request.content_type !== 'multipart/mixed' && input.request.content_type !== 'multipart/related' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
-                                "optional": true,
-                                "type": "string",
-                                "name": "body"
-                              },
-                              {
-                                "label": "Request body",
-                                "control_type": "key_value",
-                                "optional": true,
-                                "empty_list_title": "Does this HTTP request require form data?",
-                                "empty_list_text": "Refer to the API documentation and add form data to the body of this HTTP request",
-                                "item_label": "Form data",
-                                "ngIf": "input.request.content_type === 'application/x-www-form-urlencoded' && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
-                                "of": "object",
-                                "properties": [
-                                  {
-                                    "control_type": "text",
-                                    "label": "Key",
-                                    "type": "string",
-                                    "name": "param"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "Value",
-                                    "type": "string",
-                                    "name": "value"
-                                  }
-                                ],
-                                "type": "array",
-                                "name": "form_body"
-                              },
-                              {
-                                "label": "Request parts",
-                                "optional": true,
-                                "item_label": "Part",
-                                "ngIf": "(input.request.content_type === 'multipart/alternative'|| input.request.content_type === 'multipart/digest'|| input.request.content_type === 'multipart/mixed'|| input.request.content_type === 'multipart/related') && (input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'DELETE' || input.request.method === 'PATCH')",
-                                "of": "object",
-                                "properties": [
-                                  {
-                                    "label": "Headers",
-                                    "optional": true,
-                                    "sticky": true,
-                                    "of": "object",
-                                    "properties": [
-                                      {
-                                        "control_type": "text",
-                                        "label": "Header name",
-                                        "optional": false,
-                                        "type": "string",
-                                        "name": "name"
-                                      },
-                                      {
-                                        "control_type": "text",
-                                        "label": "Value",
-                                        "optional": true,
-                                        "sticky": true,
-                                        "type": "string",
-                                        "name": "value"
-                                      }
-                                    ],
-                                    "type": "array",
-                                    "name": "headers"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "Raw body",
-                                    "optional": true,
-                                    "sticky": true,
-                                    "hint": "Raw content of the part",
-                                    "type": "string",
-                                    "name": "body"
-                                  }
-                                ],
-                                "type": "array",
-                                "name": "parts"
-                              },
-                              {
-                                "label": "Request URL parameters",
-                                "control_type": "key_value",
-                                "check_secrets": true,
-                                "optional": true,
-                                "empty_list_title": "Does this HTTP request contain a query string?",
-                                "empty_list_text": "Add URL parameters to the query string",
-                                "item_label": "URL parameter",
-                                "ngIf": "!(input.request.method === 'POST' || input.request.method === 'PUT' || input.request.method === 'PATCH')",
-                                "of": "object",
-                                "properties": [
-                                  {
-                                    "control_type": "text",
-                                    "label": "Parameter name",
-                                    "type": "string",
-                                    "name": "param"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "Value",
-                                    "type": "string",
-                                    "name": "value"
-                                  }
-                                ],
-                                "type": "array",
-                                "name": "parameters"
-                              },
-                              {
-                                "label": "Request headers",
-                                "control_type": "key_value",
-                                "optional": true,
-                                "check_secrets": true,
-                                "empty_list_title": "Does this HTTP request require headers?",
-                                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
-                                "item_label": "Header",
-                                "sticky": true,
-                                "of": "object",
-                                "properties": [
-                                  {
-                                    "control_type": "text",
-                                    "label": "Header name",
-                                    "type": "string",
-                                    "name": "header"
-                                  },
-                                  {
-                                    "control_type": "text",
-                                    "label": "Value",
-                                    "type": "string",
-                                    "name": "value"
-                                  }
-                                ],
-                                "type": "array",
-                                "name": "headers"
-                              }
-                            ],
-                            "type": "object"
-                          },
                           {
                             "label": "Response",
                             "name": "response",
@@ -5072,7 +4584,6 @@
                                             "province": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"861c84d6_9b04_4724_8715_fc5d159e8f7e\"]}')}",
                                             "recipe_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"36347bf2\",\"path\":[\"parameters\",\"RecipeID\"]}').to_i",
                                             "state": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"ea70d8e7_3c65_4d46_834e_18907ac3aaa6\"]}').presence",
-                                            "tax_country": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"362a4856_9585_4c40_8781_f04b60b5aa7b\"]}').presence",
                                             "tax_payer_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"a236ed5b_0681_44f6_beb3_e767dc856f17\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"a236ed5b_0681_44f6_beb3_e767dc856f17\"]}').slice(0,50) : null",
                                             "tax_reg_num": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"05c826b2_ca03_4b91_81cb_2240dd0877be\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"05c826b2_ca03_4b91_81cb_2240dd0877be\"]}').slice(0,50) : null",
                                             "vendor_site_alternative": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"c2d68ebf_7a29_4c53_ae7e_e4400c62da0f\"]}')}",
@@ -5085,7 +4596,8 @@
                                             "verified": "N",
                                             "address_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"3fd9efc4_58ca_4d36_9d42_536c2776180c\"]}').presence",
                                             "addr_line2": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"deefaa18_125f_4357_b14a_926398480f7d\"]}').presence",
-                                            "addr_line3": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"c4b4b213_22e7_498a_bb39_4b10e059d40b\"]}').presence"
+                                            "addr_line3": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"c4b4b213_22e7_498a_bb39_4b10e059d40b\"]}').presence",
+                                            "tax_country": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"2572be8c\",\"path\":[\"362a4856_9585_4c40_8781_f04b60b5aa7b\"]}').presence"
                                           }
                                         },
                                         "extended_output_schema": [
@@ -5189,23 +4701,6 @@
                                                 "hint": "varchar2, max length 20",
                                                 "type": "string",
                                                 "name": "address_name"
-                                              },
-                                              {
-                                                "control_type": "text",
-                                                "label": "ALLOW_WHT_TAX",
-                                                "details": {
-                                                  "primary_key": false,
-                                                  "data_type": "varchar2",
-                                                  "column_name": "ALLOW_WHT_TAX",
-                                                  "length": 3,
-                                                  "precision": null,
-                                                  "scale": null,
-                                                  "element_type": null
-                                                },
-                                                "optional": true,
-                                                "hint": "varchar2, max length 3",
-                                                "type": "string",
-                                                "name": "allow_wht_tax"
                                               },
                                               {
                                                 "control_type": "text",
@@ -5611,13 +5106,13 @@
                                                   "primary_key": false,
                                                   "data_type": "varchar2",
                                                   "column_name": "TAX_COUNTRY",
-                                                  "length": 100,
+                                                  "length": 30,
                                                   "precision": null,
                                                   "scale": null,
                                                   "element_type": null
                                                 },
                                                 "optional": true,
-                                                "hint": "varchar2, max length 100",
+                                                "hint": "varchar2, max length 30",
                                                 "type": "string",
                                                 "name": "tax_country"
                                               },
@@ -5969,6 +5464,98 @@
                                         "name": "REGISTRATION_STATUS_CODE"
                                       },
                                       {
+                                        "control_type": "text",
+                                        "label": "SELECT_COUNTRY",
+                                        "type": "string",
+                                        "name": "SELECT_COUNTRY"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "ALLOW_TAX_WATH",
+                                        "type": "string",
+                                        "name": "ALLOW_TAX_WATH"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "PAYMT_WATH_TAX_CODE",
+                                        "type": "string",
+                                        "name": "PAYMT_WATH_TAX_CODE"
+                                      },
+                                      {
+                                        "control_type": "date",
+                                        "label": "SUPP_REGISTRATION_DATE",
+                                        "render_input": "date_conversion",
+                                        "parse_output": "date_conversion",
+                                        "type": "date",
+                                        "name": "SUPP_REGISTRATION_DATE"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "ORGANIZATION_TYPE",
+                                        "type": "string",
+                                        "name": "ORGANIZATION_TYPE"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "BOOK_KEEPING_CERTIFICATE",
+                                        "type": "string",
+                                        "name": "BOOK_KEEPING_CERTIFICATE"
+                                      },
+                                      {
+                                        "control_type": "date",
+                                        "label": "BOOK_KEEPING_CTFT_EXPIRY_DATE",
+                                        "render_input": "date_conversion",
+                                        "parse_output": "date_conversion",
+                                        "type": "date",
+                                        "name": "BOOK_KEEPING_CTFT_EXPIRY_DATE"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "TAX_OFFICER_NUMBER",
+                                        "type": "string",
+                                        "name": "TAX_OFFICER_NUMBER"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "INCLUDE_IN_SHAAM_REPORTING",
+                                        "type": "string",
+                                        "name": "INCLUDE_IN_SHAAM_REPORTING"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "WATH_TAX_REPORT_GROUP",
+                                        "type": "string",
+                                        "name": "WATH_TAX_REPORT_GROUP"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "OCCUPATION_DESCRIPTION",
+                                        "type": "string",
+                                        "name": "OCCUPATION_DESCRIPTION"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "TRANSACTION_TAX",
+                                        "type": "string",
+                                        "name": "TRANSACTION_TAX"
+                                      },
+                                      {
+                                        "control_type": "date",
+                                        "label": "WATH_TAX_CERTI_START_DATE",
+                                        "render_input": "date_conversion",
+                                        "parse_output": "date_conversion",
+                                        "type": "date",
+                                        "name": "WATH_TAX_CERTI_START_DATE"
+                                      },
+                                      {
+                                        "control_type": "date",
+                                        "label": "WATH_TAX_CERTI_END_DATE",
+                                        "render_input": "date_conversion",
+                                        "parse_output": "date_conversion",
+                                        "type": "date",
+                                        "name": "WATH_TAX_CERTI_END_DATE"
+                                      },
+                                      {
                                         "control_type": "date_time",
                                         "label": "Created at",
                                         "render_input": "date_time_conversion",
@@ -6171,6 +5758,132 @@
                                     "default": "string",
                                     "label": "$internal_value_87e7b79d-bdce-45fc-8319-c7fb3b224aaf",
                                     "name": "87e7b79d-bdce-45fc-8319-c7fb3b224aaf",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_a4c79d16-31cb-4f24-9bba-8d86bc85dbde",
+                                    "name": "a4c79d16-31cb-4f24-9bba-8d86bc85dbde",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_5797eae7-8ff2-4207-bf42-93d103883051",
+                                    "name": "5797eae7-8ff2-4207-bf42-93d103883051",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_f7b8c8db-a0ea-4c67-aa2b-7a564ab7fda0",
+                                    "name": "f7b8c8db-a0ea-4c67-aa2b-7a564ab7fda0",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "date",
+                                    "label": "$internal_value_4722cc3a-d423-4145-b63f-92560b5c5f95",
+                                    "name": "4722cc3a-d423-4145-b63f-92560b5c5f95",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_fd89deba-5bce-4d75-857b-58c59adc25f8",
+                                    "name": "fd89deba-5bce-4d75-857b-58c59adc25f8",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_16097fee-40b5-42eb-8c3d-3152fe7f23a3",
+                                    "name": "16097fee-40b5-42eb-8c3d-3152fe7f23a3",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "date",
+                                    "label": "$internal_value_e98b2af7-3be1-47ec-b8f9-31dabf1acebe",
+                                    "name": "e98b2af7-3be1-47ec-b8f9-31dabf1acebe",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_f9ee51d9-1f21-4c9c-9aba-1881ef2e5d14",
+                                    "name": "f9ee51d9-1f21-4c9c-9aba-1881ef2e5d14",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_5983cf2c-e7e2-4a1a-b1e1-54153c684a4a",
+                                    "name": "5983cf2c-e7e2-4a1a-b1e1-54153c684a4a",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_82ebace9-25a9-4ea4-b73d-ac51138567d7",
+                                    "name": "82ebace9-25a9-4ea4-b73d-ac51138567d7",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_d966651c-db4c-4717-bb32-d54c9f57f388",
+                                    "name": "d966651c-db4c-4717-bb32-d54c9f57f388",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_153e7bf8-c89b-45d3-9642-669df949fcf6",
+                                    "name": "153e7bf8-c89b-45d3-9642-669df949fcf6",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "date",
+                                    "label": "$internal_value_351e1e4e-1743-4ae7-93b4-833fa17d3220",
+                                    "name": "351e1e4e-1743-4ae7-93b4-833fa17d3220",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "date",
+                                    "label": "$internal_value_9cf6e4f4-ee74-46a4-9166-cb4dde076f0f",
+                                    "name": "9cf6e4f4-ee74-46a4-9166-cb4dde076f0f",
                                     "ngIf": "false",
                                     "optional": true,
                                     "type": "string"
@@ -6438,7 +6151,22 @@
                                             "site_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"SITE_NAME\"]}').presence",
                                             "address_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"ADDRESS_NAME\"]}').presence",
                                             "tax_effective_from": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"TAX_EFFECTIVE_FROM\"]}') ? ((_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"TAX_EFFECTIVE_FROM\"]}')).to_i/1000).to_time.strftime(\"%d-%m-%Y\") : null",
-                                            "registration_status_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"REGISTRATION_STATUS_CODE\"]}').presence"
+                                            "registration_status_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"REGISTRATION_STATUS_CODE\"]}').presence",
+                                            "allow_tax_wth": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"ALLOW_TAX_WATH\"]}').presence",
+                                            "book_keeping_cert_expiry_date": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"BOOK_KEEPING_CTFT_EXPIRY_DATE\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"BOOK_KEEPING_CTFT_EXPIRY_DATE\"]}') : null",
+                                            "book_keeping_certificate": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"BOOK_KEEPING_CERTIFICATE\"]}').presence",
+                                            "include_in_shaam_reporting": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"INCLUDE_IN_SHAAM_REPORTING\"]}').presence",
+                                            "occupation_description": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"OCCUPATION_DESCRIPTION\"]}').presence",
+                                            "organization_type": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"ORGANIZATION_TYPE\"]}').presence",
+                                            "pmt_wth_tax_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"PAYMT_WATH_TAX_CODE\"]}').presence",
+                                            "supp_registration_date": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"SUPP_REGISTRATION_DATE\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"SUPP_REGISTRATION_DATE\"]}') : null",
+                                            "tax_classification": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"TRANSACTION_TAX\"]}').presence",
+                                            "tax_country": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"SELECT_COUNTRY\"]}').presence",
+                                            "tax_officer_number": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"TAX_OFFICER_NUMBER\"]}').presence",
+                                            "tax_regime_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"TAX_REGIME_CODE\"]}').presence",
+                                            "wth_tax_cert_end_date": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_CERTI_END_DATE\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_CERTI_END_DATE\"]}') : null",
+                                            "wth_tax_cert_start_date": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_CERTI_START_DATE\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_CERTI_START_DATE\"]}') : null",
+                                            "wth_tax_report_group": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_REPORT_GROUP\"]}').presence"
                                           }
                                         },
                                         "extended_output_schema": [
@@ -6494,6 +6222,23 @@
                                               },
                                               {
                                                 "control_type": "text",
+                                                "label": "ALLOW_TAX_WTH",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "ALLOW_TAX_WTH",
+                                                  "length": 10,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 10",
+                                                "type": "string",
+                                                "name": "allow_tax_wth"
+                                              },
+                                              {
+                                                "control_type": "text",
                                                 "label": "ARIBA_VENDOR_ID",
                                                 "details": {
                                                   "primary_key": false,
@@ -6542,6 +6287,42 @@
                                                 "hint": "varchar2, max length 100",
                                                 "type": "string",
                                                 "name": "bank_instr2"
+                                              },
+                                              {
+                                                "control_type": "date_time",
+                                                "label": "BOOK_KEEPING_CERT_EXPIRY_DATE",
+                                                "render_input": "render_date_time_format",
+                                                "parse_output": "parse_date_time_format",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "date",
+                                                  "column_name": "BOOK_KEEPING_CERT_EXPIRY_DATE",
+                                                  "length": 0,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "date",
+                                                "type": "date_time",
+                                                "name": "book_keeping_cert_expiry_date"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "BOOK_KEEPING_CERTIFICATE",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "BOOK_KEEPING_CERTIFICATE",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "book_keeping_certificate"
                                               },
                                               {
                                                 "control_type": "number",
@@ -6616,6 +6397,23 @@
                                               },
                                               {
                                                 "control_type": "text",
+                                                "label": "INCLUDE_IN_SHAAM_REPORTING",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "INCLUDE_IN_SHAAM_REPORTING",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "include_in_shaam_reporting"
+                                              },
+                                              {
+                                                "control_type": "text",
                                                 "label": "INTERFACE_ERROR",
                                                 "details": {
                                                   "primary_key": false,
@@ -6647,6 +6445,40 @@
                                                 "hint": "varchar2, max length 1",
                                                 "type": "string",
                                                 "name": "interface_status"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "OCCUPATION_DESCRIPTION",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "OCCUPATION_DESCRIPTION",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "occupation_description"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "ORGANIZATION_TYPE",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "ORGANIZATION_TYPE",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "organization_type"
                                               },
                                               {
                                                 "control_type": "text",
@@ -6698,6 +6530,23 @@
                                                 "hint": "varchar2, max length 100",
                                                 "type": "string",
                                                 "name": "payment_reason"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "PMT_WTH_TAX_CODE",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "PMT_WTH_TAX_CODE",
+                                                  "length": 30,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 30",
+                                                "type": "string",
+                                                "name": "pmt_wth_tax_code"
                                               },
                                               {
                                                 "control_type": "text",
@@ -6803,6 +6652,25 @@
                                                 "name": "site_name"
                                               },
                                               {
+                                                "control_type": "date_time",
+                                                "label": "SUPP_REGISTRATION_DATE",
+                                                "render_input": "render_date_time_format",
+                                                "parse_output": "parse_date_time_format",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "date",
+                                                  "column_name": "SUPP_REGISTRATION_DATE",
+                                                  "length": 0,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "date",
+                                                "type": "date_time",
+                                                "name": "supp_registration_date"
+                                              },
+                                              {
                                                 "control_type": "text",
                                                 "label": "SUPPLIER_NOTIF_METHOD",
                                                 "details": {
@@ -6838,6 +6706,40 @@
                                                 "name": "supplier_ou_rec_seq_id"
                                               },
                                               {
+                                                "control_type": "text",
+                                                "label": "TAX_CLASSIFICATION",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "TAX_CLASSIFICATION",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "tax_classification"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "TAX_COUNTRY",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "TAX_COUNTRY",
+                                                  "length": 30,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 30",
+                                                "type": "string",
+                                                "name": "tax_country"
+                                              },
+                                              {
                                                 "control_type": "date_time",
                                                 "label": "TAX_EFFECTIVE_FROM",
                                                 "render_input": "render_date_time_format",
@@ -6855,6 +6757,23 @@
                                                 "hint": "date",
                                                 "type": "date_time",
                                                 "name": "tax_effective_from"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "TAX_OFFICER_NUMBER",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "TAX_OFFICER_NUMBER",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "tax_officer_number"
                                               },
                                               {
                                                 "control_type": "text",
@@ -6957,6 +6876,61 @@
                                                 "hint": "varchar2, max length 1",
                                                 "type": "string",
                                                 "name": "verified"
+                                              },
+                                              {
+                                                "control_type": "date_time",
+                                                "label": "WTH_TAX_CERT_END_DATE",
+                                                "render_input": "render_date_time_format",
+                                                "parse_output": "parse_date_time_format",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "date",
+                                                  "column_name": "WTH_TAX_CERT_END_DATE",
+                                                  "length": 0,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "date",
+                                                "type": "date_time",
+                                                "name": "wth_tax_cert_end_date"
+                                              },
+                                              {
+                                                "control_type": "date_time",
+                                                "label": "WTH_TAX_CERT_START_DATE",
+                                                "render_input": "render_date_time_format",
+                                                "parse_output": "parse_date_time_format",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "date",
+                                                  "column_name": "WTH_TAX_CERT_START_DATE",
+                                                  "length": 0,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "date",
+                                                "type": "date_time",
+                                                "name": "wth_tax_cert_start_date"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "WTH_TAX_REPORT_GROUP",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "WTH_TAX_REPORT_GROUP",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "wth_tax_report_group"
                                               }
                                             ],
                                             "type": "array"
@@ -6989,7 +6963,22 @@
                                           "rows",
                                           "rows.registration_status_code",
                                           "rows.address_name",
-                                          "rows.site_name"
+                                          "rows.site_name",
+                                          "rows.wth_tax_report_group",
+                                          "rows.wth_tax_cert_start_date",
+                                          "rows.wth_tax_cert_end_date",
+                                          "rows.tax_regime_code",
+                                          "rows.tax_officer_number",
+                                          "rows.tax_country",
+                                          "rows.tax_classification",
+                                          "rows.supp_registration_date",
+                                          "rows.pmt_wth_tax_code",
+                                          "rows.organization_type",
+                                          "rows.occupation_description",
+                                          "rows.include_in_shaam_reporting",
+                                          "rows.book_keeping_certificate",
+                                          "rows.book_keeping_cert_expiry_date",
+                                          "rows.allow_tax_wth"
                                         ],
                                         "comment": "INSERT into Supplier SITE  Operating  Unit Temporary Table",
                                         "uuid": "984e3d5c-32c4-480b-ad78-6b10be1dc494",
@@ -7729,7 +7718,10 @@
                                             "is_intermediate_bank": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"26c50923_a852_4bc5_96e1_9eb06d3c4523\"]}').presence",
                                             "swift": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"fefac935_33b0_44d8_ac8f_1e71cb74dc86\"]}').presence",
                                             "bank_key": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"655a419b_bfc2_4bc5_a88f_5957dfcd5d9d\"]}').presence",
-                                            "bank_tax_payer_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"0e0e5ad6_c25d_4770_b9ef_92fcba65a89b\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"0e0e5ad6_c25d_4770_b9ef_92fcba65a89b\"]}').slice(0,30) : null "
+                                            "bank_tax_payer_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"0e0e5ad6_c25d_4770_b9ef_92fcba65a89b\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"0e0e5ad6_c25d_4770_b9ef_92fcba65a89b\"]}').slice(0,30) : null ",
+                                            "bank_state": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"514d9bc7_d789_4a36_9a87_6a35a5799c3b\"]}').presence",
+                                            "bank_postal_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"faa40c7b_4f3b_472b_8e4e_a1df104f92ad\"]}').presence",
+                                            "bank_city": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"15a38d5c_7ba6_4635_90d8_3e115c82a601\"]}').presence"
                                           }
                                         },
                                         "extended_output_schema": [
@@ -7853,6 +7845,40 @@
                                               },
                                               {
                                                 "control_type": "text",
+                                                "label": "BANK_ADDR_LINE1",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "BANK_ADDR_LINE1",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "bank_addr_line1"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "BANK_CITY",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "BANK_CITY",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "bank_city"
+                                              },
+                                              {
+                                                "control_type": "text",
                                                 "label": "BANK_COUNTRY",
                                                 "details": {
                                                   "primary_key": false,
@@ -7918,6 +7944,40 @@
                                                 "hint": "varchar2, max length 30",
                                                 "type": "string",
                                                 "name": "bank_number"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "BANK_POSTAL_CODE",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "BANK_POSTAL_CODE",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "bank_postal_code"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "BANK_STATE",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "BANK_STATE",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "bank_state"
                                               },
                                               {
                                                 "control_type": "text",
@@ -8303,7 +8363,10 @@
                                           "rows.is_intermediate_bank",
                                           "rows.swift",
                                           "rows.bank_key",
-                                          "rows.bank_tax_payer_id"
+                                          "rows.bank_tax_payer_id",
+                                          "rows.bank_state",
+                                          "rows.bank_postal_code",
+                                          "rows.bank_city"
                                         ],
                                         "comment": "INSERT into BANK Staging Table",
                                         "uuid": "bb99e777-dbde-4329-b779-4065fa19d015",
@@ -8504,6 +8567,24 @@
                                         "label": "INT_IBAN",
                                         "type": "string",
                                         "name": "76d7cbaa_359d_4ce0_8128_882e011d948c"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "INT_BANK_CITY",
+                                        "type": "string",
+                                        "name": "0e39ccb4_cf9e_4357_9a8f_ab5737b043da"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "INT_BANK_POSTAL_CODE",
+                                        "type": "string",
+                                        "name": "1544b3eb_dca8_4a4f_ac16_15da84803e60"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "INT_BANK_STATE",
+                                        "type": "string",
+                                        "name": "54fb1a7a_ed23_4a48_af80_48dcfc48e0c1"
                                       },
                                       {
                                         "control_type": "date_time",
@@ -8714,6 +8795,33 @@
                                   },
                                   {
                                     "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_0e39ccb4-cf9e-4357-9a8f-ab5737b043da",
+                                    "name": "0e39ccb4-cf9e-4357-9a8f-ab5737b043da",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_1544b3eb-dca8-4a4f-ac16-15da84803e60",
+                                    "name": "1544b3eb-dca8-4a4f-ac16-15da84803e60",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_54fb1a7a-ed23-4a48-af80-48dcfc48e0c1",
+                                    "name": "54fb1a7a-ed23-4a48-af80-48dcfc48e0c1",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
                                     "default": "id",
                                     "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
                                     "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
@@ -8801,7 +8909,10 @@
                                             "int_iban": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"76d7cbaa_359d_4ce0_8128_882e011d948c\"]}').presence",
                                             "int_swift": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"b0400588_c614_4c87_b42d_0a848a51260b\"]}').presence",
                                             "int_bank_key": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"a93f35a2_f62e_4c9e_a559_c8e05f3916e4\"]}').presence",
-                                            "int_bank_tax_payer_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"7b9a7c85_67cb_422f_a9b6_e88a3d0c3e89\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"7b9a7c85_67cb_422f_a9b6_e88a3d0c3e89\"]}').slice(0,30) : null "
+                                            "int_bank_tax_payer_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"7b9a7c85_67cb_422f_a9b6_e88a3d0c3e89\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"7b9a7c85_67cb_422f_a9b6_e88a3d0c3e89\"]}').slice(0,30) : null ",
+                                            "int_bank_state": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"54fb1a7a_ed23_4a48_af80_48dcfc48e0c1\"]}').presence",
+                                            "int_bank_postal_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"1544b3eb_dca8_4a4f_ac16_15da84803e60\"]}').presence",
+                                            "int_bank_city": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"afe44f3f\",\"path\":[\"0e39ccb4_cf9e_4357_9a8f_ab5737b043da\"]}').presence"
                                           }
                                         },
                                         "extended_output_schema": [
@@ -8928,6 +9039,40 @@
                                               },
                                               {
                                                 "control_type": "text",
+                                                "label": "INT_BANK_ADDR_LINE1",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "INT_BANK_ADDR_LINE1",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "int_bank_addr_line1"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "INT_BANK_CITY",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "INT_BANK_CITY",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "int_bank_city"
+                                              },
+                                              {
+                                                "control_type": "text",
                                                 "label": "INT_BANK_COUNTRY",
                                                 "details": {
                                                   "primary_key": false,
@@ -8993,6 +9138,40 @@
                                                 "hint": "varchar2, max length 30",
                                                 "type": "string",
                                                 "name": "int_bank_number"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "INT_BANK_POSTAL_CODE",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "INT_BANK_POSTAL_CODE",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "int_bank_postal_code"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "INT_BANK_STATE",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "INT_BANK_STATE",
+                                                  "length": 240,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 240",
+                                                "type": "string",
+                                                "name": "int_bank_state"
                                               },
                                               {
                                                 "control_type": "text",
@@ -9336,7 +9515,10 @@
                                           "rows.int_iban",
                                           "rows.int_swift",
                                           "rows.int_bank_key",
-                                          "rows.int_bank_tax_payer_id"
+                                          "rows.int_bank_tax_payer_id",
+                                          "rows.int_bank_state",
+                                          "rows.int_bank_postal_code",
+                                          "rows.int_bank_city"
                                         ],
                                         "comment": "Add Rows from Supplier INTERMEDIATE BANK Temporary Table",
                                         "uuid": "6ac8e838-5b63-458f-ac57-599f60e6d994",
