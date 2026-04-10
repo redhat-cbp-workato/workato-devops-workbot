@@ -1,7 +1,7 @@
 {
   "name": "Ariba | External Approval API Testing",
   "description": "This recipe automates the process of synchronizing vendor data from SAP Ariba to an Oracle ERP system.\n\n- The process is triggered on a specified schedule, initiating a request to the Ariba API to fetch updated vendor data based on a defined time range.\n- If new vendor data is retrieved, the recipe checks if each vendor already exists in the Oracle database.\n- For vendors that do not exist, new records are created in the relevant Oracle staging tables for suppliers, supplier sites, and bank details.\n- If existing vendors are found, their records are updated accordingly.\n- The recipe also handles the creation of new records for supplier sites and banks, ensuring that all relevant details are captured.\n- After processing, the recipe sends notifications via email to stakeholders, summarizing the results of the synchronization, including any errors encountered during the process.\n- In case of errors, the recipe calls an error handling function to log the error details and notify the appropriate personnel.\n\nOverall, this recipe ensures that vendor information in the Oracle ERP system is kept up-to-date with the latest data from SAP Ariba, facilitating efficient vendor management and compliance.",
-  "version": 29,
+  "version": 62,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -89,7 +89,7 @@
               "request": {
                 "method": "POST",
                 "content_type": "json",
-                "url": "=\"https://openapi.ariba.com/api/supplierdatapagination/v4/prod/vendorDataRequests?$filter=updatedDateFrom ge \" + ((now - _dp('{\"pill_type\":\"project_property\",\"property_name\":\"vendorDataRequestSchedule\"}').to_i.hours).to_time.utc.to_s[0,19].gsub(' ', 'T') + 'Z') + \" and \" + \"updatedDateTo le \" + (_dp('{\"pill_type\":\"output\",\"provider\":\"clock\",\"line\":\"161ac6dc\",\"path\":[\"scheduled_time\"]}').to_time.utc.to_s[0,19].gsub(' ', 'T') + 'Z')",
+                "url": "=\"https://openapi.ariba.com/api/supplierdatapagination/v4/prod/vendorDataRequests?$filter=updatedDateFrom ge \" + ((now - 24.to_i.hours).to_time.utc.to_s[0,19].gsub(' ', 'T') + 'Z') + \" and \" + \"updatedDateTo le \" + (_dp('{\"pill_type\":\"output\",\"provider\":\"clock\",\"line\":\"161ac6dc\",\"path\":[\"scheduled_time\"]}').to_time.utc.to_s[0,19].gsub(' ', 'T') + 'Z')",
                 "parameters": [
                   {
                     "param": "realm",
@@ -678,10 +678,764 @@
             "comment": "Query -VendorDataRequest API to get list of Vendor IDs",
             "uuid": "d260f5ae-3789-45e3-8d45-a1db003343da",
             "wizardFinished": true,
-            "skip": true
+            "skip": false
           },
           {
             "number": 3,
+            "provider": "rest",
+            "name": "make_request_v2",
+            "as": "92b22049",
+            "keyword": "action",
+            "toggleCfg": {
+              "response.ignore_http_errors": true,
+              "disable_retries": true
+            },
+            "input": {
+              "request_name": "Send request",
+              "request": {
+                "method": "GET",
+                "content_type": "application/json",
+                "url": "=\"https://openapi.ariba.com/api/supplierdatapagination/v4/prod/vendors/S79172813/workspaces\"",
+                "headers": [
+                  {
+                    "header": "APIKEY",
+                    "value": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"SupplierDataPaginationAPIKEY\"}')}"
+                  }
+                ],
+                "parameters": [
+                  {
+                    "param": "realm",
+                    "value": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"realm\"}')}"
+                  }
+                ]
+              },
+              "response": {
+                "output_type": "json",
+                "expected_encoding": "UTF-8",
+                "ignore_http_errors": "false"
+              },
+              "wait_for_response": "false",
+              "completion_threshold_seconds": "3600",
+              "disable_retries": "false"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Headers",
+                "name": "headers",
+                "properties": [
+
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Response",
+                "name": "response",
+                "properties": [
+
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Response",
+                "name": "response",
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "select",
+                    "label": "Response content type",
+                    "pick_list": [
+                      [
+                        "Text",
+                        "rawdatatxt"
+                      ],
+                      [
+                        "Binary",
+                        "rawdata"
+                      ],
+                      [
+                        "JSON",
+                        "json"
+                      ],
+                      [
+                        "XML",
+                        "xml2"
+                      ],
+                      [
+                        "Multipart",
+                        "multipart"
+                      ]
+                    ],
+                    "hint": "Select expected format of data response type, e.g. JSON or XML. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "default": "json",
+                    "extends_schema": true,
+                    "type": "string",
+                    "name": "output_type"
+                  },
+                  {
+                    "control_type": "select",
+                    "label": "Encoding",
+                    "pick_list": "supported_encodings_without_binary_global_pick_list",
+                    "pick_list_connection_less": true,
+                    "optional": true,
+                    "default": "UTF-8",
+                    "hint": "Default encoding type is set to UTF-8, and typically doesn't need to be changed. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "type": "string",
+                    "name": "expected_encoding"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Response schema",
+                    "sample_data_type": "json_http",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all fields in your response.",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "response_schema"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "HTTP response headers",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all the response headers",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "headers_schema"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Multipart part headers",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe headers within each multipart part",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Define the headers that appear in each part of the multipart response (e.g., Content-Type, Content-ID)",
+                    "ngIf": "input.response.output_type == 'multipart'",
+                    "type": "string",
+                    "name": "part_headers_schema"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Mark non-2xx response codes as success?",
+                    "default": "false",
+                    "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                    "optional": true,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Mark non-2xx response codes as success?",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "default": false,
+                      "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                      "optional": true,
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "ignore_http_errors"
+                    },
+                    "type": "boolean",
+                    "name": "ignore_http_errors"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "comment": "Query -VendorDataRequest API to get list of Vendor IDs",
+            "uuid": "48e2fbcf-3ef8-465a-8873-7e0a82d321c3",
+            "wizardFinished": true,
+            "skip": true
+          },
+          {
+            "number": 4,
+            "provider": "rest",
+            "name": "make_request_v2",
+            "as": "7ce40fc7",
+            "keyword": "action",
+            "toggleCfg": {
+              "response.ignore_http_errors": true,
+              "disable_retries": true
+            },
+            "input": {
+              "request_name": "Send request",
+              "request": {
+                "method": "GET",
+                "content_type": "application/json",
+                "url": "=\"https://openapi.ariba.com/api/supplierdatapagination/v4/prod/vendors/S79172813/workspaces/WS2091584154\"",
+                "headers": [
+                  {
+                    "header": "APIKEY",
+                    "value": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"SupplierDataPaginationAPIKEY\"}')}"
+                  }
+                ],
+                "parameters": [
+                  {
+                    "param": "realm",
+                    "value": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"realm\"}')}"
+                  }
+                ]
+              },
+              "response": {
+                "output_type": "json",
+                "expected_encoding": "UTF-8",
+                "ignore_http_errors": "false",
+                "response_schema": "[{\"properties\":[{\"control_type\":\"text\",\"label\":\"Active\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Active\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"active\"},\"type\":\"boolean\",\"name\":\"active\"},{\"control_type\":\"number\",\"label\":\"Time updated\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"timeUpdated\"},{\"control_type\":\"number\",\"label\":\"Time created\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"timeCreated\"},{\"control_type\":\"text\",\"label\":\"Unique name\",\"type\":\"string\",\"name\":\"uniqueName\"},{\"control_type\":\"text\",\"label\":\"Process ID\",\"type\":\"string\",\"name\":\"processId\"},{\"control_type\":\"text\",\"label\":\"Requester\",\"type\":\"string\",\"name\":\"requester\"},{\"control_type\":\"text\",\"label\":\"Approver\",\"type\":\"string\",\"name\":\"approver\"},{\"control_type\":\"number\",\"label\":\"Status updated date\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"statusUpdatedDate\"},{\"control_type\":\"text\",\"label\":\"Title\",\"type\":\"string\",\"name\":\"title\"},{\"control_type\":\"text\",\"label\":\"Auto approval\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Auto approval\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"autoApproval\"},\"type\":\"boolean\",\"name\":\"autoApproval\"},{\"control_type\":\"text\",\"label\":\"Requester ID\",\"type\":\"string\",\"name\":\"requesterId\"},{\"control_type\":\"number\",\"label\":\"Invited date\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"invitedDate\"},{\"control_type\":\"number\",\"label\":\"Questionnaire submission date\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"questionnaireSubmissionDate\"},{\"control_type\":\"number\",\"label\":\"Reinvite count\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"reinviteCount\"},{\"control_type\":\"number\",\"label\":\"Approved date\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"approvedDate\"},{\"control_type\":\"number\",\"label\":\"Update approved date\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"updateApprovedDate\"},{\"control_type\":\"number\",\"label\":\"Invitation count\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"invitationCount\"},{\"control_type\":\"text\",\"label\":\"Status\",\"type\":\"string\",\"name\":\"status\"},{\"control_type\":\"text\",\"label\":\"Update status\",\"type\":\"string\",\"name\":\"updateStatus\"},{\"control_type\":\"text\",\"label\":\"Legacy\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Legacy\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"legacy\"},\"type\":\"boolean\",\"name\":\"legacy\"},{\"control_type\":\"text\",\"label\":\"Registration source\",\"type\":\"string\",\"name\":\"registrationSource\"},{\"control_type\":\"text\",\"label\":\"Registration update source\",\"type\":\"string\",\"name\":\"registrationUpdateSource\"},{\"control_type\":\"text\",\"label\":\"Vendor model sync in progress\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Vendor model sync in progress\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"vendorModelSyncInProgress\"},\"type\":\"boolean\",\"name\":\"vendorModelSyncInProgress\"},{\"control_type\":\"number\",\"label\":\"Registration invite error ID\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"registrationInviteErrorId\"},{\"properties\":[{\"control_type\":\"text\",\"label\":\"Sm vendor ID\",\"type\":\"string\",\"name\":\"smVendorId\"},{\"control_type\":\"text\",\"label\":\"Erp vendor ID\",\"type\":\"string\",\"name\":\"erpVendorId\"},{\"control_type\":\"text\",\"label\":\"An ID\",\"type\":\"string\",\"name\":\"anId\"},{\"control_type\":\"text\",\"label\":\"Acm ID\",\"type\":\"string\",\"name\":\"acmId\"}],\"label\":\"Vendor info\",\"type\":\"object\",\"name\":\"vendorInfo\"},{\"label\":\"Questionnaires\",\"of\":\"object\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Questionnaire ID\",\"type\":\"string\",\"name\":\"questionnaireId\"},{\"label\":\"Links\",\"of\":\"object\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Rel\",\"type\":\"string\",\"name\":\"rel\"},{\"control_type\":\"text\",\"label\":\"Href\",\"type\":\"string\",\"name\":\"href\"}],\"type\":\"array\",\"name\":\"links\"}],\"type\":\"array\",\"name\":\"questionnaires\"},{\"label\":\"Links\",\"of\":\"object\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Rel\",\"type\":\"string\",\"name\":\"rel\"},{\"control_type\":\"text\",\"label\":\"Href\",\"type\":\"string\",\"name\":\"href\"}],\"type\":\"array\",\"name\":\"links\"},{\"control_type\":\"text\",\"label\":\"Internally registered\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Internally registered\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"internallyRegistered\"},\"type\":\"boolean\",\"name\":\"internallyRegistered\"},{\"control_type\":\"text\",\"label\":\"Current registration source\",\"type\":\"string\",\"name\":\"currentRegistrationSource\"},{\"control_type\":\"text\",\"label\":\"Current registration status\",\"type\":\"string\",\"name\":\"currentRegistrationStatus\"},{\"control_type\":\"text\",\"label\":\"Convertible to full supplier\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Convertible to full supplier\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"convertibleToFullSupplier\"},\"type\":\"boolean\",\"name\":\"convertibleToFullSupplier\"},{\"control_type\":\"text\",\"label\":\"Workspace ID\",\"type\":\"string\",\"name\":\"workspaceId\"}],\"label\":\"Response\",\"type\":\"object\",\"name\":\"response\"}]"
+              },
+              "wait_for_response": "false",
+              "completion_threshold_seconds": "3600",
+              "disable_retries": "false"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Headers",
+                "name": "headers",
+                "properties": [
+
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Response",
+                "name": "response",
+                "properties": [
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Active",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Active",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "name": "active"
+                        },
+                        "type": "boolean",
+                        "name": "active"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Time updated",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "timeUpdated"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Time created",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "timeCreated"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Unique name",
+                        "type": "string",
+                        "name": "uniqueName"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Process ID",
+                        "type": "string",
+                        "name": "processId"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Requester",
+                        "type": "string",
+                        "name": "requester"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Approver",
+                        "type": "string",
+                        "name": "approver"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Status updated date",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "statusUpdatedDate"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Title",
+                        "type": "string",
+                        "name": "title"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Auto approval",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Auto approval",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "name": "autoApproval"
+                        },
+                        "type": "boolean",
+                        "name": "autoApproval"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Requester ID",
+                        "type": "string",
+                        "name": "requesterId"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Invited date",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "invitedDate"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Questionnaire submission date",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "questionnaireSubmissionDate"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Reinvite count",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "reinviteCount"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Approved date",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "approvedDate"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Update approved date",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "updateApprovedDate"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Invitation count",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "invitationCount"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Status",
+                        "type": "string",
+                        "name": "status"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Update status",
+                        "type": "string",
+                        "name": "updateStatus"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Legacy",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Legacy",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "name": "legacy"
+                        },
+                        "type": "boolean",
+                        "name": "legacy"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Registration source",
+                        "type": "string",
+                        "name": "registrationSource"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Registration update source",
+                        "type": "string",
+                        "name": "registrationUpdateSource"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Vendor model sync in progress",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Vendor model sync in progress",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "name": "vendorModelSyncInProgress"
+                        },
+                        "type": "boolean",
+                        "name": "vendorModelSyncInProgress"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Registration invite error ID",
+                        "parse_output": "float_conversion",
+                        "type": "number",
+                        "name": "registrationInviteErrorId"
+                      },
+                      {
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Sm vendor ID",
+                            "type": "string",
+                            "name": "smVendorId"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Erp vendor ID",
+                            "type": "string",
+                            "name": "erpVendorId"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "An ID",
+                            "type": "string",
+                            "name": "anId"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Acm ID",
+                            "type": "string",
+                            "name": "acmId"
+                          }
+                        ],
+                        "label": "Vendor info",
+                        "type": "object",
+                        "name": "vendorInfo"
+                      },
+                      {
+                        "label": "Questionnaires",
+                        "type": "array",
+                        "name": "questionnaires",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Questionnaire ID",
+                            "type": "string",
+                            "name": "questionnaireId"
+                          },
+                          {
+                            "label": "Links",
+                            "type": "array",
+                            "name": "links",
+                            "of": "object",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Rel",
+                                "type": "string",
+                                "name": "rel"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Href",
+                                "type": "string",
+                                "name": "href"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "label": "Links",
+                        "type": "array",
+                        "name": "links",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Rel",
+                            "type": "string",
+                            "name": "rel"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Href",
+                            "type": "string",
+                            "name": "href"
+                          }
+                        ]
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Internally registered",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Internally registered",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "name": "internallyRegistered"
+                        },
+                        "type": "boolean",
+                        "name": "internallyRegistered"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Current registration source",
+                        "type": "string",
+                        "name": "currentRegistrationSource"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Current registration status",
+                        "type": "string",
+                        "name": "currentRegistrationStatus"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Convertible to full supplier",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Convertible to full supplier",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "name": "convertibleToFullSupplier"
+                        },
+                        "type": "boolean",
+                        "name": "convertibleToFullSupplier"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Workspace ID",
+                        "type": "string",
+                        "name": "workspaceId"
+                      }
+                    ],
+                    "label": "Response",
+                    "type": "object",
+                    "name": "response"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Response",
+                "name": "response",
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "select",
+                    "label": "Response content type",
+                    "pick_list": [
+                      [
+                        "Text",
+                        "rawdatatxt"
+                      ],
+                      [
+                        "Binary",
+                        "rawdata"
+                      ],
+                      [
+                        "JSON",
+                        "json"
+                      ],
+                      [
+                        "XML",
+                        "xml2"
+                      ],
+                      [
+                        "Multipart",
+                        "multipart"
+                      ]
+                    ],
+                    "hint": "Select expected format of data response type, e.g. JSON or XML. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "default": "json",
+                    "extends_schema": true,
+                    "type": "string",
+                    "name": "output_type"
+                  },
+                  {
+                    "control_type": "select",
+                    "label": "Encoding",
+                    "pick_list": "supported_encodings_without_binary_global_pick_list",
+                    "pick_list_connection_less": true,
+                    "optional": true,
+                    "default": "UTF-8",
+                    "hint": "Default encoding type is set to UTF-8, and typically doesn't need to be changed. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                    "type": "string",
+                    "name": "expected_encoding"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Response schema",
+                    "sample_data_type": "json_http",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all fields in your response.",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "response_schema"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "HTTP response headers",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe all the response headers",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "headers_schema"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Multipart part headers",
+                    "extends_schema": true,
+                    "empty_schema_title": "Describe headers within each multipart part",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Define the headers that appear in each part of the multipart response (e.g., Content-Type, Content-ID)",
+                    "ngIf": "input.response.output_type == 'multipart'",
+                    "type": "string",
+                    "name": "part_headers_schema"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Mark non-2xx response codes as success?",
+                    "default": "false",
+                    "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                    "optional": true,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Mark non-2xx response codes as success?",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "default": false,
+                      "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                      "optional": true,
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "ignore_http_errors"
+                    },
+                    "type": "boolean",
+                    "name": "ignore_http_errors"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "comment": "Query -VendorDataRequest API to get list of Vendor IDs",
+            "uuid": "18a63da2-32c2-4925-811e-49185fc7f34c",
+            "wizardFinished": true,
+            "skip": false
+          },
+          {
+            "number": 5,
+            "provider": "workato_variable",
+            "name": "declare_variable",
+            "as": "e5026370",
+            "keyword": "action",
+            "input": {
+              "variables": {
+                "schema": "[{\"name\":\"approvalStatus\",\"type\":\"string\",\"optional\":true,\"label\":\"approvalStatus\",\"details\":{\"real_name\":\"approvalStatus\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
+                "data": {
+                  "approvalStatus": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"7ce40fc7\",\"path\":[\"response\",\"workspaces\",\"Registration\",{\"path_element_type\":\"current_item\"},\"updateStatus\"]}')}"
+                }
+              }
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "text",
+                "label": "approvalStatus",
+                "name": "approvalStatus",
+                "optional": true,
+                "type": "string",
+                "details": {
+                  "real_name": "approvalStatus"
+                }
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "add_field_label": "Add a variable",
+                "control_type": "form-schema-builder",
+                "empty_schema_title": "Add variables by giving them a name, type and default value",
+                "exclude_fields": [
+                  "hint"
+                ],
+                "item_label": "variable",
+                "label": "Variables",
+                "mark_as_required": true,
+                "name": "variables",
+                "ngIf": "!input.name",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Schema",
+                    "extends_schema": true,
+                    "broadcast_change_event": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "approvalStatus",
+                        "name": "approvalStatus",
+                        "type": "string",
+                        "optional": true,
+                        "details": {
+                          "real_name": "approvalStatus"
+                        },
+                        "parent": [
+                          "variables",
+                          "data"
+                        ],
+                        "hint": "Defaults to nil if not supplied.",
+                        "sticky": true
+                      }
+                    ],
+                    "label": "Data",
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "variables.data.approvalStatus"
+            ],
+            "uuid": "527602ec-f352-4f0d-9e9b-a7daf30979cf",
+            "skip": true
+          },
+          {
+            "number": 6,
             "provider": "rest",
             "name": "make_request_v2",
             "as": "dc1be383",
@@ -1100,10 +1854,11 @@
             ],
             "comment": "GET /changes",
             "uuid": "9ef05fb2-4819-4240-98bb-c30713fc2a4b",
-            "wizardFinished": true
+            "wizardFinished": true,
+            "skip": true
           },
           {
-            "number": 4,
+            "number": 7,
             "provider": "rest",
             "name": "make_request_v2",
             "as": "0ca01a6c",
@@ -1522,10 +2277,11 @@
             ],
             "comment": "GET /pendingApprovables",
             "uuid": "d3bc74db-6865-419d-aaa6-b036ae4dc132",
-            "wizardFinished": true
+            "wizardFinished": true,
+            "skip": true
           },
           {
-            "number": 5,
+            "number": 8,
             "provider": "rest",
             "name": "make_request_v2",
             "as": "4d9789fb",
@@ -1953,10 +2709,10 @@
             "comment": "GET /{entity_type}/{entity_id}",
             "uuid": "0ae84419-2ae9-43a9-ba42-ebf3142c7067",
             "wizardFinished": true,
-            "skip": false
+            "skip": true
           },
           {
-            "number": 6,
+            "number": 9,
             "provider": "rest",
             "name": "make_request_v2",
             "as": "3a06971d",
@@ -2368,7 +3124,7 @@
             "skip": true
           },
           {
-            "number": 7,
+            "number": 10,
             "keyword": "if",
             "input": {
               "type": "compound",
@@ -2384,7 +3140,7 @@
             },
             "block": [
               {
-                "number": 8,
+                "number": 11,
                 "provider": "workato_variable",
                 "name": "declare_variable",
                 "as": "bf35553b",
@@ -2509,10 +3265,10 @@
                 ],
                 "comment": "INSERT Flag",
                 "uuid": "4c1ae513-bd35-4f4b-85ea-782843be7db2",
-                "skip": true
+                "skip": false
               },
               {
-                "number": 9,
+                "number": 12,
                 "as": "7f7bd44f",
                 "keyword": "foreach",
                 "repeat_mode": "simple",
@@ -2521,100 +3277,596 @@
                 },
                 "block": [
                   {
-                    "number": 10,
-                    "provider": "oracle",
-                    "name": "search_rows_sql",
-                    "as": "3ce05254",
+                    "number": 13,
+                    "provider": "rest",
+                    "name": "make_request_v2",
+                    "as": "4962697e",
                     "keyword": "action",
+                    "toggleCfg": {
+                      "response.ignore_http_errors": true,
+                      "disable_retries": true
+                    },
                     "input": {
-                      "sql": "SELECT CASE \n    WHEN EXISTS (SELECT 1 FROM APPS.AP_SUPPLIERS WHERE GLOBAL_ATTRIBUTE14 = :aribaVendorId) THEN '1' \n    ELSE '0' \nEND AS result\nFROM DUAL",
-                      "output_schema": "[{\"name\":\"result\",\"type\":\"string\",\"optional\":false,\"label\":\"result\",\"control_type\":\"text\"}]",
-                      "parameters": {
-                        "schema": "[{\"name\":\"aribaVendorId\",\"type\":\"string\",\"optional\":true,\"label\":\"aribaVendorId\",\"details\":{\"real_name\":\"aribaVendorId\"},\"control_type\":\"text\"}]",
-                        "data": {
-                          "aribaVendorId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"SM_Vendor_ID\"]}')}"
-                        }
-                      }
+                      "request_name": "Send request",
+                      "request": {
+                        "method": "GET",
+                        "content_type": "application/json",
+                        "url": "=\"https://openapi.ariba.com/api/supplierdatapagination/v4/prod/vendors/\" + _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"SM_Vendor_ID\"]}') + \"/workspaces\"",
+                        "headers": [
+                          {
+                            "header": "APIKEY",
+                            "value": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"SupplierDataPaginationAPIKEY\"}')}"
+                          }
+                        ],
+                        "parameters": [
+                          {
+                            "param": "realm",
+                            "value": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"realm\"}')}"
+                          }
+                        ]
+                      },
+                      "response": {
+                        "output_type": "json",
+                        "expected_encoding": "UTF-8",
+                        "ignore_http_errors": "false",
+                        "response_schema": "[{\"properties\":[{\"label\":\"Registration\",\"type\":\"array\",\"name\":\"Registration\",\"of\":\"object\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Active\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Active\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"active\"},\"type\":\"boolean\",\"name\":\"active\"},{\"control_type\":\"number\",\"label\":\"Time updated\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"timeUpdated\",\"render_input\":\"float_conversion\"},{\"control_type\":\"number\",\"label\":\"Time created\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"timeCreated\",\"render_input\":\"float_conversion\"},{\"control_type\":\"text\",\"label\":\"Unique name\",\"type\":\"string\",\"name\":\"uniqueName\"},{\"control_type\":\"text\",\"label\":\"Process ID\",\"type\":\"string\",\"name\":\"processId\"},{\"control_type\":\"text\",\"label\":\"Requester\",\"type\":\"string\",\"name\":\"requester\"},{\"control_type\":\"number\",\"label\":\"Status updated date\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"statusUpdatedDate\",\"render_input\":\"float_conversion\"},{\"control_type\":\"text\",\"label\":\"Title\",\"type\":\"string\",\"name\":\"title\"},{\"control_type\":\"text\",\"label\":\"Auto approval\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Auto approval\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"autoApproval\"},\"type\":\"boolean\",\"name\":\"autoApproval\"},{\"control_type\":\"text\",\"label\":\"Requester ID\",\"type\":\"string\",\"name\":\"requesterId\"},{\"control_type\":\"number\",\"label\":\"Invited date\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"invitedDate\",\"render_input\":\"float_conversion\"},{\"control_type\":\"number\",\"label\":\"Questionnaire submission date\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"questionnaireSubmissionDate\",\"render_input\":\"float_conversion\"},{\"control_type\":\"number\",\"label\":\"Reinvite count\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"reinviteCount\",\"render_input\":\"float_conversion\"},{\"control_type\":\"number\",\"label\":\"Approved date\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"approvedDate\",\"render_input\":\"float_conversion\"},{\"control_type\":\"number\",\"label\":\"Invitation count\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"invitationCount\",\"render_input\":\"float_conversion\"},{\"control_type\":\"text\",\"label\":\"Status\",\"type\":\"string\",\"name\":\"status\"},{\"control_type\":\"text\",\"label\":\"Update status\",\"type\":\"string\",\"name\":\"updateStatus\"},{\"control_type\":\"text\",\"label\":\"Legacy\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Legacy\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"legacy\"},\"type\":\"boolean\",\"name\":\"legacy\"},{\"control_type\":\"text\",\"label\":\"Registration source\",\"type\":\"string\",\"name\":\"registrationSource\"},{\"control_type\":\"text\",\"label\":\"Registration update source\",\"type\":\"string\",\"name\":\"registrationUpdateSource\"},{\"control_type\":\"text\",\"label\":\"Vendor model sync in progress\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Vendor model sync in progress\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"vendorModelSyncInProgress\"},\"type\":\"boolean\",\"name\":\"vendorModelSyncInProgress\"},{\"control_type\":\"number\",\"label\":\"Registration invite error ID\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"registrationInviteErrorId\",\"render_input\":\"float_conversion\"},{\"label\":\"Questionnaires\",\"type\":\"array\",\"name\":\"questionnaires\",\"of\":\"object\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Questionnaire ID\",\"type\":\"string\",\"name\":\"questionnaireId\"},{\"label\":\"Links\",\"type\":\"array\",\"name\":\"links\",\"of\":\"object\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Rel\",\"type\":\"string\",\"name\":\"rel\"},{\"control_type\":\"text\",\"label\":\"Href\",\"type\":\"string\",\"name\":\"href\"}]}]},{\"label\":\"Links\",\"type\":\"array\",\"name\":\"links\",\"of\":\"object\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Rel\",\"type\":\"string\",\"name\":\"rel\"},{\"control_type\":\"text\",\"label\":\"Href\",\"type\":\"string\",\"name\":\"href\"}]},{\"control_type\":\"text\",\"label\":\"Convertible to full supplier\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Convertible to full supplier\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"convertibleToFullSupplier\"},\"type\":\"boolean\",\"name\":\"convertibleToFullSupplier\"},{\"control_type\":\"text\",\"label\":\"Internally registered\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Internally registered\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"internallyRegistered\"},\"type\":\"boolean\",\"name\":\"internallyRegistered\"},{\"control_type\":\"text\",\"label\":\"Current registration source\",\"type\":\"string\",\"name\":\"currentRegistrationSource\"},{\"control_type\":\"text\",\"label\":\"Current registration status\",\"type\":\"string\",\"name\":\"currentRegistrationStatus\"},{\"control_type\":\"text\",\"label\":\"Workspace ID\",\"type\":\"string\",\"name\":\"workspaceId\"}]}],\"label\":\"Workspaces\",\"type\":\"object\",\"name\":\"workspaces\"}]"
+                      },
+                      "wait_for_response": "false",
+                      "completion_threshold_seconds": "3600",
+                      "disable_retries": "false"
                     },
                     "extended_output_schema": [
                       {
-                        "label": "Rows",
-                        "name": "rows",
-                        "of": "object",
+                        "label": "Headers",
+                        "name": "headers",
+                        "properties": [
+
+                        ],
+                        "type": "object"
+                      },
+                      {
+                        "label": "Response",
+                        "name": "response",
                         "properties": [
                           {
-                            "control_type": "text",
-                            "label": "result",
-                            "details": {
-                              "primary_key": null,
-                              "data_type": "string",
-                              "column_name": "result",
-                              "length": null,
-                              "precision": null,
-                              "scale": null,
-                              "element_type": null
-                            },
-                            "hint": "string",
-                            "optional": true,
-                            "type": "string",
-                            "name": "result_f3f45e68"
+                            "properties": [
+                              {
+                                "label": "Registration",
+                                "type": "array",
+                                "name": "Registration",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Active",
+                                    "render_input": "boolean_conversion",
+                                    "parse_output": "boolean_conversion",
+                                    "toggle_hint": "Select from option list",
+                                    "toggle_field": {
+                                      "label": "Active",
+                                      "control_type": "text",
+                                      "toggle_hint": "Use custom value",
+                                      "type": "boolean",
+                                      "name": "active"
+                                    },
+                                    "type": "boolean",
+                                    "name": "active"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Time updated",
+                                    "parse_output": "float_conversion",
+                                    "type": "number",
+                                    "name": "timeUpdated",
+                                    "render_input": "float_conversion"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Time created",
+                                    "parse_output": "float_conversion",
+                                    "type": "number",
+                                    "name": "timeCreated",
+                                    "render_input": "float_conversion"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Unique name",
+                                    "type": "string",
+                                    "name": "uniqueName"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Process ID",
+                                    "type": "string",
+                                    "name": "processId"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Requester",
+                                    "type": "string",
+                                    "name": "requester"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Status updated date",
+                                    "parse_output": "float_conversion",
+                                    "type": "number",
+                                    "name": "statusUpdatedDate",
+                                    "render_input": "float_conversion"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Title",
+                                    "type": "string",
+                                    "name": "title"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Auto approval",
+                                    "render_input": "boolean_conversion",
+                                    "parse_output": "boolean_conversion",
+                                    "toggle_hint": "Select from option list",
+                                    "toggle_field": {
+                                      "label": "Auto approval",
+                                      "control_type": "text",
+                                      "toggle_hint": "Use custom value",
+                                      "type": "boolean",
+                                      "name": "autoApproval"
+                                    },
+                                    "type": "boolean",
+                                    "name": "autoApproval"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Requester ID",
+                                    "type": "string",
+                                    "name": "requesterId"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Invited date",
+                                    "parse_output": "float_conversion",
+                                    "type": "number",
+                                    "name": "invitedDate",
+                                    "render_input": "float_conversion"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Questionnaire submission date",
+                                    "parse_output": "float_conversion",
+                                    "type": "number",
+                                    "name": "questionnaireSubmissionDate",
+                                    "render_input": "float_conversion"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Reinvite count",
+                                    "parse_output": "float_conversion",
+                                    "type": "number",
+                                    "name": "reinviteCount",
+                                    "render_input": "float_conversion"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Approved date",
+                                    "parse_output": "float_conversion",
+                                    "type": "number",
+                                    "name": "approvedDate",
+                                    "render_input": "float_conversion"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Invitation count",
+                                    "parse_output": "float_conversion",
+                                    "type": "number",
+                                    "name": "invitationCount",
+                                    "render_input": "float_conversion"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Status",
+                                    "type": "string",
+                                    "name": "status"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Update status",
+                                    "type": "string",
+                                    "name": "updateStatus"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Legacy",
+                                    "render_input": "boolean_conversion",
+                                    "parse_output": "boolean_conversion",
+                                    "toggle_hint": "Select from option list",
+                                    "toggle_field": {
+                                      "label": "Legacy",
+                                      "control_type": "text",
+                                      "toggle_hint": "Use custom value",
+                                      "type": "boolean",
+                                      "name": "legacy"
+                                    },
+                                    "type": "boolean",
+                                    "name": "legacy"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Registration source",
+                                    "type": "string",
+                                    "name": "registrationSource"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Registration update source",
+                                    "type": "string",
+                                    "name": "registrationUpdateSource"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Vendor model sync in progress",
+                                    "render_input": "boolean_conversion",
+                                    "parse_output": "boolean_conversion",
+                                    "toggle_hint": "Select from option list",
+                                    "toggle_field": {
+                                      "label": "Vendor model sync in progress",
+                                      "control_type": "text",
+                                      "toggle_hint": "Use custom value",
+                                      "type": "boolean",
+                                      "name": "vendorModelSyncInProgress"
+                                    },
+                                    "type": "boolean",
+                                    "name": "vendorModelSyncInProgress"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Registration invite error ID",
+                                    "parse_output": "float_conversion",
+                                    "type": "number",
+                                    "name": "registrationInviteErrorId",
+                                    "render_input": "float_conversion"
+                                  },
+                                  {
+                                    "label": "Questionnaires",
+                                    "type": "array",
+                                    "name": "questionnaires",
+                                    "of": "object",
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "Questionnaire ID",
+                                        "type": "string",
+                                        "name": "questionnaireId"
+                                      },
+                                      {
+                                        "label": "Links",
+                                        "type": "array",
+                                        "name": "links",
+                                        "of": "object",
+                                        "properties": [
+                                          {
+                                            "control_type": "text",
+                                            "label": "Rel",
+                                            "type": "string",
+                                            "name": "rel"
+                                          },
+                                          {
+                                            "control_type": "text",
+                                            "label": "Href",
+                                            "type": "string",
+                                            "name": "href"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "label": "Links",
+                                    "type": "array",
+                                    "name": "links",
+                                    "of": "object",
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "Rel",
+                                        "type": "string",
+                                        "name": "rel"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Href",
+                                        "type": "string",
+                                        "name": "href"
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Convertible to full supplier",
+                                    "render_input": "boolean_conversion",
+                                    "parse_output": "boolean_conversion",
+                                    "toggle_hint": "Select from option list",
+                                    "toggle_field": {
+                                      "label": "Convertible to full supplier",
+                                      "control_type": "text",
+                                      "toggle_hint": "Use custom value",
+                                      "type": "boolean",
+                                      "name": "convertibleToFullSupplier"
+                                    },
+                                    "type": "boolean",
+                                    "name": "convertibleToFullSupplier"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Internally registered",
+                                    "render_input": "boolean_conversion",
+                                    "parse_output": "boolean_conversion",
+                                    "toggle_hint": "Select from option list",
+                                    "toggle_field": {
+                                      "label": "Internally registered",
+                                      "control_type": "text",
+                                      "toggle_hint": "Use custom value",
+                                      "type": "boolean",
+                                      "name": "internallyRegistered"
+                                    },
+                                    "type": "boolean",
+                                    "name": "internallyRegistered"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Current registration source",
+                                    "type": "string",
+                                    "name": "currentRegistrationSource"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Current registration status",
+                                    "type": "string",
+                                    "name": "currentRegistrationStatus"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Workspace ID",
+                                    "type": "string",
+                                    "name": "workspaceId"
+                                  }
+                                ]
+                              }
+                            ],
+                            "label": "Workspaces",
+                            "type": "object",
+                            "name": "workspaces"
                           }
                         ],
-                        "type": "array",
-                        "order_by_hint": false
+                        "type": "object"
                       }
                     ],
                     "extended_input_schema": [
                       {
-                        "control_type": "form-schema-builder",
-                        "hint": "First provide the full name assigned to your bind variable in the WHERE condition. e.g. <b>id</b>\n                    Second, provide the actual parameter value. Parameter values can be static or datapills.\n                    Select the <b>closest corresponding data type</b> that your database is expecting for the bind variable\n                    ",
-                        "label": "Parameters",
-                        "name": "parameters",
-                        "optional": true,
+                        "label": "Response",
+                        "name": "response",
                         "override": true,
                         "properties": [
                           {
-                            "control_type": "text",
-                            "label": "Schema",
+                            "control_type": "select",
+                            "label": "Response content type",
+                            "pick_list": [
+                              [
+                                "Text",
+                                "rawdatatxt"
+                              ],
+                              [
+                                "Binary",
+                                "rawdata"
+                              ],
+                              [
+                                "JSON",
+                                "json"
+                              ],
+                              [
+                                "XML",
+                                "xml2"
+                              ],
+                              [
+                                "Multipart",
+                                "multipart"
+                              ]
+                            ],
+                            "hint": "Select expected format of data response type, e.g. JSON or XML. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                            "default": "json",
                             "extends_schema": true,
                             "type": "string",
-                            "name": "schema"
+                            "name": "output_type"
                           },
                           {
-                            "properties": [
-                              {
-                                "control_type": "text",
-                                "label": "aribaVendorId",
-                                "name": "aribaVendorId",
-                                "type": "string",
-                                "optional": true,
-                                "details": {
-                                  "real_name": "aribaVendorId"
-                                }
-                              }
-                            ],
-                            "label": "Data",
+                            "control_type": "select",
+                            "label": "Encoding",
+                            "pick_list": "supported_encodings_without_binary_global_pick_list",
+                            "pick_list_connection_less": true,
                             "optional": true,
-                            "type": "object",
-                            "name": "data"
+                            "default": "UTF-8",
+                            "hint": "Default encoding type is set to UTF-8, and typically doesn't need to be changed. <a href=\"https://docs.workato.com/developing-connectors/http.html#response-type\" target=\"_blank\">Learn more</a>",
+                            "type": "string",
+                            "name": "expected_encoding"
+                          },
+                          {
+                            "control_type": "schema-designer",
+                            "label": "Response schema",
+                            "sample_data_type": "json_http",
+                            "extends_schema": true,
+                            "empty_schema_title": "Describe all fields in your response.",
+                            "optional": true,
+                            "sticky": true,
+                            "type": "string",
+                            "name": "response_schema"
+                          },
+                          {
+                            "control_type": "schema-designer",
+                            "label": "HTTP response headers",
+                            "extends_schema": true,
+                            "empty_schema_title": "Describe all the response headers",
+                            "optional": true,
+                            "sticky": true,
+                            "type": "string",
+                            "name": "headers_schema"
+                          },
+                          {
+                            "control_type": "schema-designer",
+                            "label": "Multipart part headers",
+                            "extends_schema": true,
+                            "empty_schema_title": "Describe headers within each multipart part",
+                            "optional": true,
+                            "sticky": true,
+                            "hint": "Define the headers that appear in each part of the multipart response (e.g., Content-Type, Content-ID)",
+                            "ngIf": "input.response.output_type == 'multipart'",
+                            "type": "string",
+                            "name": "part_headers_schema"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Mark non-2xx response codes as success?",
+                            "default": "false",
+                            "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                            "optional": true,
+                            "toggle_hint": "Select from option list",
+                            "toggle_field": {
+                              "label": "Mark non-2xx response codes as success?",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "default": false,
+                              "hint": "If <b>yes</b>, non 2xx response codes returned will be marked as a successful action. If <b>no</b>, non 2xx response codes returned will be marked as an error.",
+                              "optional": true,
+                              "render_input": null,
+                              "parse_output": null,
+                              "type": "boolean",
+                              "name": "ignore_http_errors"
+                            },
+                            "type": "boolean",
+                            "name": "ignore_http_errors"
                           }
                         ],
-                        "sticky": true,
                         "type": "object"
                       }
                     ],
-                    "visible_config_fields": [
-                      "sql",
-                      "parameters",
-                      "output_schema",
-                      "parameters.data.aribaVendorId"
-                    ],
-                    "comment": "Check for GLOBAL_ATTRIBUTE14 for new/existing supplier in oracle",
-                    "uuid": "ab984086-de41-4637-acdd-33e459b814ee",
-                    "skip": true
+                    "comment": "Query -VendorDataRequest API to get list of Vendor IDs",
+                    "uuid": "79de58c4-3149-4874-88fa-bd2b308a29ae",
+                    "wizardFinished": true,
+                    "skip": false
                   },
                   {
-                    "number": 11,
+                    "number": 14,
+                    "keyword": "if",
+                    "input": {
+                      "type": "compound",
+                      "operand": "and",
+                      "conditions": [
+                        {
+                          "operand": "equals_to",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"4962697e\",\"path\":[\"response\",\"workspaces\",\"Registration\",{\"path_element_type\":\"current_item\"},\"currentRegistrationStatus\"]}')}",
+                          "rhs": "=\"Approved\"",
+                          "uuid": "e48734a5-347c-4a8a-a616-d9740b703778"
+                        }
+                      ]
+                    },
+                    "block": [
+                      {
+                        "number": 15,
+                        "provider": "oracle",
+                        "name": "search_rows_sql",
+                        "as": "3ce05254",
+                        "keyword": "action",
+                        "input": {
+                          "sql": "SELECT CASE \n    WHEN EXISTS (SELECT 1 FROM APPS.AP_SUPPLIERS WHERE GLOBAL_ATTRIBUTE14 = :aribaVendorId) THEN '1' \n    ELSE '0' \nEND AS result\nFROM DUAL",
+                          "output_schema": "[{\"name\":\"result\",\"type\":\"string\",\"optional\":false,\"label\":\"result\",\"control_type\":\"text\"}]",
+                          "parameters": {
+                            "schema": "[{\"name\":\"aribaVendorId\",\"type\":\"string\",\"optional\":true,\"label\":\"aribaVendorId\",\"details\":{\"real_name\":\"aribaVendorId\"},\"control_type\":\"text\"}]",
+                            "data": {
+                              "aribaVendorId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"7f7bd44f\",\"path\":[\"SM_Vendor_ID\"]}')}"
+                            }
+                          }
+                        },
+                        "extended_output_schema": [
+                          {
+                            "label": "Rows",
+                            "name": "rows",
+                            "of": "object",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "result",
+                                "details": {
+                                  "primary_key": null,
+                                  "data_type": "string",
+                                  "column_name": "result",
+                                  "length": null,
+                                  "precision": null,
+                                  "scale": null,
+                                  "element_type": null
+                                },
+                                "hint": "string",
+                                "optional": true,
+                                "type": "string",
+                                "name": "result_f3f45e68"
+                              }
+                            ],
+                            "type": "array",
+                            "order_by_hint": false
+                          }
+                        ],
+                        "extended_input_schema": [
+                          {
+                            "control_type": "form-schema-builder",
+                            "hint": "First provide the full name assigned to your bind variable in the WHERE condition. e.g. <b>id</b>\n                    Second, provide the actual parameter value. Parameter values can be static or datapills.\n                    Select the <b>closest corresponding data type</b> that your database is expecting for the bind variable\n                    ",
+                            "label": "Parameters",
+                            "name": "parameters",
+                            "optional": true,
+                            "override": true,
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Schema",
+                                "extends_schema": true,
+                                "type": "string",
+                                "name": "schema"
+                              },
+                              {
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "aribaVendorId",
+                                    "name": "aribaVendorId",
+                                    "type": "string",
+                                    "optional": true,
+                                    "details": {
+                                      "real_name": "aribaVendorId"
+                                    }
+                                  }
+                                ],
+                                "label": "Data",
+                                "optional": true,
+                                "type": "object",
+                                "name": "data"
+                              }
+                            ],
+                            "sticky": true,
+                            "type": "object"
+                          }
+                        ],
+                        "visible_config_fields": [
+                          "sql",
+                          "parameters",
+                          "output_schema",
+                          "parameters.data.aribaVendorId"
+                        ],
+                        "comment": "Check for GLOBAL_ATTRIBUTE14 for new/existing supplier in oracle",
+                        "uuid": "ab984086-de41-4637-acdd-33e459b814ee",
+                        "skip": false
+                      }
+                    ],
+                    "uuid": "2e5313c0-65df-47bc-8516-f40c23c61a5f"
+                  },
+                  {
+                    "number": 16,
                     "keyword": "if",
                     "input": {
                       "type": "compound",
@@ -2630,7 +3882,7 @@
                     },
                     "block": [
                       {
-                        "number": 12,
+                        "number": 17,
                         "provider": "workato_db_table",
                         "name": "get_records",
                         "as": "1d7674ed",
@@ -3100,7 +4352,7 @@
                         "skip": true
                       },
                       {
-                        "number": 13,
+                        "number": 18,
                         "keyword": "if",
                         "input": {
                           "type": "compound",
@@ -3116,7 +4368,7 @@
                         },
                         "block": [
                           {
-                            "number": 14,
+                            "number": 19,
                             "provider": "workato_db_table",
                             "name": "create_records_batch",
                             "as": "af470417",
@@ -3600,7 +4852,7 @@
                             "skip": true
                           },
                           {
-                            "number": 15,
+                            "number": 20,
                             "as": "c8dd992a",
                             "keyword": "foreach",
                             "repeat_mode": "simple",
@@ -3609,7 +4861,7 @@
                             },
                             "block": [
                               {
-                                "number": 16,
+                                "number": 21,
                                 "provider": "workato_recipe_function",
                                 "name": "call_recipe",
                                 "as": "128f2b61",
@@ -3653,7 +4905,7 @@
                         "skip": true
                       },
                       {
-                        "number": 17,
+                        "number": 22,
                         "provider": "workato_variable",
                         "name": "update_variables",
                         "as": "8385e063",
@@ -3705,13 +4957,13 @@
                         "skip": true
                       },
                       {
-                        "number": 18,
+                        "number": 23,
                         "keyword": "else",
                         "input": {
                         },
                         "block": [
                           {
-                            "number": 19,
+                            "number": 24,
                             "provider": "workato_db_table",
                             "name": "create_records_batch",
                             "as": "b4f59044",
@@ -4010,7 +5262,7 @@
                             "skip": true
                           },
                           {
-                            "number": 20,
+                            "number": 25,
                             "as": "5e2096a2",
                             "keyword": "foreach",
                             "repeat_mode": "simple",
@@ -4019,7 +5271,7 @@
                             },
                             "block": [
                               {
-                                "number": 21,
+                                "number": 26,
                                 "provider": "workato_recipe_function",
                                 "name": "call_recipe",
                                 "as": "6144608f",
@@ -4087,7 +5339,7 @@
                     "skip": true
                   },
                   {
-                    "number": 22,
+                    "number": 27,
                     "keyword": "if",
                     "input": {
                       "type": "compound",
@@ -4103,7 +5355,7 @@
                     },
                     "block": [
                       {
-                        "number": 23,
+                        "number": 28,
                         "provider": "workato_recipe_function",
                         "name": "call_recipe",
                         "as": "4cac13d4",
@@ -4145,14 +5397,14 @@
                 "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"rest\",\"line\":\"f0e54157\",\"path\":[\"response\",\"array\"]}')}",
                 "comment": "For Each - VENDOR ID",
                 "uuid": "9cc0ab3c-ed9f-43ae-80e2-ba204d2cd518",
-                "skip": true
+                "skip": false
               }
             ],
             "uuid": "6e4965c5-8e41-4e85-8313-35353534a3a5",
-            "skip": true
+            "skip": false
           },
           {
-            "number": 24,
+            "number": 29,
             "as": "d254b55a",
             "keyword": "catch",
             "input": {
@@ -4161,7 +5413,7 @@
             },
             "block": [
               {
-                "number": 25,
+                "number": 30,
                 "provider": "workato_recipe_function",
                 "name": "call_recipe",
                 "as": "fbea9086",
@@ -4290,7 +5542,7 @@
                 "skip": true
               },
               {
-                "number": 26,
+                "number": 31,
                 "provider": "workato_recipe_function",
                 "name": "call_recipe",
                 "as": "78e3f1a9",
@@ -4504,7 +5756,7 @@
                 "skip": true
               },
               {
-                "number": 27,
+                "number": 32,
                 "provider": "logger",
                 "name": "log_message",
                 "as": "a5b68cbe",
@@ -4529,7 +5781,7 @@
                 "uuid": "a6d85b8b-c4f5-4274-8426-dc27b6766f40"
               },
               {
-                "number": 28,
+                "number": 33,
                 "as": "4e35cf9d",
                 "keyword": "stop",
                 "input": {
@@ -4566,9 +5818,9 @@
       "provider": "rest",
       "skip_validation": false,
       "account_id": {
-        "zip_name": "Functions/s2p_con_external_approval_api.connection.json",
-        "name": "S2P | CON |  External Approval API ",
-        "folder": "Functions"
+        "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection/s2p_con_supplierdataapiwithpagination.connection.json",
+        "name": "S2P | CON | SupplierDataAPIWithPagination",
+        "folder": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection"
       }
     },
     {
@@ -4586,7 +5838,7 @@
     {
       "keyword": "application",
       "provider": "oracle",
-      "skip_validation": true,
+      "skip_validation": false,
       "account_id": {
         "zip_name": "Phase 1 : Ariba Integration with Oracle ERP for Supplier Master Data/Connection/s2p_con_xxrhfin.connection.json",
         "name": "S2P | CON | XXRHFIN",
@@ -4596,7 +5848,7 @@
     {
       "keyword": "application",
       "provider": "workato_variable",
-      "skip_validation": true,
+      "skip_validation": false,
       "account_id": null
     }
   ],
