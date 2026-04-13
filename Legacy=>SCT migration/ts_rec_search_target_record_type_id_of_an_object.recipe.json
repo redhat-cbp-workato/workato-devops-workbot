@@ -1,0 +1,361 @@
+{
+  "name": "[TS] REC | Search Target Record Type ID of an Object",
+  "description": "",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "defbb109",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"record_type_name\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Record type name\"},{\"name\":\"object\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Object\"}]",
+      "result_schema_json": "[{\"name\":\"sf_record_id\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\",\"label\":\"Sf record ID\"},{\"name\":\"found_status\",\"type\":\"boolean\",\"optional\":false,\"control_type\":\"checkbox\",\"label\":\"Found status\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Found status\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"name\":\"found_status\",\"type\":\"boolean\",\"optional\":false}},{\"name\":\"error\",\"type\":\"string\",\"optional\":true,\"label\":\"Error\",\"control_type\":\"text\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Record type name",
+            "name": "record_type_name",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Object",
+            "name": "object",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "salesforce",
+        "name": "search_sobjects_soql",
+        "as": "8a8221dc",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "sobject_name": "Record Type",
+          "field_list": [
+            {
+              "label": "Record Type ID",
+              "value": "Id"
+            }
+          ]
+        },
+        "input": {
+          "limit": "1",
+          "sobject_name": "RecordType",
+          "query": "SobjectType = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"defbb109\",\"path\":[\"parameters\",\"object\"]}')}' \nAND Name = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"defbb109\",\"path\":[\"parameters\",\"record_type_name\"]}')}'",
+          "field_list": "Id"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Record Types",
+            "name": "RecordType",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Record Type ID",
+                "optional": true,
+                "custom": false,
+                "sfdc_createable": false,
+                "sfdc_updateable": false,
+                "type": "string",
+                "name": "Id"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "control_type": "number",
+            "label": "List size",
+            "name": "list_size",
+            "parse_output": "integer_conversion",
+            "type": "integer"
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Processed all records?",
+            "name": "done",
+            "toggle_field": {
+              "label": "Processed all records?",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "type": "boolean",
+              "render_input": null,
+              "parse_output": null,
+              "name": "done"
+            },
+            "toggle_hint": "Select from option list",
+            "type": "boolean"
+          },
+          {
+            "control_type": "integer",
+            "label": "Total records",
+            "name": "total_records",
+            "parse_output": "integer_conversion",
+            "type": "integer"
+          },
+          {
+            "control_type": "url",
+            "label": "Next page URL",
+            "name": "next_page_url",
+            "type": "string"
+          }
+        ],
+        "uuid": "cfa879b3-c046-4f42-b1d1-ee94476f2b9c"
+      },
+      {
+        "number": 2,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "present",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"8a8221dc\",\"path\":[\"RecordType\",{\"path_element_type\":\"current_item\"},\"Id\"]}')}",
+              "rhs": "",
+              "uuid": "a2ee08a2-d49f-45d7-a9cf-c5742b5a9734"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 3,
+            "provider": "workato_recipe_function",
+            "name": "return_result",
+            "as": "1239b81e",
+            "keyword": "action",
+            "toggleCfg": {
+              "result.found_status": true
+            },
+            "input": {
+              "result": {
+                "sf_record_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"8a8221dc\",\"path\":[\"RecordType\",{\"path_element_type\":\"current_item\"},\"Id\"]}')}",
+                "found_status": "true"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Sf record ID",
+                    "name": "sf_record_id",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Found status",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "name": "found_status",
+                    "type": "boolean",
+                    "optional": false,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Found status",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "name": "found_status",
+                      "type": "boolean",
+                      "optional": false
+                    }
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Error",
+                    "name": "error",
+                    "type": "string",
+                    "optional": true
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Sf record ID",
+                    "name": "sf_record_id",
+                    "type": "string",
+                    "optional": true
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Found status",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "name": "found_status",
+                    "type": "boolean",
+                    "optional": false,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Found status",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "name": "found_status",
+                      "type": "boolean",
+                      "optional": false
+                    }
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Error",
+                    "name": "error",
+                    "type": "string",
+                    "optional": true
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "515ef071-57ca-4293-bf20-3771df0f7629"
+          }
+        ],
+        "uuid": "be286c2c-92c8-4451-9b3e-d4cfd4fc3a65"
+      },
+      {
+        "number": 4,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "47a8eefd",
+        "keyword": "action",
+        "toggleCfg": {
+          "result.found_status": true
+        },
+        "input": {
+          "result": {
+            "found_status": "false",
+            "error": "NO RECORD TYPE FOUND"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Sf record ID",
+                "name": "sf_record_id",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Found status",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "found_status",
+                "type": "boolean",
+                "optional": false,
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Found status",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "found_status",
+                  "type": "boolean",
+                  "optional": false
+                }
+              },
+              {
+                "control_type": "text",
+                "label": "Error",
+                "name": "error",
+                "type": "string",
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Sf record ID",
+                "name": "sf_record_id",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Found status",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "found_status",
+                "type": "boolean",
+                "optional": false,
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Found status",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "found_status",
+                  "type": "boolean",
+                  "optional": false
+                }
+              },
+              {
+                "control_type": "text",
+                "label": "Error",
+                "name": "error",
+                "type": "string",
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "result.error"
+        ],
+        "uuid": "d996c4cb-97a7-4529-8243-fdc04bb04735"
+      }
+    ],
+    "uuid": "75ee11d4-65a9-41f5-ab6a-3cbb4cf9b013"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/sf_sct_target.connection.json",
+        "name": "SF_SCT_Target",
+        "folder": "Connections"
+      }
+    }
+  ]
+}
