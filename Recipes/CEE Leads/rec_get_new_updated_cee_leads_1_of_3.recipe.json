@@ -1,0 +1,989 @@
+{
+  "name": "REC | Get New/Updated CEE Leads | 1 of 3",
+  "description": "This recipe automates the process of updating or creating campaign members in Salesforce based on new or updated leads from the CEE Lead custom object.\n\n- The process begins by getting details for new or updated leads in Salesforce, filtering out any deleted records.\n- For each valid lead, it searches for existing contacts in Salesforce using the provided email. If no contacts are found or if they are marked as deleted, it proceeds to check for existing leads.\n- If no valid leads are found, the recipe creates a new lead in Salesforce with the provided details and associates it with a campaign member, marking the status as \"Engaged.\"\n- If a lead already exists, it checks for associated campaign members. If none are found or if they are deleted, it creates a new campaign member for the existing lead. If a campaign member exists, it updates the member's information instead.\n- The recipe also handles additional information and updates the lead's description as necessary.\n- In case of any errors during execution, the recipe logs the error details for troubleshooting.\n\nOverall, this recipe streamlines the process of creating and updating leads and campaign members in Salesforce, ensuring that the data remains current and accurate.",
+  "version": 2,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "salesforce",
+    "name": "updated_custom_object",
+    "as": "ee8ac785",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "sobject_name": "CEE Lead",
+      "field_list": [
+        {
+          "label": "Record ID",
+          "value": "Id"
+        },
+        {
+          "label": "Owner ID",
+          "value": "OwnerId"
+        },
+        {
+          "label": "Deleted",
+          "value": "IsDeleted"
+        },
+        {
+          "label": "CEE Lead Number",
+          "value": "Name"
+        },
+        {
+          "label": "Created Date",
+          "value": "CreatedDate"
+        },
+        {
+          "label": "Created By ID",
+          "value": "CreatedById"
+        },
+        {
+          "label": "Last Modified Date",
+          "value": "LastModifiedDate"
+        },
+        {
+          "label": "Last Modified By ID",
+          "value": "LastModifiedById"
+        },
+        {
+          "label": "System Modstamp",
+          "value": "SystemModstamp"
+        },
+        {
+          "label": "Received Connection ID",
+          "value": "ConnectionReceivedId"
+        },
+        {
+          "label": "Sent Connection ID",
+          "value": "ConnectionSentId"
+        },
+        {
+          "label": "Account Number",
+          "value": "AccountNumber__c"
+        },
+        {
+          "label": "Additional Information",
+          "value": "AdditionalInformation__c"
+        },
+        {
+          "label": "Communication Preference",
+          "value": "CommunicationPreference__c"
+        },
+        {
+          "label": "Country",
+          "value": "Country__c"
+        },
+        {
+          "label": "Email",
+          "value": "Email__c"
+        },
+        {
+          "label": "First Name",
+          "value": "FirstName__c"
+        },
+        {
+          "label": "Language",
+          "value": "Language__c"
+        },
+        {
+          "label": "Last Name",
+          "value": "LastName__c"
+        },
+        {
+          "label": "Offer Id",
+          "value": "OfferId__c"
+        },
+        {
+          "label": "Origin",
+          "value": "Origin__c"
+        },
+        {
+          "label": "Phone",
+          "value": "Phone__c"
+        },
+        {
+          "label": "Role",
+          "value": "Role__c"
+        },
+        {
+          "label": "State",
+          "value": "State__c"
+        },
+        {
+          "label": "Tactic Id",
+          "value": "TacticId__c"
+        },
+        {
+          "label": "Trigger Name",
+          "value": "TriggerName__c"
+        },
+        {
+          "label": "Type",
+          "value": "Type__c"
+        },
+        {
+          "label": "Company",
+          "value": "Company__c"
+        },
+        {
+          "label": "Title",
+          "value": "Title__c"
+        },
+        {
+          "label": "Account",
+          "value": "Account__c"
+        },
+        {
+          "label": "Case",
+          "value": "Case__c"
+        },
+        {
+          "label": "Contact",
+          "value": "Contact__c"
+        },
+        {
+          "label": "Owner Red Hat Title",
+          "value": "OwnerRedHatTitle__c"
+        },
+        {
+          "label": "Authority",
+          "value": "Authority__c"
+        },
+        {
+          "label": "Budget",
+          "value": "Budget__c"
+        },
+        {
+          "label": "Pain",
+          "value": "Pain__c"
+        },
+        {
+          "label": "Time Frame",
+          "value": "Time_Frame__c"
+        }
+      ]
+    },
+    "toggleCfg": {
+      "___poll_interval": true
+    },
+    "input": {
+      "sobject_name": "CEELead__c",
+      "field_list": "Id\nOwnerId\nIsDeleted\nName\nCreatedDate\nCreatedById\nLastModifiedDate\nLastModifiedById\nSystemModstamp\nConnectionReceivedId\nConnectionSentId\nAccountNumber__c\nAdditionalInformation__c\nCommunicationPreference__c\nCountry__c\nEmail__c\nFirstName__c\nLanguage__c\nLastName__c\nOfferId__c\nOrigin__c\nPhone__c\nRole__c\nState__c\nTacticId__c\nTriggerName__c\nType__c\nCompany__c\nTitle__c\nAccount__c\nCase__c\nContact__c\nOwnerRedHatTitle__c\nAuthority__c\nBudget__c\nPain__c\nTime_Frame__c",
+      "___poll_interval": "360",
+      "since": "2026-01-01T00:00:00.000-08:00"
+    },
+    "filter": {
+      "conditions": [
+        {
+          "operand": "is_not_true",
+          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"IsDeleted\"]}')}",
+          "rhs": "",
+          "uuid": "56329c42-e7bd-47a8-a396-0ef0732a1a19"
+        }
+      ],
+      "operand": "and",
+      "type": "compound"
+    },
+    "extended_output_schema": [
+      {
+        "control_type": "text",
+        "custom": false,
+        "label": "CEE Lead Number",
+        "name": "Name",
+        "optional": true,
+        "type": "string",
+        "event_title": true,
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": false,
+        "label": "Created By ID",
+        "name": "CreatedById",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "date_time",
+        "custom": false,
+        "label": "Created Date",
+        "name": "CreatedDate",
+        "optional": true,
+        "parse_output": "parse_iso8601_timestamp",
+        "type": "date_time",
+        "render_input": "render_iso8601_timestamp",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "checkbox",
+        "custom": false,
+        "label": "Deleted",
+        "name": "IsDeleted",
+        "optional": true,
+        "toggle_field": {
+          "label": "Deleted",
+          "control_type": "text",
+          "toggle_hint": "Use custom value",
+          "render_input": null,
+          "parse_output": null,
+          "optional": true,
+          "custom": false,
+          "sfdc_createable": false,
+          "sfdc_updateable": false,
+          "type": "boolean",
+          "name": "IsDeleted"
+        },
+        "toggle_hint": "Select from option list",
+        "type": "boolean",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": false,
+        "label": "Last Modified By ID",
+        "name": "LastModifiedById",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "date_time",
+        "custom": false,
+        "label": "Last Modified Date",
+        "name": "LastModifiedDate",
+        "optional": true,
+        "parse_output": "parse_iso8601_timestamp",
+        "type": "date_time",
+        "render_input": "render_iso8601_timestamp",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": false,
+        "label": "Owner ID",
+        "name": "OwnerId",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": false,
+        "label": "Received Connection ID",
+        "name": "ConnectionReceivedId",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": false,
+        "label": "Record ID",
+        "name": "Id",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": false,
+        "label": "Sent Connection ID",
+        "name": "ConnectionSentId",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "date_time",
+        "custom": false,
+        "label": "System Modstamp",
+        "name": "SystemModstamp",
+        "optional": true,
+        "parse_output": "parse_iso8601_timestamp",
+        "type": "date_time",
+        "render_input": "render_iso8601_timestamp",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "label": "Account",
+        "name": "Account__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "hint": "The account number",
+        "label": "Account Number",
+        "name": "AccountNumber__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text-area",
+        "custom": true,
+        "hint": "Additional information for the lead",
+        "label": "Additional Information",
+        "name": "AdditionalInformation__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "label": "Authority",
+        "name": "Authority__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "label": "Budget",
+        "name": "Budget__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "label": "Case",
+        "name": "Case__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "hint": "The preferred communication mode for the lead",
+        "label": "Communication Preference",
+        "name": "CommunicationPreference__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "hint": "The company name",
+        "label": "Company",
+        "name": "Company__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "label": "Contact",
+        "name": "Contact__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "hint": "The Lead's country",
+        "label": "Country",
+        "name": "Country__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "hint": "The Lead's email",
+        "label": "Email",
+        "name": "Email__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "hint": "The Lead's first name",
+        "label": "First Name",
+        "name": "FirstName__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "hint": "The Lead's language",
+        "label": "Language",
+        "name": "Language__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "hint": "The Lead's last name",
+        "label": "Last Name",
+        "name": "LastName__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "label": "Offer Id",
+        "name": "OfferId__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "hint": "The lead origin",
+        "label": "Origin",
+        "name": "Origin__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "label": "Owner Red Hat Title",
+        "name": "OwnerRedHatTitle__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "label": "Pain",
+        "name": "Pain__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "label": "Phone",
+        "name": "Phone__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "hint": "The associate's role",
+        "label": "Role",
+        "name": "Role__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "hint": "The Lead's state",
+        "label": "State",
+        "name": "State__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "hint": "The Eloqua tactic id",
+        "label": "Tactic Id",
+        "name": "TacticId__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "label": "Time Frame",
+        "name": "Time_Frame__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "hint": "The contact's title",
+        "label": "Title",
+        "name": "Title__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "hint": "The trigger name",
+        "label": "Trigger Name",
+        "name": "TriggerName__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "control_type": "text",
+        "custom": true,
+        "hint": "The lead type",
+        "label": "Type",
+        "name": "Type__c",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "label": "Combined attachments",
+        "name": "CombinedAttachments",
+        "properties": [
+          {
+            "control_type": "number",
+            "label": "Total size",
+            "parse_output": "integer_conversion",
+            "type": "integer",
+            "name": "totalSize"
+          },
+          {
+            "label": "Files",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "ID",
+                "type": "string",
+                "name": "Id"
+              },
+              {
+                "control_type": "number",
+                "label": "Content size",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "ContentSize"
+              },
+              {
+                "control_type": "url",
+                "label": "Content URL",
+                "type": "string",
+                "name": "ContentUrl"
+              },
+              {
+                "control_type": "text",
+                "label": "File extension",
+                "type": "string",
+                "name": "FileExtension"
+              },
+              {
+                "control_type": "text",
+                "label": "File type",
+                "type": "string",
+                "name": "FileType"
+              },
+              {
+                "control_type": "text",
+                "label": "Parent ID",
+                "type": "string",
+                "name": "ParentId"
+              },
+              {
+                "control_type": "text",
+                "label": "Record type",
+                "type": "string",
+                "name": "RecordType"
+              },
+              {
+                "control_type": "text",
+                "label": "Title",
+                "type": "string",
+                "name": "Title"
+              }
+            ],
+            "type": "array",
+            "name": "records"
+          }
+        ],
+        "type": "object",
+        "sfdc_field_type": "CombinedAttachment"
+      }
+    ],
+    "extended_input_schema": [
+      {
+        "control_type": "select",
+        "default": -3600,
+        "hint": "When starting the recipe for the first time, picks up Salesforce records from the specified date and time. <b>Once the recipe has been run or tested, this value cannot be changed.</b>",
+        "label": "When first started, this recipe should pick up events from",
+        "name": "since_offset",
+        "pick_list": [
+          [
+            "Recipe start",
+            0
+          ],
+          [
+            "An hour ago",
+            -3600
+          ],
+          [
+            "Yesterday",
+            -86400
+          ],
+          [
+            "Last week",
+            -604800
+          ],
+          [
+            "Last month",
+            -2629746
+          ],
+          [
+            "Beginning of time",
+            "no_limit"
+          ]
+        ],
+        "since_field": true,
+        "toggle_field": {
+          "control_type": "date_time",
+          "label": "When first started, this recipe should pick up events from",
+          "render_input": "convert_date_time",
+          "parse_output": "convert_date_time",
+          "toggle_hint": "Enter custom value",
+          "since_field": true,
+          "hint": "When starting the recipe for the first time, picks up Salesforce records from the specified date and time. <b>Once the recipe has been run or tested, this value cannot be changed.</b>",
+          "type": "date_time",
+          "name": "since"
+        },
+        "toggle_hint": "Select from list",
+        "type": "string"
+      }
+    ],
+    "visible_config_fields": [
+      "sobject_name",
+      "field_list",
+      "since_offset",
+      "___poll_interval"
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 2,
+            "provider": "workato_recipe_function",
+            "name": "call_recipe_async",
+            "as": "c92e0559",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "flow_id": "FUNC | Update/Create Sales Contact Campaign Members | 2 of 3"
+            },
+            "input": {
+              "flow_id": {
+                "zip_name": "Recipes/CEE Leads/func_update_create_sales_contact_campaign_members_2_of_3.recipe.json",
+                "name": "FUNC | Update/Create Sales Contact Campaign Members | 2 of 3",
+                "folder": "Recipes/CEE Leads"
+              },
+              "parameters": {
+                "FirstName": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"FirstName__c\"]}')}",
+                "LastName": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"LastName__c\"]}')}",
+                "Title": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"Title__c\"]}')}",
+                "Job_Role__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"Role__c\"]}')}",
+                "Company": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"Company__c\"]}')}",
+                "Phone": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"Phone__c\"]}')}",
+                "Email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"Email__c\"]}')}",
+                "Country": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"Country__c\"]}')}",
+                "State_Province": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"State__c\"]}')}",
+                "Language_Preference__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"Language__c\"]}')}",
+                "Offer_ID": "#{_dp('{\"pill_type\":\"account_property\",\"property_name\":\"CS_Priority_Lead_Generation_Conversation_Campaign_ID\"}')}",
+                "Tactic_ID": "#{_dp('{\"pill_type\":\"account_property\",\"property_name\":\"CS_Priority_Lead_Generation_Conversation_Campaign_ID\"}')}",
+                "Account_Number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"AccountNumber__c\"]}')}",
+                "Communication_Preference": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"CommunicationPreference__c\"]}')}",
+                "Record_ID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"Id\"]}')}",
+                "Type": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"Type__c\"]}')}",
+                "OwnerId": "#{_dp('{\"pill_type\":\"account_property\",\"property_name\":\"Unassigned_Leads_Lead_Owner_ID\"}')}",
+                "Additional_Information__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"AdditionalInformation__c\"]}')}",
+                "CEE_Lead_Number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"Name\"]}')}",
+                "CreatedDate": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ee8ac785\",\"path\":[\"CreatedDate\"]}')}"
+              }
+            },
+            "extended_input_schema": [
+              {
+                "label": "Parameters",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "First Name",
+                    "name": "FirstName",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Last Name",
+                    "name": "LastName",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Title",
+                    "name": "Title",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Job Role",
+                    "name": "Job_Role__c",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Company",
+                    "name": "Company",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Phone",
+                    "name": "Phone",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Email",
+                    "name": "Email",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Language Preference",
+                    "name": "Language_Preference__c",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Country",
+                    "name": "Country",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "State/Province",
+                    "name": "State_Province",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "CEE Lead Number",
+                    "name": "CEE_Lead_Number",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Additional Information",
+                    "name": "Additional_Information__c",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Offer ID",
+                    "name": "Offer_ID",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Tactic ID",
+                    "name": "Tactic_ID",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Account Number",
+                    "name": "Account_Number",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Communication Preference",
+                    "name": "Communication_Preference",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Type",
+                    "name": "Type",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Record ID",
+                    "name": "Record_ID",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Lead Owner",
+                    "name": "OwnerId",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "date",
+                    "label": "Created Date",
+                    "render_input": "date_conversion",
+                    "parse_output": "date_conversion",
+                    "name": "CreatedDate",
+                    "type": "date_time",
+                    "optional": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "comment": "Offer ID and Tactic ID values are hard-coded in this step",
+            "uuid": "bc645f18-f6f4-4b35-a14d-910be237b8f5"
+          },
+          {
+            "number": 3,
+            "as": "370168e6",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 4,
+                "provider": "logger",
+                "name": "log_message",
+                "as": "52c317f8",
+                "keyword": "action",
+                "input": {
+                  "user_logs_enabled": "false",
+                  "message": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"370168e6\",\"path\":[\"error_at\"]}')}#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"370168e6\",\"path\":[\"line_number\"]}')}#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"370168e6\",\"path\":[\"adapter\"]}')}#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"370168e6\",\"path\":[\"action\"]}')}#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"370168e6\",\"path\":[\"type\"]}')}#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"370168e6\",\"path\":[\"message\"]}')}"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "switch",
+                    "default": false,
+                    "disable_formula": true,
+                    "extends_schema": true,
+                    "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
+                    "label": "Send to Workato log service",
+                    "name": "user_logs_enabled",
+                    "optional": true,
+                    "type": "string"
+                  }
+                ],
+                "uuid": "1e7353cf-0ec6-4da2-a619-c0acf7de6fba"
+              }
+            ],
+            "uuid": "bb21bfa5-f108-4b9d-92e4-5c647ea51241"
+          }
+        ],
+        "uuid": "f9f88988-fd40-40c5-b786-c6adb9ae2b51"
+      }
+    ],
+    "uuid": "f25345ad-2339-4f4d-a68d-cd920e2920c3"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/con_gss_sfdc_prod.connection.json",
+        "name": "CON | GSS SFDC - PROD",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "logger",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
