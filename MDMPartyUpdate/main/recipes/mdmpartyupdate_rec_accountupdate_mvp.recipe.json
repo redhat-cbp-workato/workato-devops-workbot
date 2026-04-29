@@ -1,0 +1,800 @@
+{
+  "name": "[MDMPartyUpdate] REC | AccountUpdate-MVP",
+  "description": "",
+  "version": 6,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "kafka",
+    "name": "new_message_batch_v2",
+    "as": "1e755394",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "topic": "qa.lens-party.updated.protected",
+      "workato_schema_id": "Kafka Account Model New"
+    },
+    "toggleCfg": {
+      "topic": true
+    },
+    "input": {
+      "schema_source": "workato",
+      "key_schema_type": "plaintext",
+      "batch_size": "200",
+      "topic": "qa.lens-party.updated.protected",
+      "workato_schema_id": {
+        "zip_name": "kafka_account_model_new.workato_schema.json",
+        "name": "Kafka Account Model New",
+        "folder": ""
+      }
+    },
+    "extended_output_schema": [
+      {
+        "label": "Records",
+        "name": "records",
+        "of": "object",
+        "properties": [
+          {
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Key",
+                "name": "key",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "label": "Messages",
+                "name": "Messages",
+                "type": "array",
+                "optional": false,
+                "of": "object",
+                "properties": [
+                  {
+                    "label": "Party",
+                    "name": "party",
+                    "type": "array",
+                    "optional": false,
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Legacy ID",
+                        "name": "legacyId",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "label": "Message",
+            "type": "object",
+            "name": "message"
+          },
+          {
+            "control_type": "text",
+            "label": "Key",
+            "optional": true,
+            "sticky": true,
+            "hint": "Message key, to be stored with the message.\n                A key can be used by Kafka for selecting an appropriate topic partition\n                (when partition is not assigned explicitly).",
+            "type": "string",
+            "name": "key"
+          },
+          {
+            "label": "Message headers",
+            "control_type": "key_value",
+            "list_mode": "static",
+            "optional": true,
+            "empty_list_title": "Headers are empty",
+            "item_label": "Header",
+            "add_item_label": "Add header",
+            "enforce_template_mode": true,
+            "hint": "A list of key-value pairs, to be stored with the message.\n              Headers' keys may be duplicated.",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Key",
+                "type": "string",
+                "name": "key"
+              },
+              {
+                "control_type": "text",
+                "label": "Value",
+                "type": "string",
+                "name": "value"
+              }
+            ],
+            "type": "array",
+            "name": "headers"
+          },
+          {
+            "control_type": "integer",
+            "label": "Size",
+            "parse_output": "integer_conversion",
+            "type": "integer",
+            "name": "size"
+          },
+          {
+            "control_type": "integer",
+            "label": "Timestamp",
+            "parse_output": "integer_conversion",
+            "type": "integer",
+            "name": "timestamp"
+          },
+          {
+            "control_type": "integer",
+            "label": "Partition",
+            "parse_output": "integer_conversion",
+            "type": "integer",
+            "name": "partition"
+          },
+          {
+            "control_type": "integer",
+            "label": "Offset",
+            "parse_output": "integer_conversion",
+            "type": "integer",
+            "name": "offset"
+          }
+        ],
+        "type": "array"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_variable",
+        "name": "declare_list",
+        "as": "0d5f03d8",
+        "keyword": "action",
+        "input": {
+          "name": "failedPayloadList",
+          "list_item_schema_json": "[{\"name\":\"EventId\",\"type\":\"string\",\"optional\":false,\"label\":\"EventId\",\"control_type\":\"text\"},{\"name\":\"MDMId\",\"type\":\"string\",\"optional\":false,\"label\":\"MDMId\",\"control_type\":\"text\"},{\"name\":\"ErrorType\",\"type\":\"string\",\"optional\":true,\"label\":\"Error Type\",\"control_type\":\"text\"},{\"name\":\"ErrorMessage\",\"type\":\"string\",\"optional\":false,\"label\":\"Error Message\",\"control_type\":\"text\"},{\"name\":\"ErrorDescription\",\"type\":\"string\",\"optional\":true,\"label\":\"Error Description\",\"control_type\":\"text\"},{\"name\":\"StatusCode\",\"type\":\"string\",\"optional\":false,\"label\":\"Status Code\",\"control_type\":\"text\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "hint": "",
+            "label": "failedPayloadList",
+            "name": "list_items",
+            "of": "object",
+            "optional": false,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "EventId",
+                "name": "EventId",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "MDMId",
+                "name": "MDMId",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Error Type",
+                "name": "ErrorType",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Error Message",
+                "name": "ErrorMessage",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Error Description",
+                "name": "ErrorDescription",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Status Code",
+                "name": "StatusCode",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Set the initial items in the list. Defaults to an empty list if not supplied.",
+            "label": "Items",
+            "name": "list_items",
+            "of": "object",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "EventId",
+                "name": "EventId",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "MDMId",
+                "name": "MDMId",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Error Type",
+                "name": "ErrorType",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Error Message",
+                "name": "ErrorMessage",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Error Description",
+                "name": "ErrorDescription",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Status Code",
+                "name": "StatusCode",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "uuid": "c92bfd49-bd62-40c4-b7a3-a727bcc7d2c9"
+      },
+      {
+        "number": 2,
+        "as": "88588f99",
+        "keyword": "foreach",
+        "repeat_mode": "simple",
+        "clear_scope": "false",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 3,
+            "provider": "workato_variable",
+            "name": "declare_variable",
+            "as": "a2a82dae",
+            "keyword": "action",
+            "input": {
+              "variables": {
+                "schema": "[{\"name\":\"Message\",\"type\":\"string\",\"optional\":true,\"label\":\"Message\",\"details\":{\"real_name\":\"Message\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
+                "data": {
+                  "Message": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"88588f99\",\"path\":[\"message\"]}').to_json"
+                }
+              }
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "text",
+                "label": "Message",
+                "name": "Message",
+                "optional": true,
+                "type": "string",
+                "details": {
+                  "real_name": "Message"
+                }
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "add_field_label": "Add a variable",
+                "control_type": "form-schema-builder",
+                "empty_schema_title": "Add variables by giving them a name, type and default value",
+                "exclude_fields": [
+                  "hint"
+                ],
+                "item_label": "variable",
+                "label": "Variables",
+                "mark_as_required": true,
+                "name": "variables",
+                "ngIf": "!input.name",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Schema",
+                    "extends_schema": true,
+                    "broadcast_change_event": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Message",
+                        "name": "Message",
+                        "type": "string",
+                        "optional": true,
+                        "details": {
+                          "real_name": "Message"
+                        },
+                        "parent": [
+                          "variables",
+                          "data"
+                        ],
+                        "hint": "Defaults to nil if not supplied.",
+                        "sticky": true
+                      }
+                    ],
+                    "label": "Data",
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "variables.data.Message"
+            ],
+            "uuid": "d5f36e05-8db3-4b91-85ac-9b4d4f683a5c"
+          },
+          {
+            "number": 4,
+            "provider": "json_parser",
+            "name": "parse_json_v2",
+            "as": "eaefcdd4",
+            "keyword": "action",
+            "input": {
+              "sample_document": "{\n  \"eventId\": \"12345\",\n  \"traceId\": \"abc-123\",\n  \"party\": {\n    \"uid\": \"P001\",\n    \"name\": \"Test Account\"\n  }\n}",
+              "document": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"a2a82dae\",\"path\":[\"Message\"]}')"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Document",
+                "name": "document",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Event ID",
+                    "type": "string",
+                    "name": "eventId"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Trace ID",
+                    "type": "string",
+                    "name": "traceId"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Uid",
+                        "type": "string",
+                        "name": "uid"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Name",
+                        "type": "string",
+                        "name": "name"
+                      }
+                    ],
+                    "label": "Party",
+                    "type": "object",
+                    "name": "party"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Edit schema",
+                "name": "edit_schema",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "multiselect",
+                    "label": "Override fields",
+                    "pick_list": [
+                      [
+                        "document > eventId",
+                        "document__sep__eventId"
+                      ],
+                      [
+                        "document > traceId",
+                        "document__sep__traceId"
+                      ],
+                      [
+                        "document > party > uid",
+                        "document__sep__party__sep__uid"
+                      ],
+                      [
+                        "document > party > name",
+                        "document__sep__party__sep__name"
+                      ]
+                    ],
+                    "optional": true,
+                    "extends_schema": true,
+                    "type": "string",
+                    "name": "override_fields_picklist"
+                  }
+                ],
+                "sticky": false,
+                "type": "object"
+              }
+            ],
+            "uuid": "44a65efa-010c-4a80-b664-b98c4078781e"
+          },
+          {
+            "number": 5,
+            "provider": "workato_variable",
+            "name": "declare_variable",
+            "as": "58e94d06",
+            "keyword": "action",
+            "input": {
+              "variables": {
+                "schema": "[{\"name\":\"partyResponse\",\"type\":\"string\",\"optional\":true,\"label\":\"partyResponse\",\"details\":{\"real_name\":\"partyResponse\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
+                "data": {
+                  "partyResponse": "='{ \"party\" : '+ _dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"eaefcdd4\",\"path\":[\"document\",\"party\"]}').to_json+'}'"
+                }
+              }
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "text",
+                "label": "partyResponse",
+                "name": "partyResponse",
+                "optional": true,
+                "type": "string",
+                "details": {
+                  "real_name": "partyResponse"
+                }
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "add_field_label": "Add a variable",
+                "control_type": "form-schema-builder",
+                "empty_schema_title": "Add variables by giving them a name, type and default value",
+                "exclude_fields": [
+                  "hint"
+                ],
+                "item_label": "variable",
+                "label": "Variables",
+                "mark_as_required": true,
+                "name": "variables",
+                "ngIf": "!input.name",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Schema",
+                    "extends_schema": true,
+                    "broadcast_change_event": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "partyResponse",
+                        "name": "partyResponse",
+                        "type": "string",
+                        "optional": true,
+                        "details": {
+                          "real_name": "partyResponse"
+                        },
+                        "parent": [
+                          "variables",
+                          "data"
+                        ],
+                        "hint": "Defaults to nil if not supplied.",
+                        "sticky": true
+                      }
+                    ],
+                    "label": "Data",
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "variables.data.partyResponse"
+            ],
+            "uuid": "7d684255-aa19-481d-a1cb-04f030998df2"
+          },
+          {
+            "number": 6,
+            "keyword": "try",
+            "input": {
+            },
+            "block": [
+              {
+                "number": 7,
+                "provider": "salesforce",
+                "name": "create_custom_platform_event",
+                "as": "ab06ba41",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "sobject_name": "Inbound Platform Event"
+                },
+                "input": {
+                  "sobject_name": "IE_Inbound__e",
+                  "Event_Type__c": "MDMPartyUpdate",
+                  "Batch_GUID__c": "=_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"eaefcdd4\",\"path\":[\"document\",\"traceId\"]}')",
+                  "Event_Key__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"eaefcdd4\",\"path\":[\"document\",\"eventId\"]}')}",
+                  "Payload__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58e94d06\",\"path\":[\"partyResponse\"]}')}"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Event Type",
+                    "name": "Event_Type__c",
+                    "type": "string",
+                    "sfdc_createable": true,
+                    "sfdc_updateable": false
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Batch GUID",
+                    "name": "Batch_GUID__c",
+                    "optional": true,
+                    "type": "string",
+                    "sfdc_createable": true,
+                    "sfdc_updateable": false
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Content Note Id",
+                    "name": "Content_Note_Id__c",
+                    "optional": true,
+                    "type": "string",
+                    "sfdc_createable": true,
+                    "sfdc_updateable": false
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Event Key",
+                    "name": "Event_Key__c",
+                    "optional": true,
+                    "type": "string",
+                    "sfdc_createable": true,
+                    "sfdc_updateable": false
+                  },
+                  {
+                    "control_type": "text-area",
+                    "custom": true,
+                    "label": "Payload",
+                    "name": "Payload__c",
+                    "optional": true,
+                    "type": "string",
+                    "sfdc_createable": true,
+                    "sfdc_updateable": false
+                  },
+                  {
+                    "control_type": "text",
+                    "custom": true,
+                    "label": "Transaction Log Id",
+                    "name": "Transaction_Log_Id__c",
+                    "optional": true,
+                    "type": "string",
+                    "sfdc_createable": true,
+                    "sfdc_updateable": false
+                  }
+                ],
+                "visible_config_fields": [
+                  "sobject_name",
+                  "requester_email",
+                  "Content_Note_Id__c",
+                  "Transaction_Log_Id__c",
+                  "Payload__c",
+                  "Event_Key__c",
+                  "Batch_GUID__c"
+                ],
+                "uuid": "e783c799-15f9-4b62-aec4-221d1daccaa7",
+                "skip": false
+              },
+              {
+                "number": 8,
+                "as": "24b3c993",
+                "keyword": "catch",
+                "input": {
+                  "max_retry_count": "3",
+                  "retry_interval": "5"
+                },
+                "block": [
+                  {
+                    "number": 9,
+                    "provider": "workato_variable",
+                    "name": "insert_to_list_batch",
+                    "as": "dea0200f",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": "failedPayloadList (step 2)"
+                    },
+                    "input": {
+                      "location": "end",
+                      "name": "c92bfd49-bd62-40c4-b7a3-a727bcc7d2c9:0d5f03d8",
+                      "list_items": {
+                        "EventId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"json_parser\",\"line\":\"eaefcdd4\",\"path\":[\"document\",\"eventId\"]}')}",
+                        "MDMId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"88588f99\",\"path\":[\"key\"]}')}",
+                        "ErrorType": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"24b3c993\",\"path\":[\"type\"]}')}",
+                        "ErrorMessage": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"24b3c993\",\"path\":[\"message\"]}')}",
+                        "ErrorDescription": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"24b3c993\",\"path\":[\"inner_message\"]}')}",
+                        "StatusCode": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"24b3c993\",\"path\":[\"http_response\",\"body\"]}')}#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"24b3c993\",\"path\":[\"line_number\"]}')}"
+                      }
+                    },
+                    "extended_input_schema": [
+                      {
+                        "hint": "",
+                        "label": "List items",
+                        "name": "list_items",
+                        "of": "object",
+                        "optional": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "EventId",
+                            "name": "EventId",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "MDMId",
+                            "name": "MDMId",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Error Type",
+                            "name": "ErrorType",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Error Message",
+                            "name": "ErrorMessage",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Error Description",
+                            "name": "ErrorDescription",
+                            "type": "string",
+                            "optional": true
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Status Code",
+                            "name": "StatusCode",
+                            "type": "string",
+                            "optional": false
+                          }
+                        ],
+                        "type": "array"
+                      }
+                    ],
+                    "visible_config_fields": [
+                      "name",
+                      "location",
+                      "list_items",
+                      "list_items.ErrorDescription",
+                      "list_items.ErrorType"
+                    ],
+                    "uuid": "ba0b7bd1-388c-41e0-aeb8-73853f0ca842"
+                  }
+                ],
+                "uuid": "e26932f7-4368-4b1b-8492-79b4f86aba89"
+              }
+            ],
+            "uuid": "3f225c28-c80c-4176-8eae-684ac5118742"
+          }
+        ],
+        "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"kafka\",\"line\":\"1e755394\",\"path\":[\"records\"]}')}",
+        "uuid": "961ad6f1-6cae-45c8-96ff-ffcd9bb8ddd5"
+      },
+      {
+        "number": 10,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "greater_than",
+              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"0d5f03d8\",\"path\":[\"list_items\",{\"path_element_type\":\"size\"}]}')",
+              "rhs": "0",
+              "uuid": "99493a49-b5ed-4705-b74a-c86199c7ebc1"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 11,
+            "provider": "email",
+            "name": "send_mail",
+            "as": "5cb55ef5",
+            "keyword": "action",
+            "input": {
+              "email_type": "html",
+              "to": "prm-integrations@redhat.com",
+              "subject": "Account MDMPartyUpdate - Error Records",
+              "body": "=\"<dl style='font-family: sans-serif; overflow: hidden;'>\"+\n  \"<dt style='font-weight: bold; float: left; width: 100px; margin: 0;'> Recipe ID</dt>\"+\n  \"<dd style='margin-left: 110px;'>\"+  (_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_id\"]}') || '') +\"</dd>\"+\n\"<dt style='font-weight: bold; float: left; width: 100px; margin: 0;'> Recipe URL</dt>\"+\n  \"<dd style='margin-left: 110px;'>\"+  (_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_url\"]}') || '') +\"</dd>\"+\n  \"<dt style='font-weight: bold; float: left; width: 100px; margin: 0;'> Recipe Name</dt>\"+\n  \"<dd style='margin-left: 110px;'>\"+  (_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_name\"]}') || '') +\"</dd>\"+\n\"<dt style='font-weight: bold; float: left; width: 100px; margin: 0;'> Recipe Path</dt>\"+\n  \"<dd style='margin-left: 110px;'>\"+  (_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_path\"]}') || '') +\"</dd>\"+\n  \"<dt style='font-weight: bold; float: left; width: 100px; margin: 0;'> Job ID</dt>\"+\n  \"<dd style='margin-left: 110px;'>\"+  (_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_id\"]}') || '') +\"</dd>\"+\n\"<dt style='font-weight: bold; float: left; width: 100px; margin: 0;'> Job URL</dt>\"+\n  \"<dd style='margin-left: 110px;'>\"+  (_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_url\"]}') || '') +\"</dd>\"+\n\"</dl>\"+\"<br><br>\"+\n\"<dl style='font-family: sans-serif; overflow: hidden;'>\"+\n  \"<dt style='font-weight: bold; float: left; width: 100px; margin: 0;'> Total Records</dt>\"+\n  \"<dd style='margin-left: 110px;'>\"+  (_dp('{\"pill_type\":\"output\",\"provider\":\"kafka\",\"line\":\"1e755394\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')|| '') +\"</dd>\"+\n\"<dt style='font-weight: bold; float: left; width: 100px; margin: 0;'> Failed Records</dt>\"+\n  \"<dd style='margin-left: 110px;'>\"+  (_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"0d5f03d8\",\"path\":[\"list_items\",{\"path_element_type\":\"size\"}]}') || '') +\"</dd>\"+\n\"</dl>\"+\"<br><br>\"+\n\n\"<span style='font-family: sans-serif;'>The table below outlines the details of the Failed Records.</span><br><br>\" +\n\"<table border='1' cellpadding='4' cellspacing='0'>\" +\n\"<tr>\" +\n\"<th>Transaction Event ID</th>\" +\n\"<th>MDM ID</th>\" +\n\"<th>Error Description</th>\" +\n\"</tr>\" +\n(\n( _dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"0d5f03d8\",\"path\":[\"list_items\"]}')|| [])\n  .format_map(\n    \"<tr>\" +\n      \"<td>%{EventId}</td>\" +\n      \"<td>%{MDMId}</td>\" +\n      \"<td>\" +\n        \"Error Type: %{ErrorType}<br>\" +\n        \"Error : %{ErrorMessage}.<br>\" +\n        \"%{ErrorDescription}\" +\n      \"</td>\" +\n    \"</tr>\"\n  )\n).join(\"\") +\n\"</table>\""
+            },
+            "uuid": "b6e6180c-940e-418d-a416-60b69f9ce121"
+          }
+        ],
+        "uuid": "455935ed-01a6-4556-8da8-1985baf696a2"
+      }
+    ],
+    "uuid": "6c25fe5a-11c4-45e9-8286-e9032646e8bc"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "kafka",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/ocsi_migration_con_kafka_prepod.connection.json",
+        "name": "[OCSI Migration]|CON|Kafka|Prepod",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/ocsi_con_salesforce_workatomsg.connection.json",
+        "name": "[OCSI] CON | Salesforce | workatomsg",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "json_parser",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "email",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
