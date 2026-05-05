@@ -1,8 +1,8 @@
 {
   "name": "Account Name Search",
-  "version": 30,
+  "version": 46,
   "private": true,
-  "concurrency": 20,
+  "concurrency": 5,
   "code": {
     "number": 0,
     "provider": "workato_api_platform",
@@ -21,7 +21,7 @@
       "request": {
         "content_type": "json",
         "schema": "[{\"name\":\"Conversation_ID\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\",\"label\":\"Conversation ID\"}]",
-        "headers": "[{\"name\":\"account_name\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Account name\"},{\"name\":\"limit\",\"type\":\"string\",\"optional\":false,\"label\":\"Limit\",\"control_type\":\"text\"},{\"name\":\"offset\",\"type\":\"string\",\"optional\":false,\"label\":\"Offset\",\"control_type\":\"text\"}]"
+        "headers": "[{\"name\":\"account_name\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Account name\"},{\"name\":\"limit\",\"type\":\"string\",\"optional\":false,\"label\":\"Limit\",\"control_type\":\"text\"},{\"name\":\"offset\",\"type\":\"string\",\"optional\":false,\"label\":\"Offset\",\"control_type\":\"text\"},{\"name\":\"scope\",\"type\":\"string\",\"optional\":false,\"label\":\"Scope\",\"control_type\":\"text\"},{\"name\":\"billing_country\",\"type\":\"string\",\"optional\":false,\"label\":\"Billing Country\",\"control_type\":\"text\"}]"
       },
       "response": {
         "content_type": "json",
@@ -240,6 +240,20 @@
                 "name": "offset",
                 "type": "string",
                 "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Scope",
+                "name": "scope",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Billing Country",
+                "name": "billing_country",
+                "type": "string",
+                "optional": false
               }
             ],
             "label": "Request headers",
@@ -380,6 +394,56 @@
       },
       {
         "number": 2,
+        "provider": "workato_variable",
+        "name": "declare_list",
+        "as": "890a905a",
+        "keyword": "action",
+        "input": {
+          "name": "where_clause_list",
+          "list_item_schema_json": "[{\"control_type\":\"text\",\"label\":\"SOQL Value\",\"name\":\"soql_value\",\"type\":\"string\",\"optional\":false}]"
+        },
+        "extended_output_schema": [
+          {
+            "hint": "",
+            "label": "where_clause_list",
+            "name": "list_items",
+            "of": "object",
+            "optional": false,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "SOQL Value",
+                "name": "soql_value",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Set the initial items in the list. Defaults to an empty list if not supplied.",
+            "label": "Items",
+            "name": "list_items",
+            "of": "object",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "SOQL Value",
+                "name": "soql_value",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "uuid": "4aad7948-70cd-4ca2-bfd2-3b651689f707"
+      },
+      {
+        "number": 3,
         "keyword": "if",
         "input": {
           "type": "compound",
@@ -394,7 +458,7 @@
         },
         "block": [
           {
-            "number": 3,
+            "number": 4,
             "provider": "workato_variable",
             "name": "update_variables",
             "as": "fcd22a66",
@@ -427,466 +491,132 @@
             "uuid": "c002948c-0dcd-48a3-8b72-48b65e8b2067"
           },
           {
-            "number": 4,
-            "provider": "workato_db_table",
-            "name": "get_records",
-            "as": "6e38b02b",
+            "number": 5,
+            "provider": "salesforce",
+            "name": "search_sobjects_soql_v2",
+            "as": "ff8bbaac",
             "keyword": "action",
-            "dynamicPickListSelection": {
-              "table_id": "sfdc_username_datatable",
-              "filters.0.field_id": "FederationIdentifier"
-            },
             "input": {
-              "order_direction": "asc",
-              "limit": "100",
-              "table_id": {
-                "zip_name": "Digital Workforce/sfdc_username_datatable.workato_db_table.json",
-                "name": "sfdc_username_datatable",
-                "folder": "Digital Workforce"
-              },
-              "1c2a8c0d-6945-41b7-9c25-967ed1e02978": "string",
-              "2531703f-f630-4eae-b133-9ab0d4324672": "string",
-              "e973c604-f386-4d01-a167-69ef790e8827": "string",
-              "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
-              "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
-              "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
-              "filters": [
-                {
-                  "field_id": "2531703f-f630-4eae-b133-9ab0d4324672",
-                  "op_default": "eq",
-                  "value_default": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"rhatUUID\"]}')}"
-                }
-              ]
+              "limit": "150",
+              "query": "SELECT Username,Id, FederationIdentifier ,Email FROM User where FederationIdentifier = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"rhatUUID\"]}')}'",
+              "output_schema": "[{\"properties\":[{\"control_type\":\"text\",\"label\":\"Type\",\"type\":\"string\",\"name\":\"type\"},{\"control_type\":\"text\",\"label\":\"URL\",\"type\":\"string\",\"name\":\"url\"}],\"label\":\"Attributes\",\"type\":\"object\",\"name\":\"attributes\"},{\"control_type\":\"text\",\"label\":\"Username\",\"type\":\"string\",\"name\":\"Username\"},{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"Id\"},{\"control_type\":\"text\",\"label\":\"Federation identifier\",\"type\":\"string\",\"name\":\"FederationIdentifier\"},{\"control_type\":\"text\",\"label\":\"Email\",\"type\":\"string\",\"name\":\"Email\"}]"
             },
             "extended_output_schema": [
+              {
+                "control_type": "checkbox",
+                "label": "Done",
+                "name": "done",
+                "toggle_field": {
+                  "label": "Done",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "render_input": null,
+                  "parse_output": null,
+                  "type": "boolean",
+                  "name": "done"
+                },
+                "toggle_hint": "Select from option list",
+                "type": "boolean"
+              },
+              {
+                "control_type": "integer",
+                "label": "Total size",
+                "name": "totalSize",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              },
               {
                 "label": "Records",
                 "name": "records",
                 "of": "object",
                 "properties": [
                   {
-                    "control_type": "text",
-                    "label": "Record ID",
-                    "type": "string",
-                    "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Type",
+                        "type": "string",
+                        "name": "type"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "URL",
+                        "type": "string",
+                        "name": "url"
+                      }
+                    ],
+                    "label": "Attributes",
+                    "type": "object",
+                    "name": "attributes"
                   },
                   {
                     "control_type": "text",
                     "label": "Username",
                     "type": "string",
-                    "name": "1c2a8c0d_6945_41b7_9c25_967ed1e02978"
+                    "name": "Username"
                   },
                   {
                     "control_type": "text",
-                    "label": "FederationIdentifier",
+                    "label": "ID",
                     "type": "string",
-                    "name": "2531703f_f630_4eae_b133_9ab0d4324672"
+                    "name": "Id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Federation identifier",
+                    "type": "string",
+                    "name": "FederationIdentifier"
                   },
                   {
                     "control_type": "text",
                     "label": "Email",
                     "type": "string",
-                    "name": "e973c604_f386_4d01_a167_69ef790e8827"
-                  },
-                  {
-                    "control_type": "date_time",
-                    "label": "Created at",
-                    "render_input": "date_time_conversion",
-                    "parse_output": "date_time_conversion",
-                    "type": "date_time",
-                    "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
-                  },
-                  {
-                    "control_type": "date_time",
-                    "label": "Updated at",
-                    "render_input": "date_time_conversion",
-                    "parse_output": "date_time_conversion",
-                    "type": "date_time",
-                    "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                    "name": "Email"
                   }
                 ],
                 "type": "array"
-              },
-              {
-                "control_type": "text",
-                "label": "Next Page Token",
-                "name": "continuation_token",
-                "type": "string"
               }
             ],
-            "extended_input_schema": [
-              {
-                "control_type": "text",
-                "default": "string",
-                "label": "$internal_value_1c2a8c0d-6945-41b7-9c25-967ed1e02978",
-                "name": "1c2a8c0d-6945-41b7-9c25-967ed1e02978",
-                "ngIf": "false",
-                "optional": true,
-                "type": "string"
-              },
-              {
-                "control_type": "text",
-                "default": "string",
-                "label": "$internal_value_2531703f-f630-4eae-b133-9ab0d4324672",
-                "name": "2531703f-f630-4eae-b133-9ab0d4324672",
-                "ngIf": "false",
-                "optional": true,
-                "type": "string"
-              },
-              {
-                "control_type": "text",
-                "default": "string",
-                "label": "$internal_value_e973c604-f386-4d01-a167-69ef790e8827",
-                "name": "e973c604-f386-4d01-a167-69ef790e8827",
-                "ngIf": "false",
-                "optional": true,
-                "type": "string"
-              },
-              {
-                "control_type": "text",
-                "default": "id",
-                "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
-                "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
-                "ngIf": "false",
-                "optional": true,
-                "type": "string"
-              },
-              {
-                "control_type": "text",
-                "default": "date_time",
-                "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
-                "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
-                "ngIf": "false",
-                "optional": true,
-                "type": "string"
-              },
-              {
-                "control_type": "text",
-                "default": "date_time",
-                "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
-                "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
-                "ngIf": "false",
-                "optional": true,
-                "type": "string"
-              }
-            ],
-            "uuid": "370edd78-d0f9-4f47-afc1-0190fb62ae8f"
+            "uuid": "438ff6c7-1852-431c-970b-19f7d0815e67"
           },
           {
-            "number": 5,
-            "keyword": "if",
-            "input": {
-              "type": "compound",
-              "operand": "and",
-              "conditions": [
+            "number": 6,
+            "provider": "workato_variable",
+            "name": "update_variables",
+            "as": "f62c0f41",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": [
                 {
-                  "operand": "greater_than",
-                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"6e38b02b\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}",
-                  "rhs": "0",
-                  "uuid": "8da0eb93-4edc-4ed5-b9d5-0e2f2005ce8a"
+                  "label": "On_behalf_of_user_email (step 2)",
+                  "value": "4b6e614b-89e9-4e88-9747-a5273b1b3657:c6363d75:output"
                 }
               ]
             },
-            "block": [
+            "input": {
+              "input_mode": "structured",
+              "name": "4b6e614b-89e9-4e88-9747-a5273b1b3657:c6363d75:output",
+              "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ff8bbaac\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Username\"]}')"
+            },
+            "extended_input_schema": [
               {
-                "number": 6,
-                "provider": "workato_variable",
-                "name": "update_variables",
-                "as": "e1851f30",
-                "keyword": "action",
-                "dynamicPickListSelection": {
-                  "name": [
-                    {
-                      "label": "On_behalf_of_user_email (step 2)",
-                      "value": "4b6e614b-89e9-4e88-9747-a5273b1b3657:c6363d75:output"
-                    }
-                  ]
-                },
-                "input": {
-                  "input_mode": "structured",
-                  "name": "4b6e614b-89e9-4e88-9747-a5273b1b3657:c6363d75:output",
-                  "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"6e38b02b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"1c2a8c0d_6945_41b7_9c25_967ed1e02978\"]}')"
-                },
-                "extended_input_schema": [
-                  {
-                    "control_type": "text",
-                    "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
-                    "label": "On_behalf_of_user_email",
-                    "name": "output",
-                    "optional": true,
-                    "sticky": true,
-                    "type": "string",
-                    "strip_interpolation": true
-                  }
-                ],
-                "uuid": "8d367dc3-8a36-47b2-9ad9-832be517ac18"
-              },
-              {
-                "number": 7,
-                "keyword": "else",
-                "input": {
-                },
-                "block": [
-                  {
-                    "number": 8,
-                    "provider": "salesforce",
-                    "name": "search_sobjects_soql_v2",
-                    "as": "ff8bbaac",
-                    "keyword": "action",
-                    "input": {
-                      "limit": "150",
-                      "query": "SELECT Username,Id, FederationIdentifier ,Email FROM User where FederationIdentifier = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"rhatUUID\"]}')}'",
-                      "output_schema": "[{\"properties\":[{\"control_type\":\"text\",\"label\":\"Type\",\"type\":\"string\",\"name\":\"type\"},{\"control_type\":\"text\",\"label\":\"URL\",\"type\":\"string\",\"name\":\"url\"}],\"label\":\"Attributes\",\"type\":\"object\",\"name\":\"attributes\"},{\"control_type\":\"text\",\"label\":\"Username\",\"type\":\"string\",\"name\":\"Username\"},{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"Id\"},{\"control_type\":\"text\",\"label\":\"Federation identifier\",\"type\":\"string\",\"name\":\"FederationIdentifier\"},{\"control_type\":\"text\",\"label\":\"Email\",\"type\":\"string\",\"name\":\"Email\"}]"
-                    },
-                    "extended_output_schema": [
-                      {
-                        "control_type": "checkbox",
-                        "label": "Done",
-                        "name": "done",
-                        "toggle_field": {
-                          "label": "Done",
-                          "control_type": "text",
-                          "toggle_hint": "Use custom value",
-                          "render_input": null,
-                          "parse_output": null,
-                          "type": "boolean",
-                          "name": "done"
-                        },
-                        "toggle_hint": "Select from option list",
-                        "type": "boolean"
-                      },
-                      {
-                        "control_type": "integer",
-                        "label": "Total size",
-                        "name": "totalSize",
-                        "parse_output": "integer_conversion",
-                        "type": "integer"
-                      },
-                      {
-                        "label": "Records",
-                        "name": "records",
-                        "of": "object",
-                        "properties": [
-                          {
-                            "properties": [
-                              {
-                                "control_type": "text",
-                                "label": "Type",
-                                "type": "string",
-                                "name": "type"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "URL",
-                                "type": "string",
-                                "name": "url"
-                              }
-                            ],
-                            "label": "Attributes",
-                            "type": "object",
-                            "name": "attributes"
-                          },
-                          {
-                            "control_type": "text",
-                            "label": "Username",
-                            "type": "string",
-                            "name": "Username"
-                          },
-                          {
-                            "control_type": "text",
-                            "label": "ID",
-                            "type": "string",
-                            "name": "Id"
-                          },
-                          {
-                            "control_type": "text",
-                            "label": "Federation identifier",
-                            "type": "string",
-                            "name": "FederationIdentifier"
-                          },
-                          {
-                            "control_type": "text",
-                            "label": "Email",
-                            "type": "string",
-                            "name": "Email"
-                          }
-                        ],
-                        "type": "array"
-                      }
-                    ],
-                    "uuid": "438ff6c7-1852-431c-970b-19f7d0815e67"
-                  },
-                  {
-                    "number": 9,
-                    "provider": "workato_variable",
-                    "name": "update_variables",
-                    "as": "f62c0f41",
-                    "keyword": "action",
-                    "dynamicPickListSelection": {
-                      "name": [
-                        {
-                          "label": "On_behalf_of_user_email (step 2)",
-                          "value": "4b6e614b-89e9-4e88-9747-a5273b1b3657:c6363d75:output"
-                        }
-                      ]
-                    },
-                    "input": {
-                      "input_mode": "structured",
-                      "name": "4b6e614b-89e9-4e88-9747-a5273b1b3657:c6363d75:output",
-                      "output": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ff8bbaac\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Username\"]}')"
-                    },
-                    "extended_input_schema": [
-                      {
-                        "control_type": "text",
-                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
-                        "label": "On_behalf_of_user_email",
-                        "name": "output",
-                        "optional": true,
-                        "sticky": true,
-                        "type": "string",
-                        "strip_interpolation": true
-                      }
-                    ],
-                    "uuid": "c1f8f366-58a4-4e6f-90f8-68bb8244de9b"
-                  },
-                  {
-                    "number": 10,
-                    "provider": "workato_db_table",
-                    "name": "create_records_batch",
-                    "as": "d2bfdab0",
-                    "keyword": "action",
-                    "dynamicPickListSelection": {
-                      "table_id": "sfdc_username_datatable"
-                    },
-                    "input": {
-                      "table_id": {
-                        "zip_name": "Digital Workforce/sfdc_username_datatable.workato_db_table.json",
-                        "name": "sfdc_username_datatable",
-                        "folder": "Digital Workforce"
-                      },
-                      "records": {
-                        "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ff8bbaac\",\"path\":[\"records\"]}')}",
-                        "parameters": {
-                          "1c2a8c0d_6945_41b7_9c25_967ed1e02978": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ff8bbaac\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Username\"]}')}",
-                          "2531703f_f630_4eae_b133_9ab0d4324672": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ff8bbaac\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"FederationIdentifier\"]}')}",
-                          "e973c604_f386_4d01_a167_69ef790e8827": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ff8bbaac\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Email\"]}')}"
-                        }
-                      }
-                    },
-                    "extended_output_schema": [
-                      {
-                        "label": "Records",
-                        "name": "records",
-                        "of": "object",
-                        "properties": [
-                          {
-                            "properties": [
-                              {
-                                "control_type": "text",
-                                "label": "Record ID",
-                                "type": "string",
-                                "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Username",
-                                "type": "string",
-                                "name": "1c2a8c0d_6945_41b7_9c25_967ed1e02978"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "FederationIdentifier",
-                                "type": "string",
-                                "name": "2531703f_f630_4eae_b133_9ab0d4324672"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Email",
-                                "type": "string",
-                                "name": "e973c604_f386_4d01_a167_69ef790e8827"
-                              },
-                              {
-                                "control_type": "date_time",
-                                "label": "Created at",
-                                "render_input": "date_time_conversion",
-                                "parse_output": "date_time_conversion",
-                                "type": "date_time",
-                                "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
-                              },
-                              {
-                                "control_type": "date_time",
-                                "label": "Updated at",
-                                "render_input": "date_time_conversion",
-                                "parse_output": "date_time_conversion",
-                                "type": "date_time",
-                                "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
-                              }
-                            ],
-                            "label": "Record",
-                            "type": "object",
-                            "name": "record"
-                          }
-                        ],
-                        "type": "array"
-                      }
-                    ],
-                    "extended_input_schema": [
-                      {
-                        "hint": "Provide the list of records",
-                        "label": "New records",
-                        "name": "records",
-                        "of": "object",
-                        "optional": false,
-                        "properties": [
-                          {
-                            "properties": [
-                              {
-                                "control_type": "text",
-                                "label": "Username",
-                                "optional": true,
-                                "sticky": true,
-                                "type": "string",
-                                "name": "1c2a8c0d_6945_41b7_9c25_967ed1e02978"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "FederationIdentifier",
-                                "optional": true,
-                                "sticky": true,
-                                "type": "string",
-                                "name": "2531703f_f630_4eae_b133_9ab0d4324672"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Email",
-                                "optional": true,
-                                "sticky": true,
-                                "type": "string",
-                                "name": "e973c604_f386_4d01_a167_69ef790e8827"
-                              }
-                            ],
-                            "label": "New record fields",
-                            "hint": "Fill the fields for the new record",
-                            "type": "object",
-                            "name": "parameters"
-                          }
-                        ],
-                        "type": "array"
-                      }
-                    ],
-                    "uuid": "a8a1ea38-752e-4f4f-aad5-24294e54a9ab"
-                  }
-                ],
-                "uuid": "06f7ef56-5e8d-40d8-97fd-057f6057fd95"
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "On_behalf_of_user_email",
+                "name": "output",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
               }
             ],
-            "uuid": "85cd29db-9b49-4e68-a677-b6799260d5eb"
+            "uuid": "c1f8f366-58a4-4e6f-90f8-68bb8244de9b"
           }
         ],
         "uuid": "8e715824-ad3d-4ef7-b50d-47ffbb64dafa"
       },
       {
-        "number": 11,
+        "number": 7,
         "provider": "workato_variable",
         "name": "declare_variable",
         "as": "3eb58038",
@@ -969,7 +699,7 @@
         "uuid": "749bed15-6fc5-4f52-a523-14c849385f47"
       },
       {
-        "number": 12,
+        "number": 8,
         "provider": "workato_variable",
         "name": "declare_variable",
         "as": "97a3a6e0",
@@ -1052,7 +782,7 @@
         "uuid": "c6286bda-5347-4ec5-902c-35a449ce114f"
       },
       {
-        "number": 13,
+        "number": 9,
         "keyword": "if",
         "input": {
           "type": "compound",
@@ -1068,7 +798,7 @@
         },
         "block": [
           {
-            "number": 14,
+            "number": 10,
             "provider": "workato_variable",
             "name": "update_variables",
             "as": "08a4ee11",
@@ -1101,13 +831,13 @@
             "uuid": "6b79c4d5-5f6a-43dc-98c9-a3358986f44d"
           },
           {
-            "number": 15,
+            "number": 11,
             "keyword": "else",
             "input": {
             },
             "block": [
               {
-                "number": 16,
+                "number": 12,
                 "provider": "workato_variable",
                 "name": "update_variables",
                 "as": "383c99a8",
@@ -1146,7 +876,7 @@
         "uuid": "5200261b-9858-4d63-a65f-42bcb77db580"
       },
       {
-        "number": 17,
+        "number": 13,
         "keyword": "if",
         "input": {
           "type": "compound",
@@ -1162,7 +892,7 @@
         },
         "block": [
           {
-            "number": 18,
+            "number": 14,
             "provider": "workato_variable",
             "name": "update_variables",
             "as": "55cc95f1",
@@ -1195,13 +925,13 @@
             "uuid": "8824563f-d7ff-41a1-bf10-d5efb1198982"
           },
           {
-            "number": 19,
+            "number": 15,
             "keyword": "else",
             "input": {
             },
             "block": [
               {
-                "number": 20,
+                "number": 16,
                 "provider": "workato_variable",
                 "name": "update_variables",
                 "as": "053e12e9",
@@ -1240,7 +970,7 @@
         "uuid": "22212d6e-f8c9-4fed-955e-aa27dd98b244"
       },
       {
-        "number": 21,
+        "number": 17,
         "keyword": "if",
         "input": {
           "type": "compound",
@@ -1250,659 +980,2336 @@
               "operand": "present",
               "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"account_name\"]}')}",
               "rhs": "",
-              "uuid": "b5038d5b-b870-48db-be4b-e1d8afd72195"
+              "uuid": "c7eba0ca-1325-49ec-8649-b10f534d2ea9"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 18,
+            "provider": "workato_variable",
+            "name": "insert_to_list",
+            "as": "c85a2a0a",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": "where_clause_list (step 3)"
+            },
+            "input": {
+              "name": "4aad7948-70cd-4ca2-bfd2-3b651689f707:890a905a",
+              "location": "end",
+              "list_item": {
+                "soql_value": "Name LIKE '%#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"account_name\"]}')}%'"
+              }
+            },
+            "extended_input_schema": [
+              {
+                "hint": "",
+                "label": "List item",
+                "name": "list_item",
+                "optional": false,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "SOQL Value",
+                    "name": "soql_value",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "eaaee7c7-764d-410f-98e6-ac1b2c865b5d"
+          }
+        ],
+        "uuid": "49a43430-3916-40b8-9b7c-a67847c39683"
+      },
+      {
+        "number": 19,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "present",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"billing_country\"]}')}",
+              "rhs": "",
+              "uuid": "c7eba0ca-1325-49ec-8649-b10f534d2ea9"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 20,
+            "provider": "workato_variable",
+            "name": "insert_to_list",
+            "as": "430ede9f",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": "where_clause_list (step 3)"
+            },
+            "input": {
+              "name": "4aad7948-70cd-4ca2-bfd2-3b651689f707:890a905a",
+              "location": "end",
+              "list_item": {
+                "soql_value": "BillingCountry =  '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"billing_country\"]}')}'"
+              }
+            },
+            "extended_input_schema": [
+              {
+                "hint": "",
+                "label": "List item",
+                "name": "list_item",
+                "optional": false,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "SOQL Value",
+                    "name": "soql_value",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "64f47d29-8d8c-48b3-a7d1-697741001a14"
+          }
+        ],
+        "uuid": "7063b8e4-791d-4f8e-96b3-b5d839b1ac6b"
+      },
+      {
+        "number": 21,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "present",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"scope\"]}')}",
+              "rhs": "",
+              "uuid": "c7eba0ca-1325-49ec-8649-b10f534d2ea9"
             }
           ]
         },
         "block": [
           {
             "number": 22,
-            "keyword": "try",
+            "keyword": "if",
             "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"scope\"]}')}",
+                  "rhs": "my_accounts",
+                  "uuid": "64bd187c-4444-424f-a75a-23a70fabb834"
+                }
+              ]
             },
             "block": [
               {
                 "number": 23,
-                "provider": "salesforce",
-                "name": "search_sobjects_soql",
-                "as": "a8a29dfd",
+                "provider": "workato_variable",
+                "name": "insert_to_list",
+                "as": "14c7b8f4",
                 "keyword": "action",
                 "dynamicPickListSelection": {
-                  "sobject_name": "Account",
-                  "field_list": [
-                    {
-                      "label": "Account ID",
-                      "value": "Id"
-                    },
-                    {
-                      "label": "Account Name",
-                      "value": "Name"
-                    },
-                    {
-                      "label": "Billing City",
-                      "value": "BillingCity"
-                    },
-                    {
-                      "label": "Billing State/Province",
-                      "value": "BillingState"
-                    },
-                    {
-                      "label": "Billing Country",
-                      "value": "BillingCountry"
-                    },
-                    {
-                      "label": "Account Type",
-                      "value": "Type"
-                    },
-                    {
-                      "label": "Red Hat Account Owner",
-                      "value": "Account_Owner_FullName__c"
-                    },
-                    {
-                      "label": "Account Segment",
-                      "value": "Account_Segment__c"
-                    },
-                    {
-                      "label": "Red Hat Global Sales Group Name",
-                      "value": "GU_Proxy__c"
-                    }
-                  ]
+                  "name": "where_clause_list (step 3)"
                 },
                 "input": {
-                  "limit": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"3eb58038\",\"path\":[\"output\"]}')}",
-                  "sobject_name": "Account",
-                  "field_list": "Id\nName\nBillingCity\nBillingState\nBillingCountry\nType\nAccount_Owner_FullName__c\nAccount_Segment__c\nGU_Proxy__c",
-                  "query": "Name LIKE '%#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"account_name\"]}')}%' ORDER BY Name",
-                  "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"output\"]}')}",
-                  "offset": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"97a3a6e0\",\"path\":[\"output\"]}')}"
+                  "name": "4aad7948-70cd-4ca2-bfd2-3b651689f707:890a905a",
+                  "location": "end",
+                  "list_item": {
+                    "soql_value": "OwnerId = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ff8bbaac\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Id\"]}')}'"
+                  }
                 },
-                "extended_output_schema": [
+                "extended_input_schema": [
                   {
-                    "label": "Accounts",
-                    "name": "Account",
-                    "of": "object",
+                    "hint": "",
+                    "label": "List item",
+                    "name": "list_item",
+                    "optional": false,
                     "properties": [
                       {
                         "control_type": "text",
-                        "label": "Account ID",
-                        "optional": true,
-                        "custom": false,
-                        "sfdc_createable": false,
-                        "sfdc_updateable": false,
+                        "label": "SOQL Value",
+                        "name": "soql_value",
                         "type": "string",
-                        "name": "Id"
-                      },
+                        "optional": false
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "18cd0ce6-bc32-418e-ad19-9d9bfdb58b1b"
+              },
+              {
+                "number": 24,
+                "keyword": "elsif",
+                "input": {
+                  "type": "compound",
+                  "operand": "and",
+                  "conditions": [
+                    {
+                      "operand": "equals_to",
+                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"scope\"]}')}",
+                      "rhs": "my_account_team",
+                      "uuid": "e753edeb-1836-4a0a-9c23-1beea4b26f7f"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "number": 25,
+                    "provider": "salesforce",
+                    "name": "search_sobjects_soql",
+                    "as": "6d276e55",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "sobject_name": "Account Team Member",
+                      "field_list": [
+                        {
+                          "label": "Account ID",
+                          "value": "AccountId"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "limit": "2000",
+                      "sobject_name": "AccountTeamMember",
+                      "query": "UserId  = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ff8bbaac\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Id\"]}')}'",
+                      "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"output\"]}')}",
+                      "offset": "0",
+                      "field_list": "AccountId"
+                    },
+                    "extended_output_schema": [
                       {
-                        "control_type": "text",
-                        "label": "Account Name",
-                        "event_title": true,
-                        "custom": false,
-                        "sfdc_createable": true,
-                        "sfdc_updateable": true,
-                        "type": "string",
-                        "name": "Name"
-                      },
-                      {
-                        "control_type": "select",
-                        "label": "Account Type",
-                        "pick_list": "sobject_field_values_list",
-                        "pick_list_params": {
-                          "sobject_name": "\"Account\"",
-                          "field_name": "\"Type\""
-                        },
-                        "toggle_hint": "Select from list",
-                        "toggle_field": {
-                          "control_type": "text",
-                          "label": "Account Type",
-                          "toggle_hint": "Enter custom value",
-                          "optional": true,
-                          "custom": false,
-                          "sfdc_createable": true,
-                          "sfdc_updateable": true,
-                          "type": "string",
-                          "name": "Type"
-                        },
-                        "optional": true,
-                        "custom": false,
-                        "sfdc_createable": true,
-                        "sfdc_updateable": true,
-                        "type": "string",
-                        "name": "Type"
-                      },
-                      {
-                        "control_type": "text",
-                        "label": "Billing City",
-                        "optional": true,
-                        "custom": false,
-                        "sfdc_createable": true,
-                        "sfdc_updateable": true,
-                        "type": "string",
-                        "name": "BillingCity"
-                      },
-                      {
-                        "control_type": "text",
-                        "label": "Billing Country",
-                        "optional": true,
-                        "custom": false,
-                        "sfdc_createable": true,
-                        "sfdc_updateable": true,
-                        "type": "string",
-                        "name": "BillingCountry"
-                      },
-                      {
-                        "control_type": "text",
-                        "label": "Billing State/Province",
-                        "optional": true,
-                        "custom": false,
-                        "sfdc_createable": true,
-                        "sfdc_updateable": true,
-                        "type": "string",
-                        "name": "BillingState"
-                      },
-                      {
-                        "control_type": "select",
-                        "label": "Account Segment",
-                        "pick_list": "sobject_field_values_list",
-                        "pick_list_params": {
-                          "sobject_name": "\"Account\"",
-                          "field_name": "\"Account_Segment__c\""
-                        },
-                        "toggle_hint": "Select from list",
-                        "toggle_field": {
-                          "control_type": "text",
-                          "label": "Account Segment",
-                          "toggle_hint": "Enter custom value",
-                          "optional": true,
-                          "custom": true,
-                          "sfdc_createable": true,
-                          "sfdc_updateable": true,
-                          "type": "string",
-                          "name": "Account_Segment__c"
-                        },
-                        "optional": true,
-                        "custom": true,
-                        "sfdc_createable": true,
-                        "sfdc_updateable": true,
-                        "type": "string",
-                        "name": "Account_Segment__c"
-                      },
-                      {
-                        "control_type": "text",
-                        "label": "Red Hat Account Owner",
-                        "optional": true,
-                        "custom": true,
-                        "sfdc_createable": false,
-                        "sfdc_updateable": false,
-                        "type": "string",
-                        "name": "Account_Owner_FullName__c"
-                      },
-                      {
-                        "control_type": "text",
-                        "label": "Red Hat Global Sales Group Name",
-                        "optional": true,
-                        "custom": true,
-                        "sfdc_createable": true,
-                        "sfdc_updateable": true,
-                        "type": "string",
-                        "name": "GU_Proxy__c"
-                      },
-                      {
+                        "label": "Account Teams",
+                        "name": "AccountTeamMember",
+                        "of": "object",
                         "properties": [
                           {
-                            "control_type": "number",
-                            "label": "Total size",
-                            "parse_output": "integer_conversion",
-                            "type": "integer",
-                            "name": "totalSize"
-                          },
+                            "control_type": "text",
+                            "label": "Account ID",
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": false,
+                            "type": "string",
+                            "name": "AccountId"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "List size",
+                        "name": "list_size",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Processed all records?",
+                        "name": "done",
+                        "toggle_field": {
+                          "label": "Processed all records?",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "render_input": null,
+                          "parse_output": null,
+                          "name": "done"
+                        },
+                        "toggle_hint": "Select from option list",
+                        "type": "boolean"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Total records",
+                        "name": "total_records",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "url",
+                        "label": "Next page URL",
+                        "name": "next_page_url",
+                        "type": "string"
+                      }
+                    ],
+                    "visible_config_fields": [
+                      "sobject_name",
+                      "query",
+                      "field_list",
+                      "limit",
+                      "offset",
+                      "requester_email",
+                      "table_list"
+                    ],
+                    "uuid": "611e4c0e-c29a-443f-886e-9659958a2a40"
+                  },
+                  {
+                    "number": 26,
+                    "keyword": "if",
+                    "input": {
+                      "type": "compound",
+                      "operand": "and",
+                      "conditions": [
+                        {
+                          "operand": "greater_than",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"6d276e55\",\"path\":[\"list_size\"]}')}",
+                          "rhs": "0",
+                          "uuid": "dfb147af-2314-4f65-b43b-37939a6f9779"
+                        }
+                      ]
+                    },
+                    "block": [
+                      {
+                        "number": 27,
+                        "provider": "workato_variable",
+                        "name": "declare_variable",
+                        "as": "4e4852c0",
+                        "keyword": "action",
+                        "input": {
+                          "variables": {
+                            "schema": "[{\"control_type\":\"text\",\"label\":\"account_team_member_id_list\",\"name\":\"account_team_member_id_list\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"account_team_member_id_list\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]",
+                            "data": {
+                              "account_team_member_id_list": "=\"'\" + _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"6d276e55\",\"path\":[\"AccountTeamMember\"]}').pluck('AccountId').join(\"','\") + \"'\""
+                            }
+                          }
+                        },
+                        "extended_output_schema": [
                           {
-                            "label": "Files",
+                            "control_type": "text",
+                            "hint": "Defaults to nil if not supplied.",
+                            "label": "account_team_member_id_list",
+                            "name": "account_team_member_id_list",
+                            "optional": true,
+                            "sticky": true,
+                            "type": "string",
+                            "details": {
+                              "real_name": "account_team_member_id_list"
+                            }
+                          }
+                        ],
+                        "extended_input_schema": [
+                          {
+                            "add_field_label": "Add a variable",
+                            "control_type": "form-schema-builder",
+                            "empty_schema_title": "Add variables by giving them a name, type and default value",
+                            "exclude_fields": [
+                              "hint"
+                            ],
+                            "item_label": "variable",
+                            "label": "Variables",
+                            "mark_as_required": true,
+                            "name": "variables",
+                            "ngIf": "!input.name",
+                            "optional": true,
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Schema",
+                                "extends_schema": true,
+                                "broadcast_change_event": true,
+                                "type": "string",
+                                "name": "schema"
+                              },
+                              {
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "account_team_member_id_list",
+                                    "name": "account_team_member_id_list",
+                                    "type": "string",
+                                    "optional": true,
+                                    "details": {
+                                      "real_name": "account_team_member_id_list"
+                                    },
+                                    "hint": "Defaults to nil if not supplied.",
+                                    "sticky": true,
+                                    "parent": [
+                                      "variables",
+                                      "data"
+                                    ]
+                                  }
+                                ],
+                                "label": "Data",
+                                "type": "object",
+                                "name": "data"
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "visible_config_fields": [
+                          "variables.data.where_clause",
+                          "variables",
+                          "variables.schema",
+                          "variables.data.where_clause_string",
+                          "variables.data",
+                          "variables.data.territory_to_id_list",
+                          "variables.data.user_territory_to_id_list",
+                          "variables.data.account_team_member_id_list"
+                        ],
+                        "uuid": "fe6c4f7f-ea3c-4893-b68a-780ea5721654"
+                      },
+                      {
+                        "number": 28,
+                        "provider": "workato_variable",
+                        "name": "insert_to_list",
+                        "as": "445959ad",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "name": "where_clause_list (step 3)"
+                        },
+                        "input": {
+                          "name": "4aad7948-70cd-4ca2-bfd2-3b651689f707:890a905a",
+                          "location": "end",
+                          "list_item": {
+                            "soql_value": "Id IN (#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"4e4852c0\",\"path\":[\"account_team_member_id_list\"]}')})"
+                          }
+                        },
+                        "extended_input_schema": [
+                          {
+                            "hint": "",
+                            "label": "List item",
+                            "name": "list_item",
+                            "optional": false,
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "SOQL Value",
+                                "name": "soql_value",
+                                "type": "string",
+                                "optional": false
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "uuid": "cdbe9549-25ed-40f6-9a83-b9e923ab44ce",
+                        "skip": false
+                      },
+                      {
+                        "number": 29,
+                        "keyword": "elsif",
+                        "input": {
+                          "type": "compound",
+                          "operand": "and",
+                          "conditions": [
+                            {
+                              "operand": "blank",
+                              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"account_name\"]}')}",
+                              "uuid": "762138bb-704c-42ba-8cfa-76ae0e21ffe9"
+                            },
+                            {
+                              "operand": "blank",
+                              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"billing_country\"]}')}",
+                              "rhs": "",
+                              "uuid": "b01d92f8-137d-4981-bba7-b151a31fbfed"
+                            }
+                          ]
+                        },
+                        "block": [
+                          {
+                            "number": 30,
+                            "provider": "workato_api_platform",
+                            "name": "return_response",
+                            "as": "b4f5f0b8",
+                            "keyword": "action",
+                            "input": {
+                              "http_status_code": "200",
+                              "response": {
+                                "error": "No Account team member record found for the user, try with account_name or billing_country."
+                              }
+                            },
+                            "extended_output_schema": [
+                              {
+                                "change_on_blur": true,
+                                "control_type": "select",
+                                "extends_schema": true,
+                                "label": "Response",
+                                "name": "http_status_code",
+                                "pick_list": [
+                                  [
+                                    "ok",
+                                    "200"
+                                  ]
+                                ],
+                                "type": "string"
+                              },
+                              {
+                                "label": "Response body",
+                                "name": "response",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Accounts",
+                                    "name": "accounts",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Total Accounts",
+                                    "name": "total_accounts",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Accounts List Size",
+                                    "name": "accounts_list_size",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Error",
+                                    "name": "error",
+                                    "type": "string",
+                                    "optional": true
+                                  }
+                                ],
+                                "type": "object"
+                              }
+                            ],
+                            "extended_input_schema": [
+                              {
+                                "change_on_blur": true,
+                                "control_type": "select",
+                                "extends_schema": true,
+                                "label": "Response",
+                                "name": "http_status_code",
+                                "pick_list": [
+                                  [
+                                    "ok",
+                                    "200"
+                                  ]
+                                ],
+                                "type": "string"
+                              },
+                              {
+                                "label": "Response body",
+                                "name": "response",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Accounts",
+                                    "name": "accounts",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Total Accounts",
+                                    "name": "total_accounts",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Accounts List Size",
+                                    "name": "accounts_list_size",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Error",
+                                    "name": "error",
+                                    "type": "string",
+                                    "optional": true
+                                  }
+                                ],
+                                "type": "object"
+                              }
+                            ],
+                            "visible_config_fields": [
+                              "http_status_code",
+                              "response",
+                              "response.error"
+                            ],
+                            "uuid": "c56e8194-826b-47cf-baa8-c899969f21d4",
+                            "skip": false
+                          }
+                        ],
+                        "uuid": "6ecf4220-d423-49c0-8b45-4448652b5845"
+                      }
+                    ],
+                    "uuid": "6e6a86a9-c6a7-421b-bc78-d2c95fadbba5"
+                  }
+                ],
+                "uuid": "03a2c0df-5a5b-4cfe-bafd-59c3cc66c7ef",
+                "skip": false
+              },
+              {
+                "number": 31,
+                "keyword": "elsif",
+                "input": {
+                  "type": "compound",
+                  "operand": "and",
+                  "conditions": [
+                    {
+                      "operand": "equals_to",
+                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"scope\"]}')}",
+                      "rhs": "all_visible",
+                      "uuid": "e753edeb-1836-4a0a-9c23-1beea4b26f7f"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "number": 32,
+                    "provider": "workato_variable",
+                    "name": "insert_to_list",
+                    "as": "f42fb699",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": "where_clause_list (step 3)"
+                    },
+                    "input": {
+                      "name": "4aad7948-70cd-4ca2-bfd2-3b651689f707:890a905a",
+                      "location": "end",
+                      "list_item": {
+                        "soql_value": "Id != null"
+                      }
+                    },
+                    "extended_input_schema": [
+                      {
+                        "hint": "",
+                        "label": "List item",
+                        "name": "list_item",
+                        "optional": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "SOQL Value",
+                            "name": "soql_value",
+                            "type": "string",
+                            "optional": false
+                          }
+                        ],
+                        "type": "object"
+                      }
+                    ],
+                    "uuid": "343c4aff-616e-4fe9-a8ca-a828361ba753",
+                    "skip": false
+                  }
+                ],
+                "uuid": "af42225b-7f51-45b8-972b-7d074e1d4f7c",
+                "skip": false
+              },
+              {
+                "number": 33,
+                "keyword": "elsif",
+                "input": {
+                  "type": "compound",
+                  "operand": "and",
+                  "conditions": [
+                    {
+                      "operand": "equals_to",
+                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"scope\"]}')}",
+                      "rhs": "my_territory_accounts",
+                      "uuid": "e753edeb-1836-4a0a-9c23-1beea4b26f7f"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "number": 34,
+                    "provider": "salesforce",
+                    "name": "search_sobjects_soql",
+                    "as": "a5a84957",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "sobject_name": "User Territory Association",
+                      "field_list": [
+                        {
+                          "label": "User Territory Association ID",
+                          "value": "Id"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "limit": "2000",
+                      "sobject_name": "UserTerritory2Association",
+                      "query": "UserId  = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"ff8bbaac\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"Id\"]}')}'",
+                      "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"output\"]}')}",
+                      "offset": "0",
+                      "field_list": "Id"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "User Territory Associations",
+                        "name": "UserTerritory2Association",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "User Territory Association ID",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": false,
+                            "sfdc_updateable": false,
+                            "type": "string",
+                            "name": "Id"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "List size",
+                        "name": "list_size",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Processed all records?",
+                        "name": "done",
+                        "toggle_field": {
+                          "label": "Processed all records?",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "render_input": null,
+                          "parse_output": null,
+                          "name": "done"
+                        },
+                        "toggle_hint": "Select from option list",
+                        "type": "boolean"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Total records",
+                        "name": "total_records",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "url",
+                        "label": "Next page URL",
+                        "name": "next_page_url",
+                        "type": "string"
+                      }
+                    ],
+                    "visible_config_fields": [
+                      "sobject_name",
+                      "query",
+                      "field_list",
+                      "limit",
+                      "offset",
+                      "requester_email",
+                      "table_list"
+                    ],
+                    "uuid": "dcade312-cc0e-4489-a5b1-a33a62afe9bf"
+                  },
+                  {
+                    "number": 35,
+                    "keyword": "if",
+                    "input": {
+                      "type": "compound",
+                      "operand": "and",
+                      "conditions": [
+                        {
+                          "operand": "greater_than",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a5a84957\",\"path\":[\"list_size\"]}')}",
+                          "rhs": "0",
+                          "uuid": "64e550c7-020c-4084-96ce-31a9b94e424f"
+                        }
+                      ]
+                    },
+                    "block": [
+                      {
+                        "number": 36,
+                        "provider": "workato_variable",
+                        "name": "declare_variable",
+                        "as": "fb1e7ab1",
+                        "keyword": "action",
+                        "input": {
+                          "variables": {
+                            "schema": "[{\"control_type\":\"text\",\"label\":\"user_territory_to_id_list\",\"name\":\"user_territory_to_id_list\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"user_territory_to_id_list\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]",
+                            "data": {
+                              "user_territory_to_id_list": "=\"'\" + _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a5a84957\",\"path\":[\"UserTerritory2Association\"]}').pluck('Id').join(\"','\") + \"'\""
+                            }
+                          }
+                        },
+                        "extended_output_schema": [
+                          {
+                            "control_type": "text",
+                            "hint": "Defaults to nil if not supplied.",
+                            "label": "user_territory_to_id_list",
+                            "name": "user_territory_to_id_list",
+                            "optional": true,
+                            "sticky": true,
+                            "type": "string",
+                            "details": {
+                              "real_name": "user_territory_to_id_list"
+                            }
+                          }
+                        ],
+                        "extended_input_schema": [
+                          {
+                            "add_field_label": "Add a variable",
+                            "control_type": "form-schema-builder",
+                            "empty_schema_title": "Add variables by giving them a name, type and default value",
+                            "exclude_fields": [
+                              "hint"
+                            ],
+                            "item_label": "variable",
+                            "label": "Variables",
+                            "mark_as_required": true,
+                            "name": "variables",
+                            "ngIf": "!input.name",
+                            "optional": true,
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Schema",
+                                "extends_schema": true,
+                                "broadcast_change_event": true,
+                                "type": "string",
+                                "name": "schema"
+                              },
+                              {
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "user_territory_to_id_list",
+                                    "name": "user_territory_to_id_list",
+                                    "type": "string",
+                                    "optional": true,
+                                    "details": {
+                                      "real_name": "user_territory_to_id_list"
+                                    },
+                                    "hint": "Defaults to nil if not supplied.",
+                                    "sticky": true,
+                                    "parent": [
+                                      "variables",
+                                      "data"
+                                    ]
+                                  }
+                                ],
+                                "label": "Data",
+                                "type": "object",
+                                "name": "data"
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "visible_config_fields": [
+                          "variables.data.where_clause",
+                          "variables",
+                          "variables.schema",
+                          "variables.data.where_clause_string",
+                          "variables.data",
+                          "variables.data.territory_to_id_list",
+                          "variables.data.user_territory_to_id_list"
+                        ],
+                        "uuid": "79b90493-6376-4fb7-9581-ce9c8768f51b"
+                      },
+                      {
+                        "number": 37,
+                        "provider": "salesforce",
+                        "name": "search_sobjects_soql",
+                        "as": "98d4d5fa",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "sobject_name": "Object Territory Association",
+                          "field_list": [
+                            {
+                              "label": "Object ID",
+                              "value": "ObjectId"
+                            }
+                          ]
+                        },
+                        "input": {
+                          "limit": "2000",
+                          "sobject_name": "ObjectTerritory2Association",
+                          "query": "Territory2Id IN (#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"fb1e7ab1\",\"path\":[\"user_territory_to_id_list\"]}')})",
+                          "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"output\"]}')}",
+                          "offset": "0",
+                          "field_list": "ObjectId"
+                        },
+                        "extended_output_schema": [
+                          {
+                            "label": "Object Territory Associations",
+                            "name": "ObjectTerritory2Association",
                             "of": "object",
                             "properties": [
                               {
                                 "control_type": "text",
-                                "label": "ID",
+                                "label": "Object ID",
+                                "custom": false,
+                                "sfdc_createable": true,
+                                "sfdc_updateable": false,
                                 "type": "string",
-                                "name": "Id"
-                              },
-                              {
-                                "control_type": "number",
-                                "label": "Content size",
-                                "parse_output": "integer_conversion",
-                                "type": "integer",
-                                "name": "ContentSize"
-                              },
-                              {
-                                "control_type": "url",
-                                "label": "Content URL",
-                                "type": "string",
-                                "name": "ContentUrl"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "File extension",
-                                "type": "string",
-                                "name": "FileExtension"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "File type",
-                                "type": "string",
-                                "name": "FileType"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Parent ID",
-                                "type": "string",
-                                "name": "ParentId"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Record type",
-                                "type": "string",
-                                "name": "RecordType"
-                              },
-                              {
-                                "control_type": "text",
-                                "label": "Title",
-                                "type": "string",
-                                "name": "Title"
+                                "name": "ObjectId"
                               }
                             ],
-                            "type": "array",
-                            "name": "records"
+                            "type": "array"
+                          },
+                          {
+                            "control_type": "number",
+                            "label": "List size",
+                            "name": "list_size",
+                            "parse_output": "integer_conversion",
+                            "type": "integer"
+                          },
+                          {
+                            "control_type": "checkbox",
+                            "label": "Processed all records?",
+                            "name": "done",
+                            "toggle_field": {
+                              "label": "Processed all records?",
+                              "control_type": "text",
+                              "toggle_hint": "Use custom value",
+                              "type": "boolean",
+                              "render_input": null,
+                              "parse_output": null,
+                              "name": "done"
+                            },
+                            "toggle_hint": "Select from option list",
+                            "type": "boolean"
+                          },
+                          {
+                            "control_type": "integer",
+                            "label": "Total records",
+                            "name": "total_records",
+                            "parse_output": "integer_conversion",
+                            "type": "integer"
+                          },
+                          {
+                            "control_type": "url",
+                            "label": "Next page URL",
+                            "name": "next_page_url",
+                            "type": "string"
                           }
                         ],
-                        "label": "Combined attachments",
-                        "sfdc_field_type": "CombinedAttachment",
-                        "type": "object",
-                        "name": "CombinedAttachments"
-                      }
-                    ],
-                    "type": "array"
-                  },
-                  {
-                    "control_type": "number",
-                    "label": "List size",
-                    "name": "list_size",
-                    "parse_output": "integer_conversion",
-                    "type": "integer"
-                  },
-                  {
-                    "control_type": "checkbox",
-                    "label": "Processed all records?",
-                    "name": "done",
-                    "toggle_field": {
-                      "label": "Processed all records?",
-                      "control_type": "text",
-                      "toggle_hint": "Use custom value",
-                      "type": "boolean",
-                      "render_input": null,
-                      "parse_output": null,
-                      "name": "done"
-                    },
-                    "toggle_hint": "Select from option list",
-                    "type": "boolean"
-                  },
-                  {
-                    "control_type": "integer",
-                    "label": "Total records",
-                    "name": "total_records",
-                    "parse_output": "integer_conversion",
-                    "type": "integer"
-                  },
-                  {
-                    "control_type": "url",
-                    "label": "Next page URL",
-                    "name": "next_page_url",
-                    "type": "string"
-                  }
-                ],
-                "extended_input_schema": [
-                  {
-                    "control_type": "checkbox",
-                    "disable_formula": true,
-                    "extends_schema": true,
-                    "hint": "Select <b>Yes</b> to obtain data from notes, attachments and files associated to the queried records. Default value is <b>Yes</b>.",
-                    "label": "Select combined attachments",
-                    "name": "include_combined_attachments",
-                    "optional": true,
-                    "support_pills": false,
-                    "type": "boolean"
-                  }
-                ],
-                "uuid": "d3565bbf-f804-41c6-b971-85162675cb85"
-              },
-              {
-                "number": 24,
-                "provider": "salesforce",
-                "name": "search_sobjects_soql_v2",
-                "as": "3cf69812",
-                "keyword": "action",
-                "dynamicPickListSelection": {
-                  "sobject_name": "Opportunity",
-                  "field_list": [
-                    {
-                      "label": "Opportunity ID",
-                      "value": "Id"
-                    }
-                  ]
-                },
-                "input": {
-                  "query": "SELECT COUNT() FROM Account WHERE Name LIKE '%#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"account_name\"]}')}%'",
-                  "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"output\"]}')}",
-                  "limit": "2000",
-                  "output_schema": "[{\"control_type\":\"text\",\"label\":\"count\",\"type\":\"string\",\"name\":\"count\"}]"
-                },
-                "extended_output_schema": [
-                  {
-                    "control_type": "checkbox",
-                    "label": "Done",
-                    "name": "done",
-                    "toggle_field": {
-                      "label": "Done",
-                      "control_type": "text",
-                      "toggle_hint": "Use custom value",
-                      "render_input": null,
-                      "parse_output": null,
-                      "type": "boolean",
-                      "name": "done"
-                    },
-                    "toggle_hint": "Select from option list",
-                    "type": "boolean"
-                  },
-                  {
-                    "control_type": "integer",
-                    "label": "Total size",
-                    "name": "totalSize",
-                    "parse_output": "integer_conversion",
-                    "type": "integer"
-                  },
-                  {
-                    "label": "Records",
-                    "name": "records",
-                    "of": "object",
-                    "properties": [
-                      {
-                        "control_type": "text",
-                        "label": "count",
-                        "type": "string",
-                        "name": "count"
-                      }
-                    ],
-                    "type": "array"
-                  }
-                ],
-                "uuid": "fd3427ec-565f-4daa-aeda-fe02da13067f"
-              },
-              {
-                "number": 25,
-                "as": "85bde6a5",
-                "keyword": "catch",
-                "input": {
-                  "max_retry_count": "0",
-                  "retry_interval": "2"
-                },
-                "block": [
-                  {
-                    "number": 26,
-                    "provider": "workato_api_platform",
-                    "name": "return_response",
-                    "as": "5a933a81",
-                    "keyword": "action",
-                    "input": {
-                      "http_status_code": "200",
-                      "response": {
-                        "error": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"85bde6a5\",\"path\":[\"message\"]}')}"
-                      }
-                    },
-                    "extended_output_schema": [
-                      {
-                        "change_on_blur": true,
-                        "control_type": "select",
-                        "extends_schema": true,
-                        "label": "Response",
-                        "name": "http_status_code",
-                        "pick_list": [
-                          [
-                            "ok",
-                            "200"
-                          ]
+                        "visible_config_fields": [
+                          "sobject_name",
+                          "query",
+                          "field_list",
+                          "limit",
+                          "offset",
+                          "requester_email",
+                          "table_list"
                         ],
-                        "type": "string"
+                        "uuid": "db735264-4a52-44be-85a3-d8453d7f92af"
                       },
                       {
-                        "label": "Response body",
-                        "name": "response",
-                        "properties": [
+                        "number": 38,
+                        "keyword": "if",
+                        "input": {
+                          "type": "compound",
+                          "operand": "and",
+                          "conditions": [
+                            {
+                              "operand": "greater_than",
+                              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"98d4d5fa\",\"path\":[\"list_size\"]}')}",
+                              "rhs": "0",
+                              "uuid": "840b10a3-d005-4f14-99d5-e6fbfab7de90"
+                            }
+                          ]
+                        },
+                        "block": [
                           {
-                            "control_type": "text",
-                            "label": "Accounts",
-                            "name": "accounts",
-                            "type": "string",
-                            "optional": true
+                            "number": 39,
+                            "provider": "workato_variable",
+                            "name": "declare_variable",
+                            "as": "4ebe8211",
+                            "keyword": "action",
+                            "input": {
+                              "variables": {
+                                "schema": "[{\"control_type\":\"text\",\"label\":\"object_territory_to_id_list\",\"name\":\"object_territory_to_id_list\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"object_territory_to_id_list\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]",
+                                "data": {
+                                  "object_territory_to_id_list": "=\"'\" + _dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"98d4d5fa\",\"path\":[\"ObjectTerritory2Association\"]}').pluck('Id').join(\"','\") + \"'\""
+                                }
+                              }
+                            },
+                            "extended_output_schema": [
+                              {
+                                "control_type": "text",
+                                "hint": "Defaults to nil if not supplied.",
+                                "label": "object_territory_to_id_list",
+                                "name": "object_territory_to_id_list",
+                                "optional": true,
+                                "sticky": true,
+                                "type": "string",
+                                "details": {
+                                  "real_name": "object_territory_to_id_list"
+                                }
+                              }
+                            ],
+                            "extended_input_schema": [
+                              {
+                                "add_field_label": "Add a variable",
+                                "control_type": "form-schema-builder",
+                                "empty_schema_title": "Add variables by giving them a name, type and default value",
+                                "exclude_fields": [
+                                  "hint"
+                                ],
+                                "item_label": "variable",
+                                "label": "Variables",
+                                "mark_as_required": true,
+                                "name": "variables",
+                                "ngIf": "!input.name",
+                                "optional": true,
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Schema",
+                                    "extends_schema": true,
+                                    "broadcast_change_event": true,
+                                    "type": "string",
+                                    "name": "schema"
+                                  },
+                                  {
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "object_territory_to_id_list",
+                                        "name": "object_territory_to_id_list",
+                                        "type": "string",
+                                        "optional": true,
+                                        "details": {
+                                          "real_name": "object_territory_to_id_list"
+                                        },
+                                        "hint": "Defaults to nil if not supplied.",
+                                        "sticky": true,
+                                        "parent": [
+                                          "variables",
+                                          "data"
+                                        ]
+                                      }
+                                    ],
+                                    "label": "Data",
+                                    "type": "object",
+                                    "name": "data"
+                                  }
+                                ],
+                                "type": "object"
+                              }
+                            ],
+                            "visible_config_fields": [
+                              "variables.data.where_clause",
+                              "variables",
+                              "variables.schema",
+                              "variables.data.where_clause_string",
+                              "variables.data",
+                              "variables.data.territory_to_id_list",
+                              "variables.data.object_territory_to_id_list"
+                            ],
+                            "uuid": "7ee7202d-0e40-4a06-ae59-650f9e54eb15"
                           },
                           {
-                            "control_type": "text",
-                            "label": "Total Accounts",
-                            "name": "total_accounts",
-                            "type": "string",
-                            "optional": true
+                            "number": 40,
+                            "provider": "workato_variable",
+                            "name": "insert_to_list",
+                            "as": "5edf7ff3",
+                            "keyword": "action",
+                            "dynamicPickListSelection": {
+                              "name": "where_clause_list (step 3)"
+                            },
+                            "input": {
+                              "name": "4aad7948-70cd-4ca2-bfd2-3b651689f707:890a905a",
+                              "location": "end",
+                              "list_item": {
+                                "soql_value": "Id IN (#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"4ebe8211\",\"path\":[\"object_territory_to_id_list\"]}')})"
+                              }
+                            },
+                            "extended_input_schema": [
+                              {
+                                "hint": "",
+                                "label": "List item",
+                                "name": "list_item",
+                                "optional": false,
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "SOQL Value",
+                                    "name": "soql_value",
+                                    "type": "string",
+                                    "optional": false
+                                  }
+                                ],
+                                "type": "object"
+                              }
+                            ],
+                            "uuid": "1a3d81f2-a510-4222-b50d-a95053402f37",
+                            "skip": false
                           },
                           {
-                            "control_type": "text",
-                            "label": "Accounts List Size",
-                            "name": "accounts_list_size",
-                            "type": "string",
-                            "optional": true
-                          },
-                          {
-                            "control_type": "text",
-                            "label": "Error",
-                            "name": "error",
-                            "type": "string",
-                            "optional": true
+                            "number": 41,
+                            "keyword": "elsif",
+                            "input": {
+                              "type": "compound",
+                              "operand": "and",
+                              "conditions": [
+                                {
+                                  "operand": "blank",
+                                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"account_name\"]}')}",
+                                  "uuid": "762138bb-704c-42ba-8cfa-76ae0e21ffe9"
+                                },
+                                {
+                                  "operand": "blank",
+                                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"billing_country\"]}')}",
+                                  "rhs": "",
+                                  "uuid": "b01d92f8-137d-4981-bba7-b151a31fbfed"
+                                }
+                              ]
+                            },
+                            "block": [
+                              {
+                                "number": 42,
+                                "provider": "workato_api_platform",
+                                "name": "return_response",
+                                "as": "e23d6416",
+                                "keyword": "action",
+                                "input": {
+                                  "http_status_code": "200",
+                                  "response": {
+                                    "error": "No Object territory account record found for the user, try with account_name or billing_country."
+                                  }
+                                },
+                                "extended_output_schema": [
+                                  {
+                                    "change_on_blur": true,
+                                    "control_type": "select",
+                                    "extends_schema": true,
+                                    "label": "Response",
+                                    "name": "http_status_code",
+                                    "pick_list": [
+                                      [
+                                        "ok",
+                                        "200"
+                                      ]
+                                    ],
+                                    "type": "string"
+                                  },
+                                  {
+                                    "label": "Response body",
+                                    "name": "response",
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "Accounts",
+                                        "name": "accounts",
+                                        "type": "string",
+                                        "optional": true
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Total Accounts",
+                                        "name": "total_accounts",
+                                        "type": "string",
+                                        "optional": true
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Accounts List Size",
+                                        "name": "accounts_list_size",
+                                        "type": "string",
+                                        "optional": true
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Error",
+                                        "name": "error",
+                                        "type": "string",
+                                        "optional": true
+                                      }
+                                    ],
+                                    "type": "object"
+                                  }
+                                ],
+                                "extended_input_schema": [
+                                  {
+                                    "change_on_blur": true,
+                                    "control_type": "select",
+                                    "extends_schema": true,
+                                    "label": "Response",
+                                    "name": "http_status_code",
+                                    "pick_list": [
+                                      [
+                                        "ok",
+                                        "200"
+                                      ]
+                                    ],
+                                    "type": "string"
+                                  },
+                                  {
+                                    "label": "Response body",
+                                    "name": "response",
+                                    "properties": [
+                                      {
+                                        "control_type": "text",
+                                        "label": "Accounts",
+                                        "name": "accounts",
+                                        "type": "string",
+                                        "optional": true
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Total Accounts",
+                                        "name": "total_accounts",
+                                        "type": "string",
+                                        "optional": true
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Accounts List Size",
+                                        "name": "accounts_list_size",
+                                        "type": "string",
+                                        "optional": true
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "Error",
+                                        "name": "error",
+                                        "type": "string",
+                                        "optional": true
+                                      }
+                                    ],
+                                    "type": "object"
+                                  }
+                                ],
+                                "visible_config_fields": [
+                                  "http_status_code",
+                                  "response",
+                                  "response.error"
+                                ],
+                                "uuid": "0e02e54d-35e1-48d0-8699-c4144b859d25",
+                                "skip": false
+                              }
+                            ],
+                            "uuid": "e5ff0dc9-d0fb-44c8-ab7a-cbff932baebe"
                           }
                         ],
-                        "type": "object"
-                      }
-                    ],
-                    "extended_input_schema": [
-                      {
-                        "change_on_blur": true,
-                        "control_type": "select",
-                        "extends_schema": true,
-                        "label": "Response",
-                        "name": "http_status_code",
-                        "pick_list": [
-                          [
-                            "ok",
-                            "200"
-                          ]
-                        ],
-                        "type": "string"
+                        "uuid": "3d9c00f6-8738-49f1-b4ec-6ebab273e08b"
                       },
                       {
-                        "label": "Response body",
-                        "name": "response",
-                        "properties": [
+                        "number": 43,
+                        "keyword": "elsif",
+                        "input": {
+                          "type": "compound",
+                          "operand": "and",
+                          "conditions": [
+                            {
+                              "operand": "blank",
+                              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"account_name\"]}')}",
+                              "uuid": "762138bb-704c-42ba-8cfa-76ae0e21ffe9"
+                            },
+                            {
+                              "operand": "blank",
+                              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"billing_country\"]}')}",
+                              "rhs": "",
+                              "uuid": "b01d92f8-137d-4981-bba7-b151a31fbfed"
+                            }
+                          ]
+                        },
+                        "block": [
                           {
-                            "control_type": "text",
-                            "label": "Accounts",
-                            "name": "accounts",
-                            "type": "string",
-                            "optional": true
-                          },
-                          {
-                            "control_type": "text",
-                            "label": "Total Accounts",
-                            "name": "total_accounts",
-                            "type": "string",
-                            "optional": true
-                          },
-                          {
-                            "control_type": "text",
-                            "label": "Accounts List Size",
-                            "name": "accounts_list_size",
-                            "type": "string",
-                            "optional": true
-                          },
-                          {
-                            "control_type": "text",
-                            "label": "Error",
-                            "name": "error",
-                            "type": "string",
-                            "optional": true
+                            "number": 44,
+                            "provider": "workato_api_platform",
+                            "name": "return_response",
+                            "as": "18540698",
+                            "keyword": "action",
+                            "input": {
+                              "http_status_code": "200",
+                              "response": {
+                                "error": "No User territory account record found for the user, try with account_name or billing_country."
+                              }
+                            },
+                            "extended_output_schema": [
+                              {
+                                "change_on_blur": true,
+                                "control_type": "select",
+                                "extends_schema": true,
+                                "label": "Response",
+                                "name": "http_status_code",
+                                "pick_list": [
+                                  [
+                                    "ok",
+                                    "200"
+                                  ]
+                                ],
+                                "type": "string"
+                              },
+                              {
+                                "label": "Response body",
+                                "name": "response",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Accounts",
+                                    "name": "accounts",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Total Accounts",
+                                    "name": "total_accounts",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Accounts List Size",
+                                    "name": "accounts_list_size",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Error",
+                                    "name": "error",
+                                    "type": "string",
+                                    "optional": true
+                                  }
+                                ],
+                                "type": "object"
+                              }
+                            ],
+                            "extended_input_schema": [
+                              {
+                                "change_on_blur": true,
+                                "control_type": "select",
+                                "extends_schema": true,
+                                "label": "Response",
+                                "name": "http_status_code",
+                                "pick_list": [
+                                  [
+                                    "ok",
+                                    "200"
+                                  ]
+                                ],
+                                "type": "string"
+                              },
+                              {
+                                "label": "Response body",
+                                "name": "response",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "Accounts",
+                                    "name": "accounts",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Total Accounts",
+                                    "name": "total_accounts",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Accounts List Size",
+                                    "name": "accounts_list_size",
+                                    "type": "string",
+                                    "optional": true
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Error",
+                                    "name": "error",
+                                    "type": "string",
+                                    "optional": true
+                                  }
+                                ],
+                                "type": "object"
+                              }
+                            ],
+                            "visible_config_fields": [
+                              "http_status_code",
+                              "response",
+                              "response.error"
+                            ],
+                            "uuid": "7688f636-e7d6-4977-ae4d-3809386712a5",
+                            "skip": false
                           }
                         ],
-                        "type": "object"
+                        "uuid": "2dc49e8b-1455-4284-8947-63778bc381c7"
                       }
                     ],
-                    "visible_config_fields": [
-                      "http_status_code",
-                      "response",
-                      "response.error"
-                    ],
-                    "uuid": "bb5cf322-5a5a-44b8-9a15-05c5f1426192",
-                    "skip": false
+                    "uuid": "697b87a6-4791-46da-ae74-38d6615f7d81"
                   }
                 ],
-                "uuid": "4b3a607f-089e-4a55-b64c-4b1413cef095"
+                "uuid": "437fdd4f-8151-42a7-9b81-267089b52d69",
+                "skip": false
               }
             ],
-            "uuid": "a4d315cd-2789-4b7c-80f6-3608556b08e9"
-          },
+            "uuid": "ddc9a04a-c138-44f8-934a-7c9689515e7e",
+            "skip": false
+          }
+        ],
+        "uuid": "07184f4c-9bac-4fdc-bd5f-64196d588b8d"
+      },
+      {
+        "number": 45,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "or",
+          "conditions": [
+            {
+              "operand": "present",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"account_name\"]}')}",
+              "rhs": "",
+              "uuid": "b5038d5b-b870-48db-be4b-e1d8afd72195"
+            },
+            {
+              "operand": "present",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"scope\"]}')}",
+              "rhs": "",
+              "uuid": "6323f4f0-1e27-40fb-b09a-c51ddc38c582"
+            },
+            {
+              "operand": "present",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"0c0a9e48\",\"path\":[\"context\",\"headers\",\"billing_country\"]}')}",
+              "rhs": "",
+              "uuid": "2a51e225-f10b-4541-b1e3-40d3788dc725"
+            }
+          ]
+        },
+        "block": [
           {
-            "number": 27,
-            "provider": "workato_api_platform",
-            "name": "return_response",
-            "as": "2887b0fa",
+            "number": 46,
+            "provider": "workato_variable",
+            "name": "declare_variable",
+            "as": "391d7336",
             "keyword": "action",
             "input": {
-              "http_status_code": "200",
-              "response": {
-                "accounts": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a8a29dfd\",\"path\":[\"Account\"]}')",
-                "total_accounts": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"3cf69812\",\"path\":[\"totalSize\"]}')}",
-                "accounts_list_size": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a8a29dfd\",\"path\":[\"list_size\"]}')}"
+              "variables": {
+                "schema": "[{\"control_type\":\"text\",\"label\":\"where_clause_string\",\"name\":\"where_clause_string\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"where_clause_string\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]",
+                "data": {
+                  "where_clause_string": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"890a905a\",\"path\":[\"list_items\"]}').pluck(\"soql_value\").join(\" AND \")"
+                }
               }
             },
             "extended_output_schema": [
               {
-                "change_on_blur": true,
-                "control_type": "select",
-                "extends_schema": true,
-                "label": "Response",
-                "name": "http_status_code",
-                "pick_list": [
-                  [
-                    "ok",
-                    "200"
-                  ]
-                ],
-                "type": "string"
-              },
-              {
-                "label": "Response body",
-                "name": "response",
-                "properties": [
-                  {
-                    "control_type": "text",
-                    "label": "Accounts",
-                    "name": "accounts",
-                    "type": "string",
-                    "optional": true
-                  },
-                  {
-                    "control_type": "text",
-                    "label": "Total Accounts",
-                    "name": "total_accounts",
-                    "type": "string",
-                    "optional": true
-                  },
-                  {
-                    "control_type": "text",
-                    "label": "Accounts List Size",
-                    "name": "accounts_list_size",
-                    "type": "string",
-                    "optional": true
-                  },
-                  {
-                    "control_type": "text",
-                    "label": "Error",
-                    "name": "error",
-                    "type": "string",
-                    "optional": true
-                  }
-                ],
-                "type": "object"
+                "control_type": "text",
+                "hint": "Defaults to nil if not supplied.",
+                "label": "where_clause_string",
+                "name": "where_clause_string",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "details": {
+                  "real_name": "where_clause_string"
+                }
               }
             ],
             "extended_input_schema": [
               {
-                "change_on_blur": true,
-                "control_type": "select",
-                "extends_schema": true,
-                "label": "Response",
-                "name": "http_status_code",
-                "pick_list": [
-                  [
-                    "ok",
-                    "200"
-                  ]
+                "add_field_label": "Add a variable",
+                "control_type": "form-schema-builder",
+                "empty_schema_title": "Add variables by giving them a name, type and default value",
+                "exclude_fields": [
+                  "hint"
                 ],
-                "type": "string"
-              },
-              {
-                "label": "Response body",
-                "name": "response",
+                "item_label": "variable",
+                "label": "Variables",
+                "mark_as_required": true,
+                "name": "variables",
+                "ngIf": "!input.name",
+                "optional": true,
                 "properties": [
                   {
                     "control_type": "text",
-                    "label": "Accounts",
-                    "name": "accounts",
+                    "label": "Schema",
+                    "extends_schema": true,
+                    "broadcast_change_event": true,
                     "type": "string",
-                    "optional": true
+                    "name": "schema"
                   },
                   {
-                    "control_type": "text",
-                    "label": "Total Accounts",
-                    "name": "total_accounts",
-                    "type": "string",
-                    "optional": true
-                  },
-                  {
-                    "control_type": "text",
-                    "label": "Accounts List Size",
-                    "name": "accounts_list_size",
-                    "type": "string",
-                    "optional": true
-                  },
-                  {
-                    "control_type": "text",
-                    "label": "Error",
-                    "name": "error",
-                    "type": "string",
-                    "optional": true
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "where_clause_string",
+                        "name": "where_clause_string",
+                        "type": "string",
+                        "optional": true,
+                        "details": {
+                          "real_name": "where_clause_string"
+                        },
+                        "hint": "Defaults to nil if not supplied.",
+                        "sticky": true,
+                        "parent": [
+                          "variables",
+                          "data"
+                        ]
+                      }
+                    ],
+                    "label": "Data",
+                    "type": "object",
+                    "name": "data"
                   }
                 ],
                 "type": "object"
               }
             ],
             "visible_config_fields": [
-              "http_status_code",
-              "response",
-              "response.accounts",
-              "response.total_accounts",
-              "response.accounts_list_size"
+              "variables.data.where_clause",
+              "variables",
+              "variables.schema",
+              "variables.data.where_clause_string"
             ],
-            "uuid": "1a9e51c8-df57-494f-8bec-6776b2b0516c",
-            "skip": false
+            "uuid": "67a15414-ae5b-4de2-86ae-9597b7264870"
+          },
+          {
+            "number": 47,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"391d7336\",\"path\":[\"where_clause_string\"]}')}",
+                  "rhs": "",
+                  "uuid": "2f471468-a3e3-4b8f-92be-b220dfa61e72"
+                },
+                {
+                  "operand": "not_equals_to",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"391d7336\",\"path\":[\"where_clause_string\"]}')}",
+                  "rhs": "=\"\"",
+                  "uuid": "b98dab6b-e077-46a7-8081-5e5e4842a3c5"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 48,
+                "provider": "workato_variable",
+                "name": "declare_variable",
+                "as": "fd0244fc",
+                "keyword": "action",
+                "input": {
+                  "variables": {
+                    "schema": "[{\"control_type\":\"text\",\"label\":\"where_clause_string_with_order_by\",\"name\":\"where_clause_string_with_order_by\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"where_clause_string_with_order_by\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]",
+                    "data": {
+                      "where_clause_string_with_order_by": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"890a905a\",\"path\":[\"list_items\"]}').pluck(\"soql_value\").join(\" AND \").concat(\" ORDER BY LastModifiedDate DESC, Name\")"
+                    }
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "control_type": "text",
+                    "hint": "Defaults to nil if not supplied.",
+                    "label": "where_clause_string_with_order_by",
+                    "name": "where_clause_string_with_order_by",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "details": {
+                      "real_name": "where_clause_string_with_order_by"
+                    }
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "add_field_label": "Add a variable",
+                    "control_type": "form-schema-builder",
+                    "empty_schema_title": "Add variables by giving them a name, type and default value",
+                    "exclude_fields": [
+                      "hint"
+                    ],
+                    "item_label": "variable",
+                    "label": "Variables",
+                    "mark_as_required": true,
+                    "name": "variables",
+                    "ngIf": "!input.name",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Schema",
+                        "extends_schema": true,
+                        "broadcast_change_event": true,
+                        "type": "string",
+                        "name": "schema"
+                      },
+                      {
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "where_clause_string_with_order_by",
+                            "name": "where_clause_string_with_order_by",
+                            "type": "string",
+                            "optional": true,
+                            "details": {
+                              "real_name": "where_clause_string_with_order_by"
+                            },
+                            "hint": "Defaults to nil if not supplied.",
+                            "sticky": true,
+                            "parent": [
+                              "variables",
+                              "data"
+                            ]
+                          }
+                        ],
+                        "label": "Data",
+                        "type": "object",
+                        "name": "data"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "variables.data.where_clause",
+                  "variables",
+                  "variables.schema",
+                  "variables.data.where_clause_string",
+                  "variables.data",
+                  "variables.data.where_clause_string_with_order_by"
+                ],
+                "uuid": "fb8ce31b-c67a-4b4a-98be-1fdc76154635"
+              },
+              {
+                "number": 49,
+                "keyword": "try",
+                "input": {
+                },
+                "block": [
+                  {
+                    "number": 50,
+                    "provider": "salesforce",
+                    "name": "search_sobjects_soql",
+                    "as": "a8a29dfd",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "sobject_name": "Account",
+                      "table_list": [
+                        {
+                          "label": "Owner",
+                          "value": "Owner"
+                        }
+                      ],
+                      "field_list": [
+                        {
+                          "label": "Account ID",
+                          "value": "Id"
+                        },
+                        {
+                          "label": "Account Name",
+                          "value": "Name"
+                        },
+                        {
+                          "label": "Account Type",
+                          "value": "Type"
+                        },
+                        {
+                          "label": "Billing City",
+                          "value": "BillingCity"
+                        },
+                        {
+                          "label": "Billing Country",
+                          "value": "BillingCountry"
+                        },
+                        {
+                          "label": "Industry",
+                          "value": "Industry"
+                        },
+                        {
+                          "label": "Website",
+                          "value": "Website"
+                        },
+                        {
+                          "label": "Account Segment",
+                          "value": "Account_Segment__c"
+                        },
+                        {
+                          "label": "Red Hat Global Sales Group Name",
+                          "value": "GU_Proxy__c"
+                        },
+                        {
+                          "label": "Last Activity",
+                          "value": "LastActivityDate"
+                        },
+                        {
+                          "label": "Billing State/Province",
+                          "value": "BillingState"
+                        },
+                        {
+                          "label": "Last Modified Date",
+                          "value": "LastModifiedDate"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "limit": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"3eb58038\",\"path\":[\"output\"]}')}",
+                      "sobject_name": "Account",
+                      "query": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"fd0244fc\",\"path\":[\"where_clause_string_with_order_by\"]}')",
+                      "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"output\"]}')}",
+                      "offset": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"97a3a6e0\",\"path\":[\"output\"]}')}",
+                      "table_list": "Owner",
+                      "field_list": "Id\nName\nType\nBillingCity\nBillingCountry\nIndustry\nWebsite\nAccount_Segment__c\nGU_Proxy__c\nLastActivityDate\nBillingState\nLastModifiedDate"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Accounts",
+                        "name": "Account",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Account ID",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": false,
+                            "sfdc_updateable": false,
+                            "type": "string",
+                            "name": "Id"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Account Name",
+                            "event_title": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "Name"
+                          },
+                          {
+                            "control_type": "select",
+                            "label": "Account Type",
+                            "pick_list": "sobject_field_values_list",
+                            "pick_list_params": {
+                              "sobject_name": "\"Account\"",
+                              "field_name": "\"Type\""
+                            },
+                            "toggle_hint": "Select from list",
+                            "toggle_field": {
+                              "control_type": "text",
+                              "label": "Account Type",
+                              "toggle_hint": "Enter custom value",
+                              "optional": true,
+                              "custom": false,
+                              "sfdc_createable": true,
+                              "sfdc_updateable": true,
+                              "type": "string",
+                              "name": "Type"
+                            },
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "Type"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Billing City",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "BillingCity"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Billing Country",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "BillingCountry"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Billing State/Province",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "BillingState"
+                          },
+                          {
+                            "control_type": "select",
+                            "label": "Industry",
+                            "pick_list": "sobject_field_values_list",
+                            "pick_list_params": {
+                              "sobject_name": "\"Account\"",
+                              "field_name": "\"Industry\""
+                            },
+                            "toggle_hint": "Select from list",
+                            "toggle_field": {
+                              "control_type": "text",
+                              "label": "Industry",
+                              "toggle_hint": "Enter custom value",
+                              "optional": true,
+                              "custom": false,
+                              "sfdc_createable": true,
+                              "sfdc_updateable": true,
+                              "type": "string",
+                              "name": "Industry"
+                            },
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "Industry"
+                          },
+                          {
+                            "control_type": "date",
+                            "label": "Last Activity",
+                            "render_input": "render_iso8601_date",
+                            "parse_output": "parse_iso8601_date",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": false,
+                            "sfdc_updateable": false,
+                            "type": "date_time",
+                            "name": "LastActivityDate"
+                          },
+                          {
+                            "control_type": "date_time",
+                            "label": "Last Modified Date",
+                            "render_input": "render_iso8601_timestamp",
+                            "parse_output": "parse_iso8601_timestamp",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": false,
+                            "type": "date_time",
+                            "name": "LastModifiedDate"
+                          },
+                          {
+                            "control_type": "url",
+                            "label": "Website",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "Website"
+                          },
+                          {
+                            "control_type": "select",
+                            "label": "Account Segment",
+                            "pick_list": "sobject_field_values_list",
+                            "pick_list_params": {
+                              "sobject_name": "\"Account\"",
+                              "field_name": "\"Account_Segment__c\""
+                            },
+                            "toggle_hint": "Select from list",
+                            "toggle_field": {
+                              "control_type": "text",
+                              "label": "Account Segment",
+                              "toggle_hint": "Enter custom value",
+                              "optional": true,
+                              "custom": true,
+                              "sfdc_createable": true,
+                              "sfdc_updateable": true,
+                              "type": "string",
+                              "name": "Account_Segment__c"
+                            },
+                            "optional": true,
+                            "custom": true,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "Account_Segment__c"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Red Hat Global Sales Group Name",
+                            "optional": true,
+                            "custom": true,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "GU_Proxy__c"
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "number",
+                                "label": "Total size",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "totalSize"
+                              },
+                              {
+                                "label": "Files",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "ID",
+                                    "type": "string",
+                                    "name": "Id"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Content size",
+                                    "parse_output": "integer_conversion",
+                                    "type": "integer",
+                                    "name": "ContentSize"
+                                  },
+                                  {
+                                    "control_type": "url",
+                                    "label": "Content URL",
+                                    "type": "string",
+                                    "name": "ContentUrl"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "File extension",
+                                    "type": "string",
+                                    "name": "FileExtension"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "File type",
+                                    "type": "string",
+                                    "name": "FileType"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Parent ID",
+                                    "type": "string",
+                                    "name": "ParentId"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Record type",
+                                    "type": "string",
+                                    "name": "RecordType"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Title",
+                                    "type": "string",
+                                    "name": "Title"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "records"
+                              }
+                            ],
+                            "label": "Combined attachments",
+                            "sfdc_field_type": "CombinedAttachment",
+                            "type": "object",
+                            "name": "CombinedAttachments"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "List size",
+                        "name": "list_size",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Processed all records?",
+                        "name": "done",
+                        "toggle_field": {
+                          "label": "Processed all records?",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "render_input": null,
+                          "parse_output": null,
+                          "name": "done"
+                        },
+                        "toggle_hint": "Select from option list",
+                        "type": "boolean"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Total records",
+                        "name": "total_records",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "url",
+                        "label": "Next page URL",
+                        "name": "next_page_url",
+                        "type": "string"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "checkbox",
+                        "disable_formula": true,
+                        "extends_schema": true,
+                        "hint": "Select <b>Yes</b> to obtain data from notes, attachments and files associated to the queried records. Default value is <b>Yes</b>.",
+                        "label": "Select combined attachments",
+                        "name": "include_combined_attachments",
+                        "optional": true,
+                        "support_pills": false,
+                        "type": "boolean"
+                      }
+                    ],
+                    "visible_config_fields": [
+                      "sobject_name",
+                      "query",
+                      "field_list",
+                      "limit",
+                      "offset",
+                      "requester_email",
+                      "table_list"
+                    ],
+                    "uuid": "d3565bbf-f804-41c6-b971-85162675cb85"
+                  },
+                  {
+                    "number": 51,
+                    "provider": "salesforce",
+                    "name": "search_sobjects_soql_v2",
+                    "as": "3cf69812",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "sobject_name": "Opportunity",
+                      "field_list": [
+                        {
+                          "label": "Opportunity ID",
+                          "value": "Id"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "query": "SELECT COUNT() FROM Account WHERE #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"391d7336\",\"path\":[\"where_clause_string\"]}')}",
+                      "requester_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"c6363d75\",\"path\":[\"output\"]}')}",
+                      "limit": "2000",
+                      "output_schema": "[{\"control_type\":\"text\",\"label\":\"count\",\"type\":\"string\",\"name\":\"count\"}]"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "control_type": "checkbox",
+                        "label": "Done",
+                        "name": "done",
+                        "toggle_field": {
+                          "label": "Done",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "render_input": null,
+                          "parse_output": null,
+                          "type": "boolean",
+                          "name": "done"
+                        },
+                        "toggle_hint": "Select from option list",
+                        "type": "boolean"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Total size",
+                        "name": "totalSize",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "label": "Records",
+                        "name": "records",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "count",
+                            "type": "string",
+                            "name": "count"
+                          }
+                        ],
+                        "type": "array"
+                      }
+                    ],
+                    "uuid": "fd3427ec-565f-4daa-aeda-fe02da13067f"
+                  },
+                  {
+                    "number": 52,
+                    "as": "85bde6a5",
+                    "keyword": "catch",
+                    "input": {
+                      "max_retry_count": "0",
+                      "retry_interval": "2"
+                    },
+                    "block": [
+                      {
+                        "number": 53,
+                        "provider": "workato_api_platform",
+                        "name": "return_response",
+                        "as": "5a933a81",
+                        "keyword": "action",
+                        "input": {
+                          "http_status_code": "200",
+                          "response": {
+                            "error": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"85bde6a5\",\"path\":[\"message\"]}')}"
+                          }
+                        },
+                        "extended_output_schema": [
+                          {
+                            "change_on_blur": true,
+                            "control_type": "select",
+                            "extends_schema": true,
+                            "label": "Response",
+                            "name": "http_status_code",
+                            "pick_list": [
+                              [
+                                "ok",
+                                "200"
+                              ]
+                            ],
+                            "type": "string"
+                          },
+                          {
+                            "label": "Response body",
+                            "name": "response",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Accounts",
+                                "name": "accounts",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Total Accounts",
+                                "name": "total_accounts",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Accounts List Size",
+                                "name": "accounts_list_size",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Error",
+                                "name": "error",
+                                "type": "string",
+                                "optional": true
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "extended_input_schema": [
+                          {
+                            "change_on_blur": true,
+                            "control_type": "select",
+                            "extends_schema": true,
+                            "label": "Response",
+                            "name": "http_status_code",
+                            "pick_list": [
+                              [
+                                "ok",
+                                "200"
+                              ]
+                            ],
+                            "type": "string"
+                          },
+                          {
+                            "label": "Response body",
+                            "name": "response",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Accounts",
+                                "name": "accounts",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Total Accounts",
+                                "name": "total_accounts",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Accounts List Size",
+                                "name": "accounts_list_size",
+                                "type": "string",
+                                "optional": true
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Error",
+                                "name": "error",
+                                "type": "string",
+                                "optional": true
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "visible_config_fields": [
+                          "http_status_code",
+                          "response",
+                          "response.error"
+                        ],
+                        "uuid": "bb5cf322-5a5a-44b8-9a15-05c5f1426192",
+                        "skip": false
+                      }
+                    ],
+                    "uuid": "4b3a607f-089e-4a55-b64c-4b1413cef095"
+                  }
+                ],
+                "uuid": "a4d315cd-2789-4b7c-80f6-3608556b08e9"
+              },
+              {
+                "number": 54,
+                "provider": "workato_api_platform",
+                "name": "return_response",
+                "as": "2887b0fa",
+                "keyword": "action",
+                "input": {
+                  "http_status_code": "200",
+                  "response": {
+                    "accounts": "=_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a8a29dfd\",\"path\":[\"Account\"]}')",
+                    "total_accounts": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"3cf69812\",\"path\":[\"totalSize\"]}')}",
+                    "accounts_list_size": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a8a29dfd\",\"path\":[\"list_size\"]}')}"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "change_on_blur": true,
+                    "control_type": "select",
+                    "extends_schema": true,
+                    "label": "Response",
+                    "name": "http_status_code",
+                    "pick_list": [
+                      [
+                        "ok",
+                        "200"
+                      ]
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "label": "Response body",
+                    "name": "response",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Accounts",
+                        "name": "accounts",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Total Accounts",
+                        "name": "total_accounts",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Accounts List Size",
+                        "name": "accounts_list_size",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error",
+                        "name": "error",
+                        "type": "string",
+                        "optional": true
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "change_on_blur": true,
+                    "control_type": "select",
+                    "extends_schema": true,
+                    "label": "Response",
+                    "name": "http_status_code",
+                    "pick_list": [
+                      [
+                        "ok",
+                        "200"
+                      ]
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "label": "Response body",
+                    "name": "response",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Accounts",
+                        "name": "accounts",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Total Accounts",
+                        "name": "total_accounts",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Accounts List Size",
+                        "name": "accounts_list_size",
+                        "type": "string",
+                        "optional": true
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Error",
+                        "name": "error",
+                        "type": "string",
+                        "optional": true
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "http_status_code",
+                  "response",
+                  "response.accounts",
+                  "response.total_accounts",
+                  "response.accounts_list_size"
+                ],
+                "uuid": "1a9e51c8-df57-494f-8bec-6776b2b0516c",
+                "skip": false
+              }
+            ],
+            "uuid": "0c3b00a5-e76d-4b3c-aabb-076ff96ee4e7"
           }
         ],
         "uuid": "588f594f-163a-4172-9873-0a75b24a2b2f"
       },
       {
-        "number": 28,
+        "number": 55,
         "provider": "workato_api_platform",
         "name": "return_response",
         "as": "df2039a0",
@@ -1910,7 +3317,7 @@
         "input": {
           "http_status_code": "200",
           "response": {
-            "error": "Account name is required to search accounts."
+            "error": "At least one of account_name, scope, or billing_country is required to search accounts."
           }
         },
         "extended_output_schema": [
@@ -2046,12 +3453,6 @@
     {
       "keyword": "application",
       "provider": "workato_variable",
-      "skip_validation": false,
-      "account_id": null
-    },
-    {
-      "keyword": "application",
-      "provider": "workato_db_table",
       "skip_validation": false,
       "account_id": null
     }
