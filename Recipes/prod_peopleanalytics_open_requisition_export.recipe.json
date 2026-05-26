@@ -1,0 +1,159 @@
+{
+  "name": "Prod - PeopleAnalytics - Open Requisition Export",
+  "description": "",
+  "version": 4,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "clock",
+    "name": "scheduled_event",
+    "as": "scheduled_event_1",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "time_unit": "Custom schedule",
+      "days_of_month": [
+        {
+          "label": "1",
+          "value": "1"
+        }
+      ],
+      "timezone": "America/New_York (-05:00)"
+    },
+    "input": {
+      "time_unit": "custom_schedule",
+      "cron_expression": "0 7 1 * *",
+      "timezone": "America/New_York"
+    },
+    "extended_input_schema": [
+      {
+        "control_type": "cron",
+        "enforce_template_mode": true,
+        "hint": "Cron expressions are written as: <b>[minute]  [hour]  [day of month]  [month]  [day of week]</b>.\n<a href=\"https://crontab.guru/\" target=\"_blank\">Learn more</a>\n",
+        "label": "Cron expression",
+        "name": "cron_expression",
+        "optional": false,
+        "type": "string"
+      },
+      {
+        "control_type": "select",
+        "hint": "Select the timezone to use. Leave it blank to use <b>{{authUser.account_timezone}}</b>",
+        "label": "Timezone",
+        "name": "timezone",
+        "optional": true,
+        "pick_list": "timezone_id_global_pick_list",
+        "pick_list_connection_less": true,
+        "type": "string"
+      },
+      {
+        "control_type": "date_time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set date and time to start or leave blank to start immediately. <b>Once recipe has been run or tested, value cannot be changed.</b>",
+        "label": "Start after",
+        "name": "start_after",
+        "optional": true,
+        "parse_output": "date_time_conversion",
+        "since_field": true,
+        "type": "date_time",
+        "ignore_timezone": true,
+        "render_input": "date_time_conversion"
+      }
+    ],
+    "visible_config_fields": [
+      "time_unit",
+      "trigger_every",
+      "days_of_month",
+      "trigger_at",
+      "timezone"
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "snowflake",
+        "name": "export_csv_v2",
+        "as": "export_csv_v2_2",
+        "keyword": "action",
+        "input": {
+          "_action_version": "2",
+          "timeout": "60",
+          "sql": "SELECT * FROM PEOPLEANALYTICS_DB.FPAA_MARTS.HC_FCST_OS_AUTOMATION",
+          "delimiter": "comma"
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "string",
+            "extends_schema": false,
+            "label": "File content",
+            "name": "file_content",
+            "optional": false,
+            "type": "string"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "integer",
+            "default": 60,
+            "extends_schema": false,
+            "hint": "Set an upper limit for this wait action. If one or more of the async\njobs take longer than this, proceed to the next step without waiting.\nMaximum is 120 minutes.\n",
+            "label": "Timeout limit (minutes)",
+            "name": "timeout",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "sticky": false,
+            "type": "integer"
+          }
+        ],
+        "uuid": "45a7bb94-6c01-400d-b41f-b9b4bc610560",
+        "skip": false
+      },
+      {
+        "number": 2,
+        "provider": "sftp",
+        "name": "upload",
+        "as": "upload_3",
+        "keyword": "action",
+        "toggleCfg": {
+          "append": true
+        },
+        "input": {
+          "content": "=_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"export_csv_v2_2\",\"path\":[\"file_content\"]}')",
+          "filename": "=\"/epm-sftp/Headcount/headcount_requisitions_\" + now.strftime(\"%Y%m%d_%H%M%S\") + \".csv\"",
+          "append": "false"
+        },
+        "uuid": "166f532a-2616-415b-9327-bcdf7ef7d5b9",
+        "skip": false
+      }
+    ],
+    "uuid": "a4ad6e18-5c01-4ae0-980f-fd0749e152a1",
+    "skip": false
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "sftp",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/onestream_prod_sftp.connection.json",
+        "name": "OneStream PROD SFTP",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "snowflake",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/snowflake_connection_peopleanalytics_db.connection.json",
+        "name": "Snowflake Connection - PeopleAnalytics_DB",
+        "folder": "Connections"
+      }
+    }
+  ]
+}
