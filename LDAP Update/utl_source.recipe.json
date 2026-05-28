@@ -1,0 +1,1332 @@
+{
+  "name": "UTL Source",
+  "description": "",
+  "version": 10,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "clock",
+    "name": "scheduled_event",
+    "as": "33a74d18",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "time_unit": "Hours"
+    },
+    "input": {
+      "time_unit": "hours",
+      "trigger_every": "1"
+    },
+    "extended_input_schema": [
+      {
+        "control_type": "integer",
+        "default": "5",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Define repeating schedule. Enter whole numbers only.This field can be set to a minimum of 5 minutes.",
+        "label": "Trigger every",
+        "name": "trigger_every",
+        "optional": false,
+        "suffix": {
+          "text": "hours"
+        },
+        "type": "string"
+      },
+      {
+        "control_type": "select",
+        "hint": "Select the timezone to use. Leave it blank to use <b>{{authUser.account_timezone}}</b>",
+        "label": "Timezone",
+        "name": "timezone",
+        "optional": true,
+        "pick_list": "timezone_id_global_pick_list",
+        "pick_list_connection_less": true,
+        "type": "string"
+      },
+      {
+        "control_type": "date_time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set date and time to start or leave blank to start immediately. <b>Once recipe has been run or tested, value cannot be changed.</b>",
+        "label": "Start after",
+        "name": "start_after",
+        "optional": true,
+        "parse_output": "date_time_conversion",
+        "since_field": true,
+        "type": "date_time",
+        "ignore_timezone": true,
+        "render_input": "date_time_conversion"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 2,
+            "provider": "salesforce",
+            "name": "search_sobjects_soql_bulk_csv",
+            "as": "47f48781",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "sobject_name": "User Transaction Log",
+              "field_list": [
+                {
+                  "label": "Record ID",
+                  "value": "Id"
+                },
+                {
+                  "label": "Payload",
+                  "value": "Payload__c"
+                },
+                {
+                  "label": "Last Modified Date",
+                  "value": "LastModifiedDate"
+                },
+                {
+                  "label": "User",
+                  "value": "User__c"
+                }
+              ]
+            },
+            "input": {
+              "query": "User__c != NULL AND Operation_Type__c != 'Offboard' ",
+              "include_deleted_records": "false",
+              "include_header": "true",
+              "custom_select_clause": "false",
+              "sobject_name": "IE_UserTransactionLog__c",
+              "field_list": "Id\nPayload__c\nLastModifiedDate\nUser__c"
+            },
+            "comment": "Source - User Transaction Log",
+            "uuid": "4dbefcfc-60f2-401a-ae2c-6e067d39c890",
+            "skip": false
+          },
+          {
+            "number": 3,
+            "provider": "csv_parser",
+            "name": "parse_csv",
+            "as": "30dfa358",
+            "keyword": "action",
+            "input": {
+              "col_sep": ",",
+              "skip_first_line": "true",
+              "column_value_by": "index",
+              "quote_char": "\"",
+              "csv_content": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"47f48781\",\"path\":[\"results\"]}')}",
+              "header_schema": "[{\"name\":\"id\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"ID\"},{\"name\":\"payload\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Payload\"},{\"name\":\"lastModifiedDate\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Last modified date\"},{\"name\":\"user\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"User\"}]"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Lines",
+                "name": "lines",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "id",
+                    "type": "string",
+                    "name": "column_0"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "payload",
+                    "type": "string",
+                    "name": "column_1"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "lastModifiedDate",
+                    "type": "string",
+                    "name": "column_2"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "user",
+                    "type": "string",
+                    "name": "column_3"
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "uuid": "80c00ccb-5de3-4286-8e18-f65b9affdbb4",
+            "skip": false
+          },
+          {
+            "number": 4,
+            "provider": "py_eval",
+            "name": "invoke_custom_py_code",
+            "as": "89d3b8d3",
+            "keyword": "action",
+            "input": {
+              "code": "import json\n\n\nCOUNTRY_MAP = {\n    \"AFG\": \"AF\",\n    \"ALA\": \"AX\",\n    \"ALB\": \"AL\",\n    \"DZA\": \"DZ\",\n    \"ASM\": \"AS\",\n    \"AND\": \"AD\",\n    \"AGO\": \"AO\",\n    \"AIA\": \"AI\",\n    \"ATA\": \"AQ\",\n    \"ATG\": \"AG\",\n    \"ARG\": \"AR\",\n    \"ARM\": \"AM\",\n    \"ABW\": \"AW\",\n    \"AUS\": \"AU\",\n    \"AUT\": \"AT\",\n    \"AZE\": \"AZ\",\n    \"BHS\": \"BS\",\n    \"BHR\": \"BH\",\n    \"BGD\": \"BD\",\n    \"BRB\": \"BB\",\n    \"BLR\": \"BY\",\n    \"BEL\": \"BE\",\n    \"BLZ\": \"BZ\",\n    \"BEN\": \"BJ\",\n    \"BMU\": \"BM\",\n    \"BTN\": \"BT\",\n    \"BOL\": \"BO\",\n    \"BES\": \"BQ\",\n    \"BIH\": \"BA\",\n    \"BWA\": \"BW\",\n    \"BVT\": \"BV\",\n    \"BRA\": \"BR\",\n    \"IOT\": \"IO\",\n    \"BRN\": \"BN\",\n    \"BGR\": \"BG\",\n    \"BFA\": \"BF\",\n    \"BDI\": \"BI\",\n    \"CPV\": \"CV\",\n    \"KHM\": \"KH\",\n    \"CMR\": \"CM\",\n    \"CAN\": \"CA\",\n    \"CYM\": \"KY\",\n    \"CAF\": \"CF\",\n    \"TCD\": \"TD\",\n    \"CHL\": \"CL\",\n    \"CHN\": \"CN\",\n    \"CXR\": \"CX\",\n    \"CCK\": \"CC\",\n    \"COL\": \"CO\",\n    \"COM\": \"KM\",\n    \"COG\": \"CG\",\n    \"COD\": \"CD\",\n    \"COK\": \"CK\",\n    \"CRI\": \"CR\",\n    \"CIV\": \"CI\",\n    \"HRV\": \"HR\",\n    \"CUB\": \"CU\",\n    \"CUW\": \"CW\",\n    \"CYP\": \"CY\",\n    \"CZE\": \"CZ\",\n    \"DNK\": \"DK\",\n    \"DJI\": \"DJ\",\n    \"DMA\": \"DM\",\n    \"DOM\": \"DO\",\n    \"ECU\": \"EC\",\n    \"EGY\": \"EG\",\n    \"SLV\": \"SV\",\n    \"GNQ\": \"GQ\",\n    \"ERI\": \"ER\",\n    \"EST\": \"EE\",\n    \"SWZ\": \"SZ\",\n    \"ETH\": \"ET\",\n    \"FLK\": \"FK\",\n    \"FRO\": \"FO\",\n    \"FJI\": \"FJ\",\n    \"FIN\": \"FI\",\n    \"FRA\": \"FR\",\n    \"GUF\": \"GF\",\n    \"PYF\": \"PF\",\n    \"ATF\": \"TF\",\n    \"GAB\": \"GA\",\n    \"GMB\": \"GM\",\n    \"GEO\": \"GE\",\n    \"DEU\": \"DE\",\n    \"GHA\": \"GH\",\n    \"GIB\": \"GI\",\n    \"GRC\": \"GR\",\n    \"GRL\": \"GL\",\n    \"GRD\": \"GD\",\n    \"GLP\": \"GP\",\n    \"GUM\": \"GU\",\n    \"GTM\": \"GT\",\n    \"GGY\": \"GG\",\n    \"GIN\": \"GN\",\n    \"GNB\": \"GW\",\n    \"GUY\": \"GY\",\n    \"HTI\": \"HT\",\n    \"HMD\": \"HM\",\n    \"VAT\": \"VA\",\n    \"HND\": \"HN\",\n    \"HKG\": \"HK\",\n    \"HUN\": \"HU\",\n    \"ISL\": \"IS\",\n    \"IND\": \"IN\",\n    \"IDN\": \"ID\",\n    \"IRN\": \"IR\",\n    \"IRQ\": \"IQ\",\n    \"IRL\": \"IE\",\n    \"IMN\": \"IM\",\n    \"ISR\": \"IL\",\n    \"ITA\": \"IT\",\n    \"JAM\": \"JM\",\n    \"JPN\": \"JP\",\n    \"JEY\": \"JE\",\n    \"JOR\": \"JO\",\n    \"KAZ\": \"KZ\",\n    \"KEN\": \"KE\",\n    \"KIR\": \"KI\",\n    \"PRK\": \"KP\",\n    \"KOR\": \"KR\",\n    \"KWT\": \"KW\",\n    \"KGZ\": \"KG\",\n    \"LAO\": \"LA\",\n    \"LVA\": \"LV\",\n    \"LBN\": \"LB\",\n    \"LSO\": \"LS\",\n    \"LBR\": \"LR\",\n    \"LBY\": \"LY\",\n    \"LIE\": \"LI\",\n    \"LTU\": \"LT\",\n    \"LUX\": \"LU\",\n    \"MAC\": \"MO\",\n    \"MDG\": \"MG\",\n    \"MWI\": \"MW\",\n    \"MYS\": \"MY\",\n    \"MDV\": \"MV\",\n    \"MLI\": \"ML\",\n    \"MLT\": \"MT\",\n    \"MHL\": \"MH\",\n    \"MTQ\": \"MQ\",\n    \"MRT\": \"MR\",\n    \"MUS\": \"MU\",\n    \"MYT\": \"YT\",\n    \"MEX\": \"MX\",\n    \"FSM\": \"FM\",\n    \"MDA\": \"MD\",\n    \"MCO\": \"MC\",\n    \"MNG\": \"MN\",\n    \"MNE\": \"ME\",\n    \"MSR\": \"MS\",\n    \"MAR\": \"MA\",\n    \"MOZ\": \"MZ\",\n    \"MMR\": \"MM\",\n    \"NAM\": \"NA\",\n    \"NRU\": \"NR\",\n    \"NPL\": \"NP\",\n    \"NLD\": \"NL\",\n    \"NCL\": \"NC\",\n    \"NZL\": \"NZ\",\n    \"NIC\": \"NI\",\n    \"NER\": \"NE\",\n    \"NGA\": \"NG\",\n    \"NIU\": \"NU\",\n    \"NFK\": \"NF\",\n    \"MKD\": \"MK\",\n    \"MNP\": \"MP\",\n    \"NOR\": \"NO\",\n    \"OMN\": \"OM\",\n    \"PAK\": \"PK\",\n    \"PLW\": \"PW\",\n    \"PSE\": \"PS\",\n    \"PAN\": \"PA\",\n    \"PNG\": \"PG\",\n    \"PRY\": \"PY\",\n    \"PER\": \"PE\",\n    \"PHL\": \"PH\",\n    \"PCN\": \"PN\",\n    \"POL\": \"PL\",\n    \"PRT\": \"PT\",\n    \"PRI\": \"PR\",\n    \"QAT\": \"QA\",\n    \"REU\": \"RE\",\n    \"ROU\": \"RO\",\n    \"RUS\": \"RU\",\n    \"RWA\": \"RW\",\n    \"BLM\": \"BL\",\n    \"SHN\": \"SH\",\n    \"KNA\": \"KN\",\n    \"LCA\": \"LC\",\n    \"MAF\": \"MF\",\n    \"SPM\": \"PM\",\n    \"VCT\": \"VC\",\n    \"WSM\": \"WS\",\n    \"SMR\": \"SM\",\n    \"STP\": \"ST\",\n    \"SAU\": \"SA\",\n    \"SEN\": \"SN\",\n    \"SRB\": \"RS\",\n    \"SYC\": \"SC\",\n    \"SLE\": \"SL\",\n    \"SGP\": \"SG\",\n    \"SXM\": \"SX\",\n    \"SVK\": \"SK\",\n    \"SVN\": \"SI\",\n    \"SLB\": \"SB\",\n    \"SOM\": \"SO\",\n    \"ZAF\": \"ZA\",\n    \"SGS\": \"GS\",\n    \"SSD\": \"SS\",\n    \"ESP\": \"ES\",\n    \"LKA\": \"LK\",\n    \"SDN\": \"SD\",\n    \"SUR\": \"SR\",\n    \"SJM\": \"SJ\",\n    \"SWE\": \"SE\",\n    \"CHE\": \"CH\",\n    \"SYR\": \"SY\",\n    \"TWN\": \"TW\",\n    \"TJK\": \"TJ\",\n    \"TZA\": \"TZ\",\n    \"THA\": \"TH\",\n    \"TLS\": \"TL\",\n    \"TGO\": \"TG\",\n    \"TKL\": \"TK\",\n    \"TON\": \"TO\",\n    \"TTO\": \"TT\",\n    \"TUN\": \"TN\",\n    \"TUR\": \"TR\",\n    \"TKM\": \"TM\",\n    \"TCA\": \"TC\",\n    \"TUV\": \"TV\",\n    \"UGA\": \"UG\",\n    \"UKR\": \"UA\",\n    \"ARE\": \"AE\",\n    \"GBR\": \"GB\",\n    \"USA\": \"US\",\n    \"UMI\": \"UM\",\n    \"URY\": \"UY\",\n    \"UZB\": \"UZ\",\n    \"VUT\": \"VU\",\n    \"VEN\": \"VE\",\n    \"VNM\": \"VN\",\n    \"VGB\": \"VG\",\n    \"VIR\": \"VI\",\n    \"WLF\": \"WF\",\n    \"ESH\": \"EH\",\n    \"YEM\": \"YE\",\n    \"ZMB\": \"ZM\",\n    \"ZWE\": \"ZW\"\n}\n\ndef main(records_input):\n    parsed_users = []\n\n    # Normalize input into a list\n    if isinstance(records_input, str):\n        try:\n            records_list = json.loads(records_input)\n        except json.JSONDecodeError:\n            records_list = []\n    elif isinstance(records_input, list):\n        records_list = records_input\n    elif isinstance(records_input, dict):\n        inner = records_input.get(\"records\", [])\n        if isinstance(inner, str):\n            try:\n                records_list = json.loads(inner)\n            except json.JSONDecodeError:\n                records_list = []\n        elif isinstance(inner, list):\n            records_list = inner\n        else:\n            records_list = []\n    else:\n        records_list = []\n\n    # Process each record\n    for record in records_list:\n        payload_raw = record.get(\"column_1\")\n        if not payload_raw:\n            continue\n\n        payload = payload_raw\n        for _ in range(2):\n            if isinstance(payload, str):\n                try:\n                    payload = json.loads(payload)\n                except json.JSONDecodeError:\n                    payload = {}\n                    break\n            else:\n                break\n\n        if not isinstance(payload, dict):\n            continue\n\n        user = payload.get(\"Resource\", {}).get(\"User\", {})\n        if not isinstance(user, dict) or not user:\n            continue\n\n        # Add metadata fields\n        user[\"id\"] = record.get(\"column_0\")\n        user[\"user\"] = record.get(\"column_3\")\n        user[\"lastModifiedDate\"] = record.get(\"column_2\")\n\n        #  Map country if available\n        country_code = user.get(\"Country\")\n        if country_code:\n            user[\"countryMapped\"] = COUNTRY_MAP.get(country_code, None)\n         \n\n        parsed_users.append(user)\n\n    return {\"output\": parsed_users}",
+              "name": "user_transactional_logs",
+              "code_input": {
+                "schema": "[{\"label\":\"records\",\"name\":\"records\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"records\"},\"parent\":[\"code_input\",\"data\"],\"control_type\":\"text\"}]",
+                "data": {
+                  "records": "=_dp('{\"pill_type\":\"output\",\"provider\":\"csv_parser\",\"line\":\"30dfa358\",\"path\":[\"lines\"]}').to_json"
+                }
+              },
+              "code_output_schema_json": "[{\"label\":\"Users\",\"name\":\"output\",\"type\":\"array\",\"of\":\"object\",\"properties\":[{\"control_type\":\"text\",\"label\":\"ID\",\"name\":\"id\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Last modified date\",\"name\":\"lastModifiedDate\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Organization\",\"name\":\"Organization\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Email\",\"name\":\"Email\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Rhat UID\",\"name\":\"RhatUID\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Region code\",\"name\":\"RegionCode\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Event type\",\"name\":\"EventType\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"First name\",\"name\":\"FirstName\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"State province\",\"name\":\"StateProvince\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Last hire date\",\"name\":\"LastHireDate\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"City\",\"name\":\"City\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Currency iso code\",\"name\":\"CurrencyIsoCode\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Job title\",\"name\":\"JobTitle\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Worker source\",\"name\":\"WorkerSource\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Rhat supervisor worker ID\",\"name\":\"RhatSupervisorWorkerId\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Department\",\"name\":\"Department\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Cost center\",\"name\":\"CostCenter\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Job code\",\"name\":\"JobCode\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Rhat worker ID\",\"name\":\"RhatWorkerId\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Country\",\"name\":\"Country\",\"type\":\"string\"},{\"name\":\"countryMapped\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Countrycode\"},{\"control_type\":\"text\",\"label\":\"Last name\",\"name\":\"LastName\",\"type\":\"string\"},{\"control_type\":\"text\",\"label\":\"Rhat UUID\",\"name\":\"RhatUUID\",\"type\":\"string\"},{\"name\":\"user\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"User\"}]}]",
+              "payload_asset_type": "inline"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Output",
+                "name": "output",
+                "properties": [
+                  {
+                    "label": "Users",
+                    "name": "output",
+                    "type": "array",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "ID",
+                        "name": "id",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Last modified date",
+                        "name": "lastModifiedDate",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Organization",
+                        "name": "Organization",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Email",
+                        "name": "Email",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Rhat UID",
+                        "name": "RhatUID",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Region code",
+                        "name": "RegionCode",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Event type",
+                        "name": "EventType",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "First name",
+                        "name": "FirstName",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "State province",
+                        "name": "StateProvince",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Last hire date",
+                        "name": "LastHireDate",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "City",
+                        "name": "City",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Currency iso code",
+                        "name": "CurrencyIsoCode",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Job title",
+                        "name": "JobTitle",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Worker source",
+                        "name": "WorkerSource",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Rhat supervisor worker ID",
+                        "name": "RhatSupervisorWorkerId",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Department",
+                        "name": "Department",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Cost center",
+                        "name": "CostCenter",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Job code",
+                        "name": "JobCode",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Rhat worker ID",
+                        "name": "RhatWorkerId",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Country",
+                        "name": "Country",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Countrycode",
+                        "name": "countryMapped",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Last name",
+                        "name": "LastName",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Rhat UUID",
+                        "name": "RhatUUID",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "User",
+                        "name": "user",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ]
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "form-schema-builder",
+                "hint": "Define the input fields that will be passed to your Python code",
+                "label": "Input fields",
+                "name": "code_input",
+                "optional": true,
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Schema",
+                    "extends_schema": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "records",
+                        "name": "records",
+                        "type": "string",
+                        "optional": true,
+                        "details": {
+                          "real_name": "records"
+                        },
+                        "parent": [
+                          "code_input",
+                          "data"
+                        ]
+                      }
+                    ],
+                    "label": "Data",
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "sticky": true,
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "name",
+              "code_input",
+              "code_output_schema_json",
+              "code",
+              "code_input.data.payload",
+              "code_input.schema",
+              "code_input.data.user",
+              "code_input.data.user.payload",
+              "code_input.data.id",
+              "code_input.data.lastModifiedDate",
+              "code_input.data.User",
+              "code_input.data.Id",
+              "code_input.data.User.Id",
+              "code_input.data.User.payload",
+              "code_input.data",
+              "code_input.data.records",
+              "records.payload",
+              "records.Id",
+              "code_input.data.records.id"
+            ],
+            "uuid": "2225dbe9-4989-4e93-931e-f4276b377188",
+            "skip": false
+          },
+          {
+            "number": 5,
+            "provider": "workato_variable",
+            "name": "declare_list",
+            "as": "1fd01090",
+            "keyword": "action",
+            "input": {
+              "name": "URTL",
+              "list_item_schema_json": "[{\"name\":\"ID\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"ID\"},{\"name\":\"ManagerEmployeeNumber\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Manager employee number\"},{\"name\":\"CountryCode\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Country code\"},{\"name\":\"UUID\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"UUID\"},{\"name\":\"Title\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Title\"},{\"name\":\"LastModifiedDate\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Last modified date\"},{\"name\":\"User\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"User\"}]",
+              "list_items": {
+                "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"89d3b8d3\",\"path\":[\"output\",\"output\"]}')}",
+                "ID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"89d3b8d3\",\"path\":[\"output\",\"output\",{\"path_element_type\":\"current_item\"},\"id\"]}')}",
+                "ManagerEmployeeNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"89d3b8d3\",\"path\":[\"output\",\"output\",{\"path_element_type\":\"current_item\"},\"RhatSupervisorWorkerId\"]}')}",
+                "CountryCode": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"89d3b8d3\",\"path\":[\"output\",\"output\",{\"path_element_type\":\"current_item\"},\"countryMapped\"]}')}",
+                "UUID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"89d3b8d3\",\"path\":[\"output\",\"output\",{\"path_element_type\":\"current_item\"},\"RhatUUID\"]}')}",
+                "Title": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"89d3b8d3\",\"path\":[\"output\",\"output\",{\"path_element_type\":\"current_item\"},\"JobTitle\"]}')}",
+                "LastModifiedDate": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"89d3b8d3\",\"path\":[\"output\",\"output\",{\"path_element_type\":\"current_item\"},\"lastModifiedDate\"]}')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "hint": "",
+                "label": "URTL",
+                "name": "list_items",
+                "of": "object",
+                "optional": false,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "name": "ID",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Manager employee number",
+                    "name": "ManagerEmployeeNumber",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Country code",
+                    "name": "CountryCode",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "UUID",
+                    "name": "UUID",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Title",
+                    "name": "Title",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Last modified date",
+                    "name": "LastModifiedDate",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "User",
+                    "name": "User",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Set the initial items in the list. Defaults to an empty list if not supplied.",
+                "label": "Items",
+                "name": "list_items",
+                "of": "object",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "name": "ID",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Manager employee number",
+                    "name": "ManagerEmployeeNumber",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Country code",
+                    "name": "CountryCode",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "UUID",
+                    "name": "UUID",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Title",
+                    "name": "Title",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Last modified date",
+                    "name": "LastModifiedDate",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "User",
+                    "name": "User",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "comment": "from python",
+            "uuid": "7701ce59-7a1d-4715-abe9-fb3cfb96d5d6",
+            "skip": false
+          },
+          {
+            "number": 6,
+            "provider": "workato_variable",
+            "name": "declare_list",
+            "as": "497259a0",
+            "keyword": "action",
+            "input": {
+              "name": "URTL",
+              "list_item_schema_json": "[{\"name\":\"ID\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"ID\"},{\"name\":\"ManagerEmployeeNumber\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Manager employee number\"},{\"name\":\"CountryCode\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Country code\"},{\"name\":\"UUID\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"UUID\"},{\"name\":\"Title\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Title\"},{\"name\":\"LastModifiedDate\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Last modified date\"},{\"name\":\"User\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"User\"}]",
+              "list_items": {
+                "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"89d3b8d3\",\"path\":[\"output\",\"output\"]}')}",
+                "ID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"89d3b8d3\",\"path\":[\"output\",\"output\",{\"path_element_type\":\"current_item\"},\"id\"]}')}",
+                "ManagerEmployeeNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"89d3b8d3\",\"path\":[\"output\",\"output\",{\"path_element_type\":\"current_item\"},\"RhatSupervisorWorkerId\"]}')}",
+                "CountryCode": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"89d3b8d3\",\"path\":[\"output\",\"output\",{\"path_element_type\":\"current_item\"},\"Country\"]}')}",
+                "UUID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"89d3b8d3\",\"path\":[\"output\",\"output\",{\"path_element_type\":\"current_item\"},\"RhatUUID\"]}')}",
+                "Title": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"89d3b8d3\",\"path\":[\"output\",\"output\",{\"path_element_type\":\"current_item\"},\"JobTitle\"]}')}",
+                "LastModifiedDate": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"89d3b8d3\",\"path\":[\"output\",\"output\",{\"path_element_type\":\"current_item\"},\"lastModifiedDate\"]}')}",
+                "User": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"89d3b8d3\",\"path\":[\"output\",\"output\",{\"path_element_type\":\"current_item\"},\"user\"]}')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "hint": "",
+                "label": "URTL",
+                "name": "list_items",
+                "of": "object",
+                "optional": false,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "name": "ID",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Manager employee number",
+                    "name": "ManagerEmployeeNumber",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Country code",
+                    "name": "CountryCode",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "UUID",
+                    "name": "UUID",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Title",
+                    "name": "Title",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Last modified date",
+                    "name": "LastModifiedDate",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "User",
+                    "name": "User",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Set the initial items in the list. Defaults to an empty list if not supplied.",
+                "label": "Items",
+                "name": "list_items",
+                "of": "object",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "name": "ID",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Manager employee number",
+                    "name": "ManagerEmployeeNumber",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Country code",
+                    "name": "CountryCode",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "UUID",
+                    "name": "UUID",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Title",
+                    "name": "Title",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Last modified date",
+                    "name": "LastModifiedDate",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "User",
+                    "name": "User",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "uuid": "3bc5a311-359a-478b-a916-2e881f05311d",
+            "skip": false
+          },
+          {
+            "number": 7,
+            "provider": "google_sheets",
+            "name": "update_row_v4_bulk",
+            "as": "8020e71e",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "team_drives": "Workato Files",
+              "spreadsheet": "LDAP User Sync New CRM"
+            },
+            "input": {
+              "team_drives": "0AEHAZLPB6FbmUk9PVA/0AEHAZLPB6FbmUk9PVA",
+              "spreadsheet": "1fEFWFXZDjqNOtygle7s6G2Uzle3KKYLf0-qrkFk_G7Y",
+              "sheet": "User Transaction Role Source",
+              "rows": {
+                "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1fd01090\",\"path\":[\"list_items\"]}')}",
+                "col_Id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1fd01090\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"ID\"]}')}",
+                "col_countrycode": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1fd01090\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"CountryCode\"]}')}",
+                "col__managerID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1fd01090\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"ManagerEmployeeNumber\"]}')}",
+                "col_title": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1fd01090\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"Title\"]}')}",
+                "col_lastModifiedDate": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1fd01090\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"LastModifiedDate\"]}')}",
+                "col_uuid": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1fd01090\",\"path\":[\"list_items\",{\"path_element_type\":\"current_item\"},\"UUID\"]}')}"
+              },
+              "row_number": "2"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "select",
+                "extends_schema": true,
+                "hint": "Select a sheet to update row. The sheet must have at least one header row. <a href='https://docs.workato.com/connectors/google-sheets/action-add-row.html#setting-up-the-google-sheet' target='_blank'>Learn more</a>",
+                "label": "Sheet",
+                "name": "sheet",
+                "optional": false,
+                "pick_list": [
+                  [
+                    "LDAP Source",
+                    "LDAP Source"
+                  ],
+                  [
+                    "User Transaction Role Source",
+                    "User Transaction Role Source"
+                  ],
+                  [
+                    "Users New CRM Before Update",
+                    "Users New CRM Before Update"
+                  ],
+                  [
+                    "Error",
+                    "Error"
+                  ],
+                  [
+                    "Updates",
+                    "Updates"
+                  ]
+                ],
+                "toggle_field": {
+                  "control_type": "text",
+                  "label": "Sheet name",
+                  "toggle_hint": "Use sheet name",
+                  "extends_schema": true,
+                  "change_on_blur": true,
+                  "toggle_to_secondary_hint": "Use sheet name",
+                  "toggle_to_primary_hint": "Select a sheet",
+                  "hint": "Use <b>Sheet name</b> pill from the output of other Google Sheets’ triggers/actions. Or enter sheet name manually. The sheet must have at least 1 header row in input field.",
+                  "type": "string",
+                  "name": "sheet_name"
+                },
+                "toggle_hint": "Select a sheet",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "hint": "Enter the row number from which the values must be updated. Or use <b>Row number</b> data pill from the output of other Google Sheets’s triggers & actions.",
+                "label": "Row number",
+                "name": "row_number",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "hint": "Input row values into the fields below.",
+                "label": "Rows",
+                "name": "rows",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Id",
+                    "old_name": "col_Id",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_Id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "countrycode",
+                    "old_name": "col_countrycode",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_countrycode"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "_managerID",
+                    "old_name": "col__managerID",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col__managerID"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "title",
+                    "old_name": "col_title",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_title"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "lastModifiedDate",
+                    "old_name": "col_lastModifiedDate",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_lastModifiedDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "uuid",
+                    "old_name": "col_uuid",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_uuid"
+                  }
+                ],
+                "sticky": true,
+                "type": "array"
+              }
+            ],
+            "uuid": "1ceb98a1-a60a-406b-84ff-35a149cb8779",
+            "skip": true
+          },
+          {
+            "number": 8,
+            "provider": "workato_smart_list",
+            "name": "insert_rows",
+            "as": "2e3a8550",
+            "keyword": "action",
+            "toggleCfg": {
+              "create_table_if_not_exist": true
+            },
+            "input": {
+              "list_source": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"1fd01090\",\"path\":[\"list_items\"]}')",
+              "create_table_if_not_exist": "true",
+              "list_name": "URTL"
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "text",
+                "label": "URTL",
+                "name": "list_name",
+                "type": "string"
+              },
+              {
+                "label": "Columns",
+                "name": "columns",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "ID"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Manager employee number",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "ManagerEmployeeNumber"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Country code",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "CountryCode"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "UUID",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "UUID"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Title",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "Title"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Last modified date",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "LastModifiedDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "User",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "User"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "control_type": "number",
+                "label": "Row count",
+                "name": "row_count",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "multiselect",
+                "delimiter": "\n",
+                "hint": "Collections are like databases. Having index improves query performance. Select one or more fields from list source.",
+                "label": "Primary index",
+                "name": "primary_index",
+                "ngIf": "input.create_table_if_not_exist != 'false'",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "ID",
+                    "ID"
+                  ],
+                  [
+                    "Manager employee number",
+                    "ManagerEmployeeNumber"
+                  ],
+                  [
+                    "Country code",
+                    "CountryCode"
+                  ],
+                  [
+                    "UUID",
+                    "UUID"
+                  ],
+                  [
+                    "Title",
+                    "Title"
+                  ],
+                  [
+                    "Last modified date",
+                    "LastModifiedDate"
+                  ],
+                  [
+                    "User",
+                    "User"
+                  ]
+                ],
+                "sticky": true,
+                "type": "string"
+              },
+              {
+                "control_type": "multiselect",
+                "delimiter": "\n",
+                "hint": "Select one or more fields from list source.",
+                "label": "Secondary index",
+                "name": "secondary_index",
+                "ngIf": "input.create_table_if_not_exist != 'false'",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "ID",
+                    "ID"
+                  ],
+                  [
+                    "Manager employee number",
+                    "ManagerEmployeeNumber"
+                  ],
+                  [
+                    "Country code",
+                    "CountryCode"
+                  ],
+                  [
+                    "UUID",
+                    "UUID"
+                  ],
+                  [
+                    "Title",
+                    "Title"
+                  ],
+                  [
+                    "Last modified date",
+                    "LastModifiedDate"
+                  ],
+                  [
+                    "User",
+                    "User"
+                  ]
+                ],
+                "type": "string"
+              }
+            ],
+            "uuid": "215a6a8e-8622-45b7-991c-c10179da9619",
+            "skip": false
+          },
+          {
+            "number": 9,
+            "provider": "workato_smart_list",
+            "name": "query_list",
+            "as": "c700678a",
+            "keyword": "action",
+            "toggleCfg": {
+              "csv": true,
+              "headers": true
+            },
+            "input": {
+              "output_schema_by": "index",
+              "csv": "true",
+              "headers": "true",
+              "col_sep": "comma",
+              "sql": "select * from #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_smart_list\",\"line\":\"2e3a8550\",\"path\":[\"list_name\"]}')}",
+              "result_schema_json": "[{\"name\":\"Id\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"ID\"},{\"name\":\"managerEmployeenumber\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Manager employeenumber\"},{\"name\":\"countryCode\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Country code\"},{\"name\":\"UUID\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"UUID\"},{\"name\":\"title\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Title\"},{\"name\":\"lastModifiedDate\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Last modified date\"},{\"name\":\"User\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"User\"}]"
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "text",
+                "label": "Rows (CSV)",
+                "name": "rows",
+                "type": "string"
+              }
+            ],
+            "uuid": "46c8509d-0494-4c3a-854c-0546d8192676",
+            "skip": false
+          },
+          {
+            "number": 10,
+            "provider": "workato_files",
+            "name": "store_file",
+            "as": "099ed7eb",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "file_path": {
+                "ids": [
+                  "/"
+                ],
+                "titles": [
+                  "Root directory"
+                ]
+              }
+            },
+            "toggleCfg": {
+              "is_csv_file": true,
+              "overwrite": true,
+              "file_path": true,
+              "csv_has_header": true
+            },
+            "input": {
+              "is_csv_file": "true",
+              "schema_type": "auto",
+              "csv_has_header": "true",
+              "csv_delimiter": "comma",
+              "csv_quote": "double",
+              "encoding": "UTF-8",
+              "overwrite": "true",
+              "file_name": "UTL_Source",
+              "file_path": "/",
+              "content": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_smart_list\",\"line\":\"c700678a\",\"path\":[\"rows\"]}')}"
+            },
+            "uuid": "fc6b15ec-ac5a-44d3-b186-9b96878f6a44"
+          },
+          {
+            "number": 11,
+            "provider": "workato_files",
+            "name": "get_csv_file_contents",
+            "as": "3c47ebaf",
+            "keyword": "action",
+            "toggleCfg": {
+              "file_path": true
+            },
+            "input": {
+              "file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"099ed7eb\",\"path\":[\"path\"]}')}",
+              "schema_type": "manual",
+              "schema": "[{\"control_type\":\"text\",\"label\":\"ID\",\"name\":\"Id\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Manager employeenumber\",\"name\":\"managerEmployeenumber\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Country code\",\"name\":\"countryCode\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"UUID\",\"name\":\"UUID\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Title\",\"name\":\"title\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Last modified date\",\"name\":\"lastModifiedDate\",\"type\":\"string\",\"optional\":false},{\"name\":\"User\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"User\"}]",
+              "batch_size": "50000",
+              "batch_offset": "0"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Rows",
+                "name": "records",
+                "of": "object",
+                "properties": [
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "ID",
+                        "type": "string",
+                        "name": "Id"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Manager employeenumber",
+                        "type": "string",
+                        "name": "managerEmployeenumber"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Country code",
+                        "type": "string",
+                        "name": "countryCode"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "UUID",
+                        "type": "string",
+                        "name": "UUID"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Title",
+                        "type": "string",
+                        "name": "title"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Last modified date",
+                        "type": "string",
+                        "name": "lastModifiedDate"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "User",
+                        "type": "string",
+                        "name": "User"
+                      }
+                    ],
+                    "label": "Columns",
+                    "type": "object",
+                    "name": "fields"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Has more",
+                "name": "has_more",
+                "toggle_field": {
+                  "label": "Has more",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "render_input": null,
+                  "parse_output": null,
+                  "type": "boolean",
+                  "name": "has_more"
+                },
+                "toggle_hint": "Select from option list",
+                "type": "boolean"
+              },
+              {
+                "control_type": "integer",
+                "label": "Count",
+                "name": "count",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "select",
+                "extends_schema": true,
+                "hint": "Select the schema template of the file that is to be retrieved in batches. If you have a sample CSV file in the directory, choose “Provide with sample file” option. If not, select “Provide manually” to define the schema.",
+                "label": "CSV column schema",
+                "mark_as_required": true,
+                "name": "schema_type",
+                "ngIf": "input.file_path && input.schema_type && input.schema_type != 'origin_file'",
+                "optional": true,
+                "override": true,
+                "pick_list": [
+                  [
+                    "Provide with sample file",
+                    "sample_file"
+                  ],
+                  [
+                    "Provide manually",
+                    "manual"
+                  ]
+                ],
+                "type": "string"
+              },
+              {
+                "add_field_label": "Add column name",
+                "broadcast_change_event": true,
+                "control_type": "schema-designer",
+                "empty_schema_message": "<button type=\"button\" data-action=\"generateSchema\">Use a sample CSV file</button> to input all column names at once.",
+                "empty_schema_title": "Provide schema of the columns in your CSV",
+                "exclude_fields": [
+                  "hint",
+                  "optional"
+                ],
+                "exclude_fields_types": [
+                  "array",
+                  "object"
+                ],
+                "extends_schema": true,
+                "hint": "Describe the schema of the columns in the CSV files that needs to be fetched. Only records from the CSV files matching with the provided schema can be fetched, with permitted relaxations. To learn more, <a target='_blank' href='https://docs.workato.com/features/filestorage/filestorage-connector.html#csv'>click here</a>.",
+                "label": "Column schema",
+                "mark_as_required": true,
+                "name": "schema",
+                "ngIf": "input.file_path && input.schema_type == 'manual'",
+                "optional": true,
+                "optionalExpression": "input.schema_type != 'manual'",
+                "override": true,
+                "sample_data_type": "csv",
+                "type": "string"
+              },
+              {
+                "control_type": "multiselect",
+                "delimiter": ",",
+                "extends_schema": true,
+                "hint": "Select the columns to be returned in the output datatree. If left blank, all columns will be retrieved.",
+                "label": "Columns to retrieve",
+                "name": "selected_fields",
+                "ngIf": "input.file_path && input.schema_type != 'manual'",
+                "optional": true,
+                "override": true,
+                "pick_list": "csv_schema_fields",
+                "pick_list_params": {
+                  "file_path": "file_path",
+                  "schema_type": "schema_type",
+                  "csv_file": "sample_csv_file",
+                  "schema": "schema"
+                },
+                "sticky": true,
+                "type": "string"
+              }
+            ],
+            "comment": "LDAP  data",
+            "uuid": "a5680ce4-7aec-40cf-8eb6-9d5aedc58525",
+            "skip": false
+          },
+          {
+            "number": 12,
+            "as": "2816c56b",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+
+            ],
+            "uuid": "df643c9c-65a0-46ac-b5ff-ff8b1bef320d"
+          }
+        ],
+        "uuid": "9e3c5ed7-c71c-481a-b56f-b2411d52765b"
+      }
+    ],
+    "uuid": "a3980aef-cddb-4e26-af85-1767a2348791"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "py_eval",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "google_sheets",
+      "skip_validation": true,
+      "account_id": {
+        "zip_name": "Connections/ocsi_con_googlesheet_workato_service_account_de.connection.json",
+        "name": "[OCSI] CON | GoogleSheet | Workato Service Account DE",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_smart_list",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/prod_workatosalesintegration_redhat_com_crm.connection.json",
+        "name": "Prod (workatosalesintegration@redhat.com.crm)",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "csv_parser",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_files",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
