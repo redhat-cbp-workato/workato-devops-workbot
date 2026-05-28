@@ -1,0 +1,923 @@
+{
+  "name": "User Source",
+  "description": "",
+  "version": 9,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "clock",
+    "name": "scheduled_event",
+    "as": "cf360bd5",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "time_unit": "Hours"
+    },
+    "input": {
+      "time_unit": "hours",
+      "trigger_every": "1"
+    },
+    "extended_input_schema": [
+      {
+        "control_type": "integer",
+        "default": "5",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Define repeating schedule. Enter whole numbers only.This field can be set to a minimum of 5 minutes.",
+        "label": "Trigger every",
+        "name": "trigger_every",
+        "optional": false,
+        "suffix": {
+          "text": "hours"
+        },
+        "type": "string"
+      },
+      {
+        "control_type": "select",
+        "hint": "Select the timezone to use. Leave it blank to use <b>{{authUser.account_timezone}}</b>",
+        "label": "Timezone",
+        "name": "timezone",
+        "optional": true,
+        "pick_list": "timezone_id_global_pick_list",
+        "pick_list_connection_less": true,
+        "type": "string"
+      },
+      {
+        "control_type": "date_time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set date and time to start or leave blank to start immediately. <b>Once recipe has been run or tested, value cannot be changed.</b>",
+        "label": "Start after",
+        "name": "start_after",
+        "optional": true,
+        "parse_output": "date_time_conversion",
+        "since_field": true,
+        "type": "date_time",
+        "ignore_timezone": true,
+        "render_input": "date_time_conversion"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 2,
+            "provider": "salesforce",
+            "name": "search_sobjects_soql_bulk_csv",
+            "as": "78247955",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "sobject_name": "User",
+              "field_list": [
+                {
+                  "label": "User ID",
+                  "value": "Id"
+                },
+                {
+                  "label": "Title",
+                  "value": "Title"
+                },
+                {
+                  "label": "Manager ID",
+                  "value": "ManagerId"
+                },
+                {
+                  "label": "Red Hat UUID",
+                  "value": "Red_Hat_UUID__c"
+                },
+                {
+                  "label": "Business Card Title",
+                  "value": "Business_Card_Title__c"
+                },
+                {
+                  "label": "Employee Number",
+                  "value": "EmployeeNumber"
+                },
+                {
+                  "label": "Country Code",
+                  "value": "CountryCode"
+                },
+                {
+                  "label": "Email",
+                  "value": "Email"
+                }
+              ]
+            },
+            "input": {
+              "include_deleted_records": "false",
+              "include_header": "false",
+              "query": "Email LIKE '%@redhat.com' ",
+              "custom_select_clause": "false",
+              "sobject_name": "User",
+              "field_list": "Id\nTitle\nManagerId\nRed_Hat_UUID__c\nBusiness_Card_Title__c\nEmployeeNumber\nCountryCode\nEmail"
+            },
+            "comment": "Query Users Data from Salesforce",
+            "uuid": "cba3f5af-2f01-402e-9ad0-95eac5d1e963",
+            "skip": false
+          },
+          {
+            "number": 3,
+            "provider": "py_eval",
+            "name": "invoke_custom_py_code",
+            "as": "c0ec0854",
+            "keyword": "action",
+            "input": {
+              "code": "import csv\nfrom io import StringIO\n\ndef main(code_input):\n\n    csv_text = code_input.get(\"input_data\")\n\n    if not csv_text:\n        return {\"records\": [], \"count\": 0}\n\n    # Clean BOM if present\n    csv_text = csv_text.lstrip('\\ufeff')\n\n    f = StringIO(csv_text)\n\n    reader = csv.reader(f, delimiter=',', quotechar='\"')\n\n    records = []\n\n    for row in reader:\n        # Skip empty or broken rows\n        if not row or len(row) < 1:\n            continue\n\n        try:\n            records.append({\n                \"Id\": row[0] if len(row) > 0 else \"\",\n                \"Title\": row[1] if len(row) > 1 else \"\",\n                \"ManagerId\": row[2] if len(row) > 2 else \"\",\n                \"Red_Hat_UUID__c\": row[3] if len(row) > 3 else \"\",\n                \"Business_Card_Title__c\": row[4] if len(row) > 4 else \"\",\n                \"EmployeeNumber\": row[5] if len(row) > 5 else \"\",\n                \"CountryCode\": row[6] if len(row) > 6 else \"\",\n                \"Email\": row[7] if len(row) > 7 else \"\"\n            })\n        except Exception as e:\n            # Skip bad rows instead of failing everything\n            continue\n\n    return {\n        \"records\": records,\n        \"count\": len(records)\n    }",
+              "name": "sfusersdata",
+              "code_input": {
+                "schema": "[{\"name\":\"input_data\",\"type\":\"string\",\"optional\":true,\"label\":\"input_data\",\"details\":{\"real_name\":\"input_data\"},\"control_type\":\"text\",\"parent\":[\"code_input\",\"data\"]}]",
+                "data": {
+                  "input_data": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"78247955\",\"path\":[\"results\"]}')}"
+                }
+              },
+              "code_output_schema_json": "[{\"label\":\"Records\",\"of\":\"object\",\"properties\":[{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"Id\"},{\"control_type\":\"text\",\"label\":\"Title\",\"type\":\"string\",\"name\":\"Title\"},{\"control_type\":\"text\",\"label\":\"Manager ID\",\"type\":\"string\",\"name\":\"ManagerId\"},{\"control_type\":\"text\",\"label\":\"Red hat UUID c\",\"type\":\"string\",\"name\":\"Red_Hat_UUID__c\"},{\"control_type\":\"text\",\"label\":\"Business card title c\",\"type\":\"string\",\"name\":\"Business_Card_Title__c\"},{\"control_type\":\"text\",\"label\":\"Employee number\",\"type\":\"string\",\"name\":\"EmployeeNumber\"},{\"control_type\":\"text\",\"label\":\"Country code\",\"type\":\"string\",\"name\":\"CountryCode\"},{\"control_type\":\"text\",\"label\":\"Email\",\"type\":\"string\",\"name\":\"Email\"}],\"type\":\"array\",\"name\":\"records\"},{\"control_type\":\"number\",\"label\":\"Count\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"count\"}]"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Output",
+                "name": "output",
+                "properties": [
+                  {
+                    "label": "Records",
+                    "type": "array",
+                    "name": "records",
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "ID",
+                        "type": "string",
+                        "name": "Id"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Title",
+                        "type": "string",
+                        "name": "Title"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Manager ID",
+                        "type": "string",
+                        "name": "ManagerId"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Red hat UUID c",
+                        "type": "string",
+                        "name": "Red_Hat_UUID__c"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Business card title c",
+                        "type": "string",
+                        "name": "Business_Card_Title__c"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Employee number",
+                        "type": "string",
+                        "name": "EmployeeNumber"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Country code",
+                        "type": "string",
+                        "name": "CountryCode"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Email",
+                        "type": "string",
+                        "name": "Email"
+                      }
+                    ]
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "Count",
+                    "parse_output": "float_conversion",
+                    "type": "number",
+                    "name": "count"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "form-schema-builder",
+                "hint": "Define the input fields that will be passed to your Python code",
+                "label": "Input fields",
+                "name": "code_input",
+                "optional": true,
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Schema",
+                    "extends_schema": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "input_data",
+                        "name": "input_data",
+                        "type": "string",
+                        "optional": true,
+                        "details": {
+                          "real_name": "input_data"
+                        },
+                        "parent": [
+                          "code_input",
+                          "data"
+                        ]
+                      }
+                    ],
+                    "label": "Data",
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "sticky": true,
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "name",
+              "code_input",
+              "code_output_schema_json",
+              "code",
+              "code_input.data.input_data"
+            ],
+            "uuid": "c7215038-140f-40ac-b2e4-5079cd8ebfa4"
+          },
+          {
+            "number": 4,
+            "provider": "workato_variable",
+            "name": "declare_list",
+            "as": "0dbc7485",
+            "keyword": "action",
+            "input": {
+              "name": "salesforce_stage",
+              "list_item_schema_json": "[{\"name\":\"Id\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"ID\"},{\"name\":\"EmployeeNumber\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Employee number\"},{\"name\":\"ManagerId\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Manager ID\"},{\"name\":\"Business_Card_Title__c\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Business card title c\"},{\"name\":\"CountryCode\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Country code\"},{\"name\":\"Title\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Title\"},{\"name\":\"Red_Hat_UUID__c\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Red hat UUID c\"},{\"name\":\"Email\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Email\"}]",
+              "list_items": {
+                "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"c0ec0854\",\"path\":[\"output\",\"records\"]}')}",
+                "Id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"c0ec0854\",\"path\":[\"output\",\"records\",{\"path_element_type\":\"current_item\"},\"Id\"]}')}",
+                "EmployeeNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"c0ec0854\",\"path\":[\"output\",\"records\",{\"path_element_type\":\"current_item\"},\"EmployeeNumber\"]}')}",
+                "ManagerId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"c0ec0854\",\"path\":[\"output\",\"records\",{\"path_element_type\":\"current_item\"},\"ManagerId\"]}')}",
+                "Business_Card_Title__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"c0ec0854\",\"path\":[\"output\",\"records\",{\"path_element_type\":\"current_item\"},\"Business_Card_Title__c\"]}')}",
+                "CountryCode": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"c0ec0854\",\"path\":[\"output\",\"records\",{\"path_element_type\":\"current_item\"},\"CountryCode\"]}')}",
+                "Title": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"c0ec0854\",\"path\":[\"output\",\"records\",{\"path_element_type\":\"current_item\"},\"Title\"]}')}",
+                "Red_Hat_UUID__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"c0ec0854\",\"path\":[\"output\",\"records\",{\"path_element_type\":\"current_item\"},\"Red_Hat_UUID__c\"]}')}",
+                "Email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"py_eval\",\"line\":\"c0ec0854\",\"path\":[\"output\",\"records\",{\"path_element_type\":\"current_item\"},\"Email\"]}')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "hint": "",
+                "label": "salesforce_stage",
+                "name": "list_items",
+                "of": "object",
+                "optional": false,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "name": "Id",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Employee number",
+                    "name": "EmployeeNumber",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Manager ID",
+                    "name": "ManagerId",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Business card title c",
+                    "name": "Business_Card_Title__c",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Country code",
+                    "name": "CountryCode",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Title",
+                    "name": "Title",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Red hat UUID c",
+                    "name": "Red_Hat_UUID__c",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Email",
+                    "name": "Email",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Set the initial items in the list. Defaults to an empty list if not supplied.",
+                "label": "Items",
+                "name": "list_items",
+                "of": "object",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "name": "Id",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Employee number",
+                    "name": "EmployeeNumber",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Manager ID",
+                    "name": "ManagerId",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Business card title c",
+                    "name": "Business_Card_Title__c",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Country code",
+                    "name": "CountryCode",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Title",
+                    "name": "Title",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Red hat UUID c",
+                    "name": "Red_Hat_UUID__c",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Email",
+                    "name": "Email",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "comment": "Create and Insert data into  list from salesforce",
+            "uuid": "55ba2e94-99ae-465c-8e88-12d134d26671",
+            "skip": false
+          },
+          {
+            "number": 5,
+            "provider": "workato_smart_list",
+            "name": "insert_rows",
+            "as": "000a7fed",
+            "keyword": "action",
+            "toggleCfg": {
+              "create_table_if_not_exist": true
+            },
+            "input": {
+              "list_source": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"0dbc7485\",\"path\":[\"list_items\"]}')",
+              "create_table_if_not_exist": "true",
+              "list_name": "sf_users_staging"
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "text",
+                "label": "sf_users_staging",
+                "name": "list_name",
+                "type": "string"
+              },
+              {
+                "label": "Columns",
+                "name": "columns",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "Id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Employee number",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "EmployeeNumber"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Manager ID",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "ManagerId"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Business card title c",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "Business_Card_Title__c"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Country code",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "CountryCode"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Title",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "Title"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Red hat UUID c",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "Red_Hat_UUID__c"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Email",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "Email"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "control_type": "number",
+                "label": "Row count",
+                "name": "row_count",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "multiselect",
+                "delimiter": "\n",
+                "hint": "Collections are like databases. Having index improves query performance. Select one or more fields from list source.",
+                "label": "Primary index",
+                "name": "primary_index",
+                "ngIf": "input.create_table_if_not_exist != 'false'",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "ID",
+                    "Id"
+                  ],
+                  [
+                    "Employee number",
+                    "EmployeeNumber"
+                  ],
+                  [
+                    "Manager ID",
+                    "ManagerId"
+                  ],
+                  [
+                    "Business card title c",
+                    "Business_Card_Title__c"
+                  ],
+                  [
+                    "Country code",
+                    "CountryCode"
+                  ],
+                  [
+                    "Title",
+                    "Title"
+                  ],
+                  [
+                    "Red hat UUID c",
+                    "Red_Hat_UUID__c"
+                  ],
+                  [
+                    "Email",
+                    "Email"
+                  ]
+                ],
+                "sticky": true,
+                "type": "string"
+              },
+              {
+                "control_type": "multiselect",
+                "delimiter": "\n",
+                "hint": "Select one or more fields from list source.",
+                "label": "Secondary index",
+                "name": "secondary_index",
+                "ngIf": "input.create_table_if_not_exist != 'false'",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "ID",
+                    "Id"
+                  ],
+                  [
+                    "Employee number",
+                    "EmployeeNumber"
+                  ],
+                  [
+                    "Manager ID",
+                    "ManagerId"
+                  ],
+                  [
+                    "Business card title c",
+                    "Business_Card_Title__c"
+                  ],
+                  [
+                    "Country code",
+                    "CountryCode"
+                  ],
+                  [
+                    "Title",
+                    "Title"
+                  ],
+                  [
+                    "Red hat UUID c",
+                    "Red_Hat_UUID__c"
+                  ],
+                  [
+                    "Email",
+                    "Email"
+                  ]
+                ],
+                "type": "string"
+              }
+            ],
+            "comment": "Insert Salesforce Users data from list to collection (To query in further steps)",
+            "uuid": "db6c8cba-69ea-4b4c-a637-02fc1535c4aa",
+            "skip": false
+          },
+          {
+            "number": 6,
+            "provider": "workato_smart_list",
+            "name": "query_list",
+            "as": "bbfe0d0b",
+            "keyword": "action",
+            "toggleCfg": {
+              "csv": true,
+              "headers": true
+            },
+            "input": {
+              "output_schema_by": "index",
+              "csv": "true",
+              "headers": "true",
+              "col_sep": "comma",
+              "sql": "select * from #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_smart_list\",\"line\":\"000a7fed\",\"path\":[\"list_name\"]}')}",
+              "result_schema_json": "[{\"control_type\":\"text\",\"label\":\"ID\",\"name\":\"Id\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Empoyee number\",\"name\":\"empoyeeNumber\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Manager ID\",\"name\":\"managerId\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Business card title\",\"name\":\"businessCardTitle\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Country code\",\"name\":\"countryCode\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Title\",\"name\":\"title\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Uuid\",\"name\":\"uuid\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Email\",\"name\":\"email\",\"type\":\"string\",\"optional\":false}]"
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "text",
+                "label": "Rows (CSV)",
+                "name": "rows",
+                "type": "string"
+              }
+            ],
+            "comment": "query  users data from temp table",
+            "uuid": "9df74cd0-98b8-42d4-a92f-8bdba64a2f33",
+            "skip": false
+          },
+          {
+            "number": 7,
+            "provider": "workato_files",
+            "name": "store_file",
+            "as": "86954221",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "file_path": {
+                "ids": [
+                  "/"
+                ],
+                "titles": [
+                  "Root directory"
+                ]
+              }
+            },
+            "toggleCfg": {
+              "is_csv_file": true,
+              "overwrite": true,
+              "file_path": true,
+              "csv_has_header": true
+            },
+            "input": {
+              "is_csv_file": "true",
+              "schema_type": "auto",
+              "csv_has_header": "true",
+              "csv_delimiter": "comma",
+              "csv_quote": "double",
+              "encoding": "UTF-8",
+              "overwrite": "true",
+              "file_name": "UsersCRM",
+              "file_path": "/",
+              "content": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_smart_list\",\"line\":\"bbfe0d0b\",\"path\":[\"rows\"]}')}"
+            },
+            "uuid": "4c40478d-8521-408b-8fff-2a0ad1e12f52"
+          },
+          {
+            "number": 8,
+            "provider": "workato_files",
+            "name": "get_csv_file_contents",
+            "as": "296bf623",
+            "keyword": "action",
+            "toggleCfg": {
+              "file_path": true
+            },
+            "input": {
+              "file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"86954221\",\"path\":[\"path\"]}')}",
+              "schema_type": "manual",
+              "schema": "[{\"name\":\"Id\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"ID\"},{\"name\":\"empoyeeNumber\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Empoyee number\"},{\"name\":\"managerId\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Manager ID\"},{\"name\":\"businessCardTitle\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Business card title\"},{\"name\":\"countryCode\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Country code\"},{\"name\":\"title\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Title\"},{\"name\":\"uuid\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Uuid\"},{\"name\":\"email\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Email\"}]",
+              "batch_size": "50000",
+              "batch_offset": "0"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Rows",
+                "name": "records",
+                "of": "object",
+                "properties": [
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "ID",
+                        "type": "string",
+                        "name": "Id"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Empoyee number",
+                        "type": "string",
+                        "name": "empoyeeNumber"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Manager ID",
+                        "type": "string",
+                        "name": "managerId"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Business card title",
+                        "type": "string",
+                        "name": "businessCardTitle"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Country code",
+                        "type": "string",
+                        "name": "countryCode"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Title",
+                        "type": "string",
+                        "name": "title"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Uuid",
+                        "type": "string",
+                        "name": "uuid"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Email",
+                        "type": "string",
+                        "name": "email"
+                      }
+                    ],
+                    "label": "Columns",
+                    "type": "object",
+                    "name": "fields"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Has more",
+                "name": "has_more",
+                "toggle_field": {
+                  "label": "Has more",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "render_input": null,
+                  "parse_output": null,
+                  "type": "boolean",
+                  "name": "has_more"
+                },
+                "toggle_hint": "Select from option list",
+                "type": "boolean"
+              },
+              {
+                "control_type": "integer",
+                "label": "Count",
+                "name": "count",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "select",
+                "extends_schema": true,
+                "hint": "Select the schema template of the file that is to be retrieved in batches. If you have a sample CSV file in the directory, choose “Provide with sample file” option. If not, select “Provide manually” to define the schema.",
+                "label": "CSV column schema",
+                "mark_as_required": true,
+                "name": "schema_type",
+                "ngIf": "input.file_path && input.schema_type && input.schema_type != 'origin_file'",
+                "optional": true,
+                "override": true,
+                "pick_list": [
+                  [
+                    "Provide with sample file",
+                    "sample_file"
+                  ],
+                  [
+                    "Provide manually",
+                    "manual"
+                  ]
+                ],
+                "type": "string"
+              },
+              {
+                "add_field_label": "Add column name",
+                "broadcast_change_event": true,
+                "control_type": "schema-designer",
+                "empty_schema_message": "<button type=\"button\" data-action=\"generateSchema\">Use a sample CSV file</button> to input all column names at once.",
+                "empty_schema_title": "Provide schema of the columns in your CSV",
+                "exclude_fields": [
+                  "hint",
+                  "optional"
+                ],
+                "exclude_fields_types": [
+                  "array",
+                  "object"
+                ],
+                "extends_schema": true,
+                "hint": "Describe the schema of the columns in the CSV files that needs to be fetched. Only records from the CSV files matching with the provided schema can be fetched, with permitted relaxations. To learn more, <a target='_blank' href='https://docs.workato.com/features/filestorage/filestorage-connector.html#csv'>click here</a>.",
+                "label": "Column schema",
+                "mark_as_required": true,
+                "name": "schema",
+                "ngIf": "input.file_path && input.schema_type == 'manual'",
+                "optional": true,
+                "optionalExpression": "input.schema_type != 'manual'",
+                "override": true,
+                "sample_data_type": "csv",
+                "type": "string"
+              },
+              {
+                "control_type": "multiselect",
+                "delimiter": ",",
+                "extends_schema": true,
+                "hint": "Select the columns to be returned in the output datatree. If left blank, all columns will be retrieved.",
+                "label": "Columns to retrieve",
+                "name": "selected_fields",
+                "ngIf": "input.file_path && input.schema_type != 'manual'",
+                "optional": true,
+                "override": true,
+                "pick_list": "csv_schema_fields",
+                "pick_list_params": {
+                  "file_path": "file_path",
+                  "schema_type": "schema_type",
+                  "csv_file": "sample_csv_file",
+                  "schema": "schema"
+                },
+                "sticky": true,
+                "type": "string"
+              }
+            ],
+            "comment": "User CRM Data",
+            "uuid": "10ffb0d4-012d-4258-9421-d9cb0559ff8a",
+            "skip": false
+          },
+          {
+            "number": 9,
+            "as": "a9ca7054",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+
+            ],
+            "uuid": "2c684c89-376d-4474-bd82-dced88d04f6e"
+          }
+        ],
+        "uuid": "cd8ee0e5-7d04-4dce-9f4a-2f1dcadc7669"
+      }
+    ],
+    "uuid": "a19b1e22-b1d3-4b90-97cf-2c1e523c570b"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/prod_workatosalesintegration_redhat_com_crm.connection.json",
+        "name": "Prod (workatosalesintegration@redhat.com.crm)",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "py_eval",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_smart_list",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_files",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

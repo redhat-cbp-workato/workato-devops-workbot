@@ -1,0 +1,1216 @@
+{
+  "name": "LDAP Source",
+  "description": "",
+  "version": 19,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "clock",
+    "name": "scheduled_event",
+    "as": "4ae67549",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "time_unit": "Hours"
+    },
+    "input": {
+      "time_unit": "hours",
+      "trigger_every": "1"
+    },
+    "extended_input_schema": [
+      {
+        "control_type": "integer",
+        "default": "5",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Define repeating schedule. Enter whole numbers only.This field can be set to a minimum of 5 minutes.",
+        "label": "Trigger every",
+        "name": "trigger_every",
+        "optional": false,
+        "suffix": {
+          "text": "hours"
+        },
+        "type": "string"
+      },
+      {
+        "control_type": "select",
+        "hint": "Select the timezone to use. Leave it blank to use <b>{{authUser.account_timezone}}</b>",
+        "label": "Timezone",
+        "name": "timezone",
+        "optional": true,
+        "pick_list": "timezone_id_global_pick_list",
+        "pick_list_connection_less": true,
+        "type": "string"
+      },
+      {
+        "control_type": "date_time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set date and time to start or leave blank to start immediately. <b>Once recipe has been run or tested, value cannot be changed.</b>",
+        "label": "Start after",
+        "name": "start_after",
+        "optional": true,
+        "parse_output": "date_time_conversion",
+        "since_field": true,
+        "type": "date_time",
+        "ignore_timezone": true,
+        "render_input": "date_time_conversion"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 2,
+            "provider": "workato_variable",
+            "name": "declare_list",
+            "as": "f9a11d6e",
+            "keyword": "action",
+            "input": {
+              "name": "userslist",
+              "list_item_schema_json": "[{\"control_type\":\"text\",\"label\":\"Employee number\",\"name\":\"employeeNumber\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Rhat job title\",\"name\":\"rhatJobTitle\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Mail\",\"name\":\"mail\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"rhatUUID\",\"name\":\"rhatUUID\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Manager\",\"name\":\"manager\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Title\",\"name\":\"title\",\"type\":\"string\",\"optional\":false},{\"name\":\"c\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"C\"},{\"name\":\"BusinessCardTitle\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Business card title\"},{\"name\":\"lastModifiedDate\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Last modified date\"}]"
+            },
+            "extended_output_schema": [
+              {
+                "hint": "",
+                "label": "userslist",
+                "name": "list_items",
+                "of": "object",
+                "optional": false,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Employee number",
+                    "name": "employeeNumber",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Rhat job title",
+                    "name": "rhatJobTitle",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Mail",
+                    "name": "mail",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "rhatUUID",
+                    "name": "rhatUUID",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Manager",
+                    "name": "manager",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Title",
+                    "name": "title",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "C",
+                    "name": "c",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Business card title",
+                    "name": "BusinessCardTitle",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Last modified date",
+                    "name": "lastModifiedDate",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Set the initial items in the list. Defaults to an empty list if not supplied.",
+                "label": "Items",
+                "name": "list_items",
+                "of": "object",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Employee number",
+                    "name": "employeeNumber",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Rhat job title",
+                    "name": "rhatJobTitle",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Mail",
+                    "name": "mail",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "rhatUUID",
+                    "name": "rhatUUID",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Manager",
+                    "name": "manager",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Title",
+                    "name": "title",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "C",
+                    "name": "c",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Business card title",
+                    "name": "BusinessCardTitle",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Last modified date",
+                    "name": "lastModifiedDate",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "comment": "Create Empty USer List",
+            "uuid": "577a1d17-c8d2-4ba0-8925-3bbd40e4d4ba",
+            "skip": false
+          },
+          {
+            "number": 3,
+            "as": "ee80058e",
+            "keyword": "repeat",
+            "block": [
+              {
+                "number": 4,
+                "provider": "ldap_connector_865610_1745607292",
+                "name": "search_records",
+                "as": "00f20e14",
+                "title": null,
+                "description": "Search <span class=\"provider\">records</span> in <span class=\"provider\">OpenLDAP</span>",
+                "keyword": "action",
+                "toggleCfg": {
+                  "scope": true
+                },
+                "input": {
+                  "filter": "(&(objectClass=person)(uid=*))",
+                  "attributes": "uid,cn,displayname,mail,manager,modifytimestamp,rhatoraclepersonid,employeenumber,rhatuuid,rhatgeo,rhathiredate,rhatjobtitle,rhatdeactivated,c,employeetype,rhatcostcenter,rhatcostcenterdesc,rhatjobcode,title",
+                  "scope": "2",
+                  "base_dn": "ou=users,dc=redhat,dc=com",
+                  "page_number": "=_dp('{\"pill_type\":\"output\",\"provider\":\"repeat\",\"line\":\"ee80058e\",\"path\":[\"index\"]}')+1",
+                  "output": "[{\"control_type\":\"text\",\"label\":\"Dn\",\"type\":\"string\",\"name\":\"dn\",\"details\":{\"real_name\":\"dn\"}},{\"control_type\":\"text\",\"label\":\"Uid\",\"type\":\"string\",\"name\":\"uid\",\"details\":{\"real_name\":\"uid\"}},{\"control_type\":\"text\",\"label\":\"Cn\",\"type\":\"string\",\"name\":\"cn\",\"details\":{\"real_name\":\"cn\"}},{\"control_type\":\"text\",\"label\":\"Mail\",\"type\":\"string\",\"name\":\"mail\",\"details\":{\"real_name\":\"mail\"}},{\"control_type\":\"text\",\"label\":\"displayname\",\"type\":\"string\",\"name\":\"displayname\",\"details\":{\"real_name\":\"displayName\"},\"optional\":false},{\"control_type\":\"text\",\"label\":\"Manager\",\"type\":\"string\",\"name\":\"manager\",\"details\":{\"real_name\":\"manager\"}},{\"control_type\":\"text\",\"label\":\"modifytimestamp\",\"type\":\"string\",\"name\":\"modifytimestamp\",\"details\":{\"real_name\":\"modifyTimestamp\"},\"optional\":false},{\"control_type\":\"text\",\"label\":\"rhatoraclepersonid\",\"type\":\"string\",\"name\":\"rhatoraclepersonid\",\"details\":{\"real_name\":\"rhatOraclePersonID\"},\"optional\":false},{\"control_type\":\"text\",\"label\":\"employeenumber\",\"type\":\"string\",\"name\":\"employeenumber\",\"details\":{\"real_name\":\"employeeNumber\"},\"optional\":false},{\"control_type\":\"text\",\"label\":\"rhatuuid\",\"type\":\"string\",\"name\":\"rhatuuid\",\"details\":{\"real_name\":\"rhatUUID\"},\"optional\":false},{\"control_type\":\"text\",\"label\":\"rhatgeo\",\"type\":\"string\",\"name\":\"rhatgeo\",\"details\":{\"real_name\":\"rhatGeo\"},\"optional\":false},{\"control_type\":\"text\",\"label\":\"rhathiredate\",\"type\":\"string\",\"name\":\"rhathiredate\",\"details\":{\"real_name\":\"rhatHireDate\"},\"optional\":false},{\"control_type\":\"text\",\"label\":\"rhatjobtitle\",\"type\":\"string\",\"name\":\"rhatjobtitle\",\"details\":{\"real_name\":\"rhatJobTitle\"},\"optional\":false},{\"control_type\":\"text\",\"label\":\"C\",\"type\":\"string\",\"name\":\"c\",\"details\":{\"real_name\":\"c\"}},{\"control_type\":\"text\",\"label\":\"employeetype\",\"type\":\"string\",\"name\":\"employeetype\",\"details\":{\"real_name\":\"employeeType\"},\"optional\":false},{\"control_type\":\"text\",\"label\":\"rhatcostcenter\",\"type\":\"string\",\"name\":\"rhatcostcenter\",\"details\":{\"real_name\":\"rhatCostCenter\"},\"optional\":false},{\"control_type\":\"text\",\"label\":\"rhatcostcenterdesc\",\"type\":\"string\",\"name\":\"rhatcostcenterdesc\",\"details\":{\"real_name\":\"rhatCostCenterDesc\"},\"optional\":false},{\"control_type\":\"text\",\"label\":\"Title\",\"type\":\"string\",\"name\":\"title\",\"details\":{\"real_name\":\"title\"}},{\"control_type\":\"text\",\"label\":\"rhatjobcode\",\"type\":\"string\",\"name\":\"rhatjobcode\",\"details\":{\"real_name\":\"rhatJobCode\"},\"optional\":false}]"
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Records",
+                    "name": "records",
+                    "of": "object",
+                    "optional": true,
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Dn",
+                        "details": {
+                          "real_name": "dn"
+                        },
+                        "optional": true,
+                        "type": "string",
+                        "name": "dn"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Uid",
+                        "details": {
+                          "real_name": "uid"
+                        },
+                        "optional": true,
+                        "type": "string",
+                        "name": "uid"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Cn",
+                        "details": {
+                          "real_name": "cn"
+                        },
+                        "optional": true,
+                        "type": "string",
+                        "name": "cn"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Mail",
+                        "details": {
+                          "real_name": "mail"
+                        },
+                        "optional": true,
+                        "type": "string",
+                        "name": "mail"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "displayname",
+                        "details": {
+                          "real_name": "displayName"
+                        },
+                        "optional": false,
+                        "type": "string",
+                        "name": "displayname"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Manager",
+                        "details": {
+                          "real_name": "manager"
+                        },
+                        "optional": true,
+                        "type": "string",
+                        "name": "manager"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "modifytimestamp",
+                        "details": {
+                          "real_name": "modifyTimestamp"
+                        },
+                        "optional": false,
+                        "type": "string",
+                        "name": "modifytimestamp"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "rhatoraclepersonid",
+                        "details": {
+                          "real_name": "rhatOraclePersonID"
+                        },
+                        "optional": false,
+                        "type": "string",
+                        "name": "rhatoraclepersonid"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "employeenumber",
+                        "details": {
+                          "real_name": "employeeNumber"
+                        },
+                        "optional": false,
+                        "type": "string",
+                        "name": "employeenumber"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "rhatuuid",
+                        "details": {
+                          "real_name": "rhatUUID"
+                        },
+                        "optional": false,
+                        "type": "string",
+                        "name": "rhatuuid"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "rhatgeo",
+                        "details": {
+                          "real_name": "rhatGeo"
+                        },
+                        "optional": false,
+                        "type": "string",
+                        "name": "rhatgeo"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "rhathiredate",
+                        "details": {
+                          "real_name": "rhatHireDate"
+                        },
+                        "optional": false,
+                        "type": "string",
+                        "name": "rhathiredate"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "rhatjobtitle",
+                        "details": {
+                          "real_name": "rhatJobTitle"
+                        },
+                        "optional": false,
+                        "type": "string",
+                        "name": "rhatjobtitle"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "C",
+                        "details": {
+                          "real_name": "c"
+                        },
+                        "optional": true,
+                        "type": "string",
+                        "name": "c"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "employeetype",
+                        "details": {
+                          "real_name": "employeeType"
+                        },
+                        "optional": false,
+                        "type": "string",
+                        "name": "employeetype"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "rhatcostcenter",
+                        "details": {
+                          "real_name": "rhatCostCenter"
+                        },
+                        "optional": false,
+                        "type": "string",
+                        "name": "rhatcostcenter"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "rhatcostcenterdesc",
+                        "details": {
+                          "real_name": "rhatCostCenterDesc"
+                        },
+                        "optional": false,
+                        "type": "string",
+                        "name": "rhatcostcenterdesc"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Title",
+                        "details": {
+                          "real_name": "title"
+                        },
+                        "optional": true,
+                        "type": "string",
+                        "name": "title"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "rhatjobcode",
+                        "details": {
+                          "real_name": "rhatJobCode"
+                        },
+                        "optional": false,
+                        "type": "string",
+                        "name": "rhatjobcode"
+                      }
+                    ],
+                    "type": "array"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "hint": "Provide the search filter. E.g. (objectClass=*)",
+                    "label": "Search filter",
+                    "name": "filter",
+                    "optional": false,
+                    "type": "string",
+                    "render_input": "format_filter"
+                  },
+                  {
+                    "control_type": "text",
+                    "hint": "Multiple values can be seperated by comma. E.g. cn,un,uid.",
+                    "label": "Response Attributes",
+                    "name": "attributes",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "render_input": "string_to_array"
+                  },
+                  {
+                    "control_type": "select",
+                    "hint": "Select from list.",
+                    "label": "Search Scope",
+                    "name": "scope",
+                    "optional": true,
+                    "pick_list": [
+                      [
+                        "OBJECT",
+                        "0"
+                      ],
+                      [
+                        "ONELEVEL",
+                        "1"
+                      ],
+                      [
+                        "SUBTREE",
+                        "2"
+                      ]
+                    ],
+                    "sticky": true,
+                    "toggle_field": {
+                      "name": "scope",
+                      "label": "Search Scope",
+                      "type": "integer",
+                      "control_type": "integer",
+                      "optional": true,
+                      "convert_input": "integer_conversion",
+                      "toggle_hint": "Use custom value",
+                      "hint": "E.g 2 - SUBTREE."
+                    },
+                    "toggle_hint": "Select from list",
+                    "type": "string",
+                    "render_input": "integer_conversion"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Base DN",
+                    "name": "base_dn",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Limit",
+                    "name": "limit",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "render_input": "integer_conversion"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Page Number",
+                    "name": "page_number",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "render_input": "integer_conversion"
+                  },
+                  {
+                    "control_type": "schema-designer",
+                    "extends_schema": false,
+                    "label": "Output",
+                    "name": "output",
+                    "optional": true,
+                    "sample_data_type": "json_input",
+                    "sticky": true,
+                    "type": "string",
+                    "schema_neutral": true
+                  }
+                ],
+                "uuid": "6e9a7612-0c2c-4f11-9d71-f52fa39560d8",
+                "skip": false
+              },
+              {
+                "number": 5,
+                "keyword": "if",
+                "input": {
+                  "type": "compound",
+                  "operand": "and",
+                  "conditions": [
+                    {
+                      "operand": "not_equals_to",
+                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"ldap_connector_865610_1745607292\",\"line\":\"00f20e14\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}",
+                      "rhs": "0",
+                      "uuid": "9dbed5fe-e2be-430e-979b-cf7c62fb2630"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "number": 6,
+                    "provider": "workato_variable",
+                    "name": "insert_to_list_batch",
+                    "as": "3d957f40",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": "userslist (step 3)"
+                    },
+                    "input": {
+                      "location": "end",
+                      "name": "577a1d17-c8d2-4ba0-8925-3bbd40e4d4ba:f9a11d6e",
+                      "list_items": {
+                        "employeeNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"ldap_connector_865610_1745607292\",\"line\":\"00f20e14\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"employeenumber\"]}')}",
+                        "rhatJobTitle": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"ldap_connector_865610_1745607292\",\"line\":\"00f20e14\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"rhatjobtitle\"]}')}",
+                        "mail": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"ldap_connector_865610_1745607292\",\"line\":\"00f20e14\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"mail\"]}')}",
+                        "rhatUUID": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"ldap_connector_865610_1745607292\",\"line\":\"00f20e14\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"rhatuuid\"]}')}",
+                        "manager": "=_dp('{\"pill_type\":\"output\",\"provider\":\"ldap_connector_865610_1745607292\",\"line\":\"00f20e14\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"manager\"]}').present? ?_dp('{\"pill_type\":\"output\",\"provider\":\"ldap_connector_865610_1745607292\",\"line\":\"00f20e14\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"manager\"]}').to_s[/uid=([^,]+)/, 1]&.concat(\"@redhat.com\") : nil",
+                        "title": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"ldap_connector_865610_1745607292\",\"line\":\"00f20e14\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"title\"]}')}",
+                        "c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"ldap_connector_865610_1745607292\",\"line\":\"00f20e14\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"c\"]}')}",
+                        "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"ldap_connector_865610_1745607292\",\"line\":\"00f20e14\",\"path\":[\"records\"]}')}",
+                        "BusinessCardTitle": "=_dp('{\"pill_type\":\"output\",\"provider\":\"ldap_connector_865610_1745607292\",\"line\":\"00f20e14\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"rhatjobtitle\"]}').present? ?_dp('{\"pill_type\":\"output\",\"provider\":\"ldap_connector_865610_1745607292\",\"line\":\"00f20e14\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"rhatjobtitle\"]}').to_s[0,81] : \"\"",
+                        "lastModifiedDate": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"ldap_connector_865610_1745607292\",\"line\":\"00f20e14\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"modifytimestamp\"]}')}"
+                      }
+                    },
+                    "extended_input_schema": [
+                      {
+                        "hint": "",
+                        "label": "List items",
+                        "name": "list_items",
+                        "of": "object",
+                        "optional": false,
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Employee number",
+                            "name": "employeeNumber",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Rhat job title",
+                            "name": "rhatJobTitle",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Mail",
+                            "name": "mail",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "rhatUUID",
+                            "name": "rhatUUID",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Manager",
+                            "name": "manager",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Title",
+                            "name": "title",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "C",
+                            "name": "c",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Business card title",
+                            "name": "BusinessCardTitle",
+                            "type": "string",
+                            "optional": false
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Last modified date",
+                            "name": "lastModifiedDate",
+                            "type": "string",
+                            "optional": false
+                          }
+                        ],
+                        "type": "array"
+                      }
+                    ],
+                    "comment": "Add LDAP data to User List",
+                    "uuid": "cbdcc7ba-3b92-484f-a10f-c2e98c544983",
+                    "skip": false
+                  }
+                ],
+                "comment": "Check If records are present  in LDAP",
+                "uuid": "f4136720-ca17-4f37-aed9-3635603e07e1",
+                "skip": false
+              },
+              {
+                "number": 7,
+                "keyword": "while_condition",
+                "input": {
+                  "type": "compound",
+                  "operand": "and",
+                  "conditions": [
+                    {
+                      "operand": "not_equals_to",
+                      "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"ldap_connector_865610_1745607292\",\"line\":\"00f20e14\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')",
+                      "rhs": "0",
+                      "uuid": "728602b2-6c86-4f37-b8d2-455321499582"
+                    }
+                  ]
+                },
+                "comment": "Loop to all LDAP pages",
+                "uuid": "628757ce-be03-4a34-b26b-24b18630a8d6",
+                "skip": false
+              }
+            ],
+            "uuid": "7aba96cb-874c-4733-90ae-b60692d8153b",
+            "skip": false
+          },
+          {
+            "number": 8,
+            "provider": "workato_smart_list",
+            "name": "insert_rows",
+            "as": "d2ab357d",
+            "keyword": "action",
+            "toggleCfg": {
+              "create_table_if_not_exist": true
+            },
+            "input": {
+              "list_source": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f9a11d6e\",\"path\":[\"list_items\"]}')",
+              "create_table_if_not_exist": "true",
+              "list_name": "ldap_users_staging"
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "text",
+                "label": "ldap_users_staging",
+                "name": "list_name",
+                "type": "string"
+              },
+              {
+                "label": "Columns",
+                "name": "columns",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Employee number",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "employeeNumber"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Rhat job title",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "rhatJobTitle"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Mail",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "mail"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "rhatUUID",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "rhatUUID"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Manager",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "manager"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Title",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "title"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "C",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "c"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Business card title",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "BusinessCardTitle"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Last modified date",
+                    "optional": false,
+                    "list_data_type": "string",
+                    "type": "string",
+                    "name": "lastModifiedDate"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "control_type": "number",
+                "label": "Row count",
+                "name": "row_count",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "multiselect",
+                "delimiter": "\n",
+                "hint": "Collections are like databases. Having index improves query performance. Select one or more fields from list source.",
+                "label": "Primary index",
+                "name": "primary_index",
+                "ngIf": "input.create_table_if_not_exist != 'false'",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "Employee number",
+                    "employeeNumber"
+                  ],
+                  [
+                    "Rhat job title",
+                    "rhatJobTitle"
+                  ],
+                  [
+                    "Mail",
+                    "mail"
+                  ],
+                  [
+                    "rhatUUID",
+                    "rhatUUID"
+                  ],
+                  [
+                    "Manager",
+                    "manager"
+                  ],
+                  [
+                    "Title",
+                    "title"
+                  ],
+                  [
+                    "C",
+                    "c"
+                  ],
+                  [
+                    "Business card title",
+                    "BusinessCardTitle"
+                  ],
+                  [
+                    "Last modified date",
+                    "lastModifiedDate"
+                  ]
+                ],
+                "sticky": true,
+                "type": "string"
+              },
+              {
+                "control_type": "multiselect",
+                "delimiter": "\n",
+                "hint": "Select one or more fields from list source.",
+                "label": "Secondary index",
+                "name": "secondary_index",
+                "ngIf": "input.create_table_if_not_exist != 'false'",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "Employee number",
+                    "employeeNumber"
+                  ],
+                  [
+                    "Rhat job title",
+                    "rhatJobTitle"
+                  ],
+                  [
+                    "Mail",
+                    "mail"
+                  ],
+                  [
+                    "rhatUUID",
+                    "rhatUUID"
+                  ],
+                  [
+                    "Manager",
+                    "manager"
+                  ],
+                  [
+                    "Title",
+                    "title"
+                  ],
+                  [
+                    "C",
+                    "c"
+                  ],
+                  [
+                    "Business card title",
+                    "BusinessCardTitle"
+                  ],
+                  [
+                    "Last modified date",
+                    "lastModifiedDate"
+                  ]
+                ],
+                "type": "string"
+              }
+            ],
+            "comment": "Insert  LDAP User List Data to  table(So that It can be used in Query in below steps)",
+            "uuid": "bc450cec-9068-453b-8a2d-574f4945858b",
+            "skip": false
+          },
+          {
+            "number": 9,
+            "provider": "workato_smart_list",
+            "name": "query_list",
+            "as": "1d6bbefa",
+            "keyword": "action",
+            "toggleCfg": {
+              "csv": true,
+              "headers": true
+            },
+            "input": {
+              "output_schema_by": "index",
+              "csv": "true",
+              "headers": "true",
+              "col_sep": "comma",
+              "sql": "select * from #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_smart_list\",\"line\":\"d2ab357d\",\"path\":[\"list_name\"]}')}",
+              "result_schema_json": "[{\"control_type\":\"text\",\"label\":\"Employee number\",\"name\":\"employeeNumber\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"R hat job title\",\"name\":\"rHatJobTitle\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Mail\",\"name\":\"mail\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"UUID\",\"name\":\"UUID\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Manager\",\"name\":\"manager\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Title\",\"name\":\"title\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Country of order\",\"name\":\"countryOfOrder\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Business card title\",\"name\":\"businessCardTitle\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Last modified date\",\"name\":\"LastModifiedDate\",\"type\":\"string\",\"optional\":false}]"
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "text",
+                "label": "Rows (CSV)",
+                "name": "rows",
+                "type": "string"
+              }
+            ],
+            "comment": "query  email from salesforce data",
+            "uuid": "7a481157-54df-4cf7-b3ce-0518c3a562d9",
+            "skip": false
+          },
+          {
+            "number": 10,
+            "provider": "workato_files",
+            "name": "store_file",
+            "as": "5ee8e4c7",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "file_path": {
+                "ids": [
+                  "/"
+                ],
+                "titles": [
+                  "Root directory"
+                ]
+              }
+            },
+            "toggleCfg": {
+              "is_csv_file": true,
+              "overwrite": true,
+              "file_path": true,
+              "csv_has_header": true
+            },
+            "input": {
+              "is_csv_file": "true",
+              "schema_type": "auto",
+              "csv_has_header": "true",
+              "csv_delimiter": "comma",
+              "csv_quote": "double",
+              "encoding": "UTF-8",
+              "overwrite": "true",
+              "file_name": "LDAP Source",
+              "file_path": "/",
+              "content": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_smart_list\",\"line\":\"1d6bbefa\",\"path\":[\"rows\"]}')}"
+            },
+            "uuid": "536a42bd-3629-4659-a1a5-51ea9fe3ea2c"
+          },
+          {
+            "number": 11,
+            "provider": "workato_files",
+            "name": "get_csv_file_contents",
+            "as": "0ba5e822",
+            "keyword": "action",
+            "toggleCfg": {
+              "file_path": true
+            },
+            "input": {
+              "file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"5ee8e4c7\",\"path\":[\"path\"]}')}",
+              "schema_type": "manual",
+              "schema": "[{\"name\":\"employeeNumber\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Employee number\"},{\"name\":\"rHatJobTitle\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"R hat job title\"},{\"name\":\"mail\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Mail\"},{\"name\":\"UUID\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"UUID\"},{\"name\":\"manager\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Manager\"},{\"name\":\"title\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Title\"},{\"name\":\"countryOfOrder\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Country of order\"},{\"name\":\"businessCardTitle\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Business card title\"},{\"control_type\":\"text\",\"label\":\"Last modified date\",\"name\":\"LastModifiedDate\",\"type\":\"string\",\"optional\":false}]",
+              "batch_size": "50000",
+              "batch_offset": "0"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Rows",
+                "name": "records",
+                "of": "object",
+                "properties": [
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Employee number",
+                        "type": "string",
+                        "name": "employeeNumber"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "R hat job title",
+                        "type": "string",
+                        "name": "rHatJobTitle"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Mail",
+                        "type": "string",
+                        "name": "mail"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "UUID",
+                        "type": "string",
+                        "name": "UUID"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Manager",
+                        "type": "string",
+                        "name": "manager"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Title",
+                        "type": "string",
+                        "name": "title"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Country of order",
+                        "type": "string",
+                        "name": "countryOfOrder"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Business card title",
+                        "type": "string",
+                        "name": "businessCardTitle"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Last modified date",
+                        "type": "string",
+                        "name": "LastModifiedDate"
+                      }
+                    ],
+                    "label": "Columns",
+                    "type": "object",
+                    "name": "fields"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Has more",
+                "name": "has_more",
+                "toggle_field": {
+                  "label": "Has more",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "render_input": null,
+                  "parse_output": null,
+                  "type": "boolean",
+                  "name": "has_more"
+                },
+                "toggle_hint": "Select from option list",
+                "type": "boolean"
+              },
+              {
+                "control_type": "integer",
+                "label": "Count",
+                "name": "count",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "select",
+                "extends_schema": true,
+                "hint": "Select the schema template of the file that is to be retrieved in batches. If you have a sample CSV file in the directory, choose “Provide with sample file” option. If not, select “Provide manually” to define the schema.",
+                "label": "CSV column schema",
+                "mark_as_required": true,
+                "name": "schema_type",
+                "ngIf": "input.file_path && input.schema_type && input.schema_type != 'origin_file'",
+                "optional": true,
+                "override": true,
+                "pick_list": [
+                  [
+                    "Provide with sample file",
+                    "sample_file"
+                  ],
+                  [
+                    "Provide manually",
+                    "manual"
+                  ]
+                ],
+                "type": "string"
+              },
+              {
+                "add_field_label": "Add column name",
+                "broadcast_change_event": true,
+                "control_type": "schema-designer",
+                "empty_schema_message": "<button type=\"button\" data-action=\"generateSchema\">Use a sample CSV file</button> to input all column names at once.",
+                "empty_schema_title": "Provide schema of the columns in your CSV",
+                "exclude_fields": [
+                  "hint",
+                  "optional"
+                ],
+                "exclude_fields_types": [
+                  "array",
+                  "object"
+                ],
+                "extends_schema": true,
+                "hint": "Describe the schema of the columns in the CSV files that needs to be fetched. Only records from the CSV files matching with the provided schema can be fetched, with permitted relaxations. To learn more, <a target='_blank' href='https://docs.workato.com/features/filestorage/filestorage-connector.html#csv'>click here</a>.",
+                "label": "Column schema",
+                "mark_as_required": true,
+                "name": "schema",
+                "ngIf": "input.file_path && input.schema_type == 'manual'",
+                "optional": true,
+                "optionalExpression": "input.schema_type != 'manual'",
+                "override": true,
+                "sample_data_type": "csv",
+                "type": "string"
+              },
+              {
+                "control_type": "multiselect",
+                "delimiter": ",",
+                "extends_schema": true,
+                "hint": "Select the columns to be returned in the output datatree. If left blank, all columns will be retrieved.",
+                "label": "Columns to retrieve",
+                "name": "selected_fields",
+                "ngIf": "input.file_path && input.schema_type != 'manual'",
+                "optional": true,
+                "override": true,
+                "pick_list": "csv_schema_fields",
+                "pick_list_params": {
+                  "file_path": "file_path",
+                  "schema_type": "schema_type",
+                  "csv_file": "sample_csv_file",
+                  "schema": "schema"
+                },
+                "sticky": true,
+                "type": "string"
+              }
+            ],
+            "uuid": "6be6d670-3d21-4c4a-9757-eacdd2d4dda3",
+            "skip": false
+          },
+          {
+            "number": 12,
+            "as": "15193a95",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+
+            ],
+            "uuid": "72ded7df-f3a3-4e40-8e6c-f89dba50ab29"
+          }
+        ],
+        "uuid": "703d58d3-4685-4075-b697-f8f1a83b9387"
+      }
+    ],
+    "uuid": "175c6ffc-b053-49c0-9c37-6a2e7336dc2d"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "ldap_connector_865610_1745607292",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/ldap_sdk.connection.json",
+        "name": "LDAP_SDK",
+        "folder": "Connections",
+        "custom": true
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_files",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_smart_list",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
