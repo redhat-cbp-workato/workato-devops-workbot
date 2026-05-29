@@ -1,0 +1,246 @@
+{
+  "name": "LBCM Reminder Decision",
+  "description": null,
+  "graph": {
+    "edges": [
+      {
+        "from": "2a335659-68cf-45ad-9fb8-5e5c08b368c5",
+        "to": "576a2663-6d3b-4ff3-b250-5335c9a186e5"
+      },
+      {
+        "from": "576a2663-6d3b-4ff3-b250-5335c9a186e5",
+        "to": "8fbcdd18-4480-4c70-a6b7-6d21be2097a8"
+      }
+    ],
+    "nodes": [
+      {
+        "coordinates": {
+          "x": 211.0,
+          "y": 240.0
+        },
+        "default": [
+          {
+            "key": "send_reminder",
+            "type": "value",
+            "value": false
+          }
+        ],
+        "id": "576a2663-6d3b-4ff3-b250-5335c9a186e5",
+        "input_keys": [
+          "notifications_enabled",
+          "has_already_acted",
+          "days_pending",
+          "case_status"
+        ],
+        "merge_policy": "first",
+        "name": "Reminder Rules",
+        "output_keys": [
+          "send_reminder"
+        ],
+        "rows": [
+          {
+            "comment": "Already acted",
+            "conditions": [
+              {
+                "condition": {
+                  "op": "is_true",
+                  "value": null
+                },
+                "key": "has_already_acted",
+                "type": "primitive"
+              }
+            ],
+            "id": "4af739df-434a-4cbe-9be3-03765e7186ef",
+            "outcome": [
+              {
+                "key": "send_reminder",
+                "type": "value",
+                "value": false
+              }
+            ]
+          },
+          {
+            "comment": "Opted out",
+            "conditions": [
+              {
+                "condition": {
+                  "op": "eq",
+                  "value": "false"
+                },
+                "key": "notifications_enabled",
+                "type": "primitive"
+              }
+            ],
+            "id": "998d1cc7-fa32-447f-8805-13fd8a3eb5a2",
+            "outcome": [
+              {
+                "key": "send_reminder",
+                "type": "value",
+                "value": false
+              }
+            ]
+          },
+          {
+            "comment": "Review overdue",
+            "conditions": [
+              {
+                "condition": {
+                  "op": "eq",
+                  "value": "PENDING_REVIEW"
+                },
+                "key": "case_status",
+                "type": "primitive"
+              },
+              {
+                "condition": {
+                  "op": "gte",
+                  "value": 3
+                },
+                "key": "days_pending",
+                "type": "primitive"
+              },
+              {
+                "condition": {
+                  "op": "is_not_true",
+                  "value": null
+                },
+                "key": "has_already_acted",
+                "type": "primitive"
+              },
+              {
+                "condition": {
+                  "op": "ne",
+                  "value": "false"
+                },
+                "key": "notifications_enabled",
+                "type": "primitive"
+              }
+            ],
+            "id": "7e7df97b-9b3f-4134-bd61-64160fd810f8",
+            "outcome": [
+              {
+                "key": "send_reminder",
+                "type": "value",
+                "value": true
+              }
+            ]
+          },
+          {
+            "comment": "Approval overdue",
+            "conditions": [
+              {
+                "condition": {
+                  "op": "eq",
+                  "value": "PENDING_APPROVAL"
+                },
+                "key": "case_status",
+                "type": "primitive"
+              },
+              {
+                "condition": {
+                  "op": "gte",
+                  "value": 2
+                },
+                "key": "days_pending",
+                "type": "primitive"
+              },
+              {
+                "condition": {
+                  "op": "is_not_true",
+                  "value": null
+                },
+                "key": "has_already_acted",
+                "type": "primitive"
+              },
+              {
+                "condition": {
+                  "op": "ne",
+                  "value": "false"
+                },
+                "key": "notifications_enabled",
+                "type": "primitive"
+              }
+            ],
+            "id": "ba10b72b-2057-4468-bea3-57845cb34835",
+            "outcome": [
+              {
+                "key": "send_reminder",
+                "type": "value",
+                "value": true
+              }
+            ]
+          }
+        ],
+        "type": "decision_table"
+      },
+      {
+        "coordinates": {
+          "x": 211.0,
+          "y": 400.0
+        },
+        "id": "8fbcdd18-4480-4c70-a6b7-6d21be2097a8",
+        "merge_policy": "first",
+        "name": "Output",
+        "schema": [
+          {
+            "hint": "",
+            "label": "Send reminder",
+            "name": "send_reminder",
+            "optional": true,
+            "type": "boolean"
+          }
+        ],
+        "type": "output"
+      },
+      {
+        "coordinates": {
+          "x": 213.09360954477677,
+          "y": 80.0
+        },
+        "id": "2a335659-68cf-45ad-9fb8-5e5c08b368c5",
+        "name": "Input",
+        "schema": [
+          {
+            "hint": "",
+            "label": "Case status",
+            "name": "case_status",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "hint": "",
+            "label": "Days pending",
+            "name": "days_pending",
+            "optional": true,
+            "type": "integer"
+          },
+          {
+            "hint": "",
+            "label": "Has already acted",
+            "name": "has_already_acted",
+            "optional": true,
+            "type": "boolean"
+          },
+          {
+            "hint": "",
+            "label": "Notifications enabled",
+            "name": "notifications_enabled",
+            "optional": true,
+            "type": "string"
+          }
+        ],
+        "type": "input"
+      }
+    ],
+    "schema": [
+      {
+        "hint": "",
+        "label": "Send reminder",
+        "name": "send_reminder",
+        "optional": true,
+        "type": "boolean"
+      }
+    ],
+    "version": "1"
+  }
+}

@@ -1,0 +1,342 @@
+{
+  "name": "UTIL - Log Audit Event",
+  "description": "",
+  "version": 6,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "2e6c5a39",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"case_id\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Case ID\"},{\"name\":\"event_type\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Event type\"},{\"name\":\"user_email\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"User email\"},{\"name\":\"details\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\",\"label\":\"Details\"},{\"name\":\"old_value\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\",\"label\":\"Old value\"},{\"name\":\"new_value\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\",\"label\":\"New value\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Case ID",
+            "name": "case_id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Event type",
+            "name": "event_type",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "User email",
+            "name": "user_email",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Details",
+            "name": "details",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "Old value",
+            "name": "old_value",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "New value",
+            "name": "new_value",
+            "type": "string",
+            "optional": true
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "e8e7a105",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"name\":\"event_id\",\"type\":\"string\",\"optional\":true,\"label\":\"event_id\",\"details\":{\"real_name\":\"event_id\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "event_id": "=\"EVT-\"+now.to_i.to_s.last(8)"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "label": "event_id",
+            "name": "event_id",
+            "optional": true,
+            "type": "string",
+            "details": {
+              "real_name": "event_id"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "event_id",
+                    "name": "event_id",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "event_id"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.event_id"
+        ],
+        "uuid": "0eaaee0f-ec4a-428e-b7b0-c5831e3b2f08"
+      },
+      {
+        "number": 2,
+        "provider": "google_sheets",
+        "name": "add_spreadsheet_row_v4",
+        "as": "0ea1daba",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "spreadsheet": "LBC Management System"
+        },
+        "toggleCfg": {
+          "is_top_left": true
+        },
+        "input": {
+          "team_drives": "my_drive",
+          "is_top_left": "false",
+          "spreadsheet": "1Uo2Z0jC_jlD5U3MxCH0s1W59XHBfkEaiiOGZaI39O48",
+          "sheet": "Version History",
+          "data": {
+            "col_1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e8e7a105\",\"path\":[\"event_id\"]}')}",
+            "col_2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"2e6c5a39\",\"path\":[\"parameters\",\"case_id\"]}')}",
+            "col_3": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"2e6c5a39\",\"path\":[\"parameters\",\"event_type\"]}')}",
+            "col_4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"2e6c5a39\",\"path\":[\"parameters\",\"user_email\"]}')}",
+            "col_5": "=now.strftime('%Y-%m-%d %H:%M:%S')",
+            "col_6": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"2e6c5a39\",\"path\":[\"parameters\",\"details\"]}')}.to_s",
+            "col_7": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"2e6c5a39\",\"path\":[\"parameters\",\"old_value\"]}')}.to_s",
+            "col_8": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"2e6c5a39\",\"path\":[\"parameters\",\"new_value\"]}')}.to_s"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "select",
+            "extends_schema": true,
+            "hint": "Select a sheet to add row to. The sheet must have at least one header row. <a href='https://docs.workato.com/connectors/google-sheets/action-add-row.html#setting-up-the-google-sheet' target='_blank'>Learn more</a>",
+            "label": "Sheet",
+            "name": "sheet",
+            "optional": false,
+            "pick_list": [
+              [
+                "Business Cases",
+                "Business Cases"
+              ],
+              [
+                "Reviews",
+                "Reviews"
+              ],
+              [
+                "Approvals",
+                "Approvals"
+              ],
+              [
+                "Comments",
+                "Comments"
+              ],
+              [
+                "System Config",
+                "System Config"
+              ],
+              [
+                "Version History",
+                "Version History"
+              ],
+              [
+                "Attachments",
+                "Attachments"
+              ]
+            ],
+            "toggle_field": {
+              "control_type": "text",
+              "label": "Sheet name",
+              "toggle_hint": "Use sheet name",
+              "extends_schema": true,
+              "change_on_blur": true,
+              "toggle_to_secondary_hint": "Use sheet name",
+              "toggle_to_primary_hint": "Select a sheet",
+              "hint": "Use <b>Sheet name</b> pill from the output of other Google Sheets’ triggers/actions. Or enter sheet name manually. The sheet must have at least 1 header row in input field.",
+              "type": "string",
+              "name": "sheet_name"
+            },
+            "toggle_hint": "Select a sheet",
+            "type": "string"
+          },
+          {
+            "hint": "Input values of the new row.",
+            "label": "Columns",
+            "name": "data",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "eventId",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "col_1"
+              },
+              {
+                "control_type": "text",
+                "label": "caseId",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "col_2"
+              },
+              {
+                "control_type": "text",
+                "label": "eventType",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "col_3"
+              },
+              {
+                "control_type": "text",
+                "label": "userEmail",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "col_4"
+              },
+              {
+                "control_type": "text",
+                "label": "timestamp",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "col_5"
+              },
+              {
+                "control_type": "text",
+                "label": "details",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "col_6"
+              },
+              {
+                "control_type": "text",
+                "label": "oldValue",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "col_7"
+              },
+              {
+                "control_type": "text",
+                "label": "newValue",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "col_8"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "9ddedd02-f499-4cf2-8885-ade7feb3664e"
+      },
+      {
+        "number": 3,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "c82178cf",
+        "keyword": "action",
+        "input": {
+        },
+        "uuid": "619eca9a-6484-41b5-a9b6-5f1968950933"
+      }
+    ],
+    "uuid": "51886818-09ca-407d-9cab-bb6464eab395"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "google_sheets",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "lbcm_google_sheets.connection.json",
+        "name": "LBCM - Google Sheets",
+        "folder": ""
+      }
+    }
+  ]
+}

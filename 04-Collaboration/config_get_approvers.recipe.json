@@ -1,0 +1,563 @@
+{
+  "name": "CONFIG - Get Approvers",
+  "description": "",
+  "version": 3,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_api_platform",
+    "name": "receive_request",
+    "as": "554f67b1",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "response.responses.0.http_status_code": "200 - OK"
+    },
+    "toggleCfg": {
+      "response.responses.0.http_status_code": true
+    },
+    "input": {
+      "request": {
+        "content_type": "json"
+      },
+      "response": {
+        "content_type": "json",
+        "responses": [
+          {
+            "http_status_code": "200",
+            "body_schema": "[{\"control_type\":\"text\",\"label\":\"Emails\",\"of\":\"string\",\"type\":\"array\",\"name\":\"emails\"}]"
+          }
+        ]
+      }
+    },
+    "extended_output_schema": [
+      {
+        "label": "Context",
+        "name": "context",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Calling IP address",
+            "optional": true,
+            "type": "string",
+            "name": "calling_ip"
+          },
+          {
+            "properties": [
+              {
+                "control_type": "integer",
+                "label": "Access profile ID",
+                "parse_output": "integer_conversion",
+                "optional": true,
+                "type": "integer",
+                "name": "id"
+              },
+              {
+                "control_type": "text",
+                "label": "Access profile name",
+                "optional": true,
+                "type": "string",
+                "name": "name"
+              },
+              {
+                "control_type": "text",
+                "label": "Access profile authentication type",
+                "optional": true,
+                "type": "string",
+                "name": "type"
+              }
+            ],
+            "label": "Access profile",
+            "type": "object",
+            "name": "access_profile"
+          },
+          {
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "API client ID",
+                "optional": true,
+                "type": "string",
+                "name": "id"
+              },
+              {
+                "control_type": "text",
+                "label": "API client name",
+                "optional": true,
+                "type": "string",
+                "name": "name"
+              }
+            ],
+            "label": "API client",
+            "type": "object",
+            "name": "client"
+          },
+          {
+            "properties": [
+              {
+                "control_type": "integer",
+                "label": "Issued At",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "iat"
+              },
+              {
+                "control_type": "integer",
+                "label": "Not Before",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "nbf"
+              },
+              {
+                "control_type": "integer",
+                "label": "Expiration Time",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "exp"
+              },
+              {
+                "control_type": "text",
+                "label": "Audience",
+                "optional": true,
+                "type": "string",
+                "name": "aud"
+              },
+              {
+                "control_type": "text",
+                "label": "JWT ID",
+                "optional": true,
+                "type": "string",
+                "name": "jti"
+              },
+              {
+                "control_type": "text",
+                "label": "Issuer",
+                "optional": true,
+                "type": "string",
+                "name": "iss"
+              }
+            ],
+            "label": "JWT claims",
+            "type": "object",
+            "name": "jwt_payload"
+          },
+          {
+            "properties": [
+              {
+                "properties": [
+                  {
+                    "control_type": "checkbox",
+                    "label": "Active",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "optional": true,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Active",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "optional": true,
+                      "type": "boolean",
+                      "name": "active"
+                    },
+                    "type": "boolean",
+                    "name": "active"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Scope",
+                    "optional": true,
+                    "type": "string",
+                    "name": "scope"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Client ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "client_id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Username",
+                    "optional": true,
+                    "type": "string",
+                    "name": "username"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Token type",
+                    "optional": true,
+                    "type": "string",
+                    "name": "token_type"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Exp",
+                    "optional": true,
+                    "type": "string",
+                    "name": "exp"
+                  }
+                ],
+                "label": "Response Body",
+                "type": "object",
+                "name": "payload"
+              }
+            ],
+            "label": "Token introspection",
+            "type": "object",
+            "name": "introspect"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "lookup_table",
+        "name": "search_entries",
+        "as": "e8859a2b",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "lookup_table_id": "lbcm_mandatory_roles"
+        },
+        "input": {
+          "lookup_table_id": {
+            "zip_name": "lbcm_mandatory_roles.lookup_table.json",
+            "name": "lbcm_mandatory_roles",
+            "folder": ""
+          },
+          "parameters": {
+            "col1": "APPROVER",
+            "col4": "true"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Entries",
+            "name": "entries",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Entry ID",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "id"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Role type",
+                    "name": "col1",
+                    "sticky": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Email",
+                    "name": "col2",
+                    "sticky": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Display name",
+                    "name": "col3",
+                    "sticky": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Is active",
+                    "name": "col4",
+                    "sticky": true,
+                    "type": "string"
+                  }
+                ],
+                "label": "Entry",
+                "type": "object",
+                "name": "entry"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Provide one or more entry fields to search the entry",
+            "label": "Search by",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Role type",
+                "name": "col1",
+                "sticky": true,
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Email",
+                "name": "col2",
+                "sticky": true,
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Display name",
+                "name": "col3",
+                "sticky": true,
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Is active",
+                "name": "col4",
+                "sticky": true,
+                "type": "string",
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "edd362e8-33b5-4ab9-b03e-289ae0155e71"
+      },
+      {
+        "number": 2,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "e443f43b",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"name\":\"all_emails\",\"type\":\"string\",\"optional\":true,\"label\":\"all_emails\",\"details\":{\"real_name\":\"all_emails\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "all_emails": "=\"\""
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "label": "all_emails",
+            "name": "all_emails",
+            "optional": true,
+            "type": "string",
+            "details": {
+              "real_name": "all_emails"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "all_emails",
+                    "name": "all_emails",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "all_emails"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.all_emails"
+        ],
+        "uuid": "71fc9078-4e49-45a2-857a-9337b14d522e"
+      },
+      {
+        "number": 3,
+        "as": "166c7787",
+        "keyword": "foreach",
+        "repeat_mode": "simple",
+        "clear_scope": "false",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 4,
+            "provider": "workato_variable",
+            "name": "update_variables",
+            "as": "9ffbd93f",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": [
+                {
+                  "label": "all_emails (step 3)",
+                  "value": "71fc9078-4e49-45a2-857a-9337b14d522e:e443f43b:all_emails"
+                }
+              ]
+            },
+            "input": {
+              "input_mode": "structured",
+              "name": "71fc9078-4e49-45a2-857a-9337b14d522e:e443f43b:all_emails",
+              "all_emails": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e443f43b\",\"path\":[\"all_emails\"]}').to_s + \",\" +_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"166c7787\",\"path\":[\"entry\",\"col2\"]}')"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "all_emails",
+                "name": "all_emails",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              }
+            ],
+            "uuid": "74d10c9b-9a4b-49b2-aea7-5d0c738f7f85"
+          }
+        ],
+        "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"e8859a2b\",\"path\":[\"entries\"]}')}",
+        "uuid": "9ea591a6-beaa-461b-909c-a89e48bc3374"
+      },
+      {
+        "number": 5,
+        "provider": "workato_api_platform",
+        "name": "return_response",
+        "as": "486d67d8",
+        "keyword": "action",
+        "input": {
+          "http_status_code": "200",
+          "response": {
+            "emails": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e443f43b\",\"path\":[\"all_emails\"]}')[1..-1]"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "change_on_blur": true,
+            "control_type": "select",
+            "extends_schema": true,
+            "label": "Response",
+            "name": "http_status_code",
+            "pick_list": [
+              [
+                "200 - OK",
+                "200"
+              ]
+            ],
+            "type": "string"
+          },
+          {
+            "label": "Response body",
+            "name": "response",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Emails",
+                "type": "array",
+                "name": "emails",
+                "of": "string"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "change_on_blur": true,
+            "control_type": "select",
+            "extends_schema": true,
+            "label": "Response",
+            "name": "http_status_code",
+            "pick_list": [
+              [
+                "200 - OK",
+                "200"
+              ]
+            ],
+            "type": "string"
+          },
+          {
+            "label": "Response body",
+            "name": "response",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Emails",
+                "type": "array",
+                "name": "emails",
+                "of": "string"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "99ed6bec-766e-4e12-ab4d-9131e4db6f00"
+      }
+    ],
+    "comment": "Define the request and response parameters for this API endpoint",
+    "uuid": "0d95b9a4-eb99-49a6-9e8f-4752ac6430cb"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_api_platform",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "lookup_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
