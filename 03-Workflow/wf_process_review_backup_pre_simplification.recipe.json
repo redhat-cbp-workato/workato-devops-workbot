@@ -1,0 +1,2759 @@
+{
+  "name": "WF - Process Review (BACKUP- Pre-Simplification)",
+  "description": "",
+  "version": 1,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_api_platform",
+    "name": "receive_request",
+    "as": "6444deac",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "response.responses.0.http_status_code": "200 - OK"
+    },
+    "toggleCfg": {
+      "response.responses.0.http_status_code": true
+    },
+    "input": {
+      "request": {
+        "content_type": "json",
+        "schema": "[{\"control_type\":\"text\",\"label\":\"Case ID\",\"type\":\"string\",\"name\":\"case_id\"},{\"control_type\":\"text\",\"label\":\"Reviewer email\",\"type\":\"string\",\"name\":\"reviewer_email\"},{\"control_type\":\"text\",\"label\":\"Status\",\"type\":\"string\",\"name\":\"status\"},{\"control_type\":\"text\",\"label\":\"Comments\",\"type\":\"string\",\"name\":\"comments\"},{\"control_type\":\"number\",\"label\":\"Rating\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"rating\"}]"
+      },
+      "response": {
+        "content_type": "json",
+        "responses": [
+          {
+            "http_status_code": "200",
+            "body_schema": "[{\"control_type\":\"text\",\"label\":\"Success\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Success\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"success\"},\"type\":\"boolean\",\"name\":\"success\"},{\"control_type\":\"text\",\"label\":\"Message\",\"type\":\"string\",\"name\":\"message\"},{\"control_type\":\"text\",\"label\":\"New status\",\"type\":\"string\",\"name\":\"new_status\"}]"
+          }
+        ]
+      }
+    },
+    "extended_output_schema": [
+      {
+        "label": "Context",
+        "name": "context",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Calling IP address",
+            "optional": true,
+            "type": "string",
+            "name": "calling_ip"
+          },
+          {
+            "properties": [
+              {
+                "control_type": "integer",
+                "label": "Access profile ID",
+                "parse_output": "integer_conversion",
+                "optional": true,
+                "type": "integer",
+                "name": "id"
+              },
+              {
+                "control_type": "text",
+                "label": "Access profile name",
+                "optional": true,
+                "type": "string",
+                "name": "name"
+              },
+              {
+                "control_type": "text",
+                "label": "Access profile authentication type",
+                "optional": true,
+                "type": "string",
+                "name": "type"
+              }
+            ],
+            "label": "Access profile",
+            "type": "object",
+            "name": "access_profile"
+          },
+          {
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "API client ID",
+                "optional": true,
+                "type": "string",
+                "name": "id"
+              },
+              {
+                "control_type": "text",
+                "label": "API client name",
+                "optional": true,
+                "type": "string",
+                "name": "name"
+              }
+            ],
+            "label": "API client",
+            "type": "object",
+            "name": "client"
+          },
+          {
+            "properties": [
+              {
+                "control_type": "integer",
+                "label": "Issued At",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "iat"
+              },
+              {
+                "control_type": "integer",
+                "label": "Not Before",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "nbf"
+              },
+              {
+                "control_type": "integer",
+                "label": "Expiration Time",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "exp"
+              },
+              {
+                "control_type": "text",
+                "label": "Audience",
+                "optional": true,
+                "type": "string",
+                "name": "aud"
+              },
+              {
+                "control_type": "text",
+                "label": "JWT ID",
+                "optional": true,
+                "type": "string",
+                "name": "jti"
+              },
+              {
+                "control_type": "text",
+                "label": "Issuer",
+                "optional": true,
+                "type": "string",
+                "name": "iss"
+              }
+            ],
+            "label": "JWT claims",
+            "type": "object",
+            "name": "jwt_payload"
+          },
+          {
+            "properties": [
+              {
+                "properties": [
+                  {
+                    "control_type": "checkbox",
+                    "label": "Active",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "optional": true,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Active",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "optional": true,
+                      "type": "boolean",
+                      "name": "active"
+                    },
+                    "type": "boolean",
+                    "name": "active"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Scope",
+                    "optional": true,
+                    "type": "string",
+                    "name": "scope"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Client ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "client_id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Username",
+                    "optional": true,
+                    "type": "string",
+                    "name": "username"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Token type",
+                    "optional": true,
+                    "type": "string",
+                    "name": "token_type"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Exp",
+                    "optional": true,
+                    "type": "string",
+                    "name": "exp"
+                  }
+                ],
+                "label": "Response Body",
+                "type": "object",
+                "name": "payload"
+              }
+            ],
+            "label": "Token introspection",
+            "type": "object",
+            "name": "introspect"
+          }
+        ],
+        "type": "object"
+      },
+      {
+        "label": "Request parameters",
+        "name": "request",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Case ID",
+            "type": "string",
+            "name": "case_id"
+          },
+          {
+            "control_type": "text",
+            "label": "Reviewer email",
+            "type": "string",
+            "name": "reviewer_email"
+          },
+          {
+            "control_type": "text",
+            "label": "Status",
+            "type": "string",
+            "name": "status"
+          },
+          {
+            "control_type": "text",
+            "label": "Comments",
+            "type": "string",
+            "name": "comments"
+          },
+          {
+            "control_type": "number",
+            "label": "Rating",
+            "parse_output": "float_conversion",
+            "type": "number",
+            "name": "rating"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "lookup_table",
+        "name": "search_entries",
+        "as": "f816380f",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "lookup_table_id": "lbcm_mandatory_roles"
+        },
+        "input": {
+          "lookup_table_id": {
+            "zip_name": "lbcm_mandatory_roles.lookup_table.json",
+            "name": "lbcm_mandatory_roles",
+            "folder": ""
+          },
+          "parameters": {
+            "col2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"6444deac\",\"path\":[\"request\",\"reviewer_email\"]}')}",
+            "col1": "REVIEWER"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Entries",
+            "name": "entries",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Entry ID",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "id"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Role type",
+                    "name": "col1",
+                    "sticky": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Email",
+                    "name": "col2",
+                    "sticky": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Display name",
+                    "name": "col3",
+                    "sticky": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Is active",
+                    "name": "col4",
+                    "sticky": true,
+                    "type": "string"
+                  }
+                ],
+                "label": "Entry",
+                "type": "object",
+                "name": "entry"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Provide one or more entry fields to search the entry",
+            "label": "Search by",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Role type",
+                "name": "col1",
+                "sticky": true,
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Email",
+                "name": "col2",
+                "sticky": true,
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Display name",
+                "name": "col3",
+                "sticky": true,
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Is active",
+                "name": "col4",
+                "sticky": true,
+                "type": "string",
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "b9b69044-e757-4355-a64f-1232b6dd25e1"
+      },
+      {
+        "number": 2,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "equals_to",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"f816380f\",\"path\":[\"entries\",{\"path_element_type\":\"size\"}]}')}",
+              "rhs": "0",
+              "uuid": "d4241580-c1bc-4757-8223-99ce50c40ce9"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 3,
+            "as": "751e6d8d",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "true",
+              "stop_reason": "Not an authorized reviewer"
+            },
+            "uuid": "27d12aec-ea78-4385-aa2b-5ef5f72e78ea"
+          }
+        ],
+        "uuid": "ab2ca020-3e44-49f7-a064-86b1b982f261"
+      },
+      {
+        "number": 4,
+        "provider": "google_sheets",
+        "name": "search_spreadsheet_rows_v4_new",
+        "as": "d48bd36f",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "spreadsheet": "LBC Management System"
+        },
+        "input": {
+          "team_drives": "my_drive",
+          "spreadsheet": "1Uo2Z0jC_jlD5U3MxCH0s1W59XHBfkEaiiOGZaI39O48",
+          "count": "200",
+          "sheet": "Business Cases",
+          "data": {
+            "col_caseId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"6444deac\",\"path\":[\"request\",\"case_id\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "label": "Spreadsheet ID",
+            "name": "spreadsheet_id",
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "label": "Spreadsheet name",
+            "name": "spreadsheet_name",
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "label": "Sheet name",
+            "name": "sheet",
+            "type": "string"
+          },
+          {
+            "label": "Rows",
+            "name": "rows",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Row number",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "row_number"
+              },
+              {
+                "control_type": "text",
+                "label": "caseId",
+                "old_name": "col_caseId",
+                "custom_attribute": 1,
+                "type": "string",
+                "name": "col_caseId"
+              },
+              {
+                "control_type": "text",
+                "label": "title",
+                "old_name": "col_title",
+                "custom_attribute": 2,
+                "type": "string",
+                "name": "col_title"
+              },
+              {
+                "control_type": "text",
+                "label": "ownerEmail",
+                "old_name": "col_ownerEmail",
+                "custom_attribute": 3,
+                "type": "string",
+                "name": "col_ownerEmail"
+              },
+              {
+                "control_type": "text",
+                "label": "createdDate",
+                "old_name": "col_createdDate",
+                "custom_attribute": 4,
+                "type": "string",
+                "name": "col_createdDate"
+              },
+              {
+                "control_type": "text",
+                "label": "lastModified",
+                "old_name": "col_lastModified",
+                "custom_attribute": 5,
+                "type": "string",
+                "name": "col_lastModified"
+              },
+              {
+                "control_type": "text",
+                "label": "status",
+                "old_name": "col_status",
+                "custom_attribute": 6,
+                "type": "string",
+                "name": "col_status"
+              },
+              {
+                "control_type": "text",
+                "label": "version",
+                "old_name": "col_version",
+                "custom_attribute": 7,
+                "type": "string",
+                "name": "col_version"
+              },
+              {
+                "control_type": "text",
+                "label": "caseData",
+                "old_name": "col_caseData",
+                "custom_attribute": 8,
+                "type": "string",
+                "name": "col_caseData"
+              },
+              {
+                "control_type": "text",
+                "label": "submittedForReviewDate",
+                "old_name": "col_submittedForReviewDate",
+                "custom_attribute": 9,
+                "type": "string",
+                "name": "col_submittedForReviewDate"
+              },
+              {
+                "control_type": "text",
+                "label": "reviewDate",
+                "old_name": "col_reviewDate",
+                "custom_attribute": 10,
+                "type": "string",
+                "name": "col_reviewDate"
+              },
+              {
+                "control_type": "text",
+                "label": "reviewer",
+                "old_name": "col_reviewer",
+                "custom_attribute": 11,
+                "type": "string",
+                "name": "col_reviewer"
+              },
+              {
+                "control_type": "text",
+                "label": "submittedForApprovalDate",
+                "old_name": "col_submittedForApprovalDate",
+                "custom_attribute": 12,
+                "type": "string",
+                "name": "col_submittedForApprovalDate"
+              },
+              {
+                "control_type": "text",
+                "label": "approvalDate",
+                "old_name": "col_approvalDate",
+                "custom_attribute": 13,
+                "type": "string",
+                "name": "col_approvalDate"
+              },
+              {
+                "control_type": "text",
+                "label": "approver",
+                "old_name": "col_approver",
+                "custom_attribute": 14,
+                "type": "string",
+                "name": "col_approver"
+              },
+              {
+                "control_type": "text",
+                "label": "coAuthors",
+                "old_name": "col_coAuthors",
+                "custom_attribute": 15,
+                "type": "string",
+                "name": "col_coAuthors"
+              },
+              {
+                "control_type": "text",
+                "label": "watchers",
+                "old_name": "col_watchers",
+                "custom_attribute": 16,
+                "type": "string",
+                "name": "col_watchers"
+              },
+              {
+                "control_type": "text",
+                "label": "planningCycle",
+                "old_name": "col_planningCycle",
+                "custom_attribute": 17,
+                "type": "string",
+                "name": "col_planningCycle"
+              },
+              {
+                "control_type": "text",
+                "label": "approvalDueDate",
+                "old_name": "col_approvalDueDate",
+                "custom_attribute": 18,
+                "type": "string",
+                "name": "col_approvalDueDate"
+              },
+              {
+                "control_type": "text",
+                "label": "parentCaseId",
+                "old_name": "col_parentCaseId",
+                "custom_attribute": 19,
+                "type": "string",
+                "name": "col_parentCaseId"
+              },
+              {
+                "control_type": "text",
+                "label": "recallCount",
+                "old_name": "col_recallCount",
+                "custom_attribute": 20,
+                "type": "string",
+                "name": "col_recallCount"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "select",
+            "extends_schema": true,
+            "hint": "Select a sheet to search for rows. The sheet must have at least one header row. <a href='https://docs.workato.com/connectors/google-sheets/action-add-row.html#setting-up-the-google-sheet' target='_blank'>Learn more</a>",
+            "label": "Sheet",
+            "name": "sheet",
+            "optional": false,
+            "pick_list": [
+              [
+                "Business Cases",
+                "Business Cases"
+              ],
+              [
+                "Reviews",
+                "Reviews"
+              ],
+              [
+                "Approvals",
+                "Approvals"
+              ],
+              [
+                "Comments",
+                "Comments"
+              ],
+              [
+                "System Config",
+                "System Config"
+              ],
+              [
+                "Version History",
+                "Version History"
+              ],
+              [
+                "Attachments",
+                "Attachments"
+              ]
+            ],
+            "toggle_field": {
+              "control_type": "text",
+              "label": "Sheet name",
+              "toggle_hint": "Use sheet name",
+              "extends_schema": true,
+              "change_on_blur": true,
+              "toggle_to_secondary_hint": "Use sheet name",
+              "toggle_to_primary_hint": "Select a sheet",
+              "hint": "Use <b>Sheet name</b> pill from the output of other Google Sheets’ triggers/actions. Or enter sheet name manually. The sheet must have at least 1 header row in input field.",
+              "type": "string",
+              "name": "sheet_name"
+            },
+            "toggle_hint": "Select a sheet",
+            "type": "string"
+          },
+          {
+            "hint": "Enter one or more search values. Workato will search for rows matching <b>ALL</b> of the search values below.",
+            "label": "Columns",
+            "name": "data",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "caseId",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_caseId"
+              },
+              {
+                "control_type": "text",
+                "label": "title",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_title"
+              },
+              {
+                "control_type": "text",
+                "label": "ownerEmail",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_ownerEmail"
+              },
+              {
+                "control_type": "text",
+                "label": "createdDate",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_createdDate"
+              },
+              {
+                "control_type": "text",
+                "label": "lastModified",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_lastModified"
+              },
+              {
+                "control_type": "text",
+                "label": "status",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_status"
+              },
+              {
+                "control_type": "text",
+                "label": "version",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_version"
+              },
+              {
+                "control_type": "text",
+                "label": "caseData",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_caseData"
+              },
+              {
+                "control_type": "text",
+                "label": "submittedForReviewDate",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_submittedForReviewDate"
+              },
+              {
+                "control_type": "text",
+                "label": "reviewDate",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_reviewDate"
+              },
+              {
+                "control_type": "text",
+                "label": "reviewer",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_reviewer"
+              },
+              {
+                "control_type": "text",
+                "label": "submittedForApprovalDate",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_submittedForApprovalDate"
+              },
+              {
+                "control_type": "text",
+                "label": "approvalDate",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_approvalDate"
+              },
+              {
+                "control_type": "text",
+                "label": "approver",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_approver"
+              },
+              {
+                "control_type": "text",
+                "label": "coAuthors",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_coAuthors"
+              },
+              {
+                "control_type": "text",
+                "label": "watchers",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_watchers"
+              },
+              {
+                "control_type": "text",
+                "label": "planningCycle",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_planningCycle"
+              },
+              {
+                "control_type": "text",
+                "label": "approvalDueDate",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_approvalDueDate"
+              },
+              {
+                "control_type": "text",
+                "label": "parentCaseId",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_parentCaseId"
+              },
+              {
+                "control_type": "text",
+                "label": "recallCount",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_recallCount"
+              }
+            ],
+            "sticky": true,
+            "type": "object"
+          },
+          {
+            "control_type": "number",
+            "default": 200,
+            "hint": "Maximum number of matched rows to be returned. Minimum accepted value is <b>1</b> and maximum accepted value is <b>50000</b>.",
+            "label": "Search result size",
+            "name": "count",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "type": "number"
+          }
+        ],
+        "uuid": "1587c259-544b-4ac8-87f9-0314391bc189"
+      },
+      {
+        "number": 5,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "not_equals_to",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_sheets\",\"line\":\"d48bd36f\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"col_status\"]}')}",
+              "rhs": "PENDING_REVIEW",
+              "uuid": "5ebc103f-6340-417c-8823-076bd81a14f3"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 6,
+            "as": "9bdc4319",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "true",
+              "stop_reason": "Case is not prending review"
+            },
+            "uuid": "345e297d-c58d-4011-9ac8-26cf513e3acd"
+          }
+        ],
+        "uuid": "2391ab42-d83e-4a4e-9df4-30cd24b8f1dc"
+      },
+      {
+        "number": 7,
+        "provider": "google_sheets",
+        "name": "search_spreadsheet_rows_v4_new",
+        "as": "97761f8f",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "spreadsheet": "LBC Management System"
+        },
+        "input": {
+          "team_drives": "my_drive",
+          "spreadsheet": "1Uo2Z0jC_jlD5U3MxCH0s1W59XHBfkEaiiOGZaI39O48",
+          "count": "200",
+          "sheet": "Reviews",
+          "data": {
+            "col_caseId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"6444deac\",\"path\":[\"request\",\"case_id\"]}')}",
+            "col_reviewerEmail": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"6444deac\",\"path\":[\"request\",\"reviewer_email\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "label": "Spreadsheet ID",
+            "name": "spreadsheet_id",
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "label": "Spreadsheet name",
+            "name": "spreadsheet_name",
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "label": "Sheet name",
+            "name": "sheet",
+            "type": "string"
+          },
+          {
+            "label": "Rows",
+            "name": "rows",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Row number",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "row_number"
+              },
+              {
+                "control_type": "text",
+                "label": "reviewId",
+                "old_name": "col_reviewId",
+                "custom_attribute": 1,
+                "type": "string",
+                "name": "col_reviewId"
+              },
+              {
+                "control_type": "text",
+                "label": "caseId",
+                "old_name": "col_caseId",
+                "custom_attribute": 2,
+                "type": "string",
+                "name": "col_caseId"
+              },
+              {
+                "control_type": "text",
+                "label": "reviewerEmail",
+                "old_name": "col_reviewerEmail",
+                "custom_attribute": 3,
+                "type": "string",
+                "name": "col_reviewerEmail"
+              },
+              {
+                "control_type": "text",
+                "label": "decision",
+                "old_name": "col_decision",
+                "custom_attribute": 4,
+                "type": "string",
+                "name": "col_decision"
+              },
+              {
+                "control_type": "text",
+                "label": "rating",
+                "old_name": "col_rating",
+                "custom_attribute": 5,
+                "type": "string",
+                "name": "col_rating"
+              },
+              {
+                "control_type": "text",
+                "label": "comments",
+                "old_name": "col_comments",
+                "custom_attribute": 6,
+                "type": "string",
+                "name": "col_comments"
+              },
+              {
+                "control_type": "text",
+                "label": "reviewDate",
+                "old_name": "col_reviewDate",
+                "custom_attribute": 7,
+                "type": "string",
+                "name": "col_reviewDate"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "select",
+            "extends_schema": true,
+            "hint": "Select a sheet to search for rows. The sheet must have at least one header row. <a href='https://docs.workato.com/connectors/google-sheets/action-add-row.html#setting-up-the-google-sheet' target='_blank'>Learn more</a>",
+            "label": "Sheet",
+            "name": "sheet",
+            "optional": false,
+            "pick_list": [
+              [
+                "Business Cases",
+                "Business Cases"
+              ],
+              [
+                "Reviews",
+                "Reviews"
+              ],
+              [
+                "Approvals",
+                "Approvals"
+              ],
+              [
+                "Comments",
+                "Comments"
+              ],
+              [
+                "System Config",
+                "System Config"
+              ],
+              [
+                "Version History",
+                "Version History"
+              ],
+              [
+                "Attachments",
+                "Attachments"
+              ]
+            ],
+            "toggle_field": {
+              "control_type": "text",
+              "label": "Sheet name",
+              "toggle_hint": "Use sheet name",
+              "extends_schema": true,
+              "change_on_blur": true,
+              "toggle_to_secondary_hint": "Use sheet name",
+              "toggle_to_primary_hint": "Select a sheet",
+              "hint": "Use <b>Sheet name</b> pill from the output of other Google Sheets’ triggers/actions. Or enter sheet name manually. The sheet must have at least 1 header row in input field.",
+              "type": "string",
+              "name": "sheet_name"
+            },
+            "toggle_hint": "Select a sheet",
+            "type": "string"
+          },
+          {
+            "hint": "Enter one or more search values. Workato will search for rows matching <b>ALL</b> of the search values below.",
+            "label": "Columns",
+            "name": "data",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "reviewId",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_reviewId"
+              },
+              {
+                "control_type": "text",
+                "label": "caseId",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_caseId"
+              },
+              {
+                "control_type": "text",
+                "label": "reviewerEmail",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_reviewerEmail"
+              },
+              {
+                "control_type": "text",
+                "label": "decision",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_decision"
+              },
+              {
+                "control_type": "text",
+                "label": "rating",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_rating"
+              },
+              {
+                "control_type": "text",
+                "label": "comments",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_comments"
+              },
+              {
+                "control_type": "text",
+                "label": "reviewDate",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_reviewDate"
+              }
+            ],
+            "sticky": true,
+            "type": "object"
+          },
+          {
+            "control_type": "number",
+            "default": 200,
+            "hint": "Maximum number of matched rows to be returned. Minimum accepted value is <b>1</b> and maximum accepted value is <b>50000</b>.",
+            "label": "Search result size",
+            "name": "count",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "type": "number"
+          }
+        ],
+        "uuid": "20e6b607-4e9d-4daa-82b5-76a21cac6c20"
+      },
+      {
+        "number": 8,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "greater_than",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_sheets\",\"line\":\"97761f8f\",\"path\":[\"rows\",{\"path_element_type\":\"size\"}]}')}",
+              "rhs": "0",
+              "uuid": "130b1c39-6b4c-4262-8991-d1a7d92c6bf4"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 9,
+            "as": "e1da5210",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "true",
+              "stop_reason": "Already reviewed"
+            },
+            "uuid": "c2f92834-5197-429e-bace-5c84a1472e32"
+          }
+        ],
+        "uuid": "8390a13e-07f6-4d8a-8888-98bc347dbe03"
+      },
+      {
+        "number": 10,
+        "provider": "google_sheets",
+        "name": "add_spreadsheet_row_v4",
+        "as": "8135416e",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "spreadsheet": "LBC Management System"
+        },
+        "toggleCfg": {
+          "is_top_left": true
+        },
+        "input": {
+          "team_drives": "my_drive",
+          "is_top_left": "false",
+          "spreadsheet": "1Uo2Z0jC_jlD5U3MxCH0s1W59XHBfkEaiiOGZaI39O48",
+          "sheet": "Reviews",
+          "data": {
+            "col_2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"6444deac\",\"path\":[\"request\",\"case_id\"]}')}",
+            "col_3": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"6444deac\",\"path\":[\"request\",\"reviewer_email\"]}')}",
+            "col_4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"6444deac\",\"path\":[\"request\",\"status\"]}')}",
+            "col_5": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"6444deac\",\"path\":[\"request\",\"rating\"]}')}",
+            "col_6": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"6444deac\",\"path\":[\"request\",\"comments\"]}')}",
+            "col_7": "=now.strftime('%Y-%m-%d %H:%M:%S')"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "select",
+            "extends_schema": true,
+            "hint": "Select a sheet to add row to. The sheet must have at least one header row. <a href='https://docs.workato.com/connectors/google-sheets/action-add-row.html#setting-up-the-google-sheet' target='_blank'>Learn more</a>",
+            "label": "Sheet",
+            "name": "sheet",
+            "optional": false,
+            "pick_list": [
+              [
+                "Business Cases",
+                "Business Cases"
+              ],
+              [
+                "Reviews",
+                "Reviews"
+              ],
+              [
+                "Approvals",
+                "Approvals"
+              ],
+              [
+                "Comments",
+                "Comments"
+              ],
+              [
+                "System Config",
+                "System Config"
+              ],
+              [
+                "Version History",
+                "Version History"
+              ],
+              [
+                "Attachments",
+                "Attachments"
+              ]
+            ],
+            "toggle_field": {
+              "control_type": "text",
+              "label": "Sheet name",
+              "toggle_hint": "Use sheet name",
+              "extends_schema": true,
+              "change_on_blur": true,
+              "toggle_to_secondary_hint": "Use sheet name",
+              "toggle_to_primary_hint": "Select a sheet",
+              "hint": "Use <b>Sheet name</b> pill from the output of other Google Sheets’ triggers/actions. Or enter sheet name manually. The sheet must have at least 1 header row in input field.",
+              "type": "string",
+              "name": "sheet_name"
+            },
+            "toggle_hint": "Select a sheet",
+            "type": "string"
+          },
+          {
+            "hint": "Input values of the new row.",
+            "label": "Columns",
+            "name": "data",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "reviewId",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "col_1"
+              },
+              {
+                "control_type": "text",
+                "label": "caseId",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "col_2"
+              },
+              {
+                "control_type": "text",
+                "label": "reviewerEmail",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "col_3"
+              },
+              {
+                "control_type": "text",
+                "label": "decision",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "col_4"
+              },
+              {
+                "control_type": "text",
+                "label": "rating",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "col_5"
+              },
+              {
+                "control_type": "text",
+                "label": "comments",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "col_6"
+              },
+              {
+                "control_type": "text",
+                "label": "reviewDate",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "col_7"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "ae36bbd6-7e48-4ba6-a6db-9e52d0d6ca9f"
+      },
+      {
+        "number": 11,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe",
+        "as": "056c85cb",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "UTIL - Check Reviewer Consensus"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "01-Utility/util_check_reviewer_consensus.recipe.json",
+            "name": "UTIL - Check Reviewer Consensus",
+            "folder": "01-Utility"
+          },
+          "parameters": {
+            "case_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"6444deac\",\"path\":[\"request\",\"case_id\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "All approved",
+                "name": "all_approved",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "integer",
+                "label": "Reviewed count",
+                "parse_output": "integer_conversion",
+                "name": "reviewed_count",
+                "type": "integer",
+                "optional": false,
+                "render_input": "integer_conversion"
+              },
+              {
+                "control_type": "integer",
+                "label": "Total reviewers",
+                "parse_output": "integer_conversion",
+                "name": "total_reviewers",
+                "type": "integer",
+                "optional": false,
+                "render_input": "integer_conversion"
+              },
+              {
+                "control_type": "text",
+                "label": "Pending reviewers",
+                "name": "pending_reviewers",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Case ID",
+                "name": "case_id",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "0a0212c1-eec9-45ed-b530-0ab8ccf29349"
+      },
+      {
+        "number": 12,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe",
+        "as": "90bce4f9",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "UTIL - Log Audit Event"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "01-Utility/util_log_audit_event.recipe.json",
+            "name": "UTIL - Log Audit Event",
+            "folder": "01-Utility"
+          },
+          "parameters": {
+            "case_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"6444deac\",\"path\":[\"request\",\"case_id\"]}')}",
+            "event_type": "REVIEW_SUBMITTED",
+            "user_email": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"6444deac\",\"path\":[\"request\",\"reviewer_email\"]}')}",
+            "details": "=\"Review: \"+_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"6444deac\",\"path\":[\"request\",\"status\"]}')",
+            "old_value": "-",
+            "new_value": "-"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Case ID",
+                "name": "case_id",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Event type",
+                "name": "event_type",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "User email",
+                "name": "user_email",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Details",
+                "name": "details",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Old value",
+                "name": "old_value",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "New value",
+                "name": "new_value",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "3917a058-f92e-47ca-8597-34a9986a0f87"
+      },
+      {
+        "number": 13,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "equals_to",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"6444deac\",\"path\":[\"request\",\"status\"]}')}",
+              "rhs": "CHANGES_REQUESTED",
+              "uuid": "43344a04-9fb9-4a99-83c1-a663c8e5e76c"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 14,
+            "provider": "google_sheets",
+            "name": "update_row_v4_new",
+            "as": "faae105a",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "spreadsheet": "LBC Management System"
+            },
+            "input": {
+              "team_drives": "my_drive",
+              "spreadsheet": "1Uo2Z0jC_jlD5U3MxCH0s1W59XHBfkEaiiOGZaI39O48",
+              "sheet": "Business Cases",
+              "row_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_sheets\",\"line\":\"d48bd36f\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"row_number\"]}')}",
+              "data": {
+                "col_status": "CHANGES_REQUESTED",
+                "col_lastModified": "=now.strftime('%Y-%m-%d %H:%M:%S')"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Columns",
+                "name": "columns",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "caseId",
+                    "old_name": "col_caseId",
+                    "custom_attribute": 1,
+                    "type": "string",
+                    "name": "col_caseId"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "title",
+                    "old_name": "col_title",
+                    "custom_attribute": 2,
+                    "type": "string",
+                    "name": "col_title"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ownerEmail",
+                    "old_name": "col_ownerEmail",
+                    "custom_attribute": 3,
+                    "type": "string",
+                    "name": "col_ownerEmail"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "createdDate",
+                    "old_name": "col_createdDate",
+                    "custom_attribute": 4,
+                    "type": "string",
+                    "name": "col_createdDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "lastModified",
+                    "old_name": "col_lastModified",
+                    "custom_attribute": 5,
+                    "type": "string",
+                    "name": "col_lastModified"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "status",
+                    "old_name": "col_status",
+                    "custom_attribute": 6,
+                    "type": "string",
+                    "name": "col_status"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "version",
+                    "old_name": "col_version",
+                    "custom_attribute": 7,
+                    "type": "string",
+                    "name": "col_version"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "caseData",
+                    "old_name": "col_caseData",
+                    "custom_attribute": 8,
+                    "type": "string",
+                    "name": "col_caseData"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "submittedForReviewDate",
+                    "old_name": "col_submittedForReviewDate",
+                    "custom_attribute": 9,
+                    "type": "string",
+                    "name": "col_submittedForReviewDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "reviewDate",
+                    "old_name": "col_reviewDate",
+                    "custom_attribute": 10,
+                    "type": "string",
+                    "name": "col_reviewDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "reviewer",
+                    "old_name": "col_reviewer",
+                    "custom_attribute": 11,
+                    "type": "string",
+                    "name": "col_reviewer"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "submittedForApprovalDate",
+                    "old_name": "col_submittedForApprovalDate",
+                    "custom_attribute": 12,
+                    "type": "string",
+                    "name": "col_submittedForApprovalDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approvalDate",
+                    "old_name": "col_approvalDate",
+                    "custom_attribute": 13,
+                    "type": "string",
+                    "name": "col_approvalDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approver",
+                    "old_name": "col_approver",
+                    "custom_attribute": 14,
+                    "type": "string",
+                    "name": "col_approver"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "coAuthors",
+                    "old_name": "col_coAuthors",
+                    "custom_attribute": 15,
+                    "type": "string",
+                    "name": "col_coAuthors"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "watchers",
+                    "old_name": "col_watchers",
+                    "custom_attribute": 16,
+                    "type": "string",
+                    "name": "col_watchers"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "planningCycle",
+                    "old_name": "col_planningCycle",
+                    "custom_attribute": 17,
+                    "type": "string",
+                    "name": "col_planningCycle"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approvalDueDate",
+                    "old_name": "col_approvalDueDate",
+                    "custom_attribute": 18,
+                    "type": "string",
+                    "name": "col_approvalDueDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "parentCaseId",
+                    "old_name": "col_parentCaseId",
+                    "custom_attribute": 19,
+                    "type": "string",
+                    "name": "col_parentCaseId"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "recallCount",
+                    "old_name": "col_recallCount",
+                    "custom_attribute": 20,
+                    "type": "string",
+                    "name": "col_recallCount"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "select",
+                "extends_schema": true,
+                "hint": "Select a sheet to update row. The sheet must have at least one header row. <a href='https://docs.workato.com/connectors/google-sheets/action-add-row.html#setting-up-the-google-sheet' target='_blank'>Learn more</a>",
+                "label": "Sheet",
+                "name": "sheet",
+                "optional": false,
+                "pick_list": [
+                  [
+                    "Business Cases",
+                    "Business Cases"
+                  ],
+                  [
+                    "Reviews",
+                    "Reviews"
+                  ],
+                  [
+                    "Approvals",
+                    "Approvals"
+                  ],
+                  [
+                    "Comments",
+                    "Comments"
+                  ],
+                  [
+                    "System Config",
+                    "System Config"
+                  ],
+                  [
+                    "Version History",
+                    "Version History"
+                  ],
+                  [
+                    "Attachments",
+                    "Attachments"
+                  ]
+                ],
+                "toggle_field": {
+                  "control_type": "text",
+                  "label": "Sheet name",
+                  "toggle_hint": "Use sheet name",
+                  "extends_schema": true,
+                  "change_on_blur": true,
+                  "toggle_to_secondary_hint": "Use sheet name",
+                  "toggle_to_primary_hint": "Select a sheet",
+                  "hint": "Use <b>Sheet name</b> pill from the output of other Google Sheets’ triggers/actions. Or enter sheet name manually. The sheet must have at least 1 header row in input field.",
+                  "type": "string",
+                  "name": "sheet_name"
+                },
+                "toggle_hint": "Select a sheet",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "hint": "Enter the row number of the row you want to update. Or use <b>Row number</b> data pill from the output of other Google Sheets’s triggers & actions.",
+                "label": "Row number",
+                "name": "row_number",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "hint": "Input new values to update the row.",
+                "label": "Columns",
+                "name": "data",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "caseId",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_caseId"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "title",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_title"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ownerEmail",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_ownerEmail"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "createdDate",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_createdDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "lastModified",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_lastModified"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "status",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_status"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "version",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_version"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "caseData",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_caseData"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "submittedForReviewDate",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_submittedForReviewDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "reviewDate",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_reviewDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "reviewer",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_reviewer"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "submittedForApprovalDate",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_submittedForApprovalDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approvalDate",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_approvalDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approver",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_approver"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "coAuthors",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_coAuthors"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "watchers",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_watchers"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "planningCycle",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_planningCycle"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approvalDueDate",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_approvalDueDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "parentCaseId",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_parentCaseId"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "recallCount",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_recallCount"
+                  }
+                ],
+                "sticky": true,
+                "type": "object"
+              }
+            ],
+            "uuid": "db48d788-6f78-46b9-9da8-1b6de08b8266"
+          },
+          {
+            "number": 15,
+            "provider": "workato_api_platform",
+            "name": "return_response",
+            "as": "32c21f60",
+            "keyword": "action",
+            "toggleCfg": {
+              "response.success": true
+            },
+            "input": {
+              "http_status_code": "200",
+              "response": {
+                "success": "true",
+                "message": "Changes requested - case returned to draft",
+                "new_status": "DRAFT"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "change_on_blur": true,
+                "control_type": "select",
+                "extends_schema": true,
+                "label": "Response",
+                "name": "http_status_code",
+                "pick_list": [
+                  [
+                    "200 - OK",
+                    "200"
+                  ]
+                ],
+                "type": "string"
+              },
+              {
+                "label": "Response body",
+                "name": "response",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Success",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Success",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "type": "boolean",
+                      "name": "success"
+                    },
+                    "type": "boolean",
+                    "name": "success"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Message",
+                    "type": "string",
+                    "name": "message"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "New status",
+                    "type": "string",
+                    "name": "new_status"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "change_on_blur": true,
+                "control_type": "select",
+                "extends_schema": true,
+                "label": "Response",
+                "name": "http_status_code",
+                "pick_list": [
+                  [
+                    "200 - OK",
+                    "200"
+                  ]
+                ],
+                "type": "string"
+              },
+              {
+                "label": "Response body",
+                "name": "response",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Success",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Success",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "type": "boolean",
+                      "name": "success"
+                    },
+                    "type": "boolean",
+                    "name": "success"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Message",
+                    "type": "string",
+                    "name": "message"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "New status",
+                    "type": "string",
+                    "name": "new_status"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "e4b67b32-1fe4-4a36-920c-227cef98c872"
+          }
+        ],
+        "uuid": "bfd8ee30-81dd-41cb-bdbb-b5af1d16d235"
+      },
+      {
+        "number": 16,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "equals_to",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"056c85cb\",\"path\":[\"result\",\"all_approved\"]}')}",
+              "rhs": "true",
+              "uuid": "c6ddf2dd-ce21-4848-b8fd-2f1a1e44a9e1"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 17,
+            "provider": "google_sheets",
+            "name": "update_row_v4_new",
+            "as": "520603fc",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "spreadsheet": "LBC Management System"
+            },
+            "input": {
+              "team_drives": "my_drive",
+              "spreadsheet": "1Uo2Z0jC_jlD5U3MxCH0s1W59XHBfkEaiiOGZaI39O48",
+              "sheet": "Business Cases",
+              "row_number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_sheets\",\"line\":\"d48bd36f\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"row_number\"]}')}",
+              "data": {
+                "col_status": "REVIEWED",
+                "col_lastModified": "=now.strftime('%Y-%m-%d %H:%M:%S')",
+                "col_reviewDate": "=now.strftime('%Y-%m-%d %H:%M:%S')"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Columns",
+                "name": "columns",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "caseId",
+                    "old_name": "col_caseId",
+                    "custom_attribute": 1,
+                    "type": "string",
+                    "name": "col_caseId"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "title",
+                    "old_name": "col_title",
+                    "custom_attribute": 2,
+                    "type": "string",
+                    "name": "col_title"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ownerEmail",
+                    "old_name": "col_ownerEmail",
+                    "custom_attribute": 3,
+                    "type": "string",
+                    "name": "col_ownerEmail"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "createdDate",
+                    "old_name": "col_createdDate",
+                    "custom_attribute": 4,
+                    "type": "string",
+                    "name": "col_createdDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "lastModified",
+                    "old_name": "col_lastModified",
+                    "custom_attribute": 5,
+                    "type": "string",
+                    "name": "col_lastModified"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "status",
+                    "old_name": "col_status",
+                    "custom_attribute": 6,
+                    "type": "string",
+                    "name": "col_status"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "version",
+                    "old_name": "col_version",
+                    "custom_attribute": 7,
+                    "type": "string",
+                    "name": "col_version"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "caseData",
+                    "old_name": "col_caseData",
+                    "custom_attribute": 8,
+                    "type": "string",
+                    "name": "col_caseData"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "submittedForReviewDate",
+                    "old_name": "col_submittedForReviewDate",
+                    "custom_attribute": 9,
+                    "type": "string",
+                    "name": "col_submittedForReviewDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "reviewDate",
+                    "old_name": "col_reviewDate",
+                    "custom_attribute": 10,
+                    "type": "string",
+                    "name": "col_reviewDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "reviewer",
+                    "old_name": "col_reviewer",
+                    "custom_attribute": 11,
+                    "type": "string",
+                    "name": "col_reviewer"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "submittedForApprovalDate",
+                    "old_name": "col_submittedForApprovalDate",
+                    "custom_attribute": 12,
+                    "type": "string",
+                    "name": "col_submittedForApprovalDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approvalDate",
+                    "old_name": "col_approvalDate",
+                    "custom_attribute": 13,
+                    "type": "string",
+                    "name": "col_approvalDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approver",
+                    "old_name": "col_approver",
+                    "custom_attribute": 14,
+                    "type": "string",
+                    "name": "col_approver"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "coAuthors",
+                    "old_name": "col_coAuthors",
+                    "custom_attribute": 15,
+                    "type": "string",
+                    "name": "col_coAuthors"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "watchers",
+                    "old_name": "col_watchers",
+                    "custom_attribute": 16,
+                    "type": "string",
+                    "name": "col_watchers"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "planningCycle",
+                    "old_name": "col_planningCycle",
+                    "custom_attribute": 17,
+                    "type": "string",
+                    "name": "col_planningCycle"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approvalDueDate",
+                    "old_name": "col_approvalDueDate",
+                    "custom_attribute": 18,
+                    "type": "string",
+                    "name": "col_approvalDueDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "parentCaseId",
+                    "old_name": "col_parentCaseId",
+                    "custom_attribute": 19,
+                    "type": "string",
+                    "name": "col_parentCaseId"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "recallCount",
+                    "old_name": "col_recallCount",
+                    "custom_attribute": 20,
+                    "type": "string",
+                    "name": "col_recallCount"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "select",
+                "extends_schema": true,
+                "hint": "Select a sheet to update row. The sheet must have at least one header row. <a href='https://docs.workato.com/connectors/google-sheets/action-add-row.html#setting-up-the-google-sheet' target='_blank'>Learn more</a>",
+                "label": "Sheet",
+                "name": "sheet",
+                "optional": false,
+                "pick_list": [
+                  [
+                    "Business Cases",
+                    "Business Cases"
+                  ],
+                  [
+                    "Reviews",
+                    "Reviews"
+                  ],
+                  [
+                    "Approvals",
+                    "Approvals"
+                  ],
+                  [
+                    "Comments",
+                    "Comments"
+                  ],
+                  [
+                    "System Config",
+                    "System Config"
+                  ],
+                  [
+                    "Version History",
+                    "Version History"
+                  ],
+                  [
+                    "Attachments",
+                    "Attachments"
+                  ]
+                ],
+                "toggle_field": {
+                  "control_type": "text",
+                  "label": "Sheet name",
+                  "toggle_hint": "Use sheet name",
+                  "extends_schema": true,
+                  "change_on_blur": true,
+                  "toggle_to_secondary_hint": "Use sheet name",
+                  "toggle_to_primary_hint": "Select a sheet",
+                  "hint": "Use <b>Sheet name</b> pill from the output of other Google Sheets’ triggers/actions. Or enter sheet name manually. The sheet must have at least 1 header row in input field.",
+                  "type": "string",
+                  "name": "sheet_name"
+                },
+                "toggle_hint": "Select a sheet",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "hint": "Enter the row number of the row you want to update. Or use <b>Row number</b> data pill from the output of other Google Sheets’s triggers & actions.",
+                "label": "Row number",
+                "name": "row_number",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "hint": "Input new values to update the row.",
+                "label": "Columns",
+                "name": "data",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "caseId",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_caseId"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "title",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_title"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ownerEmail",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_ownerEmail"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "createdDate",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_createdDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "lastModified",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_lastModified"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "status",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_status"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "version",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_version"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "caseData",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_caseData"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "submittedForReviewDate",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_submittedForReviewDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "reviewDate",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_reviewDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "reviewer",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_reviewer"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "submittedForApprovalDate",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_submittedForApprovalDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approvalDate",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_approvalDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approver",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_approver"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "coAuthors",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_coAuthors"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "watchers",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_watchers"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "planningCycle",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_planningCycle"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approvalDueDate",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_approvalDueDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "parentCaseId",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_parentCaseId"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "recallCount",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "col_recallCount"
+                  }
+                ],
+                "sticky": true,
+                "type": "object"
+              }
+            ],
+            "uuid": "04a06c1b-dac9-48e0-b563-362f4fa940a0"
+          },
+          {
+            "number": 18,
+            "provider": "workato_api_platform",
+            "name": "return_response",
+            "as": "f0d88a92",
+            "keyword": "action",
+            "toggleCfg": {
+              "response.success": true
+            },
+            "input": {
+              "http_status_code": "200",
+              "response": {
+                "success": "true",
+                "message": "All reviews complete - case marked as reviewed",
+                "new_status": "REVIEWED"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "change_on_blur": true,
+                "control_type": "select",
+                "extends_schema": true,
+                "label": "Response",
+                "name": "http_status_code",
+                "pick_list": [
+                  [
+                    "200 - OK",
+                    "200"
+                  ]
+                ],
+                "type": "string"
+              },
+              {
+                "label": "Response body",
+                "name": "response",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Success",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Success",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "type": "boolean",
+                      "name": "success"
+                    },
+                    "type": "boolean",
+                    "name": "success"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Message",
+                    "type": "string",
+                    "name": "message"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "New status",
+                    "type": "string",
+                    "name": "new_status"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "change_on_blur": true,
+                "control_type": "select",
+                "extends_schema": true,
+                "label": "Response",
+                "name": "http_status_code",
+                "pick_list": [
+                  [
+                    "200 - OK",
+                    "200"
+                  ]
+                ],
+                "type": "string"
+              },
+              {
+                "label": "Response body",
+                "name": "response",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Success",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Success",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "type": "boolean",
+                      "name": "success"
+                    },
+                    "type": "boolean",
+                    "name": "success"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Message",
+                    "type": "string",
+                    "name": "message"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "New status",
+                    "type": "string",
+                    "name": "new_status"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "f0a0d445-9d52-40bc-a0aa-afcc9e824d73"
+          }
+        ],
+        "uuid": "99028a7e-72d4-402a-beb1-e5e900712be3"
+      },
+      {
+        "number": 19,
+        "provider": "workato_api_platform",
+        "name": "return_response",
+        "as": "28568569",
+        "keyword": "action",
+        "toggleCfg": {
+          "response.success": true
+        },
+        "input": {
+          "http_status_code": "200",
+          "response": {
+            "success": "true",
+            "message": "Review recorded, waiting for remaining reviewers",
+            "new_status": "PENDING_REVIEW"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "change_on_blur": true,
+            "control_type": "select",
+            "extends_schema": true,
+            "label": "Response",
+            "name": "http_status_code",
+            "pick_list": [
+              [
+                "200 - OK",
+                "200"
+              ]
+            ],
+            "type": "string"
+          },
+          {
+            "label": "Response body",
+            "name": "response",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Success",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Success",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "type": "boolean",
+                  "name": "success"
+                },
+                "type": "boolean",
+                "name": "success"
+              },
+              {
+                "control_type": "text",
+                "label": "Message",
+                "type": "string",
+                "name": "message"
+              },
+              {
+                "control_type": "text",
+                "label": "New status",
+                "type": "string",
+                "name": "new_status"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "change_on_blur": true,
+            "control_type": "select",
+            "extends_schema": true,
+            "label": "Response",
+            "name": "http_status_code",
+            "pick_list": [
+              [
+                "200 - OK",
+                "200"
+              ]
+            ],
+            "type": "string"
+          },
+          {
+            "label": "Response body",
+            "name": "response",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Success",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Success",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "type": "boolean",
+                  "name": "success"
+                },
+                "type": "boolean",
+                "name": "success"
+              },
+              {
+                "control_type": "text",
+                "label": "Message",
+                "type": "string",
+                "name": "message"
+              },
+              {
+                "control_type": "text",
+                "label": "New status",
+                "type": "string",
+                "name": "new_status"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "a90f7b34-095a-4625-809b-aea4c21b40c1"
+      }
+    ],
+    "comment": "Define the request and response parameters for this API endpoint",
+    "uuid": "4862f121-c5fa-49d7-b1d3-a871fb878751"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_api_platform",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "lookup_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "google_sheets",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "lbcm_google_sheets.connection.json",
+        "name": "LBCM - Google Sheets",
+        "folder": ""
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
