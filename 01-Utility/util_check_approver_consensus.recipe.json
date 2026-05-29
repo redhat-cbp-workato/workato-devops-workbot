@@ -1,0 +1,1131 @@
+{
+  "name": "UTIL - Check Approver Consensus",
+  "description": "",
+  "version": 8,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "4b4dfda7",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"case_id\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Case ID\"}]",
+      "result_schema_json": "[{\"name\":\"all_approved\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"All approved\"},{\"name\":\"reviewed_count\",\"type\":\"integer\",\"optional\":false,\"control_type\":\"integer\",\"label\":\"Reviewed count\",\"parse_output\":\"integer_conversion\",\"render_input\":\"integer_conversion\"},{\"name\":\"total_reviewers\",\"type\":\"integer\",\"optional\":false,\"control_type\":\"integer\",\"label\":\"Total reviewers\",\"parse_output\":\"integer_conversion\",\"render_input\":\"integer_conversion\"},{\"name\":\"pending_reviewers\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Pending reviewers\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Case ID",
+            "name": "case_id",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "lookup_table",
+        "name": "search_entries",
+        "as": "cd5b6860",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "lookup_table_id": "lbcm_mandatory_roles"
+        },
+        "input": {
+          "lookup_table_id": {
+            "zip_name": "lbcm_mandatory_roles.lookup_table.json",
+            "name": "lbcm_mandatory_roles",
+            "folder": ""
+          },
+          "parameters": {
+            "col1": "APPROVER",
+            "col4": "true"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Entries",
+            "name": "entries",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Entry ID",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "id"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Role type",
+                    "name": "col1",
+                    "sticky": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Email",
+                    "name": "col2",
+                    "sticky": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Display name",
+                    "name": "col3",
+                    "sticky": true,
+                    "type": "string"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Is active",
+                    "name": "col4",
+                    "sticky": true,
+                    "type": "string"
+                  }
+                ],
+                "label": "Entry",
+                "type": "object",
+                "name": "entry"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "hint": "Provide one or more entry fields to search the entry",
+            "label": "Search by",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Role type",
+                "name": "col1",
+                "sticky": true,
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Email",
+                "name": "col2",
+                "sticky": true,
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Display name",
+                "name": "col3",
+                "sticky": true,
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Is active",
+                "name": "col4",
+                "sticky": true,
+                "type": "string",
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "1904d32a-016e-4163-9dbd-048b6f0e10db"
+      },
+      {
+        "number": 2,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "fde5a9ce",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"name\":\"pending_reviewers\",\"type\":\"string\",\"optional\":true,\"label\":\"pending_reviewers\",\"details\":{\"real_name\":\"pending_reviewers\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "label": "pending_reviewers",
+            "name": "pending_reviewers",
+            "optional": true,
+            "type": "string",
+            "details": {
+              "real_name": "pending_reviewers"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "pending_reviewers",
+                    "name": "pending_reviewers",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "pending_reviewers"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.pending_reviewers"
+        ],
+        "uuid": "88cf4956-8bb0-4012-8a0f-73c0df0f3116"
+      },
+      {
+        "number": 3,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "2e21dbb5",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"name\":\"total_reviewers\",\"type\":\"integer\",\"optional\":true,\"label\":\"total_reviewers\",\"details\":{\"real_name\":\"total_reviewers\"},\"control_type\":\"integer\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "total_reviewers": "=_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"cd5b6860\",\"path\":[\"entries\",{\"path_element_type\":\"size\"}]}')"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "integer",
+            "label": "total_reviewers",
+            "name": "total_reviewers",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "type": "integer",
+            "details": {
+              "real_name": "total_reviewers"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "integer",
+                    "label": "total_reviewers",
+                    "parse_output": "integer_conversion",
+                    "name": "total_reviewers",
+                    "type": "integer",
+                    "optional": true,
+                    "details": {
+                      "real_name": "total_reviewers"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.total_reviewers"
+        ],
+        "uuid": "7491ebab-c4d4-4cd8-b865-277aacbc4d45"
+      },
+      {
+        "number": 4,
+        "provider": "google_sheets",
+        "name": "search_spreadsheet_rows_v4_new",
+        "as": "83e70cf6",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "spreadsheet": "LBC Management System"
+        },
+        "input": {
+          "team_drives": "my_drive",
+          "spreadsheet": "1Uo2Z0jC_jlD5U3MxCH0s1W59XHBfkEaiiOGZaI39O48",
+          "count": "200",
+          "sheet": "Approvals",
+          "data": {
+            "col_caseId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"4b4dfda7\",\"path\":[\"parameters\",\"case_id\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "label": "Spreadsheet ID",
+            "name": "spreadsheet_id",
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "label": "Spreadsheet name",
+            "name": "spreadsheet_name",
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "label": "Sheet name",
+            "name": "sheet",
+            "type": "string"
+          },
+          {
+            "label": "Rows",
+            "name": "rows",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "number",
+                "label": "Row number",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "row_number"
+              },
+              {
+                "control_type": "text",
+                "label": "approvalId",
+                "old_name": "col_approvalId",
+                "custom_attribute": 1,
+                "type": "string",
+                "name": "col_approvalId"
+              },
+              {
+                "control_type": "text",
+                "label": "caseId",
+                "old_name": "col_caseId",
+                "custom_attribute": 2,
+                "type": "string",
+                "name": "col_caseId"
+              },
+              {
+                "control_type": "text",
+                "label": "approverEmail",
+                "old_name": "col_approverEmail",
+                "custom_attribute": 3,
+                "type": "string",
+                "name": "col_approverEmail"
+              },
+              {
+                "control_type": "text",
+                "label": "decision",
+                "old_name": "col_decision",
+                "custom_attribute": 4,
+                "type": "string",
+                "name": "col_decision"
+              },
+              {
+                "control_type": "text",
+                "label": "comments",
+                "old_name": "col_comments",
+                "custom_attribute": 5,
+                "type": "string",
+                "name": "col_comments"
+              },
+              {
+                "control_type": "text",
+                "label": "approvalDate",
+                "old_name": "col_approvalDate",
+                "custom_attribute": 6,
+                "type": "string",
+                "name": "col_approvalDate"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "select",
+            "extends_schema": true,
+            "hint": "Select a sheet to search for rows. The sheet must have at least one header row. <a href='https://docs.workato.com/connectors/google-sheets/action-add-row.html#setting-up-the-google-sheet' target='_blank'>Learn more</a>",
+            "label": "Sheet",
+            "name": "sheet",
+            "optional": false,
+            "pick_list": [
+              [
+                "Business Cases",
+                "Business Cases"
+              ],
+              [
+                "Reviews",
+                "Reviews"
+              ],
+              [
+                "Approvals",
+                "Approvals"
+              ],
+              [
+                "Comments",
+                "Comments"
+              ],
+              [
+                "System Config",
+                "System Config"
+              ],
+              [
+                "Version History",
+                "Version History"
+              ],
+              [
+                "Attachments",
+                "Attachments"
+              ]
+            ],
+            "toggle_field": {
+              "control_type": "text",
+              "label": "Sheet name",
+              "toggle_hint": "Use sheet name",
+              "extends_schema": true,
+              "change_on_blur": true,
+              "toggle_to_secondary_hint": "Use sheet name",
+              "toggle_to_primary_hint": "Select a sheet",
+              "hint": "Use <b>Sheet name</b> pill from the output of other Google Sheets’ triggers/actions. Or enter sheet name manually. The sheet must have at least 1 header row in input field.",
+              "type": "string",
+              "name": "sheet_name"
+            },
+            "toggle_hint": "Select a sheet",
+            "type": "string"
+          },
+          {
+            "hint": "Enter one or more search values. Workato will search for rows matching <b>ALL</b> of the search values below.",
+            "label": "Columns",
+            "name": "data",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "approvalId",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_approvalId"
+              },
+              {
+                "control_type": "text",
+                "label": "caseId",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_caseId"
+              },
+              {
+                "control_type": "text",
+                "label": "approverEmail",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_approverEmail"
+              },
+              {
+                "control_type": "text",
+                "label": "decision",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_decision"
+              },
+              {
+                "control_type": "text",
+                "label": "comments",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_comments"
+              },
+              {
+                "control_type": "text",
+                "label": "approvalDate",
+                "optional": true,
+                "sticky": true,
+                "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                "type": "string",
+                "name": "col_approvalDate"
+              }
+            ],
+            "sticky": true,
+            "type": "object"
+          },
+          {
+            "control_type": "number",
+            "default": 200,
+            "hint": "Maximum number of matched rows to be returned. Minimum accepted value is <b>1</b> and maximum accepted value is <b>50000</b>.",
+            "label": "Search result size",
+            "name": "count",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "type": "number"
+          }
+        ],
+        "uuid": "ab19450c-2373-44c3-8c31-9bb23c8328a2"
+      },
+      {
+        "number": 5,
+        "as": "99de292f",
+        "keyword": "foreach",
+        "repeat_mode": "simple",
+        "clear_scope": "false",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 6,
+            "provider": "google_sheets",
+            "name": "search_spreadsheet_rows_v4_new",
+            "as": "eba0bb33",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "spreadsheet": "LBC Management System"
+            },
+            "input": {
+              "team_drives": "my_drive",
+              "spreadsheet": "1Uo2Z0jC_jlD5U3MxCH0s1W59XHBfkEaiiOGZaI39O48",
+              "count": "200",
+              "sheet": "Approvals",
+              "data": {
+                "col_caseId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"4b4dfda7\",\"path\":[\"parameters\",\"case_id\"]}')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "text",
+                "label": "Spreadsheet ID",
+                "name": "spreadsheet_id",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "label": "Spreadsheet name",
+                "name": "spreadsheet_name",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "label": "Sheet name",
+                "name": "sheet",
+                "type": "string"
+              },
+              {
+                "label": "Rows",
+                "name": "rows",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "Row number",
+                    "parse_output": "integer_conversion",
+                    "type": "integer",
+                    "name": "row_number"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approvalId",
+                    "old_name": "col_approvalId",
+                    "custom_attribute": 1,
+                    "type": "string",
+                    "name": "col_approvalId"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "caseId",
+                    "old_name": "col_caseId",
+                    "custom_attribute": 2,
+                    "type": "string",
+                    "name": "col_caseId"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approverEmail",
+                    "old_name": "col_approverEmail",
+                    "custom_attribute": 3,
+                    "type": "string",
+                    "name": "col_approverEmail"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "decision",
+                    "old_name": "col_decision",
+                    "custom_attribute": 4,
+                    "type": "string",
+                    "name": "col_decision"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "comments",
+                    "old_name": "col_comments",
+                    "custom_attribute": 5,
+                    "type": "string",
+                    "name": "col_comments"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approvalDate",
+                    "old_name": "col_approvalDate",
+                    "custom_attribute": 6,
+                    "type": "string",
+                    "name": "col_approvalDate"
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "select",
+                "extends_schema": true,
+                "hint": "Select a sheet to search for rows. The sheet must have at least one header row. <a href='https://docs.workato.com/connectors/google-sheets/action-add-row.html#setting-up-the-google-sheet' target='_blank'>Learn more</a>",
+                "label": "Sheet",
+                "name": "sheet",
+                "optional": false,
+                "pick_list": [
+                  [
+                    "Business Cases",
+                    "Business Cases"
+                  ],
+                  [
+                    "Reviews",
+                    "Reviews"
+                  ],
+                  [
+                    "Approvals",
+                    "Approvals"
+                  ],
+                  [
+                    "Comments",
+                    "Comments"
+                  ],
+                  [
+                    "System Config",
+                    "System Config"
+                  ],
+                  [
+                    "Version History",
+                    "Version History"
+                  ],
+                  [
+                    "Attachments",
+                    "Attachments"
+                  ]
+                ],
+                "toggle_field": {
+                  "control_type": "text",
+                  "label": "Sheet name",
+                  "toggle_hint": "Use sheet name",
+                  "extends_schema": true,
+                  "change_on_blur": true,
+                  "toggle_to_secondary_hint": "Use sheet name",
+                  "toggle_to_primary_hint": "Select a sheet",
+                  "hint": "Use <b>Sheet name</b> pill from the output of other Google Sheets’ triggers/actions. Or enter sheet name manually. The sheet must have at least 1 header row in input field.",
+                  "type": "string",
+                  "name": "sheet_name"
+                },
+                "toggle_hint": "Select a sheet",
+                "type": "string"
+              },
+              {
+                "hint": "Enter one or more search values. Workato will search for rows matching <b>ALL</b> of the search values below.",
+                "label": "Columns",
+                "name": "data",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "approvalId",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                    "type": "string",
+                    "name": "col_approvalId"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "caseId",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                    "type": "string",
+                    "name": "col_caseId"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approverEmail",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                    "type": "string",
+                    "name": "col_approverEmail"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "decision",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                    "type": "string",
+                    "name": "col_decision"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "comments",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                    "type": "string",
+                    "name": "col_comments"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "approvalDate",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                    "type": "string",
+                    "name": "col_approvalDate"
+                  }
+                ],
+                "sticky": true,
+                "type": "object"
+              },
+              {
+                "control_type": "number",
+                "default": 200,
+                "hint": "Maximum number of matched rows to be returned. Minimum accepted value is <b>1</b> and maximum accepted value is <b>50000</b>.",
+                "label": "Search result size",
+                "name": "count",
+                "optional": true,
+                "parse_output": "float_conversion",
+                "type": "number"
+              }
+            ],
+            "uuid": "9a86f2b0-03e8-4280-82a1-a145865520c9"
+          }
+        ],
+        "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"lookup_table\",\"line\":\"cd5b6860\",\"path\":[\"entries\"]}')}",
+        "uuid": "dca91e4e-b0cf-4052-8214-705c3bf5073b"
+      },
+      {
+        "number": 7,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "equals_to",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_sheets\",\"line\":\"eba0bb33\",\"path\":[\"rows\",{\"path_element_type\":\"size\"}]}')}",
+              "rhs": "0",
+              "uuid": "159eff5c-58fc-4e59-bfae-477abd2bef1a"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 8,
+            "provider": "workato_variable",
+            "name": "update_variables",
+            "as": "ed9e5f8d",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": [
+                {
+                  "label": "pending_reviewers (step 3)",
+                  "value": "88cf4956-8bb0-4012-8a0f-73c0df0f3116:fde5a9ce:pending_reviewers"
+                }
+              ]
+            },
+            "input": {
+              "input_mode": "raw",
+              "name": "88cf4956-8bb0-4012-8a0f-73c0df0f3116:fde5a9ce:pending_reviewers",
+              "pending_reviewers": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"fde5a9ce\",\"path\":[\"pending_reviewers\"]}')+\",\"+_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"99de292f\",\"path\":[\"entry\",\"col2\"]}')"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "pending_reviewers",
+                "name": "pending_reviewers",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              }
+            ],
+            "uuid": "4b37f881-aacd-47fe-b4ac-e2e2f0f730de"
+          }
+        ],
+        "uuid": "aa072ed4-d1c9-4811-9a2c-cf6d9731cfaa"
+      },
+      {
+        "number": 9,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "67ba5f04",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"name\":\"all_approved\",\"type\":\"string\",\"optional\":true,\"label\":\"all_approved\",\"details\":{\"real_name\":\"all_approved\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "all_approved": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"fde5a9ce\",\"path\":[\"pending_reviewers\"]}').blank?"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "label": "all_approved",
+            "name": "all_approved",
+            "optional": true,
+            "type": "string",
+            "details": {
+              "real_name": "all_approved"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "all_approved",
+                    "name": "all_approved",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "all_approved"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.all_approved"
+        ],
+        "uuid": "58f36e36-2346-47b9-ab13-6ee87bd7df8f"
+      },
+      {
+        "number": 10,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "fbe91d7f",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"name\":\"reviewed_count\",\"type\":\"integer\",\"optional\":true,\"label\":\"reviewed_count\",\"details\":{\"real_name\":\"reviewed_count\"},\"control_type\":\"integer\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "reviewed_count": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"2e21dbb5\",\"path\":[\"total_reviewers\"]}')-_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"fde5a9ce\",\"path\":[\"pending_reviewers\"]}').split(\",\")\n"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "integer",
+            "label": "reviewed_count",
+            "name": "reviewed_count",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "type": "integer",
+            "details": {
+              "real_name": "reviewed_count"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "integer",
+                    "label": "reviewed_count",
+                    "parse_output": "integer_conversion",
+                    "name": "reviewed_count",
+                    "type": "integer",
+                    "optional": true,
+                    "details": {
+                      "real_name": "reviewed_count"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.reviewed_count"
+        ],
+        "uuid": "71a2516c-cb69-4916-844b-e279c08429c6"
+      },
+      {
+        "number": 11,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "6f0e0bfe",
+        "keyword": "action",
+        "input": {
+          "result": {
+            "all_approved": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"67ba5f04\",\"path\":[\"all_approved\"]}')}",
+            "reviewed_count": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"fbe91d7f\",\"path\":[\"reviewed_count\"]}')}",
+            "total_reviewers": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"2e21dbb5\",\"path\":[\"total_reviewers\"]}')}",
+            "pending_reviewers": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"fde5a9ce\",\"path\":[\"pending_reviewers\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "All approved",
+                "name": "all_approved",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "integer",
+                "label": "Reviewed count",
+                "parse_output": "integer_conversion",
+                "name": "reviewed_count",
+                "type": "integer",
+                "optional": false,
+                "render_input": "integer_conversion"
+              },
+              {
+                "control_type": "integer",
+                "label": "Total reviewers",
+                "parse_output": "integer_conversion",
+                "name": "total_reviewers",
+                "type": "integer",
+                "optional": false,
+                "render_input": "integer_conversion"
+              },
+              {
+                "control_type": "text",
+                "label": "Pending reviewers",
+                "name": "pending_reviewers",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "All approved",
+                "name": "all_approved",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "integer",
+                "label": "Reviewed count",
+                "parse_output": "integer_conversion",
+                "name": "reviewed_count",
+                "type": "integer",
+                "optional": false,
+                "render_input": "integer_conversion"
+              },
+              {
+                "control_type": "integer",
+                "label": "Total reviewers",
+                "parse_output": "integer_conversion",
+                "name": "total_reviewers",
+                "type": "integer",
+                "optional": false,
+                "render_input": "integer_conversion"
+              },
+              {
+                "control_type": "text",
+                "label": "Pending reviewers",
+                "name": "pending_reviewers",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "c7d6c171-732a-4ee9-9a34-adec54dd6d84"
+      }
+    ],
+    "uuid": "337f2c73-793c-4345-bf7d-58a2f037c204"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "lookup_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "google_sheets",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "lbcm_google_sheets.connection.json",
+        "name": "LBCM - Google Sheets",
+        "folder": ""
+      }
+    }
+  ]
+}
