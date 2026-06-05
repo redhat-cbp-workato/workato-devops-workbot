@@ -1,0 +1,1062 @@
+{
+  "name": "FAM Matrix",
+  "description": "",
+  "version": 4,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "clock",
+    "name": "scheduled_event",
+    "as": "scheduled_event_1",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "time_unit": "Weeks",
+      "days_of_week": [
+        {
+          "label": "Monday",
+          "value": "1"
+        }
+      ]
+    },
+    "input": {
+      "time_unit": "weeks",
+      "trigger_every": "1",
+      "days_of_week": "1",
+      "trigger_at": "10:00:00.000"
+    },
+    "extended_input_schema": [
+      {
+        "control_type": "integer",
+        "default": "5",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Define repeating schedule. Enter whole numbers only.This field can be set to a minimum of 5 minutes.",
+        "label": "Trigger every",
+        "name": "trigger_every",
+        "optional": false,
+        "suffix": {
+          "text": "weeks"
+        },
+        "type": "string"
+      },
+      {
+        "control_type": "multiselect",
+        "delimiter": ",",
+        "extends_schema": true,
+        "hint": "Select the days on which your schedule should repeat.",
+        "label": "Days of the week",
+        "name": "days_of_week",
+        "optional": false,
+        "pick_list": "days_of_week",
+        "type": "string"
+      },
+      {
+        "change_on_blur": true,
+        "control_type": "time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set a time to schedule the job using supported formats only. <a href=\"https://docs.workato.com/features/scheduler.html#supported-datetime-formats\" target=\"_blank\">Learn more</a>",
+        "label": "Trigger at",
+        "name": "trigger_at",
+        "optional": false,
+        "type": "string"
+      },
+      {
+        "control_type": "select",
+        "hint": "Select the timezone to use. Leave it blank to use <b>{{authUser.account_timezone}}</b>",
+        "label": "Timezone",
+        "name": "timezone",
+        "optional": true,
+        "pick_list": "timezone_id_global_pick_list",
+        "pick_list_connection_less": true,
+        "type": "string"
+      },
+      {
+        "control_type": "date_time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set date and time to start or leave blank to start immediately. <b>Once recipe has been run or tested, value cannot be changed.</b>",
+        "label": "Start after",
+        "name": "start_after",
+        "optional": true,
+        "parse_output": "date_time_conversion",
+        "since_field": true,
+        "type": "date_time",
+        "ignore_timezone": true,
+        "render_input": "date_time_conversion"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "snowflake",
+        "name": "search_rows_sql",
+        "as": "search_rows_sql_2",
+        "keyword": "action",
+        "input": {
+          "sql": "SELECT\n    TRIM(COST_CENTER) AS COST_CENTER,\n    DESCRIPTION,\n    DEPT_1,\n    DEPT_2,\n    DEPT_3,\n    DEPT_4,\n    DEPT_5,\n    DEPT_6\nFROM ONESTREAM_DB.UNRESTRICTED_MARTS.METADATA_COSTCENTER_INTERNAL",
+          "limit": "1000"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Rows",
+            "name": "rows",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "COST_CENTER",
+                "details": {
+                  "primary_key": false,
+                  "data_type": "varchar",
+                  "column_name": "COST_CENTER",
+                  "length": 256,
+                  "precision": 256,
+                  "scale": 0
+                },
+                "optional": true,
+                "hint": "varchar, max length 256",
+                "type": "string",
+                "name": "cost_center"
+              },
+              {
+                "control_type": "text",
+                "label": "DESCRIPTION",
+                "details": {
+                  "primary_key": false,
+                  "data_type": "varchar",
+                  "column_name": "DESCRIPTION",
+                  "length": 256,
+                  "precision": 256,
+                  "scale": 0
+                },
+                "optional": true,
+                "hint": "varchar, max length 256",
+                "type": "string",
+                "name": "description"
+              },
+              {
+                "control_type": "text",
+                "label": "DEPT_1",
+                "details": {
+                  "primary_key": false,
+                  "data_type": "varchar",
+                  "column_name": "DEPT_1",
+                  "length": 256,
+                  "precision": 256,
+                  "scale": 0
+                },
+                "optional": true,
+                "hint": "varchar, max length 256",
+                "type": "string",
+                "name": "dept_1"
+              },
+              {
+                "control_type": "text",
+                "label": "DEPT_2",
+                "details": {
+                  "primary_key": false,
+                  "data_type": "varchar",
+                  "column_name": "DEPT_2",
+                  "length": 256,
+                  "precision": 256,
+                  "scale": 0
+                },
+                "optional": true,
+                "hint": "varchar, max length 256",
+                "type": "string",
+                "name": "dept_2"
+              },
+              {
+                "control_type": "text",
+                "label": "DEPT_3",
+                "details": {
+                  "primary_key": false,
+                  "data_type": "varchar",
+                  "column_name": "DEPT_3",
+                  "length": 256,
+                  "precision": 256,
+                  "scale": 0
+                },
+                "optional": true,
+                "hint": "varchar, max length 256",
+                "type": "string",
+                "name": "dept_3"
+              },
+              {
+                "control_type": "text",
+                "label": "DEPT_4",
+                "details": {
+                  "primary_key": false,
+                  "data_type": "varchar",
+                  "column_name": "DEPT_4",
+                  "length": 256,
+                  "precision": 256,
+                  "scale": 0
+                },
+                "optional": true,
+                "hint": "varchar, max length 256",
+                "type": "string",
+                "name": "dept_4"
+              },
+              {
+                "control_type": "text",
+                "label": "DEPT_5",
+                "details": {
+                  "primary_key": false,
+                  "data_type": "varchar",
+                  "column_name": "DEPT_5",
+                  "length": 256,
+                  "precision": 256,
+                  "scale": 0
+                },
+                "optional": true,
+                "hint": "varchar, max length 256",
+                "type": "string",
+                "name": "dept_5"
+              },
+              {
+                "control_type": "text",
+                "label": "DEPT_6",
+                "details": {
+                  "primary_key": false,
+                  "data_type": "varchar",
+                  "column_name": "DEPT_6",
+                  "length": 256,
+                  "precision": 256,
+                  "scale": 0
+                },
+                "optional": true,
+                "hint": "varchar, max length 256",
+                "type": "string",
+                "name": "dept_6"
+              }
+            ],
+            "type": "array",
+            "order_by_hint": false
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "form-schema-builder",
+            "hint": "First provide the full name assigned to your bind variable in the WHERE condition. e.g. <b>id</b>\n                    Second, provide the actual parameter value. Parameter values can be static or datapills.\n                    Select the <b>closest corresponding data type</b> that your database is expecting for the bind variable\n                    ",
+            "label": "Parameters",
+            "name": "parameters",
+            "optional": true,
+            "override": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+
+                ],
+                "label": "Data",
+                "optional": true,
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "sticky": true,
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "sql",
+          "parameters",
+          "limit"
+        ],
+        "comment": "Search for rows in the Snowflake table ONESTREAM_DB.UNRESTRICTED_MARTS.METADATA_COSTCENTER_INTERNAL.",
+        "uuid": "ec0d46f3-e23d-4364-82d6-fa98fd2af33a",
+        "skip": false
+      },
+      {
+        "number": 2,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "59fb882e",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"name\":\"records_added\",\"type\":\"number\",\"optional\":true,\"label\":\"records_added\",\"details\":{\"real_name\":\"records_added\"},\"control_type\":\"number\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "records_added": "0"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "number",
+            "label": "records_added",
+            "name": "records_added",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "type": "number",
+            "details": {
+              "real_name": "records_added"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "records_added",
+                    "parse_output": "float_conversion",
+                    "name": "records_added",
+                    "type": "number",
+                    "optional": true,
+                    "details": {
+                      "real_name": "records_added"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.NewRecordsEmailBody",
+          "variables",
+          "variables.schema",
+          "variables.data.records_added"
+        ],
+        "uuid": "a61ffb81-f1a3-48f0-b35b-f8810da47bb5"
+      },
+      {
+        "number": 3,
+        "as": "0802b952",
+        "keyword": "foreach",
+        "repeat_mode": "simple",
+        "clear_scope": "false",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 4,
+            "provider": "google_sheets",
+            "name": "search_spreadsheet_rows_v4_new",
+            "as": "b343e0e6",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "spreadsheet": "FAM Matrix"
+            },
+            "input": {
+              "team_drives": "my_drive",
+              "spreadsheet": "1A4MUvudyfnlvW296pYOIBru5zsfFxo81nfS0WNk6Eek",
+              "count": "1",
+              "sheet": "Cost Center Mapping",
+              "data": {
+                "col_COST_CENTER": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"0802b952\",\"path\":[\"cost_center\"]}')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "text",
+                "label": "Spreadsheet ID",
+                "name": "spreadsheet_id",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "label": "Spreadsheet name",
+                "name": "spreadsheet_name",
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "label": "Sheet name",
+                "name": "sheet",
+                "type": "string"
+              },
+              {
+                "label": "Rows",
+                "name": "rows",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "number",
+                    "label": "Row number",
+                    "parse_output": "integer_conversion",
+                    "type": "integer",
+                    "name": "row_number"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "COST_CENTER",
+                    "old_name": "col_COST_CENTER",
+                    "custom_attribute": 1,
+                    "type": "string",
+                    "name": "col_COST_CENTER"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "DESCRIPTION",
+                    "old_name": "col_DESCRIPTION",
+                    "custom_attribute": 2,
+                    "type": "string",
+                    "name": "col_DESCRIPTION"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "DEPT_1",
+                    "old_name": "col_DEPT_1",
+                    "custom_attribute": 3,
+                    "type": "string",
+                    "name": "col_DEPT_1"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "DEPT_2",
+                    "old_name": "col_DEPT_2",
+                    "custom_attribute": 4,
+                    "type": "string",
+                    "name": "col_DEPT_2"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "DEPT_3",
+                    "old_name": "col_DEPT_3",
+                    "custom_attribute": 5,
+                    "type": "string",
+                    "name": "col_DEPT_3"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "DEPT_4",
+                    "old_name": "col_DEPT_4",
+                    "custom_attribute": 6,
+                    "type": "string",
+                    "name": "col_DEPT_4"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "DEPT_5",
+                    "old_name": "col_DEPT_5",
+                    "custom_attribute": 7,
+                    "type": "string",
+                    "name": "col_DEPT_5"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "DEPT_6",
+                    "old_name": "col_DEPT_6",
+                    "custom_attribute": 8,
+                    "type": "string",
+                    "name": "col_DEPT_6"
+                  }
+                ],
+                "type": "array"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "select",
+                "extends_schema": true,
+                "hint": "Select a sheet to search for rows. The sheet must have at least one header row. <a href='https://docs.workato.com/connectors/google-sheets/action-add-row.html#setting-up-the-google-sheet' target='_blank'>Learn more</a>",
+                "label": "Sheet",
+                "name": "sheet",
+                "optional": false,
+                "pick_list": [
+                  [
+                    "CY25 CURRENT Support Matrix (NEW as of Mar2025)",
+                    "CY25 CURRENT Support Matrix (NEW as of Mar2025)"
+                  ],
+                  [
+                    "Consolidated list WIP",
+                    "Consolidated list WIP"
+                  ],
+                  [
+                    "Rover Email",
+                    "Rover Email"
+                  ],
+                  [
+                    "Cost Center Mapping",
+                    "Cost Center Mapping"
+                  ],
+                  [
+                    "HC CC",
+                    "HC CC"
+                  ],
+                  [
+                    "OS CC list as of 9.1.25",
+                    "OS CC list as of 9.1.25"
+                  ],
+                  [
+                    "Compensation Analyst",
+                    "Compensation Analyst"
+                  ],
+                  [
+                    "HRBP",
+                    "HRBP"
+                  ],
+                  [
+                    "CLT",
+                    "CLT"
+                  ],
+                  [
+                    "Corp Functions by FAM",
+                    "Corp Functions by FAM"
+                  ],
+                  [
+                    "CIO",
+                    "CIO"
+                  ],
+                  [
+                    "PnGE",
+                    "PnGE"
+                  ],
+                  [
+                    "Marketing",
+                    "Marketing"
+                  ],
+                  [
+                    "Sales",
+                    "Sales"
+                  ],
+                  [
+                    "Services",
+                    "Services"
+                  ],
+                  [
+                    "as of 4/14/25",
+                    "as of 4/14/25"
+                  ],
+                  [
+                    "CY22 CURRENT Support Matrix (OLD Thru Feb2025)",
+                    "CY22 CURRENT Support Matrix (OLD Thru Feb2025)"
+                  ],
+                  [
+                    "WIP_CC Hierarchy",
+                    "WIP_CC Hierarchy"
+                  ],
+                  [
+                    "OLD  Support Matrix",
+                    "OLD  Support Matrix"
+                  ],
+                  [
+                    "Support Matrix Oct 2019",
+                    "Support Matrix Oct 2019"
+                  ]
+                ],
+                "toggle_field": {
+                  "control_type": "text",
+                  "label": "Sheet name",
+                  "toggle_hint": "Use sheet name",
+                  "extends_schema": true,
+                  "change_on_blur": true,
+                  "toggle_to_secondary_hint": "Use sheet name",
+                  "toggle_to_primary_hint": "Select a sheet",
+                  "hint": "Use <b>Sheet name</b> pill from the output of other Google Sheets’ triggers/actions. Or enter sheet name manually. The sheet must have at least 1 header row in input field.",
+                  "type": "string",
+                  "name": "sheet_name"
+                },
+                "toggle_hint": "Select a sheet",
+                "type": "string"
+              },
+              {
+                "hint": "Enter one or more search values. Workato will search for rows matching <b>ALL</b> of the search values below.",
+                "label": "Columns",
+                "name": "data",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "COST_CENTER",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                    "type": "string",
+                    "name": "col_COST_CENTER"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "DESCRIPTION",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                    "type": "string",
+                    "name": "col_DESCRIPTION"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "DEPT_1",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                    "type": "string",
+                    "name": "col_DEPT_1"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "DEPT_2",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                    "type": "string",
+                    "name": "col_DEPT_2"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "DEPT_3",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                    "type": "string",
+                    "name": "col_DEPT_3"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "DEPT_4",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                    "type": "string",
+                    "name": "col_DEPT_4"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "DEPT_5",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                    "type": "string",
+                    "name": "col_DEPT_5"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "DEPT_6",
+                    "optional": true,
+                    "sticky": true,
+                    "hint": "Search for an exact match of the search value you enter here. Search value is case-sensitive and can contain space.",
+                    "type": "string",
+                    "name": "col_DEPT_6"
+                  }
+                ],
+                "sticky": true,
+                "type": "object"
+              },
+              {
+                "control_type": "number",
+                "default": 200,
+                "hint": "Maximum number of matched rows to be returned. Minimum accepted value is <b>1</b> and maximum accepted value is <b>50000</b>.",
+                "label": "Search result size",
+                "name": "count",
+                "optional": true,
+                "parse_output": "float_conversion",
+                "type": "number"
+              }
+            ],
+            "visible_config_fields": [
+              "team_drives",
+              "spreadsheet",
+              "sheet",
+              "data",
+              "data.col_COST_CENTER",
+              "count"
+            ],
+            "hidden_config_fields": [
+              "data.col_DESCRIPTION",
+              "data.col_DEPT_1",
+              "data.col_DEPT_2",
+              "data.col_DEPT_3",
+              "data.col_DEPT_4",
+              "data.col_DEPT_5",
+              "data.col_DEPT_6"
+            ],
+            "uuid": "059a8b98-be99-422a-aa81-b04888cd7ef7"
+          },
+          {
+            "number": 5,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"google_sheets\",\"line\":\"b343e0e6\",\"path\":[\"rows\",{\"path_element_type\":\"size\"}]}')}",
+                  "rhs": "0",
+                  "uuid": "e056c629-5a53-4d55-b842-5511f7248091"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 6,
+                "provider": "google_sheets",
+                "name": "add_spreadsheet_row_v4",
+                "as": "331e8122",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "spreadsheet": "FAM Matrix"
+                },
+                "toggleCfg": {
+                  "is_top_left": true
+                },
+                "input": {
+                  "team_drives": "my_drive",
+                  "is_top_left": "false",
+                  "spreadsheet": "1A4MUvudyfnlvW296pYOIBru5zsfFxo81nfS0WNk6Eek",
+                  "sheet": "Cost Center Mapping",
+                  "data": {
+                    "col_1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"0802b952\",\"path\":[\"cost_center\"]}')}",
+                    "col_2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"0802b952\",\"path\":[\"description\"]}')}",
+                    "col_3": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"0802b952\",\"path\":[\"dept_1\"]}')}",
+                    "col_4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"0802b952\",\"path\":[\"dept_2\"]}')}",
+                    "col_5": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"0802b952\",\"path\":[\"dept_3\"]}')}",
+                    "col_6": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"0802b952\",\"path\":[\"dept_5\"]}')}",
+                    "col_7": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"0802b952\",\"path\":[\"dept_5\"]}')}",
+                    "col_8": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"0802b952\",\"path\":[\"dept_6\"]}')}"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "select",
+                    "extends_schema": true,
+                    "hint": "Select a sheet to add row to. The sheet must have at least one header row. <a href='https://docs.workato.com/connectors/google-sheets/action-add-row.html#setting-up-the-google-sheet' target='_blank'>Learn more</a>",
+                    "label": "Sheet",
+                    "name": "sheet",
+                    "optional": false,
+                    "pick_list": [
+                      [
+                        "CY25 CURRENT Support Matrix (NEW as of Mar2025)",
+                        "CY25 CURRENT Support Matrix (NEW as of Mar2025)"
+                      ],
+                      [
+                        "Consolidated list WIP",
+                        "Consolidated list WIP"
+                      ],
+                      [
+                        "Rover Email",
+                        "Rover Email"
+                      ],
+                      [
+                        "Cost Center Mapping",
+                        "Cost Center Mapping"
+                      ],
+                      [
+                        "HC CC",
+                        "HC CC"
+                      ],
+                      [
+                        "OS CC list as of 9.1.25",
+                        "OS CC list as of 9.1.25"
+                      ],
+                      [
+                        "Compensation Analyst",
+                        "Compensation Analyst"
+                      ],
+                      [
+                        "HRBP",
+                        "HRBP"
+                      ],
+                      [
+                        "CLT",
+                        "CLT"
+                      ],
+                      [
+                        "Corp Functions by FAM",
+                        "Corp Functions by FAM"
+                      ],
+                      [
+                        "CIO",
+                        "CIO"
+                      ],
+                      [
+                        "PnGE",
+                        "PnGE"
+                      ],
+                      [
+                        "Marketing",
+                        "Marketing"
+                      ],
+                      [
+                        "Sales",
+                        "Sales"
+                      ],
+                      [
+                        "Services",
+                        "Services"
+                      ],
+                      [
+                        "as of 4/14/25",
+                        "as of 4/14/25"
+                      ],
+                      [
+                        "CY22 CURRENT Support Matrix (OLD Thru Feb2025)",
+                        "CY22 CURRENT Support Matrix (OLD Thru Feb2025)"
+                      ],
+                      [
+                        "WIP_CC Hierarchy",
+                        "WIP_CC Hierarchy"
+                      ],
+                      [
+                        "OLD  Support Matrix",
+                        "OLD  Support Matrix"
+                      ],
+                      [
+                        "Support Matrix Oct 2019",
+                        "Support Matrix Oct 2019"
+                      ]
+                    ],
+                    "toggle_field": {
+                      "control_type": "text",
+                      "label": "Sheet name",
+                      "toggle_hint": "Use sheet name",
+                      "extends_schema": true,
+                      "change_on_blur": true,
+                      "toggle_to_secondary_hint": "Use sheet name",
+                      "toggle_to_primary_hint": "Select a sheet",
+                      "hint": "Use <b>Sheet name</b> pill from the output of other Google Sheets’ triggers/actions. Or enter sheet name manually. The sheet must have at least 1 header row in input field.",
+                      "type": "string",
+                      "name": "sheet_name"
+                    },
+                    "toggle_hint": "Select a sheet",
+                    "type": "string"
+                  },
+                  {
+                    "hint": "Input values of the new row.",
+                    "label": "Columns",
+                    "name": "data",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "COST_CENTER",
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "col_1"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "DESCRIPTION",
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "col_2"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "DEPT_1",
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "col_3"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "DEPT_2",
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "col_4"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "DEPT_3",
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "col_5"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "DEPT_4",
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "col_6"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "DEPT_5",
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "col_7"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "DEPT_6",
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "col_8"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "9f263693-a874-4898-b09b-e34b822025ab"
+              },
+              {
+                "number": 7,
+                "provider": "workato_variable",
+                "name": "update_variables",
+                "as": "015a5cc9",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": [
+                    {
+                      "label": "records_added (step 3)",
+                      "value": "a61ffb81-f1a3-48f0-b35b-f8810da47bb5:59fb882e:records_added"
+                    }
+                  ]
+                },
+                "input": {
+                  "input_mode": "raw",
+                  "name": "a61ffb81-f1a3-48f0-b35b-f8810da47bb5:59fb882e:records_added",
+                  "records_added": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"59fb882e\",\"path\":[\"records_added\"]}')+1"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "number",
+                    "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                    "label": "records_added",
+                    "name": "records_added",
+                    "optional": true,
+                    "parse_output": "float_conversion",
+                    "sticky": true,
+                    "type": "number",
+                    "strip_interpolation": true
+                  }
+                ],
+                "uuid": "75df242a-629a-4cbe-8d76-bb7bf109aec7"
+              }
+            ],
+            "uuid": "c5b3c376-5109-4940-9e40-a8e27e1d4ccd"
+          }
+        ],
+        "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"search_rows_sql_2\",\"path\":[\"rows\"]}')}",
+        "uuid": "77d4264f-01d7-4162-9dfc-08a013c402e8"
+      },
+      {
+        "number": 8,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "greater_than",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"59fb882e\",\"path\":[\"records_added\"]}')}",
+              "rhs": "0",
+              "uuid": "9f2586c9-0fb5-4e70-8516-0a1b969bb67a"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 9,
+            "provider": "gmail",
+            "name": "send_mail",
+            "as": "b9e47b83",
+            "keyword": "action",
+            "input": {
+              "email_type": "text",
+              "to": "gkshirsa@redhat.com, jsandlin@redhat.com",
+              "subject": "FAM Matrix Sheet Updated - New Records Added",
+              "body": "Hello Team,\n\nThis is an automated notification to inform you that new record(s) have been added to the FAM Matrix sheet.\nPlease review the newly added entries at your convenience.\nhttps://docs.google.com/spreadsheets/d/1A4MUvudyfnlvW296pYOIBru5zsfFxo81nfS0WNk6Eek/edit?gid=875715391#gid=875715391\n\n",
+              "from": "gkshirsa@redhat.com"
+            },
+            "visible_config_fields": [
+              "to",
+              "subject",
+              "email_type",
+              "body",
+              "from"
+            ],
+            "uuid": "d5b17dc8-73fb-4e9e-986c-6dd5930c86c4"
+          }
+        ],
+        "uuid": "44011b1e-bad1-46d5-a961-6650a8ad5a2c"
+      }
+    ],
+    "comment": "Trigger the recipe to run every day at 9 AM or every 6 hours.",
+    "uuid": "405ef643-7281-4629-aab1-0ffd73fb5153",
+    "skip": false
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "account_id": null,
+      "skip_validation": false
+    },
+    {
+      "keyword": "application",
+      "provider": "snowflake",
+      "account_id": {
+        "zip_name": "Connections/snowflake_connection_onestream_db.connection.json",
+        "name": "Snowflake connection - Onestream_DB",
+        "folder": "Connections"
+      },
+      "skip_validation": false
+    },
+    {
+      "keyword": "application",
+      "provider": "google_sheets",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/workato_fam_matrix.connection.json",
+        "name": "Workato FAM Matrix",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "gmail",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/fam_matrix_workato.connection.json",
+        "name": "FAM Matrix Workato",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
