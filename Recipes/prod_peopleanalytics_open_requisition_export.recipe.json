@@ -1,7 +1,7 @@
 {
   "name": "Prod - PeopleAnalytics - Open Requisition Export",
   "description": "",
-  "version": 4,
+  "version": 38,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -11,19 +11,12 @@
     "as": "scheduled_event_1",
     "keyword": "trigger",
     "dynamicPickListSelection": {
-      "time_unit": "Custom schedule",
-      "days_of_month": [
-        {
-          "label": "1",
-          "value": "1"
-        }
-      ],
-      "timezone": "America/New_York (-05:00)"
+      "time_unit": "Custom schedule"
     },
     "input": {
       "time_unit": "custom_schedule",
-      "cron_expression": "0 7 1 * *",
-      "timezone": "America/New_York"
+      "timezone": "America/New_York",
+      "cron_expression": "0 7 2 * *"
     },
     "extended_input_schema": [
       {
@@ -60,68 +53,216 @@
         "render_input": "date_time_conversion"
       }
     ],
-    "visible_config_fields": [
-      "time_unit",
-      "trigger_every",
-      "days_of_month",
-      "trigger_at",
-      "timezone"
-    ],
     "block": [
       {
         "number": 1,
-        "provider": "snowflake",
-        "name": "export_csv_v2",
-        "as": "export_csv_v2_2",
-        "keyword": "action",
+        "as": "try_2",
+        "keyword": "try",
         "input": {
-          "_action_version": "2",
-          "timeout": "60",
-          "sql": "SELECT * FROM PEOPLEANALYTICS_DB.FPAA_MARTS.HC_FCST_OS_AUTOMATION",
-          "delimiter": "comma"
         },
-        "extended_output_schema": [
+        "block": [
           {
-            "control_type": "string",
-            "extends_schema": false,
-            "label": "File content",
-            "name": "file_content",
-            "optional": false,
-            "type": "string"
+            "number": 2,
+            "provider": "snowflake",
+            "name": "export_csv_v2",
+            "as": "export_csv_v2_3",
+            "keyword": "action",
+            "input": {
+              "_action_version": "2",
+              "timeout": "60",
+              "sql": "SELECT * FROM PEOPLEANALYTICS_DB.FPAA_MARTS.HC_FCST_OS_AUTOMATION",
+              "delimiter": "comma"
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "string",
+                "label": "File content",
+                "name": "file_content",
+                "optional": false,
+                "type": "string"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "integer",
+                "default": 60,
+                "hint": "Set an upper limit for this wait action. If one or more of the async\njobs take longer than this, proceed to the next step without waiting.\nMaximum is 120 minutes.\n",
+                "label": "Timeout limit (minutes)",
+                "name": "timeout",
+                "optional": true,
+                "parse_output": "integer_conversion",
+                "sticky": false,
+                "type": "integer"
+              }
+            ],
+            "uuid": "45a7bb94-6c01-400d-b41f-b9b4bc610560",
+            "skip": false
+          },
+          {
+            "number": 3,
+            "as": "82f2a512",
+            "keyword": "if",
+            "input": {
+              "operand": "and",
+              "type": "compound",
+              "conditions": [
+                {
+                  "operand": "blank",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"export_csv_v2_3\",\"path\":[\"file_content\"]}')}",
+                  "rhs": ""
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 4,
+                "provider": "gmail",
+                "name": "send_mail",
+                "as": "send_mail_5",
+                "keyword": "action",
+                "input": {
+                  "email_type": "text",
+                  "to": "pchopde@redhat.com, epm-admin-team@redhat.com",
+                  "subject": "ERROR - WORKATO",
+                  "body": "File not Present"
+                },
+                "uuid": "7f800999-ffe1-4e4e-806d-5c909639169c",
+                "skip": false
+              }
+            ],
+            "uuid": "e1f7c28c-e3c5-40e8-9364-8c9506e7ea6c",
+            "skip": false
+          },
+          {
+            "number": 5,
+            "as": "catch_7",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "3",
+              "retry_interval": "10"
+            },
+            "block": [
+              {
+                "number": 6,
+                "provider": "gmail",
+                "name": "send_mail",
+                "as": "send_mail_8",
+                "keyword": "action",
+                "input": {
+                  "email_type": "text",
+                  "to": "pchopde@redhat.com, epm-admin-team@redhat.com",
+                  "subject": "WORKATO ERROR ",
+                  "body": "EXPORT QUERY FAILED"
+                },
+                "uuid": "06a82a36-b705-498d-8407-f444de28869f",
+                "skip": false
+              },
+              {
+                "number": 7,
+                "as": "82a9d51a",
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "true",
+                  "stop_reason": "Step 3 Failed"
+                },
+                "uuid": "ab91941f-57ef-4c08-91cc-ef22996d2c00",
+                "skip": false
+              }
+            ],
+            "uuid": "da7b20dc-59c1-4e9a-8039-5091c92537fc",
+            "skip": false
           }
         ],
-        "extended_input_schema": [
-          {
-            "control_type": "integer",
-            "default": 60,
-            "extends_schema": false,
-            "hint": "Set an upper limit for this wait action. If one or more of the async\njobs take longer than this, proceed to the next step without waiting.\nMaximum is 120 minutes.\n",
-            "label": "Timeout limit (minutes)",
-            "name": "timeout",
-            "optional": true,
-            "parse_output": "integer_conversion",
-            "sticky": false,
-            "type": "integer"
-          }
-        ],
-        "uuid": "45a7bb94-6c01-400d-b41f-b9b4bc610560",
+        "uuid": "b7feaa99-af71-475d-b67e-5eca5e2569e5",
         "skip": false
       },
       {
-        "number": 2,
-        "provider": "sftp",
-        "name": "upload",
-        "as": "upload_3",
-        "keyword": "action",
-        "toggleCfg": {
-          "append": true
-        },
+        "number": 8,
+        "as": "try_10",
+        "keyword": "try",
         "input": {
-          "content": "=_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"export_csv_v2_2\",\"path\":[\"file_content\"]}')",
-          "filename": "=\"/epm-sftp/Headcount/headcount_requisitions_\" + now.strftime(\"%Y%m%d_%H%M%S\") + \".csv\"",
-          "append": "false"
         },
-        "uuid": "166f532a-2616-415b-9327-bcdf7ef7d5b9",
+        "block": [
+          {
+            "number": 9,
+            "provider": "sftp",
+            "name": "upload",
+            "as": "upload_11",
+            "keyword": "action",
+            "toggleCfg": {
+              "append": true
+            },
+            "input": {
+              "content": "=_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"export_csv_v2_3\",\"path\":[\"file_content\"]}')",
+              "filename": "=\"/epm-sftp/Headcount/headcount_requisitions_\" + now.strftime(\"%Y%m%d_%H%M%S\") + \".csv\"",
+              "append": "false"
+            },
+            "uuid": "b55b97c3-d2fe-4d9e-86bc-019c37e6f384",
+            "skip": false
+          },
+          {
+            "number": 10,
+            "as": "catch_12",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "3",
+              "retry_interval": "10"
+            },
+            "block": [
+              {
+                "number": 11,
+                "provider": "gmail",
+                "name": "send_mail",
+                "as": "send_mail_13",
+                "keyword": "action",
+                "input": {
+                  "email_type": "text",
+                  "to": "pchopde@redhat.com, epm-admin-team@redhat.com",
+                  "subject": "ERROR",
+                  "body": "STEP 3 Failed"
+                },
+                "uuid": "aa9418ea-6d90-4a38-8381-84dace6bd788",
+                "skip": false
+              },
+              {
+                "number": 12,
+                "as": "042a3c34",
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "true",
+                  "stop_reason": "Step No"
+                },
+                "uuid": "40bf7e8d-ac6f-4d50-b1da-214e1f1a494d",
+                "skip": false
+              }
+            ],
+            "uuid": "2a21a7d0-cd7a-457d-8e32-8c22f54dfb2c",
+            "skip": false
+          }
+        ],
+        "uuid": "9f856227-6916-4e33-8287-31d9885803f9",
+        "skip": false
+      },
+      {
+        "number": 13,
+        "provider": "gmail",
+        "name": "send_mail",
+        "as": "6c40aa16",
+        "keyword": "action",
+        "input": {
+          "to": "pchopde@redhat.com, epm-admin-team@redhat.com",
+          "subject": "Exported File",
+          "body": "The exported file has been generated successfully. Please check the SFTP server for the file.#{_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"export_csv_v2_3\",\"path\":[\"row_count\"]}')}",
+          "email_type": "text",
+          "attachments": [
+            {
+              "file_binary_content": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"export_csv_v2_3\",\"path\":[\"file_content\"]}')}",
+              "file_name": "=\"headcount_requisitions_\" + now.strftime(\"%Y%m%d_%H%M%S\") + \".csv\""
+            }
+          ]
+        },
+        "comment": "original step: ~",
+        "uuid": "3890eea4-811a-4499-9282-646d0a4c2bcb",
         "skip": false
       }
     ],
@@ -152,6 +293,16 @@
       "account_id": {
         "zip_name": "Connections/snowflake_connection_peopleanalytics_db.connection.json",
         "name": "Snowflake Connection - PeopleAnalytics_DB",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "gmail",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/snowflake_openreq.connection.json",
+        "name": "Snowflake OpenReq",
         "folder": "Connections"
       }
     }
