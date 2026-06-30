@@ -1,7 +1,7 @@
 {
   "name": "[Core CRM] REC | Get EBS Accounts",
   "description": "[ECM-119250] - Create workato recipe to retreive ERP accounts from Rosetta Stone given a CRM account MDM ID and EBS Account Number\n\nThis recipe automates the process of searching for user account information in a Snowflake database based on input parameters received via an API request.\n- The process begins by receiving a request that specifies the type of search (e.g., by email or another identifier) and the corresponding search value.\n- It then executes a SQL query against the Snowflake database to retrieve relevant account details, including MDM party ID, country, account IDs, names, and statuses.\n- If the SQL query fails, an error message is returned indicating that the search service is temporarily busy.\n- Regardless of the outcome, the request details are logged for tracking purposes.\n- Finally, if the query is successful, the recipe returns the retrieved account information in a structured response format.",
-  "version": 50,
+  "version": 51,
   "private": true,
   "concurrency": 1,
   "version_comment": "ECM-119250 : Create workato recipe to retreive ERP accounts from Rosetta Stone given a CRM account MDM ID and EBS Account Number",
@@ -260,12 +260,63 @@
     "block": [
       {
         "number": 1,
+        "provider": "logger",
+        "name": "log_message",
+        "as": "ff17de77",
+        "keyword": "action",
+        "input": {
+          "user_logs_enabled": true,
+          "log_level": "INFO",
+          "message": "=\"Payload: Log Requestor: \" + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"b51ba955\",\"path\":[\"request\",\"userEmail\"]}') + \" ,Term: \" + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"b51ba955\",\"path\":[\"request\",\"searchValue\"]}') + \" ,Timestamp: \" +\nnow"
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "select",
+            "default": "INFO",
+            "disable_formula": true,
+            "hint": "Flag your message with a log level to easily find the right entry in the Workato logs.",
+            "label": "Log level",
+            "name": "log_level",
+            "ngIf": "input.user_logs_enabled == true",
+            "optional": false,
+            "pick_list": [
+              [
+                "INFO",
+                "INFO"
+              ],
+              [
+                "WARN",
+                "WARN"
+              ],
+              [
+                "ERROR",
+                "ERROR"
+              ]
+            ],
+            "type": "string"
+          },
+          {
+            "control_type": "switch",
+            "default": false,
+            "disable_formula": true,
+            "extends_schema": true,
+            "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
+            "label": "Send to Workato log service",
+            "name": "user_logs_enabled",
+            "optional": true,
+            "type": "string"
+          }
+        ],
+        "uuid": "448293f5-d8d2-488b-95a8-f9dab8df27dc"
+      },
+      {
+        "number": 2,
         "keyword": "try",
         "input": {
         },
         "block": [
           {
-            "number": 2,
+            "number": 3,
             "provider": "snowflake",
             "name": "run_custom_sql",
             "as": "4a46269f",
@@ -410,7 +461,7 @@
             "uuid": "abeeb6c5-a29a-48d0-9e94-2c2e64e99ad6"
           },
           {
-            "number": 3,
+            "number": 4,
             "as": "eacfcd09",
             "keyword": "catch",
             "input": {
@@ -419,7 +470,7 @@
             },
             "block": [
               {
-                "number": 4,
+                "number": 5,
                 "provider": "workato_api_platform",
                 "name": "return_response",
                 "as": "4ee99bd2",
@@ -505,57 +556,6 @@
           }
         ],
         "uuid": "ef5e365b-cdc6-4b7e-9ce7-72c89217fd56"
-      },
-      {
-        "number": 5,
-        "provider": "logger",
-        "name": "log_message",
-        "as": "ff17de77",
-        "keyword": "action",
-        "input": {
-          "user_logs_enabled": true,
-          "log_level": "INFO",
-          "message": "=\"Payload: Log Requestor: \" + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"b51ba955\",\"path\":[\"request\",\"userEmail\"]}') + \" ,Term: \" + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"b51ba955\",\"path\":[\"request\",\"searchValue\"]}') + \" ,Timestamp: \" +\nnow"
-        },
-        "extended_input_schema": [
-          {
-            "control_type": "select",
-            "default": "INFO",
-            "disable_formula": true,
-            "hint": "Flag your message with a log level to easily find the right entry in the Workato logs.",
-            "label": "Log level",
-            "name": "log_level",
-            "ngIf": "input.user_logs_enabled == true",
-            "optional": false,
-            "pick_list": [
-              [
-                "INFO",
-                "INFO"
-              ],
-              [
-                "WARN",
-                "WARN"
-              ],
-              [
-                "ERROR",
-                "ERROR"
-              ]
-            ],
-            "type": "string"
-          },
-          {
-            "control_type": "switch",
-            "default": false,
-            "disable_formula": true,
-            "extends_schema": true,
-            "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
-            "label": "Send to Workato log service",
-            "name": "user_logs_enabled",
-            "optional": true,
-            "type": "string"
-          }
-        ],
-        "uuid": "448293f5-d8d2-488b-95a8-f9dab8df27dc"
       },
       {
         "number": 6,
