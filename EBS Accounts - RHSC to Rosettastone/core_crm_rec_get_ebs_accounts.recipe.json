@@ -1,0 +1,793 @@
+{
+  "name": "[Core CRM] REC | Get EBS Accounts",
+  "description": "[ECM-119250] - Create workato recipe to retreive ERP accounts from Rosetta Stone given a CRM account MDM ID and EBS Account Number\n\nThis recipe automates the process of searching for user account information in a Snowflake database based on input parameters received via an API request.\n- The process begins by receiving a request that specifies the type of search (e.g., by email or another identifier) and the corresponding search value.\n- It then executes a SQL query against the Snowflake database to retrieve relevant account details, including MDM party ID, country, account IDs, names, and statuses.\n- If the SQL query fails, an error message is returned indicating that the search service is temporarily busy.\n- Regardless of the outcome, the request details are logged for tracking purposes.\n- Finally, if the query is successful, the recipe returns the retrieved account information in a structured response format.",
+  "version": 51,
+  "private": true,
+  "concurrency": 1,
+  "version_comment": "ECM-119250 : Create workato recipe to retreive ERP accounts from Rosetta Stone given a CRM account MDM ID and EBS Account Number",
+  "code": {
+    "number": 0,
+    "provider": "workato_api_platform",
+    "name": "receive_request",
+    "as": "b51ba955",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "response.responses.0.http_status_code": "200 - OK",
+      "response.responses.1.http_status_code": "503 - Service Unavailable"
+    },
+    "toggleCfg": {
+      "response.responses.0.http_status_code": true,
+      "response.responses.1.http_status_code": true
+    },
+    "input": {
+      "request": {
+        "content_type": "json",
+        "path_params": "[]",
+        "schema": "[{\"name\":\"searchType\",\"type\":\"string\",\"optional\":false,\"control_type\":\"text\",\"label\":\"Search Type\"},{\"name\":\"userEmail\",\"type\":\"string\",\"optional\":true,\"control_type\":\"text\",\"label\":\"User email\"},{\"name\":\"searchValue\",\"type\":\"string\",\"optional\":false,\"label\":\"Search Value\",\"control_type\":\"text\"}]"
+      },
+      "response": {
+        "content_type": "json",
+        "responses": [
+          {
+            "name": "responsePayload",
+            "http_status_code": "200",
+            "body_schema": "[{\"label\":\"ebsAccounts\",\"name\":\"ebsAccounts\",\"type\":\"array\",\"optional\":false,\"of\":\"object\",\"properties\":[{\"control_type\":\"text\",\"label\":\"Mdm party ID\",\"type\":\"string\",\"name\":\"mdmPartyId\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Country\",\"type\":\"string\",\"name\":\"country\"},{\"control_type\":\"text\",\"label\":\"Rhsc acct ID\",\"type\":\"string\",\"name\":\"rhscAcctId\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Rhsc acct name\",\"type\":\"string\",\"name\":\"rhscAcctName\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Ebs account number\",\"type\":\"string\",\"name\":\"ebsAccountNumber\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Ebs party name\",\"type\":\"string\",\"name\":\"ebsPartyName\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Ebs party type\",\"type\":\"string\",\"name\":\"ebsPartyType\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"ebs account status\",\"name\":\"ebsAccountStatus\",\"type\":\"string\",\"optional\":false}]}]"
+          },
+          {
+            "name": "errorPayload",
+            "http_status_code": "503",
+            "body_schema": "[{\"name\":\"errorMessage\",\"type\":\"string\",\"optional\":false,\"label\":\"Error Message\",\"control_type\":\"text\"}]"
+          }
+        ]
+      }
+    },
+    "extended_output_schema": [
+      {
+        "label": "Context",
+        "name": "context",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Calling IP address",
+            "optional": true,
+            "type": "string",
+            "name": "calling_ip"
+          },
+          {
+            "properties": [
+              {
+                "control_type": "integer",
+                "label": "Access profile ID",
+                "parse_output": "integer_conversion",
+                "optional": true,
+                "type": "integer",
+                "name": "id"
+              },
+              {
+                "control_type": "text",
+                "label": "Access profile name",
+                "optional": true,
+                "type": "string",
+                "name": "name"
+              },
+              {
+                "control_type": "text",
+                "label": "Access profile authentication type",
+                "optional": true,
+                "type": "string",
+                "name": "type"
+              }
+            ],
+            "label": "Access profile",
+            "type": "object",
+            "name": "access_profile"
+          },
+          {
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "API client ID",
+                "optional": true,
+                "type": "string",
+                "name": "id"
+              },
+              {
+                "control_type": "text",
+                "label": "API client name",
+                "optional": true,
+                "type": "string",
+                "name": "name"
+              }
+            ],
+            "label": "API client",
+            "type": "object",
+            "name": "client"
+          },
+          {
+            "properties": [
+              {
+                "control_type": "integer",
+                "label": "Issued At",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "iat"
+              },
+              {
+                "control_type": "integer",
+                "label": "Not Before",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "nbf"
+              },
+              {
+                "control_type": "integer",
+                "label": "Expiration Time",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "exp"
+              },
+              {
+                "control_type": "text",
+                "label": "Audience",
+                "optional": true,
+                "type": "string",
+                "name": "aud"
+              },
+              {
+                "control_type": "text",
+                "label": "JWT ID",
+                "optional": true,
+                "type": "string",
+                "name": "jti"
+              },
+              {
+                "control_type": "text",
+                "label": "Issuer",
+                "optional": true,
+                "type": "string",
+                "name": "iss"
+              }
+            ],
+            "label": "JWT claims",
+            "type": "object",
+            "name": "jwt_payload"
+          },
+          {
+            "properties": [
+              {
+                "properties": [
+                  {
+                    "control_type": "checkbox",
+                    "label": "Active",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "optional": true,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Active",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "optional": true,
+                      "type": "boolean",
+                      "name": "active"
+                    },
+                    "type": "boolean",
+                    "name": "active"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Scope",
+                    "optional": true,
+                    "type": "string",
+                    "name": "scope"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Client ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "client_id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Username",
+                    "optional": true,
+                    "type": "string",
+                    "name": "username"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Token type",
+                    "optional": true,
+                    "type": "string",
+                    "name": "token_type"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Exp",
+                    "optional": true,
+                    "type": "string",
+                    "name": "exp"
+                  }
+                ],
+                "label": "Response Body",
+                "type": "object",
+                "name": "payload"
+              }
+            ],
+            "label": "Token introspection",
+            "type": "object",
+            "name": "introspect"
+          }
+        ],
+        "type": "object"
+      },
+      {
+        "label": "Request parameters",
+        "name": "request",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Search Type",
+            "name": "searchType",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "User email",
+            "name": "userEmail",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "Search Value",
+            "name": "searchValue",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "logger",
+        "name": "log_message",
+        "as": "ff17de77",
+        "keyword": "action",
+        "input": {
+          "user_logs_enabled": true,
+          "log_level": "INFO",
+          "message": "=\"Payload: Log Requestor: \" + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"b51ba955\",\"path\":[\"request\",\"userEmail\"]}') + \" ,Term: \" + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"b51ba955\",\"path\":[\"request\",\"searchValue\"]}') + \" ,Timestamp: \" +\nnow"
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "select",
+            "default": "INFO",
+            "disable_formula": true,
+            "hint": "Flag your message with a log level to easily find the right entry in the Workato logs.",
+            "label": "Log level",
+            "name": "log_level",
+            "ngIf": "input.user_logs_enabled == true",
+            "optional": false,
+            "pick_list": [
+              [
+                "INFO",
+                "INFO"
+              ],
+              [
+                "WARN",
+                "WARN"
+              ],
+              [
+                "ERROR",
+                "ERROR"
+              ]
+            ],
+            "type": "string"
+          },
+          {
+            "control_type": "switch",
+            "default": false,
+            "disable_formula": true,
+            "extends_schema": true,
+            "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
+            "label": "Send to Workato log service",
+            "name": "user_logs_enabled",
+            "optional": true,
+            "type": "string"
+          }
+        ],
+        "uuid": "448293f5-d8d2-488b-95a8-f9dab8df27dc"
+      },
+      {
+        "number": 2,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 3,
+            "provider": "snowflake",
+            "name": "run_custom_sql",
+            "as": "4a46269f",
+            "keyword": "action",
+            "toggleCfg": {
+              "update_only": true
+            },
+            "input": {
+              "sql": "SELECT MDM_PARTY_ID, COUNTRY, RHSC_ACCT_ID, RHSC_ACCT_NAME, EBS_ACCOUNT_NUMBER, EBS_PARTY_NAME, EBS_PARTY_TYPE,EBS_ACCOUNT_STATUS FROM ROSETTASTONE_DB.MARTS.MDM_RHSC_EBS_ENHANCED_MAPPING where #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"b51ba955\",\"path\":[\"request\",\"searchType\"]}')} =#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_api_platform\",\"line\":\"b51ba955\",\"path\":[\"request\",\"searchValue\"]}')}",
+              "output_schema": "[{\"control_type\":\"text\",\"label\":\"Mdm party ID\",\"type\":\"string\",\"name\":\"mdm_party_id\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Country\",\"type\":\"string\",\"name\":\"country\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Rhsc acct ID\",\"type\":\"string\",\"name\":\"rhsc_acct_id\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Rhsc acct name\",\"type\":\"string\",\"name\":\"rhsc_acct_name\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Ebs account number\",\"type\":\"string\",\"name\":\"ebs_account_number\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Ebs party name\",\"type\":\"string\",\"name\":\"ebs_party_name\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Ebs party type\",\"type\":\"string\",\"name\":\"ebs_party_type\",\"optional\":false},{\"name\":\"ebs_account_status\",\"type\":\"string\",\"optional\":false,\"label\":\"ebs account status\",\"control_type\":\"text\"}]",
+              "parameters": {
+                "schema": "[{\"name\":\"errorMessage\",\"type\":\"string\",\"optional\":true,\"label\":\"errorMessage\",\"details\":{\"real_name\":\"errorMessage\"},\"control_type\":\"text\",\"parent\":[\"parameters\",\"data\"]}]"
+              },
+              "update_only": "false"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Rows",
+                "name": "rows",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "mdm_party_id",
+                    "type": "string",
+                    "name": "mdm_party_id",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "country",
+                    "type": "string",
+                    "name": "country",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "rhsc_acct_id",
+                    "type": "string",
+                    "name": "rhsc_acct_id",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "rhsc_acct_name",
+                    "type": "string",
+                    "name": "rhsc_acct_name",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ebs_account_number",
+                    "type": "string",
+                    "name": "ebs_account_number",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ebs_party_name",
+                    "type": "string",
+                    "name": "ebs_party_name",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ebs_party_type",
+                    "type": "string",
+                    "name": "ebs_party_type",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ebs_account_status",
+                    "name": "ebs_account_status",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "number",
+                "label": "Rows affected",
+                "name": "rows_affected",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "form-schema-builder",
+                "hint": "First provide the full name assigned to your bind variable in the WHERE condition. e.g. <b>id</b>\n                    Second, provide the actual parameter value. Parameter values can be static or datapills.\n                    Select the <b>closest corresponding data type</b> that your database is expecting for the bind variable\n                    ",
+                "label": "Parameters",
+                "name": "parameters",
+                "optional": true,
+                "override": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Schema",
+                    "extends_schema": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "errorMessage",
+                        "name": "errorMessage",
+                        "type": "string",
+                        "optional": true,
+                        "details": {
+                          "real_name": "errorMessage"
+                        },
+                        "parent": [
+                          "parameters",
+                          "data"
+                        ]
+                      }
+                    ],
+                    "label": "Data",
+                    "optional": true,
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "sticky": true,
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "sql",
+              "parameters",
+              "output_schema",
+              "parameters.data",
+              "parameters.schema"
+            ],
+            "hidden_config_fields": [
+              "update_only"
+            ],
+            "uuid": "abeeb6c5-a29a-48d0-9e94-2c2e64e99ad6"
+          },
+          {
+            "number": 4,
+            "as": "eacfcd09",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 5,
+                "provider": "workato_api_platform",
+                "name": "return_response",
+                "as": "4ee99bd2",
+                "keyword": "action",
+                "input": {
+                  "http_status_code": "503",
+                  "response": {
+                    "errorMessage": "Search service is temporarily busy. Please try again."
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "change_on_blur": true,
+                    "control_type": "select",
+                    "extends_schema": true,
+                    "label": "Response",
+                    "name": "http_status_code",
+                    "pick_list": [
+                      [
+                        "responsePayload",
+                        "200"
+                      ],
+                      [
+                        "errorPayload",
+                        "503"
+                      ]
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "label": "Response body",
+                    "name": "response",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Error Message",
+                        "name": "errorMessage",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "change_on_blur": true,
+                    "control_type": "select",
+                    "extends_schema": true,
+                    "label": "Response",
+                    "name": "http_status_code",
+                    "pick_list": [
+                      [
+                        "responsePayload",
+                        "200"
+                      ],
+                      [
+                        "errorPayload",
+                        "503"
+                      ]
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "label": "Response body",
+                    "name": "response",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Error Message",
+                        "name": "errorMessage",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "123184f0-ede2-488f-ad21-01abc989011e"
+              }
+            ],
+            "uuid": "b69781a3-efc7-434f-85c5-37a6c91c83b7"
+          }
+        ],
+        "uuid": "ef5e365b-cdc6-4b7e-9ce7-72c89217fd56"
+      },
+      {
+        "number": 6,
+        "provider": "workato_api_platform",
+        "name": "return_response",
+        "as": "47710ada",
+        "keyword": "action",
+        "input": {
+          "http_status_code": "200",
+          "response": {
+            "ebsAccounts": {
+              "mdmPartyId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"4a46269f\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"mdm_party_id\"]}')}",
+              "country": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"4a46269f\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"country\"]}')}",
+              "rhscAcctId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"4a46269f\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"rhsc_acct_id\"]}')}",
+              "rhscAcctName": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"4a46269f\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"rhsc_acct_name\"]}')}",
+              "ebsAccountNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"4a46269f\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"ebs_account_number\"]}')}",
+              "ebsPartyName": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"4a46269f\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"ebs_party_name\"]}')}",
+              "ebsPartyType": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"4a46269f\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"ebs_party_type\"]}')}",
+              "ebsAccountStatus": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"4a46269f\",\"path\":[\"rows\",{\"path_element_type\":\"current_item\"},\"ebs_account_status\"]}')}",
+              "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"snowflake\",\"line\":\"4a46269f\",\"path\":[\"rows\"]}')}"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "change_on_blur": true,
+            "control_type": "select",
+            "extends_schema": true,
+            "label": "Response",
+            "name": "http_status_code",
+            "pick_list": [
+              [
+                "responsePayload",
+                "200"
+              ],
+              [
+                "errorPayload",
+                "503"
+              ]
+            ],
+            "type": "string"
+          },
+          {
+            "label": "Response body",
+            "name": "response",
+            "properties": [
+              {
+                "label": "ebsAccounts",
+                "name": "ebsAccounts",
+                "type": "array",
+                "optional": false,
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Mdm party ID",
+                    "type": "string",
+                    "name": "mdmPartyId",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Country",
+                    "type": "string",
+                    "name": "country"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Rhsc acct ID",
+                    "type": "string",
+                    "name": "rhscAcctId",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Rhsc acct name",
+                    "type": "string",
+                    "name": "rhscAcctName",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Ebs account number",
+                    "type": "string",
+                    "name": "ebsAccountNumber",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Ebs party name",
+                    "type": "string",
+                    "name": "ebsPartyName",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Ebs party type",
+                    "type": "string",
+                    "name": "ebsPartyType",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ebs account status",
+                    "name": "ebsAccountStatus",
+                    "type": "string",
+                    "optional": false
+                  }
+                ]
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "change_on_blur": true,
+            "control_type": "select",
+            "extends_schema": true,
+            "label": "Response",
+            "name": "http_status_code",
+            "pick_list": [
+              [
+                "responsePayload",
+                "200"
+              ],
+              [
+                "errorPayload",
+                "503"
+              ]
+            ],
+            "type": "string"
+          },
+          {
+            "label": "Response body",
+            "name": "response",
+            "properties": [
+              {
+                "label": "ebsAccounts",
+                "name": "ebsAccounts",
+                "type": "array",
+                "optional": false,
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Mdm party ID",
+                    "type": "string",
+                    "name": "mdmPartyId",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Country",
+                    "type": "string",
+                    "name": "country"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Rhsc acct ID",
+                    "type": "string",
+                    "name": "rhscAcctId",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Rhsc acct name",
+                    "type": "string",
+                    "name": "rhscAcctName",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Ebs account number",
+                    "type": "string",
+                    "name": "ebsAccountNumber",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Ebs party name",
+                    "type": "string",
+                    "name": "ebsPartyName",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Ebs party type",
+                    "type": "string",
+                    "name": "ebsPartyType",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ebs account status",
+                    "name": "ebsAccountStatus",
+                    "type": "string",
+                    "optional": false
+                  }
+                ]
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "fff76182-7e4a-4e59-aa97-fbead5643592"
+      }
+    ],
+    "uuid": "d452bd79-9f87-4c1e-807d-174424a2b5d0"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "snowflake",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/core_crm_con_rossettastone_get_ebs_accounts.connection.json",
+        "name": "[Core CRM] CON | Rossettastone | get-EBS-Accounts",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_api_platform",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "logger",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
