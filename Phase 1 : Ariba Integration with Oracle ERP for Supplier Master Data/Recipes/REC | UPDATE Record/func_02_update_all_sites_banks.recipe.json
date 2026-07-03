@@ -1,7 +1,7 @@
 {
   "name": "FUNC | 02 | UPDATE | All Sites & Banks",
   "description": "This Workato recipe automates the process of updating supplier information in an Oracle database based on data retrieved from an Ariba vendor ID lookup.\n\n### Key Actions and Outcomes:\n\n- **Trigger and Input Parameters**: The recipe is initiated by executing a function that requires parameters such as `RecordID`, `AribaVendorID`, and `RecipeID`.\n\n- **Data Retrieval**: It searches for records in the Ariba VendorID Lookup data table to find relevant supplier information based on the provided `RecordID` and `AribaVendorID`.\n\n- **Data Processing**:\n  - If records are found, it truncates a temporary data table to prepare for new data.\n  - It retrieves additional records related to the supplier and their bank details from the data table.\n  - The recipe then makes HTTP requests to the Ariba API to fetch questionnaires and other supplier-related data.\n\n- **Data Upsert**: The recipe processes the retrieved data and upserts it into the appropriate data tables, ensuring that all relevant supplier information, including addresses and bank details, is updated or inserted as necessary.\n\n- **Error Handling**: If any errors occur during the process, the recipe logs the error and updates the status in the Ariba VendorID Lookup table to indicate failure. It also calls an error handling recipe to notify stakeholders of the issue.\n\n- **Final Notifications**: Upon successful completion, the recipe sends notifications about the status of the supplier data synchronization, including details about the number of records processed and any relevant Oracle request IDs.\n\n### Summary:\nThis recipe streamlines the process of updating supplier information in Oracle by integrating data from Ariba, ensuring that all relevant details are accurately reflected in the database while providing error handling and notifications for stakeholders.",
-  "version": 32,
+  "version": 38,
   "private": true,
   "concurrency": 1,
   "code": {
@@ -749,7 +749,7 @@
                             "value": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"SupplierDataPaginationAPIKEY\"}')}"
                           }
                         ],
-                        "url": "=\"https://openapi.ariba.com/api/supplierdatapagination/v4/prod/vendors/\" + _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"4ce752ad\",\"path\":[\"0cace68b_17a3_4196_9052_ab3b9a4975f4\"]}') + \"/workspaces/questionnaires/qna?&$count=true\""
+                        "url": "=\"https://openapi.ariba.com/api/supplierdatapagination/v4/prod/vendors/\" + _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"4ce752ad\",\"path\":[\"0cace68b_17a3_4196_9052_ab3b9a4975f4\"]}') + \"/workspaces/questionnaires/qna?$count=true\""
                       },
                       "response": {
                         "output_type": "json",
@@ -758,7 +758,9 @@
                         "response_schema": "[{\"properties\":[{\"label\":\"Question answer list\",\"of\":\"object\",\"properties\":[{\"properties\":[{\"control_type\":\"text\",\"label\":\"Active\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Active\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"active\"},\"type\":\"boolean\",\"name\":\"active\"},{\"control_type\":\"number\",\"label\":\"Time updated\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"timeUpdated\"},{\"control_type\":\"number\",\"label\":\"Time created\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"timeCreated\"},{\"control_type\":\"text\",\"label\":\"Purge state\",\"type\":\"string\",\"name\":\"purgeState\"},{\"control_type\":\"text\",\"label\":\"Last time purge state updated\",\"type\":\"string\",\"name\":\"lastTimePurgeStateUpdated\"},{\"control_type\":\"text\",\"label\":\"Parent unique name\",\"type\":\"string\",\"name\":\"parentUniqueName\"},{\"control_type\":\"text\",\"label\":\"Unique name\",\"type\":\"string\",\"name\":\"uniqueName\"},{\"control_type\":\"text\",\"label\":\"Item ID\",\"type\":\"string\",\"name\":\"itemId\"},{\"control_type\":\"text\",\"label\":\"Alternative\",\"type\":\"string\",\"name\":\"alternative\"},{\"control_type\":\"text\",\"label\":\"External system correlation ID\",\"type\":\"string\",\"name\":\"externalSystemCorrelationId\"},{\"control_type\":\"text\",\"label\":\"Process ID\",\"type\":\"string\",\"name\":\"processId\"},{\"control_type\":\"text\",\"label\":\"Template document ID\",\"type\":\"string\",\"name\":\"templateDocumentId\"},{\"control_type\":\"text\",\"label\":\"Search term\",\"type\":\"string\",\"name\":\"searchTerm\"},{\"control_type\":\"text\",\"label\":\"Answer\",\"type\":\"string\",\"name\":\"answer\"},{\"control_type\":\"text\",\"label\":\"Enumeration code delimiters\",\"type\":\"string\",\"name\":\"enumerationCodeDelimiters\"},{\"control_type\":\"text\",\"label\":\"Data type\",\"type\":\"string\",\"name\":\"dataType\"},{\"control_type\":\"text\",\"label\":\"Multi valued\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Multi valued\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"multiValued\"},\"type\":\"boolean\",\"name\":\"multiValued\"},{\"control_type\":\"text\",\"label\":\"Sm vendor ID\",\"type\":\"string\",\"name\":\"smVendorId\"},{\"control_type\":\"text\",\"label\":\"Workspace type\",\"type\":\"string\",\"name\":\"workspaceType\"},{\"control_type\":\"text\",\"label\":\"Workspace ID\",\"type\":\"string\",\"name\":\"workspaceId\"},{\"control_type\":\"text\",\"label\":\"Total questions\",\"type\":\"string\",\"name\":\"totalQuestions\"},{\"control_type\":\"text\",\"label\":\"Questionnaire label\",\"type\":\"string\",\"name\":\"questionnaireLabel\"},{\"control_type\":\"text\",\"label\":\"Question label\",\"type\":\"string\",\"name\":\"questionLabel\"},{\"control_type\":\"text\",\"label\":\"Answer type\",\"type\":\"string\",\"name\":\"answerType\"},{\"control_type\":\"text\",\"label\":\"Root ID\",\"type\":\"string\",\"name\":\"rootId\"},{\"control_type\":\"text\",\"label\":\"Questionnaire ID\",\"type\":\"string\",\"name\":\"questionnaireId\"},{\"control_type\":\"text\",\"label\":\"Type\",\"type\":\"string\",\"name\":\"type\"}],\"label\":\"Question answer\",\"type\":\"object\",\"name\":\"questionAnswer\"}],\"type\":\"array\",\"name\":\"questionAnswerList\"}],\"label\":\"Embedded\",\"type\":\"object\",\"name\":\"_embedded\"},{\"properties\":[{\"control_type\":\"text\",\"label\":\"Sm vendor ID\",\"type\":\"string\",\"name\":\"smVendorId\"},{\"control_type\":\"text\",\"label\":\"Erp vendor ID\",\"type\":\"string\",\"name\":\"erpVendorId\"},{\"control_type\":\"text\",\"label\":\"An ID\",\"type\":\"string\",\"name\":\"anId\"},{\"control_type\":\"text\",\"label\":\"Acm ID\",\"type\":\"string\",\"name\":\"acmId\"}],\"label\":\"Vendor info\",\"type\":\"object\",\"name\":\"vendorInfo\"}]"
                       },
                       "wait_for_response": "false",
-                      "disable_retries": "false"
+                      "disable_retries": "false",
+                      "completion_threshold_seconds": "3600",
+                      "enable_streaming": "false"
                     },
                     "extended_output_schema": [
                       {
@@ -1241,7 +1243,7 @@
                                 "value": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"SupplierDataPaginationAPIKEY\"}')}"
                               }
                             ],
-                            "url": "=\"https://openapi.ariba.com/api/supplierdatapagination/v4/prod/vendors/\" + _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"4ce752ad\",\"path\":[\"0cace68b_17a3_4196_9052_ab3b9a4975f4\"]}') + \"/workspaces/questionnaires/qna?&$count=true&$skip=\" + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"af195bf2\",\"path\":[\"varSkip\"]}')"
+                            "url": "=\"https://openapi.ariba.com/api/supplierdatapagination/v4/prod/vendors/\" + _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"4ce752ad\",\"path\":[\"0cace68b_17a3_4196_9052_ab3b9a4975f4\"]}') + \"/workspaces/questionnaires/qna?$count=true&$skip=\" + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"af195bf2\",\"path\":[\"varSkip\"]}')"
                           },
                           "response": {
                             "output_type": "json",
@@ -1250,7 +1252,9 @@
                             "response_schema": "[{\"properties\":[{\"label\":\"Question answer list\",\"of\":\"object\",\"properties\":[{\"properties\":[{\"control_type\":\"text\",\"label\":\"Active\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Active\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"active\"},\"type\":\"boolean\",\"name\":\"active\"},{\"control_type\":\"number\",\"label\":\"Time updated\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"timeUpdated\"},{\"control_type\":\"number\",\"label\":\"Time created\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"timeCreated\"},{\"control_type\":\"text\",\"label\":\"Purge state\",\"type\":\"string\",\"name\":\"purgeState\"},{\"control_type\":\"text\",\"label\":\"Last time purge state updated\",\"type\":\"string\",\"name\":\"lastTimePurgeStateUpdated\"},{\"control_type\":\"text\",\"label\":\"Parent unique name\",\"type\":\"string\",\"name\":\"parentUniqueName\"},{\"control_type\":\"text\",\"label\":\"Unique name\",\"type\":\"string\",\"name\":\"uniqueName\"},{\"control_type\":\"text\",\"label\":\"Item ID\",\"type\":\"string\",\"name\":\"itemId\"},{\"control_type\":\"text\",\"label\":\"Alternative\",\"type\":\"string\",\"name\":\"alternative\"},{\"control_type\":\"text\",\"label\":\"External system correlation ID\",\"type\":\"string\",\"name\":\"externalSystemCorrelationId\"},{\"control_type\":\"text\",\"label\":\"Process ID\",\"type\":\"string\",\"name\":\"processId\"},{\"control_type\":\"text\",\"label\":\"Template document ID\",\"type\":\"string\",\"name\":\"templateDocumentId\"},{\"control_type\":\"text\",\"label\":\"Search term\",\"type\":\"string\",\"name\":\"searchTerm\"},{\"control_type\":\"text\",\"label\":\"Answer\",\"type\":\"string\",\"name\":\"answer\"},{\"control_type\":\"text\",\"label\":\"Enumeration code delimiters\",\"type\":\"string\",\"name\":\"enumerationCodeDelimiters\"},{\"control_type\":\"text\",\"label\":\"Data type\",\"type\":\"string\",\"name\":\"dataType\"},{\"control_type\":\"text\",\"label\":\"Multi valued\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Multi valued\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"type\":\"boolean\",\"name\":\"multiValued\"},\"type\":\"boolean\",\"name\":\"multiValued\"},{\"control_type\":\"text\",\"label\":\"Sm vendor ID\",\"type\":\"string\",\"name\":\"smVendorId\"},{\"control_type\":\"text\",\"label\":\"Workspace type\",\"type\":\"string\",\"name\":\"workspaceType\"},{\"control_type\":\"text\",\"label\":\"Workspace ID\",\"type\":\"string\",\"name\":\"workspaceId\"},{\"control_type\":\"text\",\"label\":\"Total questions\",\"type\":\"string\",\"name\":\"totalQuestions\"},{\"control_type\":\"text\",\"label\":\"Questionnaire label\",\"type\":\"string\",\"name\":\"questionnaireLabel\"},{\"control_type\":\"text\",\"label\":\"Question label\",\"type\":\"string\",\"name\":\"questionLabel\"},{\"control_type\":\"text\",\"label\":\"Answer type\",\"type\":\"string\",\"name\":\"answerType\"},{\"control_type\":\"text\",\"label\":\"Root ID\",\"type\":\"string\",\"name\":\"rootId\"},{\"control_type\":\"text\",\"label\":\"Questionnaire ID\",\"type\":\"string\",\"name\":\"questionnaireId\"},{\"control_type\":\"text\",\"label\":\"Type\",\"type\":\"string\",\"name\":\"type\"}],\"label\":\"Question answer\",\"type\":\"object\",\"name\":\"questionAnswer\"}],\"type\":\"array\",\"name\":\"questionAnswerList\"}],\"label\":\"Embedded\",\"type\":\"object\",\"name\":\"_embedded\"},{\"properties\":[{\"control_type\":\"text\",\"label\":\"Sm vendor ID\",\"type\":\"string\",\"name\":\"smVendorId\"},{\"control_type\":\"text\",\"label\":\"Erp vendor ID\",\"type\":\"string\",\"name\":\"erpVendorId\"},{\"control_type\":\"text\",\"label\":\"An ID\",\"type\":\"string\",\"name\":\"anId\"},{\"control_type\":\"text\",\"label\":\"Acm ID\",\"type\":\"string\",\"name\":\"acmId\"}],\"label\":\"Vendor info\",\"type\":\"object\",\"name\":\"vendorInfo\"}]"
                           },
                           "wait_for_response": "false",
-                          "disable_retries": "false"
+                          "disable_retries": "false",
+                          "completion_threshold_seconds": "3600",
+                          "enable_streaming": "false"
                         },
                         "extended_output_schema": [
                           {
@@ -5441,6 +5445,12 @@
                                       },
                                       {
                                         "control_type": "text",
+                                        "label": "BANK_IDENTIFIER",
+                                        "type": "string",
+                                        "name": "BANK_IDENTIFIER"
+                                      },
+                                      {
+                                        "control_type": "text",
                                         "label": "PURCHASING_FLAG",
                                         "type": "string",
                                         "name": "PURCHASING_FLAG"
@@ -5722,6 +5732,15 @@
                                     "default": "string",
                                     "label": "$internal_value_4efa2e8b-b969-4f19-be89-8e6b22cee689",
                                     "name": "4efa2e8b-b969-4f19-be89-8e6b22cee689",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_08ec2379-67c5-41d4-9df9-d97863b4be8d",
+                                    "name": "08ec2379-67c5-41d4-9df9-d97863b4be8d",
                                     "ngIf": "false",
                                     "optional": true,
                                     "type": "string"
@@ -6151,7 +6170,7 @@
                                             "site_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"SITE_NAME\"]}').presence",
                                             "address_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"ADDRESS_NAME\"]}').presence",
                                             "tax_effective_from": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"TAX_EFFECTIVE_FROM\"]}') ? ((_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"TAX_EFFECTIVE_FROM\"]}')).to_i/1000).to_time.strftime(\"%d-%m-%Y\") : null",
-                                            "registration_status_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"REGISTRATION_STATUS_CODE\"]}').presence",
+                                            "registration_status_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"REGISTRATION_STATUS_CODE\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"REGISTRATION_STATUS_CODE\"]}').upcase : null",
                                             "allow_tax_wth": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"ALLOW_TAX_WATH\"]}').presence",
                                             "book_keeping_cert_expiry_date": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"BOOK_KEEPING_CTFT_EXPIRY_DATE\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"BOOK_KEEPING_CTFT_EXPIRY_DATE\"]}') : null",
                                             "book_keeping_certificate": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"BOOK_KEEPING_CERTIFICATE\"]}').presence",
@@ -6166,7 +6185,8 @@
                                             "tax_regime_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"TAX_REGIME_CODE\"]}').presence",
                                             "wth_tax_cert_end_date": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_CERTI_END_DATE\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_CERTI_END_DATE\"]}') : null",
                                             "wth_tax_cert_start_date": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_CERTI_START_DATE\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_CERTI_START_DATE\"]}') : null",
-                                            "wth_tax_report_group": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_REPORT_GROUP\"]}').presence"
+                                            "wth_tax_report_group": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"WATH_TAX_REPORT_GROUP\"]}').presence",
+                                            "bank_identifier": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"e94de7b9\",\"path\":[\"BANK_IDENTIFIER\"]}').presence"
                                           }
                                         },
                                         "extended_output_schema": [
@@ -6253,6 +6273,23 @@
                                                 "hint": "varchar2, max length 100",
                                                 "type": "string",
                                                 "name": "ariba_vendor_id"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "BANK_IDENTIFIER",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "BANK_IDENTIFIER",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "bank_identifier"
                                               },
                                               {
                                                 "control_type": "text",
@@ -6978,7 +7015,8 @@
                                           "rows.include_in_shaam_reporting",
                                           "rows.book_keeping_certificate",
                                           "rows.book_keeping_cert_expiry_date",
-                                          "rows.allow_tax_wth"
+                                          "rows.allow_tax_wth",
+                                          "rows.bank_identifier"
                                         ],
                                         "comment": "INSERT into Supplier SITE  Operating  Unit Temporary Table",
                                         "uuid": "984e3d5c-32c4-480b-ad78-6b10be1dc494",
@@ -7170,6 +7208,12 @@
                                       },
                                       {
                                         "control_type": "text",
+                                        "label": "BANK_IDENTIFIER",
+                                        "type": "string",
+                                        "name": "23304cce_f059_47f3_a43c_f935406e4df4"
+                                      },
+                                      {
+                                        "control_type": "text",
                                         "label": "BANK_NUMBER",
                                         "type": "string",
                                         "name": "688f0787_5a79_4b29_8d95_fcb759a8b4f6"
@@ -7338,6 +7382,24 @@
                                         "name": "59252b34_cff6_4184_9fa8_d37f40b388e2"
                                       },
                                       {
+                                        "control_type": "text",
+                                        "label": "ALT_BANK_NAME",
+                                        "type": "string",
+                                        "name": "690f6396_759e_42ec_8eea_d22d67ebe6da"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "ALT_BRANCH_NAME",
+                                        "type": "string",
+                                        "name": "3f8bdb97_8817_4f6d_a4cc_47a7e9baed05"
+                                      },
+                                      {
+                                        "control_type": "text",
+                                        "label": "ALT_ACCOUNT_NAME",
+                                        "type": "string",
+                                        "name": "47ef56e6_5647_4cb2_8e77_3a2b2476a083"
+                                      },
+                                      {
                                         "control_type": "date_time",
                                         "label": "Created at",
                                         "render_input": "date_time_conversion",
@@ -7369,6 +7431,15 @@
                                     "default": "string",
                                     "label": "$internal_value_20ec2d47-8c80-41fa-99e1-66540765752f",
                                     "name": "20ec2d47-8c80-41fa-99e1-66540765752f",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_23304cce-f059-47f3-a43c-f935406e4df4",
+                                    "name": "23304cce-f059-47f3-a43c-f935406e4df4",
                                     "ngIf": "false",
                                     "optional": true,
                                     "type": "string"
@@ -7627,6 +7698,33 @@
                                   },
                                   {
                                     "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_690f6396-759e-42ec-8eea-d22d67ebe6da",
+                                    "name": "690f6396-759e-42ec-8eea-d22d67ebe6da",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_3f8bdb97-8817-4f6d-a4cc-47a7e9baed05",
+                                    "name": "3f8bdb97-8817-4f6d-a4cc-47a7e9baed05",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "default": "string",
+                                    "label": "$internal_value_47ef56e6-5647-4cb2-8e77-3a2b2476a083",
+                                    "name": "47ef56e6-5647-4cb2-8e77-3a2b2476a083",
+                                    "ngIf": "false",
+                                    "optional": true,
+                                    "type": "string"
+                                  },
+                                  {
+                                    "control_type": "text",
                                     "default": "id",
                                     "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
                                     "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
@@ -7721,7 +7819,11 @@
                                             "bank_tax_payer_id": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"0e0e5ad6_c25d_4770_b9ef_92fcba65a89b\"]}') ? _dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"0e0e5ad6_c25d_4770_b9ef_92fcba65a89b\"]}').slice(0,30) : null ",
                                             "bank_state": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"514d9bc7_d789_4a36_9a87_6a35a5799c3b\"]}').presence",
                                             "bank_postal_code": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"faa40c7b_4f3b_472b_8e4e_a1df104f92ad\"]}').presence",
-                                            "bank_city": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"15a38d5c_7ba6_4635_90d8_3e115c82a601\"]}').presence"
+                                            "bank_city": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"15a38d5c_7ba6_4635_90d8_3e115c82a601\"]}').presence",
+                                            "alt_account_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"47ef56e6_5647_4cb2_8e77_3a2b2476a083\"]}').presence",
+                                            "alt_bank_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"690f6396_759e_42ec_8eea_d22d67ebe6da\"]}').presence",
+                                            "alt_branch_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"3f8bdb97_8817_4f6d_a4cc_47a7e9baed05\"]}').presence",
+                                            "bank_identifier": "=_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"54a2c65a\",\"path\":[\"23304cce_f059_47f3_a43c_f935406e4df4\"]}').presence"
                                           }
                                         },
                                         "extended_output_schema": [
@@ -7811,6 +7913,57 @@
                                               },
                                               {
                                                 "control_type": "text",
+                                                "label": "ALT_ACCOUNT_NAME",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "ALT_ACCOUNT_NAME",
+                                                  "length": 120,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 120",
+                                                "type": "string",
+                                                "name": "alt_account_name"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "ALT_BANK_NAME",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "ALT_BANK_NAME",
+                                                  "length": 120,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 120",
+                                                "type": "string",
+                                                "name": "alt_bank_name"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "ALT_BRANCH_NAME",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "ALT_BRANCH_NAME",
+                                                  "length": 120,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 120",
+                                                "type": "string",
+                                                "name": "alt_branch_name"
+                                              },
+                                              {
+                                                "control_type": "text",
                                                 "label": "ARIBA_VENDOR_ID",
                                                 "details": {
                                                   "primary_key": false,
@@ -7893,6 +8046,23 @@
                                                 "hint": "varchar2, max length 60",
                                                 "type": "string",
                                                 "name": "bank_country"
+                                              },
+                                              {
+                                                "control_type": "text",
+                                                "label": "BANK_IDENTIFIER",
+                                                "details": {
+                                                  "primary_key": false,
+                                                  "data_type": "varchar2",
+                                                  "column_name": "BANK_IDENTIFIER",
+                                                  "length": 100,
+                                                  "precision": null,
+                                                  "scale": null,
+                                                  "element_type": null
+                                                },
+                                                "optional": true,
+                                                "hint": "varchar2, max length 100",
+                                                "type": "string",
+                                                "name": "bank_identifier"
                                               },
                                               {
                                                 "control_type": "text",
@@ -8365,7 +8535,11 @@
                                           "rows.bank_tax_payer_id",
                                           "rows.bank_state",
                                           "rows.bank_postal_code",
-                                          "rows.bank_city"
+                                          "rows.bank_city",
+                                          "rows.alt_branch_name",
+                                          "rows.alt_bank_name",
+                                          "rows.alt_account_name",
+                                          "rows.bank_identifier"
                                         ],
                                         "comment": "INSERT into BANK Staging Table",
                                         "uuid": "bb99e777-dbde-4329-b779-4065fa19d015",
