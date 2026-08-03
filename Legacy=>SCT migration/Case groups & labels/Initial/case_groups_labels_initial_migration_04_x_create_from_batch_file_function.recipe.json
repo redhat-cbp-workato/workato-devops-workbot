@@ -1,0 +1,1835 @@
+{
+  "name": "Case groups & labels | Initial migration | 04.x Create from batch file [FUNCTION]",
+  "description": "",
+  "version": 8,
+  "private": true,
+  "concurrency": 5,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "0cfb5ce7",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"control_type\":\"text\",\"label\":\"Directory\",\"name\":\"directory\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Create batch filename\",\"name\":\"create_batch_filename\",\"type\":\"string\",\"optional\":false},{\"name\":\"acl\",\"type\":\"boolean\",\"optional\":false,\"label\":\"ACL?\",\"control_type\":\"checkbox\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"ACL?\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"name\":\"acl\",\"type\":\"boolean\",\"optional\":false}},{\"control_type\":\"integer\",\"label\":\"Expected count\",\"name\":\"expected_count\",\"type\":\"integer\",\"optional\":true,\"parse_output\":\"integer_conversion\",\"render_input\":\"integer_conversion\"},{\"control_type\":\"integer\",\"label\":\"Wait/sleep\",\"parse_output\":\"integer_conversion\",\"name\":\"wait\",\"type\":\"integer\",\"optional\":true,\"hint\":\"Seconds\",\"render_input\":\"integer_conversion\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Directory",
+            "name": "directory",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Create batch filename",
+            "name": "create_batch_filename",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "checkbox",
+            "label": "ACL?",
+            "render_input": "boolean_conversion",
+            "parse_output": "boolean_conversion",
+            "name": "acl",
+            "type": "boolean",
+            "optional": false,
+            "toggle_hint": "Select from option list",
+            "toggle_field": {
+              "label": "ACL?",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "name": "acl",
+              "type": "boolean",
+              "optional": false
+            }
+          },
+          {
+            "control_type": "integer",
+            "label": "Expected count",
+            "parse_output": "integer_conversion",
+            "name": "expected_count",
+            "type": "integer",
+            "optional": true,
+            "render_input": "integer_conversion"
+          },
+          {
+            "control_type": "integer",
+            "label": "Wait/sleep",
+            "parse_output": "integer_conversion",
+            "name": "wait",
+            "type": "integer",
+            "optional": true,
+            "hint": "Seconds",
+            "render_input": "integer_conversion"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "present",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"wait\"]}')}",
+              "rhs": "",
+              "uuid": "56575d14-720f-4e3c-953d-bf762d83ce3f"
+            },
+            {
+              "operand": "greater_than",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"wait\"]}')}",
+              "rhs": "0",
+              "uuid": "c7f345a4-4a67-4e8f-9d84-4f2f333bc5c4"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 2,
+            "provider": "clock",
+            "name": "wait_for_interval",
+            "as": "cab0b1ea",
+            "keyword": "action",
+            "toggleCfg": {
+              "interval": false
+            },
+            "input": {
+              "interval": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"wait\"]}')}"
+            },
+            "uuid": "7e2a471e-7f4b-4a9c-a359-3798a45d942b"
+          }
+        ],
+        "uuid": "29e342a6-7474-47dd-9d03-e8819286de9f"
+      },
+      {
+        "number": 3,
+        "provider": "workato_files",
+        "name": "get_file_contents",
+        "as": "ee924988",
+        "keyword": "action",
+        "toggleCfg": {
+          "file_path": true
+        },
+        "input": {
+          "file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"create_batch_filename\"]}')}"
+        },
+        "uuid": "733844ac-7bd3-417b-86ff-a82b179c52fe"
+      },
+      {
+        "number": 4,
+        "provider": "salesforce",
+        "name": "__adhoc_http_action",
+        "as": "3c89343f",
+        "keyword": "action",
+        "input": {
+          "mnemonic": "Bulk insert job setup",
+          "verb": "post",
+          "request_type": "json",
+          "response_type": "json",
+          "path": "services/data/v66.0/jobs/ingest",
+          "input": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"Object\",\"type\":\"string\",\"name\":\"object\",\"details\":{\"real_name\":\"object\"}},{\"control_type\":\"text\",\"label\":\"Content type\",\"type\":\"string\",\"name\":\"contentType\",\"details\":{\"real_name\":\"contentType\"}},{\"control_type\":\"text\",\"label\":\"Operation\",\"type\":\"string\",\"name\":\"operation\",\"details\":{\"real_name\":\"operation\"}},{\"control_type\":\"text\",\"label\":\"Line ending\",\"type\":\"string\",\"name\":\"lineEnding\",\"details\":{\"real_name\":\"lineEnding\"}}]",
+            "data": {
+              "object": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"acl\"]}') ? 'CaseGroup__c' : 'CaseLabel__c'",
+              "contentType": "CSV",
+              "operation": "insert",
+              "lineEnding": "LF"
+            }
+          },
+          "output": "[{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"id\"},{\"control_type\":\"text\",\"label\":\"Operation\",\"type\":\"string\",\"name\":\"operation\"},{\"control_type\":\"text\",\"label\":\"Object\",\"type\":\"string\",\"name\":\"object\"},{\"control_type\":\"text\",\"label\":\"Created by ID\",\"type\":\"string\",\"name\":\"createdById\"},{\"control_type\":\"text\",\"label\":\"Created date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"createdDate\"},{\"control_type\":\"text\",\"label\":\"System modstamp\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"systemModstamp\"},{\"control_type\":\"text\",\"label\":\"State\",\"type\":\"string\",\"name\":\"state\"},{\"control_type\":\"text\",\"label\":\"Concurrency mode\",\"type\":\"string\",\"name\":\"concurrencyMode\"},{\"control_type\":\"text\",\"label\":\"Content type\",\"type\":\"string\",\"name\":\"contentType\"},{\"control_type\":\"number\",\"label\":\"Api version\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"apiVersion\"},{\"control_type\":\"text\",\"label\":\"Content URL\",\"type\":\"string\",\"name\":\"contentUrl\"},{\"control_type\":\"text\",\"label\":\"Line ending\",\"type\":\"string\",\"name\":\"lineEnding\"},{\"control_type\":\"text\",\"label\":\"Column delimiter\",\"type\":\"string\",\"name\":\"columnDelimiter\"}]",
+          "response_headers": "[{\"control_type\":\"text\",\"label\":\"Date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"date\"},{\"control_type\":\"text\",\"label\":\"Content type\",\"type\":\"string\",\"name\":\"content_type\"},{\"control_type\":\"text\",\"label\":\"Transfer encoding\",\"type\":\"string\",\"name\":\"transfer_encoding\"},{\"control_type\":\"text\",\"label\":\"Connection\",\"type\":\"string\",\"name\":\"connection\"},{\"control_type\":\"text\",\"label\":\"Set cookie\",\"type\":\"string\",\"name\":\"set_cookie\"},{\"control_type\":\"text\",\"label\":\"Sforce limit info\",\"type\":\"string\",\"name\":\"sforce_limit_info\"},{\"control_type\":\"text\",\"label\":\"X robots tag\",\"type\":\"string\",\"name\":\"x_robots_tag\"},{\"control_type\":\"text\",\"label\":\"Cache control\",\"type\":\"string\",\"name\":\"cache_control\"},{\"control_type\":\"text\",\"label\":\"X content type options\",\"type\":\"string\",\"name\":\"x_content_type_options\"},{\"control_type\":\"text\",\"label\":\"Vary\",\"type\":\"string\",\"name\":\"vary\"},{\"control_type\":\"text\",\"label\":\"Strict transport security\",\"type\":\"string\",\"name\":\"strict_transport_security\"},{\"control_type\":\"text\",\"label\":\"Server\",\"type\":\"string\",\"name\":\"server\"},{\"control_type\":\"text\",\"label\":\"X sfdc request ID\",\"type\":\"string\",\"name\":\"x_sfdc_request_id\"},{\"control_type\":\"text\",\"label\":\"X request ID\",\"type\":\"string\",\"name\":\"x_request_id\"},{\"control_type\":\"text\",\"label\":\"X sfdc edge cache\",\"type\":\"string\",\"name\":\"x_sfdc_edge_cache\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Body",
+            "name": "body",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "ID",
+                "optional": true,
+                "type": "string",
+                "name": "id"
+              },
+              {
+                "control_type": "text",
+                "label": "Operation",
+                "optional": true,
+                "type": "string",
+                "name": "operation"
+              },
+              {
+                "control_type": "text",
+                "label": "Object",
+                "optional": true,
+                "type": "string",
+                "name": "object"
+              },
+              {
+                "control_type": "text",
+                "label": "Created by ID",
+                "optional": true,
+                "type": "string",
+                "name": "createdById"
+              },
+              {
+                "control_type": "text",
+                "label": "Created date",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "createdDate"
+              },
+              {
+                "control_type": "text",
+                "label": "System modstamp",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "systemModstamp"
+              },
+              {
+                "control_type": "text",
+                "label": "State",
+                "optional": true,
+                "type": "string",
+                "name": "state"
+              },
+              {
+                "control_type": "text",
+                "label": "Concurrency mode",
+                "optional": true,
+                "type": "string",
+                "name": "concurrencyMode"
+              },
+              {
+                "control_type": "text",
+                "label": "Content type",
+                "optional": true,
+                "type": "string",
+                "name": "contentType"
+              },
+              {
+                "control_type": "number",
+                "label": "Api version",
+                "parse_output": "float_conversion",
+                "optional": true,
+                "type": "number",
+                "name": "apiVersion"
+              },
+              {
+                "control_type": "text",
+                "label": "Content URL",
+                "optional": true,
+                "type": "string",
+                "name": "contentUrl"
+              },
+              {
+                "control_type": "text",
+                "label": "Line ending",
+                "optional": true,
+                "type": "string",
+                "name": "lineEnding"
+              },
+              {
+                "control_type": "text",
+                "label": "Column delimiter",
+                "optional": true,
+                "type": "string",
+                "name": "columnDelimiter"
+              }
+            ],
+            "type": "object"
+          },
+          {
+            "label": "Headers",
+            "name": "headers",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Date",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "date"
+              },
+              {
+                "control_type": "text",
+                "label": "Content type",
+                "optional": true,
+                "type": "string",
+                "name": "content_type"
+              },
+              {
+                "control_type": "text",
+                "label": "Transfer encoding",
+                "optional": true,
+                "type": "string",
+                "name": "transfer_encoding"
+              },
+              {
+                "control_type": "text",
+                "label": "Connection",
+                "optional": true,
+                "type": "string",
+                "name": "connection"
+              },
+              {
+                "control_type": "text",
+                "label": "Set cookie",
+                "optional": true,
+                "type": "string",
+                "name": "set_cookie"
+              },
+              {
+                "control_type": "text",
+                "label": "Sforce limit info",
+                "optional": true,
+                "type": "string",
+                "name": "sforce_limit_info"
+              },
+              {
+                "control_type": "text",
+                "label": "X robots tag",
+                "optional": true,
+                "type": "string",
+                "name": "x_robots_tag"
+              },
+              {
+                "control_type": "text",
+                "label": "Cache control",
+                "optional": true,
+                "type": "string",
+                "name": "cache_control"
+              },
+              {
+                "control_type": "text",
+                "label": "X content type options",
+                "optional": true,
+                "type": "string",
+                "name": "x_content_type_options"
+              },
+              {
+                "control_type": "text",
+                "label": "Vary",
+                "optional": true,
+                "type": "string",
+                "name": "vary"
+              },
+              {
+                "control_type": "text",
+                "label": "Strict transport security",
+                "optional": true,
+                "type": "string",
+                "name": "strict_transport_security"
+              },
+              {
+                "control_type": "text",
+                "label": "Server",
+                "optional": true,
+                "type": "string",
+                "name": "server"
+              },
+              {
+                "control_type": "text",
+                "label": "X sfdc request ID",
+                "optional": true,
+                "type": "string",
+                "name": "x_sfdc_request_id"
+              },
+              {
+                "control_type": "text",
+                "label": "X request ID",
+                "optional": true,
+                "type": "string",
+                "name": "x_request_id"
+              },
+              {
+                "control_type": "text",
+                "label": "X sfdc edge cache",
+                "optional": true,
+                "type": "string",
+                "name": "x_sfdc_edge_cache"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "hint": "Base URI is <b>https://redhatsupport--tsmig.sandbox.my.salesforce.com/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+            "label": "Path",
+            "name": "path",
+            "optional": false,
+            "type": "string"
+          },
+          {
+            "control_type": "email",
+            "hint": "Email of the Salesforce user to execute this action on behalf of. If not provided, uses the connection-level user. <b>Note: This feature is only available for JWT connections.</b>",
+            "label": "On-behalf-of user email",
+            "name": "requester_email",
+            "ngIf": "authUser.feature_flags.salesforce_jwt_on_behalf_user",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "select",
+            "default": "json",
+            "extends_schema": true,
+            "label": "Request type",
+            "name": "request_type",
+            "optional": true,
+            "pick_list": [
+              [
+                "JSON request body",
+                "json"
+              ],
+              [
+                "URL encoded form",
+                "urlencoded"
+              ],
+              [
+                "Multipart form",
+                "multipart"
+              ],
+              [
+                "Raw JSON request body",
+                "raw"
+              ],
+              [
+                "XML request body",
+                "xml"
+              ],
+              [
+                "Plain text",
+                "text"
+              ],
+              [
+                "Raw request body",
+                "rawdata"
+              ]
+            ],
+            "sticky": false,
+            "type": "string"
+          },
+          {
+            "control_type": "select",
+            "default": "json",
+            "extends_schema": true,
+            "label": "Response type",
+            "name": "response_type",
+            "optional": true,
+            "pick_list": [
+              [
+                "JSON response",
+                "json"
+              ],
+              [
+                "Raw JSON Response",
+                "raw"
+              ],
+              [
+                "XML Response",
+                "xml2"
+              ],
+              [
+                "Raw response",
+                "text"
+              ]
+            ],
+            "sticky": false,
+            "type": "string"
+          },
+          {
+            "label": "Input",
+            "name": "input",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "schema-designer",
+                "label": "Request body parameters",
+                "extends_schema": true,
+                "schema_neutral": true,
+                "sample_data_type": "json_input",
+                "sticky": true,
+                "add_field_label": "Add request body parameter",
+                "optional": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Object",
+                    "details": {
+                      "real_name": "object"
+                    },
+                    "sticky": true,
+                    "optional": true,
+                    "type": "string",
+                    "name": "object"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Content type",
+                    "details": {
+                      "real_name": "contentType"
+                    },
+                    "sticky": true,
+                    "optional": true,
+                    "type": "string",
+                    "name": "contentType"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Operation",
+                    "details": {
+                      "real_name": "operation"
+                    },
+                    "sticky": true,
+                    "optional": true,
+                    "type": "string",
+                    "name": "operation"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Line ending",
+                    "details": {
+                      "real_name": "lineEnding"
+                    },
+                    "sticky": true,
+                    "optional": true,
+                    "type": "string",
+                    "name": "lineEnding"
+                  }
+                ],
+                "label": "Data",
+                "optional": true,
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          },
+          {
+            "control_type": "key_value",
+            "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+            "empty_list_title": "Does this HTTP request require headers?",
+            "item_label": "Header",
+            "label": "Request headers",
+            "name": "request_headers",
+            "of": "object",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Name",
+                "optional": true,
+                "type": "string",
+                "name": "name"
+              },
+              {
+                "control_type": "text",
+                "label": "Value",
+                "optional": true,
+                "type": "string",
+                "name": "value"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "control_type": "schema-designer",
+            "extends_schema": true,
+            "label": "Response body",
+            "name": "output",
+            "optional": true,
+            "sample_data_type": "json_http",
+            "sticky": true,
+            "type": "string",
+            "schema_neutral": true
+          },
+          {
+            "control_type": "schema-designer",
+            "extends_schema": true,
+            "label": "Response headers",
+            "name": "response_headers",
+            "optional": true,
+            "sample_data_type": "json_http",
+            "sticky": false,
+            "type": "string",
+            "schema_neutral": true
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Inspect",
+            "name": "inspect",
+            "ngIf": "false",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "type": "number"
+          }
+        ],
+        "uuid": "47b06119-3a43-4d5f-a010-4c5df9a515a7",
+        "wizardFinished": true
+      },
+      {
+        "number": 5,
+        "provider": "salesforce",
+        "name": "__adhoc_http_action",
+        "as": "f529c7c0",
+        "keyword": "action",
+        "input": {
+          "mnemonic": "Bulk insert job upload data",
+          "verb": "put",
+          "request_type": "rawdata",
+          "response_type": "json",
+          "path": "services/data/v66.0/jobs/ingest/#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"3c89343f\",\"path\":[\"body\",\"id\"]}')}/batches",
+          "request_headers": [
+            {
+              "name": "Content-Type",
+              "value": "text/csv"
+            }
+          ],
+          "response_headers": "[{\"control_type\":\"text\",\"label\":\"Date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"date\"},{\"control_type\":\"text\",\"label\":\"Transfer encoding\",\"type\":\"string\",\"name\":\"transfer_encoding\"},{\"control_type\":\"text\",\"label\":\"Connection\",\"type\":\"string\",\"name\":\"connection\"},{\"control_type\":\"text\",\"label\":\"Set cookie\",\"type\":\"string\",\"name\":\"set_cookie\"},{\"control_type\":\"text\",\"label\":\"X robots tag\",\"type\":\"string\",\"name\":\"x_robots_tag\"},{\"control_type\":\"text\",\"label\":\"Content security policy\",\"type\":\"string\",\"name\":\"content_security_policy\"},{\"control_type\":\"text\",\"label\":\"X content type options\",\"type\":\"string\",\"name\":\"x_content_type_options\"},{\"control_type\":\"text\",\"label\":\"Strict transport security\",\"type\":\"string\",\"name\":\"strict_transport_security\"},{\"control_type\":\"text\",\"label\":\"Cache control\",\"type\":\"string\",\"name\":\"cache_control\"},{\"control_type\":\"text\",\"label\":\"Sforce limit info\",\"type\":\"string\",\"name\":\"sforce_limit_info\"},{\"control_type\":\"text\",\"label\":\"Server\",\"type\":\"string\",\"name\":\"server\"},{\"control_type\":\"text\",\"label\":\"X sfdc request ID\",\"type\":\"string\",\"name\":\"x_sfdc_request_id\"},{\"control_type\":\"text\",\"label\":\"X request ID\",\"type\":\"string\",\"name\":\"x_request_id\"},{\"control_type\":\"text\",\"label\":\"X sfdc edge cache\",\"type\":\"string\",\"name\":\"x_sfdc_edge_cache\"}]",
+          "input": {
+            "data": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"ee924988\",\"path\":[\"content\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Body",
+            "name": "body",
+            "optional": true,
+            "properties": [
+
+            ],
+            "type": "object"
+          },
+          {
+            "label": "Headers",
+            "name": "headers",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Date",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "date"
+              },
+              {
+                "control_type": "text",
+                "label": "Transfer encoding",
+                "optional": true,
+                "type": "string",
+                "name": "transfer_encoding"
+              },
+              {
+                "control_type": "text",
+                "label": "Connection",
+                "optional": true,
+                "type": "string",
+                "name": "connection"
+              },
+              {
+                "control_type": "text",
+                "label": "Set cookie",
+                "optional": true,
+                "type": "string",
+                "name": "set_cookie"
+              },
+              {
+                "control_type": "text",
+                "label": "X robots tag",
+                "optional": true,
+                "type": "string",
+                "name": "x_robots_tag"
+              },
+              {
+                "control_type": "text",
+                "label": "Content security policy",
+                "optional": true,
+                "type": "string",
+                "name": "content_security_policy"
+              },
+              {
+                "control_type": "text",
+                "label": "X content type options",
+                "optional": true,
+                "type": "string",
+                "name": "x_content_type_options"
+              },
+              {
+                "control_type": "text",
+                "label": "Strict transport security",
+                "optional": true,
+                "type": "string",
+                "name": "strict_transport_security"
+              },
+              {
+                "control_type": "text",
+                "label": "Cache control",
+                "optional": true,
+                "type": "string",
+                "name": "cache_control"
+              },
+              {
+                "control_type": "text",
+                "label": "Sforce limit info",
+                "optional": true,
+                "type": "string",
+                "name": "sforce_limit_info"
+              },
+              {
+                "control_type": "text",
+                "label": "Server",
+                "optional": true,
+                "type": "string",
+                "name": "server"
+              },
+              {
+                "control_type": "text",
+                "label": "X sfdc request ID",
+                "optional": true,
+                "type": "string",
+                "name": "x_sfdc_request_id"
+              },
+              {
+                "control_type": "text",
+                "label": "X request ID",
+                "optional": true,
+                "type": "string",
+                "name": "x_request_id"
+              },
+              {
+                "control_type": "text",
+                "label": "X sfdc edge cache",
+                "optional": true,
+                "type": "string",
+                "name": "x_sfdc_edge_cache"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "hint": "Base URI is <b>https://redhatsupport--tsmig.sandbox.my.salesforce.com/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+            "label": "Path",
+            "name": "path",
+            "optional": false,
+            "type": "string"
+          },
+          {
+            "control_type": "email",
+            "hint": "Email of the Salesforce user to execute this action on behalf of. If not provided, uses the connection-level user. <b>Note: This feature is only available for JWT connections.</b>",
+            "label": "On-behalf-of user email",
+            "name": "requester_email",
+            "ngIf": "authUser.feature_flags.salesforce_jwt_on_behalf_user",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "select",
+            "default": "json",
+            "extends_schema": true,
+            "label": "Request type",
+            "name": "request_type",
+            "optional": true,
+            "pick_list": [
+              [
+                "JSON request body",
+                "json"
+              ],
+              [
+                "URL encoded form",
+                "urlencoded"
+              ],
+              [
+                "Multipart form",
+                "multipart"
+              ],
+              [
+                "Raw JSON request body",
+                "raw"
+              ],
+              [
+                "XML request body",
+                "xml"
+              ],
+              [
+                "Plain text",
+                "text"
+              ],
+              [
+                "Raw request body",
+                "rawdata"
+              ]
+            ],
+            "sticky": false,
+            "type": "string"
+          },
+          {
+            "control_type": "select",
+            "default": "json",
+            "extends_schema": true,
+            "label": "Response type",
+            "name": "response_type",
+            "optional": true,
+            "pick_list": [
+              [
+                "JSON response",
+                "json"
+              ],
+              [
+                "Raw JSON Response",
+                "raw"
+              ],
+              [
+                "XML Response",
+                "xml2"
+              ],
+              [
+                "Raw response",
+                "text"
+              ]
+            ],
+            "sticky": false,
+            "type": "string"
+          },
+          {
+            "label": "Input",
+            "name": "input",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text-area",
+                "label": "Data",
+                "sticky": true,
+                "optional": true,
+                "type": "string",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          },
+          {
+            "control_type": "key_value",
+            "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+            "empty_list_title": "Does this HTTP request require headers?",
+            "item_label": "Header",
+            "label": "Request headers",
+            "name": "request_headers",
+            "of": "object",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Name",
+                "optional": true,
+                "type": "string",
+                "name": "name"
+              },
+              {
+                "control_type": "text",
+                "label": "Value",
+                "optional": true,
+                "type": "string",
+                "name": "value"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "control_type": "schema-designer",
+            "extends_schema": true,
+            "label": "Response body",
+            "name": "output",
+            "optional": true,
+            "sample_data_type": "json_http",
+            "sticky": true,
+            "type": "string",
+            "schema_neutral": true
+          },
+          {
+            "control_type": "schema-designer",
+            "extends_schema": true,
+            "label": "Response headers",
+            "name": "response_headers",
+            "optional": true,
+            "sample_data_type": "json_http",
+            "sticky": false,
+            "type": "string",
+            "schema_neutral": true
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Inspect",
+            "name": "inspect",
+            "ngIf": "false",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "type": "number"
+          }
+        ],
+        "uuid": "0625cdaf-5343-4c40-996a-200a8c8f31e0",
+        "wizardFinished": true
+      },
+      {
+        "number": 6,
+        "provider": "salesforce",
+        "name": "__adhoc_http_action",
+        "as": "eab2c869",
+        "keyword": "action",
+        "input": {
+          "mnemonic": "Bulk insert job set upload complete state",
+          "verb": "patch",
+          "request_type": "json",
+          "response_type": "json",
+          "path": "services/data/v66.0/jobs/ingest/#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"3c89343f\",\"path\":[\"body\",\"id\"]}')}",
+          "input": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"State\",\"type\":\"string\",\"name\":\"state\",\"details\":{\"real_name\":\"state\"}}]",
+            "data": {
+              "state": "UploadComplete"
+            }
+          },
+          "output": "[{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"id\"},{\"control_type\":\"text\",\"label\":\"Operation\",\"type\":\"string\",\"name\":\"operation\"},{\"control_type\":\"text\",\"label\":\"Object\",\"type\":\"string\",\"name\":\"object\"},{\"control_type\":\"text\",\"label\":\"Created by ID\",\"type\":\"string\",\"name\":\"createdById\"},{\"control_type\":\"text\",\"label\":\"Created date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"createdDate\"},{\"control_type\":\"text\",\"label\":\"System modstamp\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"systemModstamp\"},{\"control_type\":\"text\",\"label\":\"State\",\"type\":\"string\",\"name\":\"state\"},{\"control_type\":\"text\",\"label\":\"Concurrency mode\",\"type\":\"string\",\"name\":\"concurrencyMode\"},{\"control_type\":\"text\",\"label\":\"Content type\",\"type\":\"string\",\"name\":\"contentType\"},{\"control_type\":\"number\",\"label\":\"Api version\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"apiVersion\"}]",
+          "response_headers": "[{\"control_type\":\"text\",\"label\":\"Date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"date\"},{\"control_type\":\"text\",\"label\":\"Content type\",\"type\":\"string\",\"name\":\"content_type\"},{\"control_type\":\"text\",\"label\":\"Transfer encoding\",\"type\":\"string\",\"name\":\"transfer_encoding\"},{\"control_type\":\"text\",\"label\":\"Connection\",\"type\":\"string\",\"name\":\"connection\"},{\"control_type\":\"text\",\"label\":\"Cache control\",\"type\":\"string\",\"name\":\"cache_control\"},{\"control_type\":\"text\",\"label\":\"Strict transport security\",\"type\":\"string\",\"name\":\"strict_transport_security\"},{\"control_type\":\"text\",\"label\":\"Sforce limit info\",\"type\":\"string\",\"name\":\"sforce_limit_info\"},{\"control_type\":\"text\",\"label\":\"X content type options\",\"type\":\"string\",\"name\":\"x_content_type_options\"},{\"control_type\":\"text\",\"label\":\"X robots tag\",\"type\":\"string\",\"name\":\"x_robots_tag\"},{\"control_type\":\"text\",\"label\":\"Set cookie\",\"type\":\"string\",\"name\":\"set_cookie\"},{\"control_type\":\"text\",\"label\":\"Server\",\"type\":\"string\",\"name\":\"server\"},{\"control_type\":\"text\",\"label\":\"X sfdc request ID\",\"type\":\"string\",\"name\":\"x_sfdc_request_id\"},{\"control_type\":\"text\",\"label\":\"X request ID\",\"type\":\"string\",\"name\":\"x_request_id\"},{\"control_type\":\"text\",\"label\":\"X sfdc edge cache\",\"type\":\"string\",\"name\":\"x_sfdc_edge_cache\"}]"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Body",
+            "name": "body",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "ID",
+                "optional": true,
+                "type": "string",
+                "name": "id"
+              },
+              {
+                "control_type": "text",
+                "label": "Operation",
+                "optional": true,
+                "type": "string",
+                "name": "operation"
+              },
+              {
+                "control_type": "text",
+                "label": "Object",
+                "optional": true,
+                "type": "string",
+                "name": "object"
+              },
+              {
+                "control_type": "text",
+                "label": "Created by ID",
+                "optional": true,
+                "type": "string",
+                "name": "createdById"
+              },
+              {
+                "control_type": "text",
+                "label": "Created date",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "createdDate"
+              },
+              {
+                "control_type": "text",
+                "label": "System modstamp",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "systemModstamp"
+              },
+              {
+                "control_type": "text",
+                "label": "State",
+                "optional": true,
+                "type": "string",
+                "name": "state"
+              },
+              {
+                "control_type": "text",
+                "label": "Concurrency mode",
+                "optional": true,
+                "type": "string",
+                "name": "concurrencyMode"
+              },
+              {
+                "control_type": "text",
+                "label": "Content type",
+                "optional": true,
+                "type": "string",
+                "name": "contentType"
+              },
+              {
+                "control_type": "number",
+                "label": "Api version",
+                "parse_output": "float_conversion",
+                "optional": true,
+                "type": "number",
+                "name": "apiVersion"
+              }
+            ],
+            "type": "object"
+          },
+          {
+            "label": "Headers",
+            "name": "headers",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Date",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "optional": true,
+                "type": "date_time",
+                "name": "date"
+              },
+              {
+                "control_type": "text",
+                "label": "Content type",
+                "optional": true,
+                "type": "string",
+                "name": "content_type"
+              },
+              {
+                "control_type": "text",
+                "label": "Transfer encoding",
+                "optional": true,
+                "type": "string",
+                "name": "transfer_encoding"
+              },
+              {
+                "control_type": "text",
+                "label": "Connection",
+                "optional": true,
+                "type": "string",
+                "name": "connection"
+              },
+              {
+                "control_type": "text",
+                "label": "Cache control",
+                "optional": true,
+                "type": "string",
+                "name": "cache_control"
+              },
+              {
+                "control_type": "text",
+                "label": "Strict transport security",
+                "optional": true,
+                "type": "string",
+                "name": "strict_transport_security"
+              },
+              {
+                "control_type": "text",
+                "label": "Sforce limit info",
+                "optional": true,
+                "type": "string",
+                "name": "sforce_limit_info"
+              },
+              {
+                "control_type": "text",
+                "label": "X content type options",
+                "optional": true,
+                "type": "string",
+                "name": "x_content_type_options"
+              },
+              {
+                "control_type": "text",
+                "label": "X robots tag",
+                "optional": true,
+                "type": "string",
+                "name": "x_robots_tag"
+              },
+              {
+                "control_type": "text",
+                "label": "Set cookie",
+                "optional": true,
+                "type": "string",
+                "name": "set_cookie"
+              },
+              {
+                "control_type": "text",
+                "label": "Server",
+                "optional": true,
+                "type": "string",
+                "name": "server"
+              },
+              {
+                "control_type": "text",
+                "label": "X sfdc request ID",
+                "optional": true,
+                "type": "string",
+                "name": "x_sfdc_request_id"
+              },
+              {
+                "control_type": "text",
+                "label": "X request ID",
+                "optional": true,
+                "type": "string",
+                "name": "x_request_id"
+              },
+              {
+                "control_type": "text",
+                "label": "X sfdc edge cache",
+                "optional": true,
+                "type": "string",
+                "name": "x_sfdc_edge_cache"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "hint": "Base URI is <b>https://redhatsupport--tsmig.sandbox.my.salesforce.com/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+            "label": "Path",
+            "name": "path",
+            "optional": false,
+            "type": "string"
+          },
+          {
+            "control_type": "email",
+            "hint": "Email of the Salesforce user to execute this action on behalf of. If not provided, uses the connection-level user. <b>Note: This feature is only available for JWT connections.</b>",
+            "label": "On-behalf-of user email",
+            "name": "requester_email",
+            "ngIf": "authUser.feature_flags.salesforce_jwt_on_behalf_user",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "select",
+            "default": "json",
+            "extends_schema": true,
+            "label": "Request type",
+            "name": "request_type",
+            "optional": true,
+            "pick_list": [
+              [
+                "JSON request body",
+                "json"
+              ],
+              [
+                "URL encoded form",
+                "urlencoded"
+              ],
+              [
+                "Multipart form",
+                "multipart"
+              ],
+              [
+                "Raw JSON request body",
+                "raw"
+              ],
+              [
+                "XML request body",
+                "xml"
+              ],
+              [
+                "Plain text",
+                "text"
+              ],
+              [
+                "Raw request body",
+                "rawdata"
+              ]
+            ],
+            "sticky": false,
+            "type": "string"
+          },
+          {
+            "control_type": "select",
+            "default": "json",
+            "extends_schema": true,
+            "label": "Response type",
+            "name": "response_type",
+            "optional": true,
+            "pick_list": [
+              [
+                "JSON response",
+                "json"
+              ],
+              [
+                "Raw JSON Response",
+                "raw"
+              ],
+              [
+                "XML Response",
+                "xml2"
+              ],
+              [
+                "Raw response",
+                "text"
+              ]
+            ],
+            "sticky": false,
+            "type": "string"
+          },
+          {
+            "label": "Input",
+            "name": "input",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "schema-designer",
+                "label": "Request body parameters",
+                "extends_schema": true,
+                "schema_neutral": true,
+                "sample_data_type": "json_input",
+                "sticky": true,
+                "add_field_label": "Add request body parameter",
+                "optional": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "State",
+                    "details": {
+                      "real_name": "state"
+                    },
+                    "sticky": true,
+                    "optional": true,
+                    "type": "string",
+                    "name": "state"
+                  }
+                ],
+                "label": "Data",
+                "optional": true,
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          },
+          {
+            "control_type": "key_value",
+            "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+            "empty_list_title": "Does this HTTP request require headers?",
+            "item_label": "Header",
+            "label": "Request headers",
+            "name": "request_headers",
+            "of": "object",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Name",
+                "optional": true,
+                "type": "string",
+                "name": "name"
+              },
+              {
+                "control_type": "text",
+                "label": "Value",
+                "optional": true,
+                "type": "string",
+                "name": "value"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "control_type": "schema-designer",
+            "extends_schema": true,
+            "label": "Response body",
+            "name": "output",
+            "optional": true,
+            "sample_data_type": "json_http",
+            "sticky": true,
+            "type": "string",
+            "schema_neutral": true
+          },
+          {
+            "control_type": "schema-designer",
+            "extends_schema": true,
+            "label": "Response headers",
+            "name": "response_headers",
+            "optional": true,
+            "sample_data_type": "json_http",
+            "sticky": false,
+            "type": "string",
+            "schema_neutral": true
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Inspect",
+            "name": "inspect",
+            "ngIf": "false",
+            "optional": true,
+            "parse_output": "float_conversion",
+            "type": "number"
+          }
+        ],
+        "uuid": "07d309e6-6af9-4229-a470-773e5329c37e",
+        "wizardFinished": true
+      },
+      {
+        "number": 7,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe",
+        "as": "e15e0f23",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "Target | Bulk job monitor"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Lookups, helpers, etc/target_bulk_job_monitor.recipe.json",
+            "name": "Target | Bulk job monitor",
+            "folder": "Lookups, helpers, etc"
+          },
+          "parameters": {
+            "bulk_job_ids": [
+              {
+                "job_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"3c89343f\",\"path\":[\"body\",\"id\"]}')}"
+              }
+            ],
+            "results_directory_base": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"directory\"]}')}",
+            "results_name_base": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"create_batch_filename\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "checkbox",
+                "label": "Status",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "status",
+                "type": "boolean",
+                "optional": false,
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Status",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "status",
+                  "type": "boolean",
+                  "optional": false
+                }
+              },
+              {
+                "control_type": "integer",
+                "label": "Successful count",
+                "parse_output": "integer_conversion",
+                "name": "successful_count",
+                "type": "integer",
+                "optional": false,
+                "render_input": "integer_conversion"
+              },
+              {
+                "control_type": "integer",
+                "label": "Failed count",
+                "parse_output": "integer_conversion",
+                "name": "failed_count",
+                "type": "integer",
+                "optional": false,
+                "render_input": "integer_conversion"
+              },
+              {
+                "control_type": "integer",
+                "label": "Unprocessed count",
+                "parse_output": "integer_conversion",
+                "name": "unprocessed_count",
+                "type": "integer",
+                "optional": false,
+                "render_input": "integer_conversion"
+              },
+              {
+                "control_type": "text",
+                "label": "Results directory",
+                "name": "results_directory",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "label": "Bulk job IDs",
+                "name": "bulk_job_ids",
+                "type": "array",
+                "optional": false,
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Job ID",
+                    "name": "job_id",
+                    "type": "string",
+                    "optional": false
+                  }
+                ]
+              },
+              {
+                "control_type": "text",
+                "label": "Results directory base",
+                "name": "results_directory_base",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Results name base",
+                "name": "results_name_base",
+                "type": "string",
+                "optional": false,
+                "hint": "With or without `.csv` suffix/extension"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "213a0513-a718-46b1-bb7e-8e2716614be2"
+      },
+      {
+        "number": 8,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "present",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"expected_count\"]}')}",
+              "rhs": "",
+              "uuid": "63783fa3-259c-4b45-93b0-10bda389385f"
+            },
+            {
+              "operand": "not_equals_to",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"expected_count\"]}')}",
+              "rhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"e15e0f23\",\"path\":[\"result\",\"successful_count\"]}') + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"e15e0f23\",\"path\":[\"result\",\"failed_count\"]}') + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"e15e0f23\",\"path\":[\"result\",\"unprocessed_count\"]}')",
+              "uuid": "fe0a2561-9327-4275-a0bd-6ac8097059b5"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 9,
+            "provider": "workato_recipe_function",
+            "name": "call_recipe_async",
+            "as": "0e30c750",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "flow_id": "Case groups & labels | Initial migration | 04.x Delete and retry from batch file [FUNCTION]"
+            },
+            "toggleCfg": {
+              "parameters.acl": false
+            },
+            "input": {
+              "flow_id": {
+                "zip_name": "Legacy=>SCT migration/Case groups & labels/Initial/case_groups_labels_initial_migration_04_x_delete_and_retry_from_batch_file_function.recipe.json",
+                "name": "Case groups & labels | Initial migration | 04.x Delete and retry from batch file [FUNCTION]",
+                "folder": "Legacy=>SCT migration/Case groups & labels/Initial"
+              },
+              "parameters": {
+                "directory": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"directory\"]}')}",
+                "create_batch_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"create_batch_filename\"]}')}",
+                "expected_count": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"expected_count\"]}')}",
+                "acl": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"acl\"]}') == true"
+              }
+            },
+            "extended_input_schema": [
+              {
+                "label": "Parameters",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Directory",
+                    "name": "directory",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Create batch filename",
+                    "name": "create_batch_filename",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "ACL?",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "name": "acl",
+                    "type": "boolean",
+                    "optional": false,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "ACL?",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "name": "acl",
+                      "type": "boolean",
+                      "optional": false
+                    }
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Expected count",
+                    "parse_output": "integer_conversion",
+                    "name": "expected_count",
+                    "type": "integer",
+                    "optional": true,
+                    "render_input": "integer_conversion"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "flow_id",
+              "parameters.expected_count"
+            ],
+            "uuid": "f2f645e3-3a15-41a4-afc1-578e2d265698"
+          },
+          {
+            "number": 10,
+            "provider": "workato_recipe_function",
+            "name": "wait_for_async_jobs",
+            "as": "0aed2b8b",
+            "keyword": "action",
+            "input": {
+              "timeout": "1400",
+              "async_calls": [
+                {
+                  "job_ref": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0e30c750\",\"path\":[\"job_ref\"]}')}"
+                }
+              ]
+            },
+            "uuid": "a6106b1a-29ab-4cb2-a479-2935d4bbf62b"
+          },
+          {
+            "number": 11,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "is_not_true",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0aed2b8b\",\"path\":[\"all_jobs_succeeded\"]}')}",
+                  "rhs": "",
+                  "uuid": "d00d966c-5e80-4010-95c0-35c028956147"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 12,
+                "as": "0b85994d",
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "true",
+                  "stop_reason": "Delete and retry failed"
+                },
+                "uuid": "c36a5138-9a67-4591-b87b-aff4930be6d2"
+              }
+            ],
+            "uuid": "5b9607b4-3c1b-4718-9912-e5d2a8a4ec3f"
+          },
+          {
+            "number": 13,
+            "keyword": "elsif",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "is_not_true",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"e15e0f23\",\"path\":[\"result\",\"status\"]}')}",
+                  "rhs": "",
+                  "uuid": "8de6e956-de3c-4146-b161-a8bd2ae2789c"
+                },
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"e15e0f23\",\"path\":[\"result\",\"failed_count\"]}')}",
+                  "rhs": "0",
+                  "uuid": "7a052ffb-ba81-4093-9201-aad2d20e4e15"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 14,
+                "provider": "workato_recipe_function",
+                "name": "call_recipe_async",
+                "as": "8902fb31",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "flow_id": "Case groups & labels | Initial migration | 04.x Delete and retry from batch file [FUNCTION]"
+                },
+                "toggleCfg": {
+                  "parameters.acl": false
+                },
+                "input": {
+                  "flow_id": {
+                    "zip_name": "Legacy=>SCT migration/Case groups & labels/Initial/case_groups_labels_initial_migration_04_x_delete_and_retry_from_batch_file_function.recipe.json",
+                    "name": "Case groups & labels | Initial migration | 04.x Delete and retry from batch file [FUNCTION]",
+                    "folder": "Legacy=>SCT migration/Case groups & labels/Initial"
+                  },
+                  "parameters": {
+                    "directory": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"directory\"]}')}",
+                    "create_batch_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"create_batch_filename\"]}')}",
+                    "expected_count": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"expected_count\"]}')}",
+                    "acl": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"acl\"]}') == true"
+                  }
+                },
+                "extended_input_schema": [
+                  {
+                    "label": "Parameters",
+                    "name": "parameters",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Directory",
+                        "name": "directory",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Create batch filename",
+                        "name": "create_batch_filename",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "ACL?",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "acl",
+                        "type": "boolean",
+                        "optional": false,
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "ACL?",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "acl",
+                          "type": "boolean",
+                          "optional": false
+                        }
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Expected count",
+                        "parse_output": "integer_conversion",
+                        "name": "expected_count",
+                        "type": "integer",
+                        "optional": true,
+                        "render_input": "integer_conversion"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "flow_id",
+                  "parameters.expected_count"
+                ],
+                "uuid": "2321cc63-3d1a-4722-b7eb-d634fda9fab6"
+              },
+              {
+                "number": 15,
+                "provider": "workato_recipe_function",
+                "name": "wait_for_async_jobs",
+                "as": "8db8ae41",
+                "keyword": "action",
+                "input": {
+                  "timeout": "1400",
+                  "async_calls": [
+                    {
+                      "job_ref": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"8902fb31\",\"path\":[\"job_ref\"]}')}"
+                    }
+                  ]
+                },
+                "uuid": "2bc8f233-2175-4786-b51c-b55596cba7ac"
+              },
+              {
+                "number": 16,
+                "keyword": "if",
+                "input": {
+                  "type": "compound",
+                  "operand": "and",
+                  "conditions": [
+                    {
+                      "operand": "is_not_true",
+                      "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"8db8ae41\",\"path\":[\"all_jobs_succeeded\"]}')}",
+                      "rhs": "",
+                      "uuid": "d00d966c-5e80-4010-95c0-35c028956147"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "number": 17,
+                    "as": "a36e1af7",
+                    "keyword": "stop",
+                    "input": {
+                      "stop_with_error": "true",
+                      "stop_reason": "Delete and retry failed"
+                    },
+                    "uuid": "759d7afb-6ec2-49aa-8133-4c215f20ad63"
+                  }
+                ],
+                "uuid": "a4c05647-231b-4ed6-a07c-04f7955a5d7d"
+              }
+            ],
+            "comment": "Child job failed but no actual failed records?  Delete and retry.",
+            "uuid": "ca97db74-150f-429b-a022-fbd0e25635ca"
+          },
+          {
+            "number": 18,
+            "keyword": "elsif",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "is_not_true",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"e15e0f23\",\"path\":[\"result\",\"status\"]}')}",
+                  "rhs": "",
+                  "uuid": "fa5870f9-406e-4dc6-aa93-696f7d6a7764"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 19,
+                "as": "df11e001",
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "true",
+                  "stop_reason": "Failed and/or unprocessed records"
+                },
+                "uuid": "9081fd60-4f23-42db-acb9-d72cd0efc6f5"
+              }
+            ],
+            "uuid": "70643543-28c8-49e7-a22a-8a91ae957bf8"
+          }
+        ],
+        "comment": "Unstable (i.e. total count not correct)?  Delete and retry.",
+        "uuid": "265a3662-636e-42ff-8dd0-4c8dd558b3fb"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_0",
+        "label": "Create batch file"
+      },
+      {
+        "name": "custom_column_6",
+        "label": "ACL?"
+      },
+      {
+        "name": "custom_column_5",
+        "label": "Expected count"
+      },
+      {
+        "name": "custom_column_1",
+        "label": "Successful count"
+      },
+      {
+        "name": "custom_column_2",
+        "label": "Failed count"
+      },
+      {
+        "name": "custom_column_3",
+        "label": "Unprocessed count"
+      },
+      {
+        "name": "custom_column_4",
+        "label": "Results directory"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"create_batch_filename\"]}')}",
+      "custom_column_6": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"acl\"]}') ? 'true' : 'false'",
+      "custom_column_5": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0cfb5ce7\",\"path\":[\"parameters\",\"expected_count\"]}')}",
+      "custom_column_1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"e15e0f23\",\"path\":[\"result\",\"successful_count\"]}')}",
+      "custom_column_2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"e15e0f23\",\"path\":[\"result\",\"failed_count\"]}')}",
+      "custom_column_3": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"e15e0f23\",\"path\":[\"result\",\"unprocessed_count\"]}')}",
+      "custom_column_4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"e15e0f23\",\"path\":[\"result\",\"results_directory\"]}')}"
+    },
+    "uuid": "7cc928ab-04cf-429b-9dcf-ac86c564719a"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/sf_sct_target.connection.json",
+        "name": "SF_SCT_Target",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_files",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

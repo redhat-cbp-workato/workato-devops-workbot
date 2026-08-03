@@ -1,0 +1,3093 @@
+{
+  "name": "Case groups & labels | Target | Delete migrated [WEBHOOK]",
+  "description": "",
+  "version": 16,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_webhooks",
+    "name": "new_event",
+    "as": "bcabd315",
+    "keyword": "trigger",
+    "input": {
+      "request": {
+        "webhook_type": "get",
+        "headers_schema": "[{\"name\":\"key\",\"type\":\"string\",\"optional\":false,\"label\":\"Key\",\"control_type\":\"text\"}]"
+      },
+      "webhook_suffix": "case-groups-and-labels-delete-all-migrated"
+    },
+    "filter": {
+      "conditions": [
+        {
+          "operand": "present",
+          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"bcabd315\",\"path\":[\"headers\",\"key\"]}')}",
+          "rhs": "",
+          "uuid": "09e3781e-4578-4598-8ea8-6b9e859b9f2d"
+        },
+        {
+          "operand": "equals_to",
+          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"bcabd315\",\"path\":[\"headers\",\"key\"]}')}",
+          "rhs": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"webhook_key\"}')}",
+          "uuid": "ce279641-a1ba-4381-8061-fc4b24db7856"
+        }
+      ],
+      "operand": "and",
+      "type": "compound"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Headers",
+        "name": "headers",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Key",
+            "name": "key",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      },
+      {
+        "label": "Payload",
+        "name": "payload",
+        "properties": [
+
+        ],
+        "type": "object"
+      }
+    ],
+    "extended_input_schema": [
+      {
+        "label": "Payload configuration",
+        "name": "request",
+        "override": true,
+        "properties": [
+          {
+            "control_type": "select",
+            "label": "Webhook type",
+            "pick_list": [
+              [
+                "GET request",
+                "get"
+              ],
+              [
+                "PUT/POST with JSON payload",
+                "json"
+              ],
+              [
+                "PUT/POST with XML payload",
+                "xml"
+              ],
+              [
+                "PUT/POST with FORM encoded payload",
+                "form"
+              ],
+              [
+                "PUT/POST with raw binary data",
+                "rawdata"
+              ],
+              [
+                "PUT/POST with unicode text data",
+                "rawdatatxt"
+              ]
+            ],
+            "hint": "Select the HTTP method and payload data type used by webhook. <a href=\"https://docs.workato.com/developing-connectors/http.html#set-up-your-non-oauth-2-0-connection\" target=\"_blank\">Learn more</a>",
+            "default": "json",
+            "extends_schema": true,
+            "type": "string",
+            "name": "webhook_type"
+          },
+          {
+            "control_type": "schema-designer",
+            "label": "Payload schema",
+            "sample_data_type": "form",
+            "extends_schema": true,
+            "empty_schema_title": "Describe all fields in your response.",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "name": "payload_schema"
+          },
+          {
+            "control_type": "schema-designer",
+            "label": "Query params",
+            "extends_schema": true,
+            "empty_schema_title": "Describe all the query params",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "name": "query_params"
+          },
+          {
+            "control_type": "schema-designer",
+            "label": "Headers",
+            "extends_schema": true,
+            "empty_schema_title": "Describe all the webhook headers",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "name": "headers_schema"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_db_table",
+        "name": "delete_records_by_condition",
+        "as": "1a688fe3",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "table_id": "DT | Target shared lookup cache",
+          "filters.0.field_id": "Type"
+        },
+        "input": {
+          "table_id": {
+            "zip_name": "Lookups, helpers, etc/Cache/target_shared_lookup_cache.workato_db_table.json",
+            "name": "Target | Shared lookup cache",
+            "folder": "Lookups, helpers, etc/Cache"
+          },
+          "168fc8d7-00c0-432c-9d7d-ef2a2d8e3593": "string",
+          "ff70ca1e-efa8-4ff5-874c-f071c3e117a6": "string",
+          "39f99dd9-b969-483a-854e-ad028dd38544": "string",
+          "cf76ca01-886f-4001-abc9-c311ec03e79e": "string",
+          "285c66d2-6a71-4164-acc6-c6f6f72164ba": "string",
+          "4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17": "string",
+          "58cedd40-32b6-49a8-a05c-f513f5cb8454": "string",
+          "aaf01e95-2ecb-4411-889d-59ffd1caf858": "string",
+          "54c4251a-2f38-491d-a7dd-b2be2fb27d6a": "string",
+          "c434de15-3550-4e0e-b509-1e52b6e40bb0": "boolean",
+          "228e10bc-49c6-451c-9aa3-98f9630fa402": "boolean",
+          "90c2e695-c81d-4af5-8699-18408da58e62": "boolean",
+          "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+          "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+          "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+          "filters": [
+            {
+              "field_id": "ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+              "op_default": "eq",
+              "value_default": "CaseGroup__c"
+            }
+          ]
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_168fc8d7-00c0-432c-9d7d-ef2a2d8e3593",
+            "name": "168fc8d7-00c0-432c-9d7d-ef2a2d8e3593",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+            "name": "ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_39f99dd9-b969-483a-854e-ad028dd38544",
+            "name": "39f99dd9-b969-483a-854e-ad028dd38544",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_cf76ca01-886f-4001-abc9-c311ec03e79e",
+            "name": "cf76ca01-886f-4001-abc9-c311ec03e79e",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_285c66d2-6a71-4164-acc6-c6f6f72164ba",
+            "name": "285c66d2-6a71-4164-acc6-c6f6f72164ba",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17",
+            "name": "4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_58cedd40-32b6-49a8-a05c-f513f5cb8454",
+            "name": "58cedd40-32b6-49a8-a05c-f513f5cb8454",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_aaf01e95-2ecb-4411-889d-59ffd1caf858",
+            "name": "aaf01e95-2ecb-4411-889d-59ffd1caf858",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_54c4251a-2f38-491d-a7dd-b2be2fb27d6a",
+            "name": "54c4251a-2f38-491d-a7dd-b2be2fb27d6a",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_c434de15-3550-4e0e-b509-1e52b6e40bb0",
+            "name": "c434de15-3550-4e0e-b509-1e52b6e40bb0",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_228e10bc-49c6-451c-9aa3-98f9630fa402",
+            "name": "228e10bc-49c6-451c-9aa3-98f9630fa402",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_90c2e695-c81d-4af5-8699-18408da58e62",
+            "name": "90c2e695-c81d-4af5-8699-18408da58e62",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "id",
+            "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+            "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          }
+        ],
+        "comment": "Delete groups cache records",
+        "uuid": "35cfd40a-3708-4a68-b94c-c50f64f1fe62"
+      },
+      {
+        "number": 2,
+        "provider": "workato_db_table",
+        "name": "delete_records_by_condition",
+        "as": "2c343556",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "table_id": "DT | Target shared lookup cache",
+          "filters.0.field_id": "Type"
+        },
+        "input": {
+          "table_id": {
+            "zip_name": "Lookups, helpers, etc/Cache/target_shared_lookup_cache.workato_db_table.json",
+            "name": "Target | Shared lookup cache",
+            "folder": "Lookups, helpers, etc/Cache"
+          },
+          "168fc8d7-00c0-432c-9d7d-ef2a2d8e3593": "string",
+          "ff70ca1e-efa8-4ff5-874c-f071c3e117a6": "string",
+          "39f99dd9-b969-483a-854e-ad028dd38544": "string",
+          "cf76ca01-886f-4001-abc9-c311ec03e79e": "string",
+          "285c66d2-6a71-4164-acc6-c6f6f72164ba": "string",
+          "4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17": "string",
+          "58cedd40-32b6-49a8-a05c-f513f5cb8454": "string",
+          "aaf01e95-2ecb-4411-889d-59ffd1caf858": "string",
+          "54c4251a-2f38-491d-a7dd-b2be2fb27d6a": "string",
+          "c434de15-3550-4e0e-b509-1e52b6e40bb0": "boolean",
+          "228e10bc-49c6-451c-9aa3-98f9630fa402": "boolean",
+          "90c2e695-c81d-4af5-8699-18408da58e62": "boolean",
+          "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+          "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+          "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+          "filters": [
+            {
+              "field_id": "ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+              "op_default": "eq",
+              "value_default": "CaseLabel__c"
+            }
+          ]
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_168fc8d7-00c0-432c-9d7d-ef2a2d8e3593",
+            "name": "168fc8d7-00c0-432c-9d7d-ef2a2d8e3593",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+            "name": "ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_39f99dd9-b969-483a-854e-ad028dd38544",
+            "name": "39f99dd9-b969-483a-854e-ad028dd38544",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_cf76ca01-886f-4001-abc9-c311ec03e79e",
+            "name": "cf76ca01-886f-4001-abc9-c311ec03e79e",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_285c66d2-6a71-4164-acc6-c6f6f72164ba",
+            "name": "285c66d2-6a71-4164-acc6-c6f6f72164ba",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17",
+            "name": "4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_58cedd40-32b6-49a8-a05c-f513f5cb8454",
+            "name": "58cedd40-32b6-49a8-a05c-f513f5cb8454",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_aaf01e95-2ecb-4411-889d-59ffd1caf858",
+            "name": "aaf01e95-2ecb-4411-889d-59ffd1caf858",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_54c4251a-2f38-491d-a7dd-b2be2fb27d6a",
+            "name": "54c4251a-2f38-491d-a7dd-b2be2fb27d6a",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_c434de15-3550-4e0e-b509-1e52b6e40bb0",
+            "name": "c434de15-3550-4e0e-b509-1e52b6e40bb0",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_228e10bc-49c6-451c-9aa3-98f9630fa402",
+            "name": "228e10bc-49c6-451c-9aa3-98f9630fa402",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_90c2e695-c81d-4af5-8699-18408da58e62",
+            "name": "90c2e695-c81d-4af5-8699-18408da58e62",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "id",
+            "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+            "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          }
+        ],
+        "comment": "Delete labels cache records",
+        "uuid": "d4bf4b7b-a945-408c-96ba-9396cf93ac49"
+      },
+      {
+        "number": 3,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "e965ff86",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"name\":\"results_directory_base\",\"type\":\"string\",\"optional\":true,\"label\":\"Results directory base\",\"details\":{\"real_name\":\"Results directory base\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "results_directory_base": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"filestorage_dir_env\"}')}/initial-migration/case-groups-and-labels"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "label": "Results directory base",
+            "name": "results_directory_base",
+            "optional": true,
+            "type": "string",
+            "details": {
+              "real_name": "Results directory base"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Results directory base",
+                    "name": "results_directory_base",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Results directory base"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.results_directory_base"
+        ],
+        "uuid": "ad5fb481-f6ff-4547-b1f0-dcc3f7e5dd0c"
+      },
+      {
+        "number": 4,
+        "provider": "salesforce",
+        "name": "search_sobjects_soql_bulk_csv_v2",
+        "as": "2cc4b85b",
+        "keyword": "action",
+        "input": {
+          "include_deleted_records": "false",
+          "include_header": "true",
+          "skip_delete_failed_job": "true",
+          "wait_for_job_completion": "true",
+          "query": "SELECT\n    Id\nFROM\n    CaseGroup__c\nWHERE\n    LegacyID__c LIKE '__________________'"
+        },
+        "comment": "Groups",
+        "uuid": "13c1d74c-2e1a-477e-ab10-7cebf40e75e3"
+      },
+      {
+        "number": 5,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "greater_than",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"2cc4b85b\",\"path\":[\"numberRecordsProcessed\"]}')}",
+              "rhs": "0",
+              "uuid": "6514b848-437a-4b79-b2c4-5209edaa8437"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 6,
+            "provider": "salesforce",
+            "name": "__adhoc_http_action",
+            "as": "c32abc3b",
+            "keyword": "action",
+            "input": {
+              "mnemonic": "Bulk job setup",
+              "verb": "post",
+              "request_type": "json",
+              "response_type": "json",
+              "path": "services/data/v66.0/jobs/ingest",
+              "input": {
+                "schema": "[{\"control_type\":\"text\",\"label\":\"Object\",\"type\":\"string\",\"name\":\"object\",\"details\":{\"real_name\":\"object\"}},{\"control_type\":\"text\",\"label\":\"Operation\",\"type\":\"string\",\"name\":\"operation\",\"details\":{\"real_name\":\"operation\"}}]",
+                "data": {
+                  "object": "CaseGroup__c",
+                  "operation": "delete"
+                }
+              },
+              "output": "[{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"id\"},{\"control_type\":\"text\",\"label\":\"Operation\",\"type\":\"string\",\"name\":\"operation\"},{\"control_type\":\"text\",\"label\":\"Object\",\"type\":\"string\",\"name\":\"object\"},{\"control_type\":\"text\",\"label\":\"Created by ID\",\"type\":\"string\",\"name\":\"createdById\"},{\"control_type\":\"text\",\"label\":\"Created date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"createdDate\"},{\"control_type\":\"text\",\"label\":\"System modstamp\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"systemModstamp\"},{\"control_type\":\"text\",\"label\":\"State\",\"type\":\"string\",\"name\":\"state\"},{\"control_type\":\"text\",\"label\":\"Concurrency mode\",\"type\":\"string\",\"name\":\"concurrencyMode\"},{\"control_type\":\"text\",\"label\":\"Content type\",\"type\":\"string\",\"name\":\"contentType\"},{\"control_type\":\"number\",\"label\":\"Api version\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"apiVersion\"},{\"control_type\":\"text\",\"label\":\"Content URL\",\"type\":\"string\",\"name\":\"contentUrl\"},{\"control_type\":\"text\",\"label\":\"Line ending\",\"type\":\"string\",\"name\":\"lineEnding\"},{\"control_type\":\"text\",\"label\":\"Column delimiter\",\"type\":\"string\",\"name\":\"columnDelimiter\"}]",
+              "response_headers": "[{\"control_type\":\"text\",\"label\":\"Date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"date\"},{\"control_type\":\"text\",\"label\":\"Content type\",\"type\":\"string\",\"name\":\"content_type\"},{\"control_type\":\"text\",\"label\":\"Transfer encoding\",\"type\":\"string\",\"name\":\"transfer_encoding\"},{\"control_type\":\"text\",\"label\":\"Connection\",\"type\":\"string\",\"name\":\"connection\"},{\"control_type\":\"text\",\"label\":\"Vary\",\"type\":\"string\",\"name\":\"vary\"},{\"control_type\":\"text\",\"label\":\"Strict transport security\",\"type\":\"string\",\"name\":\"strict_transport_security\"},{\"control_type\":\"text\",\"label\":\"Cache control\",\"type\":\"string\",\"name\":\"cache_control\"},{\"control_type\":\"text\",\"label\":\"X content type options\",\"type\":\"string\",\"name\":\"x_content_type_options\"},{\"control_type\":\"text\",\"label\":\"Sforce limit info\",\"type\":\"string\",\"name\":\"sforce_limit_info\"},{\"control_type\":\"text\",\"label\":\"X robots tag\",\"type\":\"string\",\"name\":\"x_robots_tag\"},{\"control_type\":\"text\",\"label\":\"Set cookie\",\"type\":\"string\",\"name\":\"set_cookie\"},{\"control_type\":\"text\",\"label\":\"Server\",\"type\":\"string\",\"name\":\"server\"},{\"control_type\":\"text\",\"label\":\"X sfdc request ID\",\"type\":\"string\",\"name\":\"x_sfdc_request_id\"},{\"control_type\":\"text\",\"label\":\"X request ID\",\"type\":\"string\",\"name\":\"x_request_id\"},{\"control_type\":\"text\",\"label\":\"X sfdc edge cache\",\"type\":\"string\",\"name\":\"x_sfdc_edge_cache\"}]"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Body",
+                "name": "body",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Operation",
+                    "optional": true,
+                    "type": "string",
+                    "name": "operation"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Object",
+                    "optional": true,
+                    "type": "string",
+                    "name": "object"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Created by ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "createdById"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Created date",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "optional": true,
+                    "type": "date_time",
+                    "name": "createdDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "System modstamp",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "optional": true,
+                    "type": "date_time",
+                    "name": "systemModstamp"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "State",
+                    "optional": true,
+                    "type": "string",
+                    "name": "state"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Concurrency mode",
+                    "optional": true,
+                    "type": "string",
+                    "name": "concurrencyMode"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Content type",
+                    "optional": true,
+                    "type": "string",
+                    "name": "contentType"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "Api version",
+                    "parse_output": "float_conversion",
+                    "optional": true,
+                    "type": "number",
+                    "name": "apiVersion"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Content URL",
+                    "optional": true,
+                    "type": "string",
+                    "name": "contentUrl"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Line ending",
+                    "optional": true,
+                    "type": "string",
+                    "name": "lineEnding"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Column delimiter",
+                    "optional": true,
+                    "type": "string",
+                    "name": "columnDelimiter"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Headers",
+                "name": "headers",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Date",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "optional": true,
+                    "type": "date_time",
+                    "name": "date"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Content type",
+                    "optional": true,
+                    "type": "string",
+                    "name": "content_type"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Transfer encoding",
+                    "optional": true,
+                    "type": "string",
+                    "name": "transfer_encoding"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Connection",
+                    "optional": true,
+                    "type": "string",
+                    "name": "connection"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Vary",
+                    "optional": true,
+                    "type": "string",
+                    "name": "vary"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Strict transport security",
+                    "optional": true,
+                    "type": "string",
+                    "name": "strict_transport_security"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Cache control",
+                    "optional": true,
+                    "type": "string",
+                    "name": "cache_control"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "X content type options",
+                    "optional": true,
+                    "type": "string",
+                    "name": "x_content_type_options"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Sforce limit info",
+                    "optional": true,
+                    "type": "string",
+                    "name": "sforce_limit_info"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "X robots tag",
+                    "optional": true,
+                    "type": "string",
+                    "name": "x_robots_tag"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Set cookie",
+                    "optional": true,
+                    "type": "string",
+                    "name": "set_cookie"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Server",
+                    "optional": true,
+                    "type": "string",
+                    "name": "server"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "X sfdc request ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "x_sfdc_request_id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "X request ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "x_request_id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "X sfdc edge cache",
+                    "optional": true,
+                    "type": "string",
+                    "name": "x_sfdc_edge_cache"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Base URI is <b>https://redhatsupport--tsmig.sandbox.my.salesforce.com/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+                "label": "Path",
+                "name": "path",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "control_type": "email",
+                "hint": "Email of the Salesforce user to execute this action on behalf of. If not provided, uses the connection-level user. <b>Note: This feature is only available for JWT connections.</b>",
+                "label": "On-behalf-of user email",
+                "name": "requester_email",
+                "ngIf": "authUser.feature_flags.salesforce_jwt_on_behalf_user",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Request type",
+                "name": "request_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON request body",
+                    "json"
+                  ],
+                  [
+                    "URL encoded form",
+                    "urlencoded"
+                  ],
+                  [
+                    "Multipart form",
+                    "multipart"
+                  ],
+                  [
+                    "Raw JSON request body",
+                    "raw"
+                  ],
+                  [
+                    "XML request body",
+                    "xml"
+                  ],
+                  [
+                    "Plain text",
+                    "text"
+                  ],
+                  [
+                    "Raw request body",
+                    "rawdata"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Response type",
+                "name": "response_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON response",
+                    "json"
+                  ],
+                  [
+                    "Raw JSON Response",
+                    "raw"
+                  ],
+                  [
+                    "XML Response",
+                    "xml2"
+                  ],
+                  [
+                    "Raw response",
+                    "text"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "label": "Input",
+                "name": "input",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Request body parameters",
+                    "extends_schema": true,
+                    "schema_neutral": true,
+                    "sample_data_type": "json_input",
+                    "sticky": true,
+                    "add_field_label": "Add request body parameter",
+                    "optional": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Object",
+                        "details": {
+                          "real_name": "object"
+                        },
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "object"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Operation",
+                        "details": {
+                          "real_name": "operation"
+                        },
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "operation"
+                      }
+                    ],
+                    "label": "Data",
+                    "optional": true,
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "control_type": "key_value",
+                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                "empty_list_title": "Does this HTTP request require headers?",
+                "item_label": "Header",
+                "label": "Request headers",
+                "name": "request_headers",
+                "of": "object",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "optional": true,
+                    "type": "string",
+                    "name": "name"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Value",
+                    "optional": true,
+                    "type": "string",
+                    "name": "value"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response body",
+                "name": "output",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": true,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response headers",
+                "name": "response_headers",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": false,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Inspect",
+                "name": "inspect",
+                "ngIf": "false",
+                "optional": true,
+                "parse_output": "float_conversion",
+                "type": "number"
+              }
+            ],
+            "comment": "Initialize bulk delete job",
+            "uuid": "60eb72e4-aba0-457e-a8c5-c27bdf8c5964",
+            "wizardFinished": true
+          },
+          {
+            "number": 7,
+            "provider": "salesforce",
+            "name": "__adhoc_http_action",
+            "as": "a54d9876",
+            "keyword": "action",
+            "input": {
+              "mnemonic": "Bulk upload data",
+              "verb": "put",
+              "request_type": "rawdata",
+              "response_type": "json",
+              "path": "services/data/v66.0/jobs/ingest/#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"c32abc3b\",\"path\":[\"body\",\"id\"]}')}/batches",
+              "request_headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "text/csv"
+                }
+              ],
+              "input": {
+                "data": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"2cc4b85b\",\"path\":[\"results\"]}')}"
+              }
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Base URI is <b>https://redhatsupport--tsmig.sandbox.my.salesforce.com/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+                "label": "Path",
+                "name": "path",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "control_type": "email",
+                "hint": "Email of the Salesforce user to execute this action on behalf of. If not provided, uses the connection-level user. <b>Note: This feature is only available for JWT connections.</b>",
+                "label": "On-behalf-of user email",
+                "name": "requester_email",
+                "ngIf": "authUser.feature_flags.salesforce_jwt_on_behalf_user",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Request type",
+                "name": "request_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON request body",
+                    "json"
+                  ],
+                  [
+                    "URL encoded form",
+                    "urlencoded"
+                  ],
+                  [
+                    "Multipart form",
+                    "multipart"
+                  ],
+                  [
+                    "Raw JSON request body",
+                    "raw"
+                  ],
+                  [
+                    "XML request body",
+                    "xml"
+                  ],
+                  [
+                    "Plain text",
+                    "text"
+                  ],
+                  [
+                    "Raw request body",
+                    "rawdata"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Response type",
+                "name": "response_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON response",
+                    "json"
+                  ],
+                  [
+                    "Raw JSON Response",
+                    "raw"
+                  ],
+                  [
+                    "XML Response",
+                    "xml2"
+                  ],
+                  [
+                    "Raw response",
+                    "text"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "label": "Input",
+                "name": "input",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text-area",
+                    "label": "Data",
+                    "sticky": true,
+                    "optional": true,
+                    "type": "string",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "control_type": "key_value",
+                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                "empty_list_title": "Does this HTTP request require headers?",
+                "item_label": "Header",
+                "label": "Request headers",
+                "name": "request_headers",
+                "of": "object",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "optional": true,
+                    "type": "string",
+                    "name": "name"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Value",
+                    "optional": true,
+                    "type": "string",
+                    "name": "value"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response body",
+                "name": "output",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": true,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response headers",
+                "name": "response_headers",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": false,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Inspect",
+                "name": "inspect",
+                "ngIf": "false",
+                "optional": true,
+                "parse_output": "float_conversion",
+                "type": "number"
+              }
+            ],
+            "visible_config_fields": [
+              "mnemonic",
+              "verb",
+              "path",
+              "request_type",
+              "response_type",
+              "input.data",
+              "output",
+              "request_headers"
+            ],
+            "comment": "Upload data (i.e. IDs to be deleted)",
+            "uuid": "ee2ed9f3-73f8-4ee4-bf51-420768be5bed",
+            "wizardFinished": true
+          },
+          {
+            "number": 8,
+            "provider": "salesforce",
+            "name": "__adhoc_http_action",
+            "as": "fc9bde86",
+            "keyword": "action",
+            "input": {
+              "mnemonic": "Bulk job close",
+              "verb": "patch",
+              "request_type": "json",
+              "response_type": "json",
+              "path": "services/data/v66.0/jobs/ingest/#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"c32abc3b\",\"path\":[\"body\",\"id\"]}')}",
+              "input": {
+                "schema": "[{\"control_type\":\"text\",\"label\":\"State\",\"type\":\"string\",\"name\":\"state\",\"details\":{\"real_name\":\"state\"}}]",
+                "data": {
+                  "state": "UploadComplete"
+                }
+              }
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Base URI is <b>https://redhatsupport--tsmig.sandbox.my.salesforce.com/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+                "label": "Path",
+                "name": "path",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "control_type": "email",
+                "hint": "Email of the Salesforce user to execute this action on behalf of. If not provided, uses the connection-level user. <b>Note: This feature is only available for JWT connections.</b>",
+                "label": "On-behalf-of user email",
+                "name": "requester_email",
+                "ngIf": "authUser.feature_flags.salesforce_jwt_on_behalf_user",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Request type",
+                "name": "request_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON request body",
+                    "json"
+                  ],
+                  [
+                    "URL encoded form",
+                    "urlencoded"
+                  ],
+                  [
+                    "Multipart form",
+                    "multipart"
+                  ],
+                  [
+                    "Raw JSON request body",
+                    "raw"
+                  ],
+                  [
+                    "XML request body",
+                    "xml"
+                  ],
+                  [
+                    "Plain text",
+                    "text"
+                  ],
+                  [
+                    "Raw request body",
+                    "rawdata"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Response type",
+                "name": "response_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON response",
+                    "json"
+                  ],
+                  [
+                    "Raw JSON Response",
+                    "raw"
+                  ],
+                  [
+                    "XML Response",
+                    "xml2"
+                  ],
+                  [
+                    "Raw response",
+                    "text"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "label": "Input",
+                "name": "input",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Request body parameters",
+                    "extends_schema": true,
+                    "schema_neutral": true,
+                    "sample_data_type": "json_input",
+                    "sticky": true,
+                    "add_field_label": "Add request body parameter",
+                    "optional": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "State",
+                        "details": {
+                          "real_name": "state"
+                        },
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "state"
+                      }
+                    ],
+                    "label": "Data",
+                    "optional": true,
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "control_type": "key_value",
+                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                "empty_list_title": "Does this HTTP request require headers?",
+                "item_label": "Header",
+                "label": "Request headers",
+                "name": "request_headers",
+                "of": "object",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "optional": true,
+                    "type": "string",
+                    "name": "name"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Value",
+                    "optional": true,
+                    "type": "string",
+                    "name": "value"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response body",
+                "name": "output",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": true,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response headers",
+                "name": "response_headers",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": false,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Inspect",
+                "name": "inspect",
+                "ngIf": "false",
+                "optional": true,
+                "parse_output": "float_conversion",
+                "type": "number"
+              }
+            ],
+            "visible_config_fields": [
+              "mnemonic",
+              "verb",
+              "path",
+              "request_type",
+              "response_type",
+              "input.data",
+              "output",
+              "request_headers"
+            ],
+            "comment": "Complete bulk job creation",
+            "uuid": "e13c97c4-df51-41b0-951b-e3ff4f521493",
+            "wizardFinished": true
+          },
+          {
+            "number": 9,
+            "provider": "workato_recipe_function",
+            "name": "call_recipe",
+            "as": "d3715520",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "flow_id": "Target | Bulk job monitor"
+            },
+            "input": {
+              "flow_id": {
+                "zip_name": "Lookups, helpers, etc/target_bulk_job_monitor.recipe.json",
+                "name": "Target | Bulk job monitor",
+                "folder": "Lookups, helpers, etc"
+              },
+              "parameters": {
+                "bulk_job_ids": [
+                  {
+                    "job_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"c32abc3b\",\"path\":[\"body\",\"id\"]}')}"
+                  }
+                ],
+                "results_directory_base": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e965ff86\",\"path\":[\"results_directory_base\"]}')}",
+                "results_name_base": "delete-migrated-groups"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "checkbox",
+                    "label": "Status",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "name": "status",
+                    "type": "boolean",
+                    "optional": false,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Status",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "name": "status",
+                      "type": "boolean",
+                      "optional": false
+                    }
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Successful count",
+                    "parse_output": "integer_conversion",
+                    "name": "successful_count",
+                    "type": "integer",
+                    "optional": false,
+                    "render_input": "integer_conversion"
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Failed count",
+                    "parse_output": "integer_conversion",
+                    "name": "failed_count",
+                    "type": "integer",
+                    "optional": false,
+                    "render_input": "integer_conversion"
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Unprocessed count",
+                    "parse_output": "integer_conversion",
+                    "name": "unprocessed_count",
+                    "type": "integer",
+                    "optional": false,
+                    "render_input": "integer_conversion"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Results directory",
+                    "name": "results_directory",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Parameters",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "label": "Bulk job IDs",
+                    "name": "bulk_job_ids",
+                    "type": "array",
+                    "optional": false,
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Job ID",
+                        "name": "job_id",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Results directory base",
+                    "name": "results_directory_base",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Results name base",
+                    "name": "results_name_base",
+                    "type": "string",
+                    "optional": false,
+                    "hint": "With or without `.csv` suffix/extension"
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Max wait/sleep time between status checks",
+                    "parse_output": "integer_conversion",
+                    "name": "max_wait",
+                    "type": "integer",
+                    "optional": true,
+                    "hint": "Seconds.  Default is 300.",
+                    "render_input": "integer_conversion"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "dcaf99f1-45ce-4c90-beee-636807533af2"
+          }
+        ],
+        "comment": "Groups",
+        "uuid": "5b2b0179-2ff0-40ce-b596-9f82a7a3c42b"
+      },
+      {
+        "number": 10,
+        "provider": "salesforce",
+        "name": "search_sobjects_soql_bulk_csv_v2",
+        "as": "5150d196",
+        "keyword": "action",
+        "input": {
+          "include_deleted_records": "false",
+          "include_header": "true",
+          "skip_delete_failed_job": "true",
+          "wait_for_job_completion": "true",
+          "query": "SELECT\n    Id\nFROM\n    CaseLabel__c\nWHERE\n    LegacyID__c LIKE '__________________'"
+        },
+        "comment": "Labels",
+        "uuid": "ecd2ba8b-d925-48ed-9503-279fa4c075f1"
+      },
+      {
+        "number": 11,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "greater_than",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"5150d196\",\"path\":[\"numberRecordsProcessed\"]}')}",
+              "rhs": "0",
+              "uuid": "6514b848-437a-4b79-b2c4-5209edaa8437"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 12,
+            "provider": "salesforce",
+            "name": "__adhoc_http_action",
+            "as": "47c168ee",
+            "keyword": "action",
+            "input": {
+              "mnemonic": "Bulk job setup",
+              "verb": "post",
+              "request_type": "json",
+              "response_type": "json",
+              "path": "services/data/v66.0/jobs/ingest",
+              "input": {
+                "schema": "[{\"control_type\":\"text\",\"label\":\"Object\",\"type\":\"string\",\"name\":\"object\",\"details\":{\"real_name\":\"object\"}},{\"control_type\":\"text\",\"label\":\"Operation\",\"type\":\"string\",\"name\":\"operation\",\"details\":{\"real_name\":\"operation\"}}]",
+                "data": {
+                  "object": "CaseLabel__c",
+                  "operation": "delete"
+                }
+              },
+              "output": "[{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"id\"},{\"control_type\":\"text\",\"label\":\"Operation\",\"type\":\"string\",\"name\":\"operation\"},{\"control_type\":\"text\",\"label\":\"Object\",\"type\":\"string\",\"name\":\"object\"},{\"control_type\":\"text\",\"label\":\"Created by ID\",\"type\":\"string\",\"name\":\"createdById\"},{\"control_type\":\"text\",\"label\":\"Created date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"createdDate\"},{\"control_type\":\"text\",\"label\":\"System modstamp\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"systemModstamp\"},{\"control_type\":\"text\",\"label\":\"State\",\"type\":\"string\",\"name\":\"state\"},{\"control_type\":\"text\",\"label\":\"Concurrency mode\",\"type\":\"string\",\"name\":\"concurrencyMode\"},{\"control_type\":\"text\",\"label\":\"Content type\",\"type\":\"string\",\"name\":\"contentType\"},{\"control_type\":\"number\",\"label\":\"Api version\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"apiVersion\"},{\"control_type\":\"text\",\"label\":\"Content URL\",\"type\":\"string\",\"name\":\"contentUrl\"},{\"control_type\":\"text\",\"label\":\"Line ending\",\"type\":\"string\",\"name\":\"lineEnding\"},{\"control_type\":\"text\",\"label\":\"Column delimiter\",\"type\":\"string\",\"name\":\"columnDelimiter\"}]",
+              "response_headers": "[{\"control_type\":\"text\",\"label\":\"Date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"date\"},{\"control_type\":\"text\",\"label\":\"Content type\",\"type\":\"string\",\"name\":\"content_type\"},{\"control_type\":\"text\",\"label\":\"Transfer encoding\",\"type\":\"string\",\"name\":\"transfer_encoding\"},{\"control_type\":\"text\",\"label\":\"Connection\",\"type\":\"string\",\"name\":\"connection\"},{\"control_type\":\"text\",\"label\":\"Vary\",\"type\":\"string\",\"name\":\"vary\"},{\"control_type\":\"text\",\"label\":\"Strict transport security\",\"type\":\"string\",\"name\":\"strict_transport_security\"},{\"control_type\":\"text\",\"label\":\"Cache control\",\"type\":\"string\",\"name\":\"cache_control\"},{\"control_type\":\"text\",\"label\":\"X content type options\",\"type\":\"string\",\"name\":\"x_content_type_options\"},{\"control_type\":\"text\",\"label\":\"Sforce limit info\",\"type\":\"string\",\"name\":\"sforce_limit_info\"},{\"control_type\":\"text\",\"label\":\"X robots tag\",\"type\":\"string\",\"name\":\"x_robots_tag\"},{\"control_type\":\"text\",\"label\":\"Set cookie\",\"type\":\"string\",\"name\":\"set_cookie\"},{\"control_type\":\"text\",\"label\":\"Server\",\"type\":\"string\",\"name\":\"server\"},{\"control_type\":\"text\",\"label\":\"X sfdc request ID\",\"type\":\"string\",\"name\":\"x_sfdc_request_id\"},{\"control_type\":\"text\",\"label\":\"X request ID\",\"type\":\"string\",\"name\":\"x_request_id\"},{\"control_type\":\"text\",\"label\":\"X sfdc edge cache\",\"type\":\"string\",\"name\":\"x_sfdc_edge_cache\"}]"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Body",
+                "name": "body",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Operation",
+                    "optional": true,
+                    "type": "string",
+                    "name": "operation"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Object",
+                    "optional": true,
+                    "type": "string",
+                    "name": "object"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Created by ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "createdById"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Created date",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "optional": true,
+                    "type": "date_time",
+                    "name": "createdDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "System modstamp",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "optional": true,
+                    "type": "date_time",
+                    "name": "systemModstamp"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "State",
+                    "optional": true,
+                    "type": "string",
+                    "name": "state"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Concurrency mode",
+                    "optional": true,
+                    "type": "string",
+                    "name": "concurrencyMode"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Content type",
+                    "optional": true,
+                    "type": "string",
+                    "name": "contentType"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "Api version",
+                    "parse_output": "float_conversion",
+                    "optional": true,
+                    "type": "number",
+                    "name": "apiVersion"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Content URL",
+                    "optional": true,
+                    "type": "string",
+                    "name": "contentUrl"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Line ending",
+                    "optional": true,
+                    "type": "string",
+                    "name": "lineEnding"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Column delimiter",
+                    "optional": true,
+                    "type": "string",
+                    "name": "columnDelimiter"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Headers",
+                "name": "headers",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Date",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "optional": true,
+                    "type": "date_time",
+                    "name": "date"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Content type",
+                    "optional": true,
+                    "type": "string",
+                    "name": "content_type"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Transfer encoding",
+                    "optional": true,
+                    "type": "string",
+                    "name": "transfer_encoding"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Connection",
+                    "optional": true,
+                    "type": "string",
+                    "name": "connection"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Vary",
+                    "optional": true,
+                    "type": "string",
+                    "name": "vary"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Strict transport security",
+                    "optional": true,
+                    "type": "string",
+                    "name": "strict_transport_security"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Cache control",
+                    "optional": true,
+                    "type": "string",
+                    "name": "cache_control"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "X content type options",
+                    "optional": true,
+                    "type": "string",
+                    "name": "x_content_type_options"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Sforce limit info",
+                    "optional": true,
+                    "type": "string",
+                    "name": "sforce_limit_info"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "X robots tag",
+                    "optional": true,
+                    "type": "string",
+                    "name": "x_robots_tag"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Set cookie",
+                    "optional": true,
+                    "type": "string",
+                    "name": "set_cookie"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Server",
+                    "optional": true,
+                    "type": "string",
+                    "name": "server"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "X sfdc request ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "x_sfdc_request_id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "X request ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "x_request_id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "X sfdc edge cache",
+                    "optional": true,
+                    "type": "string",
+                    "name": "x_sfdc_edge_cache"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Base URI is <b>https://redhatsupport--tsmig.sandbox.my.salesforce.com/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+                "label": "Path",
+                "name": "path",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "control_type": "email",
+                "hint": "Email of the Salesforce user to execute this action on behalf of. If not provided, uses the connection-level user. <b>Note: This feature is only available for JWT connections.</b>",
+                "label": "On-behalf-of user email",
+                "name": "requester_email",
+                "ngIf": "authUser.feature_flags.salesforce_jwt_on_behalf_user",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Request type",
+                "name": "request_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON request body",
+                    "json"
+                  ],
+                  [
+                    "URL encoded form",
+                    "urlencoded"
+                  ],
+                  [
+                    "Multipart form",
+                    "multipart"
+                  ],
+                  [
+                    "Raw JSON request body",
+                    "raw"
+                  ],
+                  [
+                    "XML request body",
+                    "xml"
+                  ],
+                  [
+                    "Plain text",
+                    "text"
+                  ],
+                  [
+                    "Raw request body",
+                    "rawdata"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Response type",
+                "name": "response_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON response",
+                    "json"
+                  ],
+                  [
+                    "Raw JSON Response",
+                    "raw"
+                  ],
+                  [
+                    "XML Response",
+                    "xml2"
+                  ],
+                  [
+                    "Raw response",
+                    "text"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "label": "Input",
+                "name": "input",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Request body parameters",
+                    "extends_schema": true,
+                    "schema_neutral": true,
+                    "sample_data_type": "json_input",
+                    "sticky": true,
+                    "add_field_label": "Add request body parameter",
+                    "optional": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Object",
+                        "details": {
+                          "real_name": "object"
+                        },
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "object"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Operation",
+                        "details": {
+                          "real_name": "operation"
+                        },
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "operation"
+                      }
+                    ],
+                    "label": "Data",
+                    "optional": true,
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "control_type": "key_value",
+                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                "empty_list_title": "Does this HTTP request require headers?",
+                "item_label": "Header",
+                "label": "Request headers",
+                "name": "request_headers",
+                "of": "object",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "optional": true,
+                    "type": "string",
+                    "name": "name"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Value",
+                    "optional": true,
+                    "type": "string",
+                    "name": "value"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response body",
+                "name": "output",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": true,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response headers",
+                "name": "response_headers",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": false,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Inspect",
+                "name": "inspect",
+                "ngIf": "false",
+                "optional": true,
+                "parse_output": "float_conversion",
+                "type": "number"
+              }
+            ],
+            "comment": "Initialize bulk delete job",
+            "uuid": "13850c5c-5dc7-42b4-8969-aa52f76b7843",
+            "wizardFinished": true
+          },
+          {
+            "number": 13,
+            "provider": "salesforce",
+            "name": "__adhoc_http_action",
+            "as": "264a33dd",
+            "keyword": "action",
+            "input": {
+              "mnemonic": "Bulk upload data",
+              "verb": "put",
+              "request_type": "rawdata",
+              "response_type": "json",
+              "path": "services/data/v66.0/jobs/ingest/#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"47c168ee\",\"path\":[\"body\",\"id\"]}')}/batches",
+              "request_headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "text/csv"
+                }
+              ],
+              "input": {
+                "data": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"5150d196\",\"path\":[\"results\"]}')}"
+              }
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Base URI is <b>https://redhatsupport--tsmig.sandbox.my.salesforce.com/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+                "label": "Path",
+                "name": "path",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "control_type": "email",
+                "hint": "Email of the Salesforce user to execute this action on behalf of. If not provided, uses the connection-level user. <b>Note: This feature is only available for JWT connections.</b>",
+                "label": "On-behalf-of user email",
+                "name": "requester_email",
+                "ngIf": "authUser.feature_flags.salesforce_jwt_on_behalf_user",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Request type",
+                "name": "request_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON request body",
+                    "json"
+                  ],
+                  [
+                    "URL encoded form",
+                    "urlencoded"
+                  ],
+                  [
+                    "Multipart form",
+                    "multipart"
+                  ],
+                  [
+                    "Raw JSON request body",
+                    "raw"
+                  ],
+                  [
+                    "XML request body",
+                    "xml"
+                  ],
+                  [
+                    "Plain text",
+                    "text"
+                  ],
+                  [
+                    "Raw request body",
+                    "rawdata"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Response type",
+                "name": "response_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON response",
+                    "json"
+                  ],
+                  [
+                    "Raw JSON Response",
+                    "raw"
+                  ],
+                  [
+                    "XML Response",
+                    "xml2"
+                  ],
+                  [
+                    "Raw response",
+                    "text"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "label": "Input",
+                "name": "input",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text-area",
+                    "label": "Data",
+                    "sticky": true,
+                    "optional": true,
+                    "type": "string",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "control_type": "key_value",
+                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                "empty_list_title": "Does this HTTP request require headers?",
+                "item_label": "Header",
+                "label": "Request headers",
+                "name": "request_headers",
+                "of": "object",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "optional": true,
+                    "type": "string",
+                    "name": "name"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Value",
+                    "optional": true,
+                    "type": "string",
+                    "name": "value"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response body",
+                "name": "output",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": true,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response headers",
+                "name": "response_headers",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": false,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Inspect",
+                "name": "inspect",
+                "ngIf": "false",
+                "optional": true,
+                "parse_output": "float_conversion",
+                "type": "number"
+              }
+            ],
+            "visible_config_fields": [
+              "mnemonic",
+              "verb",
+              "path",
+              "request_type",
+              "response_type",
+              "input.data",
+              "output",
+              "request_headers"
+            ],
+            "comment": "Upload data (i.e. IDs to be deleted)",
+            "uuid": "f8747aab-9057-4877-a64c-8764f488e449",
+            "wizardFinished": true
+          },
+          {
+            "number": 14,
+            "provider": "salesforce",
+            "name": "__adhoc_http_action",
+            "as": "784c8661",
+            "keyword": "action",
+            "input": {
+              "mnemonic": "Bulk job close",
+              "verb": "patch",
+              "request_type": "json",
+              "response_type": "json",
+              "path": "services/data/v66.0/jobs/ingest/#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"47c168ee\",\"path\":[\"body\",\"id\"]}')}",
+              "input": {
+                "schema": "[{\"control_type\":\"text\",\"label\":\"State\",\"type\":\"string\",\"name\":\"state\",\"details\":{\"real_name\":\"state\"}}]",
+                "data": {
+                  "state": "UploadComplete"
+                }
+              }
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Base URI is <b>https://redhatsupport--tsmig.sandbox.my.salesforce.com/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+                "label": "Path",
+                "name": "path",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "control_type": "email",
+                "hint": "Email of the Salesforce user to execute this action on behalf of. If not provided, uses the connection-level user. <b>Note: This feature is only available for JWT connections.</b>",
+                "label": "On-behalf-of user email",
+                "name": "requester_email",
+                "ngIf": "authUser.feature_flags.salesforce_jwt_on_behalf_user",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Request type",
+                "name": "request_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON request body",
+                    "json"
+                  ],
+                  [
+                    "URL encoded form",
+                    "urlencoded"
+                  ],
+                  [
+                    "Multipart form",
+                    "multipart"
+                  ],
+                  [
+                    "Raw JSON request body",
+                    "raw"
+                  ],
+                  [
+                    "XML request body",
+                    "xml"
+                  ],
+                  [
+                    "Plain text",
+                    "text"
+                  ],
+                  [
+                    "Raw request body",
+                    "rawdata"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Response type",
+                "name": "response_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON response",
+                    "json"
+                  ],
+                  [
+                    "Raw JSON Response",
+                    "raw"
+                  ],
+                  [
+                    "XML Response",
+                    "xml2"
+                  ],
+                  [
+                    "Raw response",
+                    "text"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "label": "Input",
+                "name": "input",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Request body parameters",
+                    "extends_schema": true,
+                    "schema_neutral": true,
+                    "sample_data_type": "json_input",
+                    "sticky": true,
+                    "add_field_label": "Add request body parameter",
+                    "optional": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "State",
+                        "details": {
+                          "real_name": "state"
+                        },
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "state"
+                      }
+                    ],
+                    "label": "Data",
+                    "optional": true,
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "control_type": "key_value",
+                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                "empty_list_title": "Does this HTTP request require headers?",
+                "item_label": "Header",
+                "label": "Request headers",
+                "name": "request_headers",
+                "of": "object",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "optional": true,
+                    "type": "string",
+                    "name": "name"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Value",
+                    "optional": true,
+                    "type": "string",
+                    "name": "value"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response body",
+                "name": "output",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": true,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response headers",
+                "name": "response_headers",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": false,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Inspect",
+                "name": "inspect",
+                "ngIf": "false",
+                "optional": true,
+                "parse_output": "float_conversion",
+                "type": "number"
+              }
+            ],
+            "visible_config_fields": [
+              "mnemonic",
+              "verb",
+              "path",
+              "request_type",
+              "response_type",
+              "input.data",
+              "output",
+              "request_headers"
+            ],
+            "comment": "Complete bulk job creation",
+            "uuid": "f20a85f2-6df4-4c15-a01c-3ab25017b358",
+            "wizardFinished": true
+          },
+          {
+            "number": 15,
+            "provider": "workato_recipe_function",
+            "name": "call_recipe",
+            "as": "0687c59e",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "flow_id": "Target | Bulk job monitor"
+            },
+            "input": {
+              "flow_id": {
+                "zip_name": "Lookups, helpers, etc/target_bulk_job_monitor.recipe.json",
+                "name": "Target | Bulk job monitor",
+                "folder": "Lookups, helpers, etc"
+              },
+              "parameters": {
+                "bulk_job_ids": [
+                  {
+                    "job_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"47c168ee\",\"path\":[\"body\",\"id\"]}')}"
+                  }
+                ],
+                "results_directory_base": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e965ff86\",\"path\":[\"results_directory_base\"]}')}",
+                "results_name_base": "delete-migrated-labels"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "checkbox",
+                    "label": "Status",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "name": "status",
+                    "type": "boolean",
+                    "optional": false,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Status",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "name": "status",
+                      "type": "boolean",
+                      "optional": false
+                    }
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Successful count",
+                    "parse_output": "integer_conversion",
+                    "name": "successful_count",
+                    "type": "integer",
+                    "optional": false,
+                    "render_input": "integer_conversion"
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Failed count",
+                    "parse_output": "integer_conversion",
+                    "name": "failed_count",
+                    "type": "integer",
+                    "optional": false,
+                    "render_input": "integer_conversion"
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Unprocessed count",
+                    "parse_output": "integer_conversion",
+                    "name": "unprocessed_count",
+                    "type": "integer",
+                    "optional": false,
+                    "render_input": "integer_conversion"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Results directory",
+                    "name": "results_directory",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Parameters",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "label": "Bulk job IDs",
+                    "name": "bulk_job_ids",
+                    "type": "array",
+                    "optional": false,
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Job ID",
+                        "name": "job_id",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Results directory base",
+                    "name": "results_directory_base",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Results name base",
+                    "name": "results_name_base",
+                    "type": "string",
+                    "optional": false,
+                    "hint": "With or without `.csv` suffix/extension"
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Max wait/sleep time between status checks",
+                    "parse_output": "integer_conversion",
+                    "name": "max_wait",
+                    "type": "integer",
+                    "optional": true,
+                    "hint": "Seconds.  Default is 300.",
+                    "render_input": "integer_conversion"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "be5f31a9-f8df-443a-ac22-41494bdb738b"
+          }
+        ],
+        "comment": "Labels",
+        "uuid": "7f421983-0e3e-4d71-b380-d0538dd2172f"
+      },
+      {
+        "number": 16,
+        "provider": "workato_db_table",
+        "name": "delete_records_by_condition",
+        "as": "29b0a7d2",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "table_id": "DT | Target shared lookup cache",
+          "filters.0.field_id": "Type"
+        },
+        "input": {
+          "table_id": {
+            "zip_name": "Lookups, helpers, etc/Cache/target_shared_lookup_cache.workato_db_table.json",
+            "name": "Target | Shared lookup cache",
+            "folder": "Lookups, helpers, etc/Cache"
+          },
+          "168fc8d7-00c0-432c-9d7d-ef2a2d8e3593": "string",
+          "ff70ca1e-efa8-4ff5-874c-f071c3e117a6": "string",
+          "39f99dd9-b969-483a-854e-ad028dd38544": "string",
+          "cf76ca01-886f-4001-abc9-c311ec03e79e": "string",
+          "285c66d2-6a71-4164-acc6-c6f6f72164ba": "string",
+          "4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17": "string",
+          "58cedd40-32b6-49a8-a05c-f513f5cb8454": "string",
+          "aaf01e95-2ecb-4411-889d-59ffd1caf858": "string",
+          "54c4251a-2f38-491d-a7dd-b2be2fb27d6a": "string",
+          "c434de15-3550-4e0e-b509-1e52b6e40bb0": "boolean",
+          "228e10bc-49c6-451c-9aa3-98f9630fa402": "boolean",
+          "90c2e695-c81d-4af5-8699-18408da58e62": "boolean",
+          "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+          "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+          "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+          "filters": [
+            {
+              "field_id": "ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+              "op_default": "eq",
+              "value_default": "CaseGroup__c"
+            }
+          ]
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_168fc8d7-00c0-432c-9d7d-ef2a2d8e3593",
+            "name": "168fc8d7-00c0-432c-9d7d-ef2a2d8e3593",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+            "name": "ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_39f99dd9-b969-483a-854e-ad028dd38544",
+            "name": "39f99dd9-b969-483a-854e-ad028dd38544",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_cf76ca01-886f-4001-abc9-c311ec03e79e",
+            "name": "cf76ca01-886f-4001-abc9-c311ec03e79e",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_285c66d2-6a71-4164-acc6-c6f6f72164ba",
+            "name": "285c66d2-6a71-4164-acc6-c6f6f72164ba",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17",
+            "name": "4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_58cedd40-32b6-49a8-a05c-f513f5cb8454",
+            "name": "58cedd40-32b6-49a8-a05c-f513f5cb8454",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_aaf01e95-2ecb-4411-889d-59ffd1caf858",
+            "name": "aaf01e95-2ecb-4411-889d-59ffd1caf858",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_54c4251a-2f38-491d-a7dd-b2be2fb27d6a",
+            "name": "54c4251a-2f38-491d-a7dd-b2be2fb27d6a",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_c434de15-3550-4e0e-b509-1e52b6e40bb0",
+            "name": "c434de15-3550-4e0e-b509-1e52b6e40bb0",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_228e10bc-49c6-451c-9aa3-98f9630fa402",
+            "name": "228e10bc-49c6-451c-9aa3-98f9630fa402",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_90c2e695-c81d-4af5-8699-18408da58e62",
+            "name": "90c2e695-c81d-4af5-8699-18408da58e62",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "id",
+            "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+            "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          }
+        ],
+        "comment": "Delete groups cache records again just in case",
+        "uuid": "4daaaf03-ebd9-487f-9f25-ff16f0f367f9"
+      },
+      {
+        "number": 17,
+        "provider": "workato_db_table",
+        "name": "delete_records_by_condition",
+        "as": "92caf4ce",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "table_id": "DT | Target shared lookup cache",
+          "filters.0.field_id": "Type"
+        },
+        "input": {
+          "table_id": {
+            "zip_name": "Lookups, helpers, etc/Cache/target_shared_lookup_cache.workato_db_table.json",
+            "name": "Target | Shared lookup cache",
+            "folder": "Lookups, helpers, etc/Cache"
+          },
+          "168fc8d7-00c0-432c-9d7d-ef2a2d8e3593": "string",
+          "ff70ca1e-efa8-4ff5-874c-f071c3e117a6": "string",
+          "39f99dd9-b969-483a-854e-ad028dd38544": "string",
+          "cf76ca01-886f-4001-abc9-c311ec03e79e": "string",
+          "285c66d2-6a71-4164-acc6-c6f6f72164ba": "string",
+          "4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17": "string",
+          "58cedd40-32b6-49a8-a05c-f513f5cb8454": "string",
+          "aaf01e95-2ecb-4411-889d-59ffd1caf858": "string",
+          "54c4251a-2f38-491d-a7dd-b2be2fb27d6a": "string",
+          "c434de15-3550-4e0e-b509-1e52b6e40bb0": "boolean",
+          "228e10bc-49c6-451c-9aa3-98f9630fa402": "boolean",
+          "90c2e695-c81d-4af5-8699-18408da58e62": "boolean",
+          "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+          "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+          "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+          "filters": [
+            {
+              "field_id": "ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+              "op_default": "eq",
+              "value_default": "CaseLabel__c"
+            }
+          ]
+        },
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_168fc8d7-00c0-432c-9d7d-ef2a2d8e3593",
+            "name": "168fc8d7-00c0-432c-9d7d-ef2a2d8e3593",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+            "name": "ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_39f99dd9-b969-483a-854e-ad028dd38544",
+            "name": "39f99dd9-b969-483a-854e-ad028dd38544",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_cf76ca01-886f-4001-abc9-c311ec03e79e",
+            "name": "cf76ca01-886f-4001-abc9-c311ec03e79e",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_285c66d2-6a71-4164-acc6-c6f6f72164ba",
+            "name": "285c66d2-6a71-4164-acc6-c6f6f72164ba",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17",
+            "name": "4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_58cedd40-32b6-49a8-a05c-f513f5cb8454",
+            "name": "58cedd40-32b6-49a8-a05c-f513f5cb8454",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_aaf01e95-2ecb-4411-889d-59ffd1caf858",
+            "name": "aaf01e95-2ecb-4411-889d-59ffd1caf858",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_54c4251a-2f38-491d-a7dd-b2be2fb27d6a",
+            "name": "54c4251a-2f38-491d-a7dd-b2be2fb27d6a",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_c434de15-3550-4e0e-b509-1e52b6e40bb0",
+            "name": "c434de15-3550-4e0e-b509-1e52b6e40bb0",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_228e10bc-49c6-451c-9aa3-98f9630fa402",
+            "name": "228e10bc-49c6-451c-9aa3-98f9630fa402",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_90c2e695-c81d-4af5-8699-18408da58e62",
+            "name": "90c2e695-c81d-4af5-8699-18408da58e62",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "id",
+            "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+            "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          }
+        ],
+        "comment": "Delete labels cache records again just in case",
+        "uuid": "7131c3e5-80c0-40a6-8035-15fc51fa32e8"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_8",
+        "label": "Groups count"
+      },
+      {
+        "name": "custom_column_0",
+        "label": "Groups delete successful"
+      },
+      {
+        "name": "custom_column_1",
+        "label": "Groups deleted failed"
+      },
+      {
+        "name": "custom_column_2",
+        "label": "Groups deleted unprocessed"
+      },
+      {
+        "name": "custom_column_9",
+        "label": "Labels count"
+      },
+      {
+        "name": "custom_column_3",
+        "label": "Labels delete successful"
+      },
+      {
+        "name": "custom_column_4",
+        "label": "Labels deleted failed"
+      },
+      {
+        "name": "custom_column_5",
+        "label": "Labels deleted unprocessed"
+      },
+      {
+        "name": "custom_column_6",
+        "label": "Groups results directory"
+      },
+      {
+        "name": "custom_column_7",
+        "label": "Labels results directory"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_8": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"2cc4b85b\",\"path\":[\"numberRecordsProcessed\"]}')}",
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"d3715520\",\"path\":[\"result\",\"successful_count\"]}')}",
+      "custom_column_1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"d3715520\",\"path\":[\"result\",\"failed_count\"]}')}",
+      "custom_column_2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"d3715520\",\"path\":[\"result\",\"unprocessed_count\"]}')}",
+      "custom_column_9": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"5150d196\",\"path\":[\"numberRecordsProcessed\"]}')}",
+      "custom_column_3": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0687c59e\",\"path\":[\"result\",\"successful_count\"]}')}",
+      "custom_column_4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0687c59e\",\"path\":[\"result\",\"failed_count\"]}')}",
+      "custom_column_5": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0687c59e\",\"path\":[\"result\",\"unprocessed_count\"]}')}",
+      "custom_column_6": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"d3715520\",\"path\":[\"result\",\"results_directory\"]}')}",
+      "custom_column_7": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0687c59e\",\"path\":[\"result\",\"results_directory\"]}')}"
+    },
+    "uuid": "49e5eb9a-fbaa-4047-bdd0-125c5691372a",
+    "wizardFinished": true
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/sf_sct_target.connection.json",
+        "name": "SF_SCT_Target",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_webhooks",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_db_table",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ],
+  "tags": [
+    "keep-turned-off-unless-needed"
+  ]
+}

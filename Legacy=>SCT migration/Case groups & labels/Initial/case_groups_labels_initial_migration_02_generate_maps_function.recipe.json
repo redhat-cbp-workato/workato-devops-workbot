@@ -1,0 +1,521 @@
+{
+  "name": "Case groups & labels | Initial migration | 02 Generate maps [FUNCTION]",
+  "description": "",
+  "version": 7,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "45c69b3b",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"control_type\":\"text\",\"label\":\"Directory\",\"name\":\"directory\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Source filename\",\"name\":\"source_filename\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Target accounts file (full path and filename) or filename\",\"name\":\"target_accounts_file_or_filename\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Target users file (full path and filename) or filename\",\"name\":\"target_users_file_or_filename\",\"type\":\"string\",\"optional\":false}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Directory",
+            "name": "directory",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Source filename",
+            "name": "source_filename",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Target accounts file (full path and filename) or filename",
+            "name": "target_accounts_file_or_filename",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Target users file (full path and filename) or filename",
+            "name": "target_users_file_or_filename",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "e79fa6d2",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"Accounts map filename\",\"name\":\"accounts_map_filename\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"Accounts map filename\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"text\",\"label\":\"Users map filename\",\"name\":\"users_map_filename\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"Users map filename\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "users_map_filename": "map-users.csv",
+              "accounts_map_filename": "map-accounts.csv"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Accounts map filename",
+            "name": "accounts_map_filename",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "Accounts map filename"
+            }
+          },
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Users map filename",
+            "name": "users_map_filename",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "Users map filename"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Accounts map filename",
+                    "name": "accounts_map_filename",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Accounts map filename"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Users map filename",
+                    "name": "users_map_filename",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Users map filename"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.accounts_map_filename",
+          "variables",
+          "variables.schema",
+          "variables.data.contacts_map_filename",
+          "variables.data.entitlements_map_filename",
+          "variables.data.users_map_filename",
+          "variables.data",
+          "variables.data.cases_map_filename",
+          "variables.data.business_hours_map_filename",
+          "variables.data.statuses_map_filename"
+        ],
+        "uuid": "c954dfb4-eaab-415f-ab6f-5bca8f9acd96"
+      },
+      {
+        "number": 2,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe_async",
+        "as": "a88680f0",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "*WIP* Case groups & labels | Initial migration | 02.x Generate individual map [FUNCTION]"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Legacy=>SCT migration/Case groups & labels/Initial/case_groups_labels_initial_migration_02_x_generate_individual_map_function.recipe.json",
+            "name": "Case groups & labels | Initial migration | 02.x Generate individual map [FUNCTION]",
+            "folder": "Legacy=>SCT migration/Case groups & labels/Initial"
+          },
+          "parameters": {
+            "directory": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"directory\"]}')}",
+            "source_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"source_filename\"]}')}",
+            "object": "Account",
+            "output_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e79fa6d2\",\"path\":[\"accounts_map_filename\"]}')}",
+            "target_file_or_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"target_accounts_file_or_filename\"]}')}"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Object",
+                "name": "object",
+                "type": "string",
+                "optional": false,
+                "hint": "Valid values: Account, BusinessHours, Case, Contact, Entitlement, Status, User"
+              },
+              {
+                "control_type": "text",
+                "label": "Directory",
+                "name": "directory",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Source filename",
+                "name": "source_filename",
+                "type": "string",
+                "optional": false,
+                "hint": ""
+              },
+              {
+                "control_type": "text",
+                "label": "Target file (full path and filename) or filename",
+                "name": "target_file_or_filename",
+                "type": "string",
+                "optional": false,
+                "hint": ""
+              },
+              {
+                "control_type": "text",
+                "label": "Output filename",
+                "name": "output_filename",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "comment": "Generate accounts map",
+        "uuid": "b730974b-0c3e-481e-a69c-58b7d894727b"
+      },
+      {
+        "number": 3,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe_async",
+        "as": "6ff7d4e3",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "*WIP* Case groups & labels | Initial migration | 02.x Generate individual map [FUNCTION]"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Legacy=>SCT migration/Case groups & labels/Initial/case_groups_labels_initial_migration_02_x_generate_individual_map_function.recipe.json",
+            "name": "Case groups & labels | Initial migration | 02.x Generate individual map [FUNCTION]",
+            "folder": "Legacy=>SCT migration/Case groups & labels/Initial"
+          },
+          "parameters": {
+            "directory": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"directory\"]}')}",
+            "source_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"source_filename\"]}')}",
+            "object": "User",
+            "target_file_or_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"target_users_file_or_filename\"]}')}",
+            "output_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e79fa6d2\",\"path\":[\"users_map_filename\"]}')}"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Object",
+                "name": "object",
+                "type": "string",
+                "optional": false,
+                "hint": "Valid values: Account, BusinessHours, Case, Contact, Entitlement, Status, User"
+              },
+              {
+                "control_type": "text",
+                "label": "Directory",
+                "name": "directory",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Source filename",
+                "name": "source_filename",
+                "type": "string",
+                "optional": false,
+                "hint": ""
+              },
+              {
+                "control_type": "text",
+                "label": "Target file (full path and filename) or filename",
+                "name": "target_file_or_filename",
+                "type": "string",
+                "optional": false,
+                "hint": ""
+              },
+              {
+                "control_type": "text",
+                "label": "Output filename",
+                "name": "output_filename",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "comment": "Generate users map",
+        "uuid": "09f2453c-937d-44fd-889a-e8ba96328b2f"
+      },
+      {
+        "number": 4,
+        "provider": "workato_recipe_function",
+        "name": "wait_for_async_jobs",
+        "as": "9a74c0a7",
+        "keyword": "action",
+        "input": {
+          "timeout": "1440",
+          "async_calls": [
+            {
+              "job_ref": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a88680f0\",\"path\":[\"job_ref\"]}')}"
+            },
+            {
+              "job_ref": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"6ff7d4e3\",\"path\":[\"job_ref\"]}')}"
+            }
+          ]
+        },
+        "uuid": "dc9bb95a-e793-4d00-b272-cb169c8d73fb"
+      },
+      {
+        "number": 5,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "is_not_true",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"9a74c0a7\",\"path\":[\"all_jobs_succeeded\"]}')}",
+              "rhs": "",
+              "uuid": "c34e6d68-829f-4421-8320-4b2d32f08e5e"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 6,
+            "as": "a7ec39ef",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "true",
+              "stop_reason": "One or more child jobs failed"
+            },
+            "uuid": "5238553a-6741-406c-b90c-a1bb6e9ff908"
+          }
+        ],
+        "uuid": "16e63aa3-9385-4986-bdae-5c29de7b168c"
+      },
+      {
+        "number": 7,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe_async",
+        "as": "24d028ab",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "*WIP* Case groups & labels | Initial migration | 03 Merge [FUNCTION]"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Legacy=>SCT migration/Case groups & labels/Initial/case_groups_labels_initial_migration_03_merge_function.recipe.json",
+            "name": "Case groups & labels | Initial migration | 03 Merge [FUNCTION]",
+            "folder": "Legacy=>SCT migration/Case groups & labels/Initial"
+          },
+          "parameters": {
+            "directory": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"directory\"]}')}",
+            "source_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"source_filename\"]}')}",
+            "map_users_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e79fa6d2\",\"path\":[\"users_map_filename\"]}')}",
+            "map_accounts_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e79fa6d2\",\"path\":[\"accounts_map_filename\"]}')}"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Directory",
+                "name": "directory",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Source filename",
+                "name": "source_filename",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Map accounts filename",
+                "name": "map_accounts_filename",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Map users filename",
+                "name": "map_users_filename",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "cb1e2818-067f-42d4-b3b9-f5d7dc53e27b"
+      },
+      {
+        "number": 8,
+        "provider": "workato_recipe_function",
+        "name": "wait_for_async_jobs",
+        "as": "098f6fab",
+        "keyword": "action",
+        "input": {
+          "timeout": "1440",
+          "async_calls": [
+            {
+              "job_ref": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"24d028ab\",\"path\":[\"job_ref\"]}')}"
+            }
+          ]
+        },
+        "uuid": "72d6239d-3f79-4957-bd7f-d5bf701feb50"
+      },
+      {
+        "number": 9,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "is_not_true",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"098f6fab\",\"path\":[\"all_jobs_succeeded\"]}')}",
+              "rhs": "",
+              "uuid": "74bf714a-d4b5-452e-8155-b3ba143d83d2"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 10,
+            "as": "35ab98bc",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "true",
+              "stop_reason": "Next phase(s) failed"
+            },
+            "uuid": "4ce15c0d-d7ad-4084-af4a-9297abfeb135"
+          }
+        ],
+        "uuid": "7b0b4722-b661-4238-987a-e6b46140b0e3"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_1",
+        "label": "Source file"
+      },
+      {
+        "name": "custom_column_6",
+        "label": "Target accounts file"
+      },
+      {
+        "name": "custom_column_5",
+        "label": "Target users file"
+      },
+      {
+        "name": "custom_column_7",
+        "label": "Map accounts file"
+      },
+      {
+        "name": "custom_column_8",
+        "label": "Map users file"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"source_filename\"]}')}",
+      "custom_column_6": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"target_accounts_file_or_filename\"]}').include?('/') ? _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"target_accounts_file_or_filename\"]}') : _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"directory\"]}') + '/' + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"target_accounts_file_or_filename\"]}')",
+      "custom_column_5": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"target_users_file_or_filename\"]}').include?('/') ? _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"target_users_file_or_filename\"]}') : _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"directory\"]}') + '/' + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"target_users_file_or_filename\"]}')",
+      "custom_column_7": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e79fa6d2\",\"path\":[\"accounts_map_filename\"]}')}",
+      "custom_column_8": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"45c69b3b\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e79fa6d2\",\"path\":[\"users_map_filename\"]}')}"
+    },
+    "uuid": "25f52a1e-d4a4-49fa-bfcc-bc4d6fd6e39b"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

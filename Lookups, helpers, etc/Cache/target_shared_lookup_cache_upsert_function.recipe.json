@@ -1,0 +1,1377 @@
+{
+  "name": "Target | Shared lookup cache upsert [FUNCTION]",
+  "description": "Upserts record in shared lookup cache.  Auto-prunes oldest records when cache is full.",
+  "version": 7,
+  "private": true,
+  "concurrency": 5,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "3387c39d",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"control_type\":\"text\",\"label\":\"Type\",\"name\":\"type\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Target Identifier\",\"name\":\"target_identifier\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Source Identifier\",\"name\":\"source_identifier\",\"type\":\"string\",\"optional\":true},{\"control_type\":\"text\",\"label\":\"Data: String 01\",\"name\":\"data_string_01\",\"type\":\"string\",\"optional\":true},{\"control_type\":\"text\",\"label\":\"Data: String 02\",\"name\":\"data_string_02\",\"type\":\"string\",\"optional\":true},{\"control_type\":\"text\",\"label\":\"Data: String 03\",\"name\":\"data_string_03\",\"type\":\"string\",\"optional\":true},{\"control_type\":\"text\",\"label\":\"Data: String 04\",\"name\":\"data_string_04\",\"type\":\"string\",\"optional\":true},{\"control_type\":\"text\",\"label\":\"Data: String 05\",\"name\":\"data_string_05\",\"type\":\"string\",\"optional\":true},{\"control_type\":\"checkbox\",\"label\":\"Data: Bool 01\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"name\":\"data_bool_01\",\"type\":\"boolean\",\"optional\":true,\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Data: Bool 01\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"name\":\"data_bool_01\",\"type\":\"boolean\",\"optional\":true}},{\"control_type\":\"checkbox\",\"label\":\"Data: Bool 02\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"name\":\"data_bool_02\",\"type\":\"boolean\",\"optional\":true,\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Data: Bool 02\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"name\":\"data_bool_02\",\"type\":\"boolean\",\"optional\":true}},{\"control_type\":\"checkbox\",\"label\":\"Data: Bool 03\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"name\":\"data_bool_03\",\"type\":\"boolean\",\"optional\":true,\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Data: Bool 03\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"name\":\"data_bool_03\",\"type\":\"boolean\",\"optional\":true}}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Type",
+            "name": "type",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Target Identifier",
+            "name": "target_identifier",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Source Identifier",
+            "name": "source_identifier",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "Data: String 01",
+            "name": "data_string_01",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "Data: String 02",
+            "name": "data_string_02",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "Data: String 03",
+            "name": "data_string_03",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "Data: String 04",
+            "name": "data_string_04",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "text",
+            "label": "Data: String 05",
+            "name": "data_string_05",
+            "type": "string",
+            "optional": true
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Data: Bool 01",
+            "render_input": "boolean_conversion",
+            "parse_output": "boolean_conversion",
+            "name": "data_bool_01",
+            "type": "boolean",
+            "optional": true,
+            "toggle_hint": "Select from option list",
+            "toggle_field": {
+              "label": "Data: Bool 01",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "name": "data_bool_01",
+              "type": "boolean",
+              "optional": true
+            }
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Data: Bool 02",
+            "render_input": "boolean_conversion",
+            "parse_output": "boolean_conversion",
+            "name": "data_bool_02",
+            "type": "boolean",
+            "optional": true,
+            "toggle_hint": "Select from option list",
+            "toggle_field": {
+              "label": "Data: Bool 02",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "name": "data_bool_02",
+              "type": "boolean",
+              "optional": true
+            }
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Data: Bool 03",
+            "render_input": "boolean_conversion",
+            "parse_output": "boolean_conversion",
+            "name": "data_bool_03",
+            "type": "boolean",
+            "optional": true,
+            "toggle_hint": "Select from option list",
+            "toggle_field": {
+              "label": "Data: Bool 03",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "name": "data_bool_03",
+              "type": "boolean",
+              "optional": true
+            }
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 2,
+            "provider": "workato_db_table",
+            "name": "upsert_record",
+            "as": "aafff376",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "table_id": "DT | Target shared lookup cache",
+              "primary_field_id": "Key"
+            },
+            "toggleCfg": {
+              "parameters.c434de15_3550_4e0e_b509_1e52b6e40bb0": false,
+              "parameters.228e10bc_49c6_451c_9aa3_98f9630fa402": false,
+              "parameters.90c2e695_c81d_4af5_8699_18408da58e62": false
+            },
+            "input": {
+              "table_id": {
+                "zip_name": "Lookups, helpers, etc/Cache/target_shared_lookup_cache.workato_db_table.json",
+                "name": "Target | Shared lookup cache",
+                "folder": "Lookups, helpers, etc/Cache"
+              },
+              "primary_field_id": "168fc8d7-00c0-432c-9d7d-ef2a2d8e3593",
+              "parameters": {
+                "168fc8d7_00c0_432c_9d7d_ef2a2d8e3593": "=_dp('{\"recipe_step\": 1, \"provider\": \"workato_recipe_function\", \"action\": \"execute\", \"label\": \"Type\", \"value_type\": \"string\", \"pill_type\": \"output\", \"line\": \"3387c39d\", \"path\": [\"parameters\", \"type\"]}') + \"::\" + _dp('{\"recipe_step\": 1, \"provider\": \"workato_recipe_function\", \"action\": \"execute\", \"label\": \"Target Identifier\", \"value_type\": \"string\", \"pill_type\": \"output\", \"line\": \"3387c39d\", \"path\": [\"parameters\", \"target_identifier\"]}')",
+                "ff70ca1e_efa8_4ff5_874c_f071c3e117a6": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"type\"]}')}",
+                "39f99dd9_b969_483a_854e_ad028dd38544": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"target_identifier\"]}')}",
+                "cf76ca01_886f_4001_abc9_c311ec03e79e": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"source_identifier\"]}')}",
+                "285c66d2_6a71_4164_acc6_c6f6f72164ba": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_string_01\"]}')}",
+                "4320ff0e_1ddf_4c0d_ba31_27dc8ffa7d17": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_string_02\"]}')}",
+                "58cedd40_32b6_49a8_a05c_f513f5cb8454": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_string_03\"]}')}",
+                "aaf01e95_2ecb_4411_889d_59ffd1caf858": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_string_04\"]}')}",
+                "54c4251a_2f38_491d_a7dd_b2be2fb27d6a": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_string_05\"]}')}",
+                "c434de15_3550_4e0e_b509_1e52b6e40bb0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_bool_01\"]}')}",
+                "228e10bc_49c6_451c_9aa3_98f9630fa402": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_bool_02\"]}')}",
+                "90c2e695_c81d_4af5_8699_18408da58e62": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_bool_03\"]}')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Record",
+                "name": "record",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Record ID",
+                    "type": "string",
+                    "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Key",
+                    "type": "string",
+                    "name": "168fc8d7_00c0_432c_9d7d_ef2a2d8e3593"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Type",
+                    "type": "string",
+                    "name": "ff70ca1e_efa8_4ff5_874c_f071c3e117a6"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Target Identifier",
+                    "type": "string",
+                    "name": "39f99dd9_b969_483a_854e_ad028dd38544"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Source Identifier",
+                    "type": "string",
+                    "name": "cf76ca01_886f_4001_abc9_c311ec03e79e"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Data: String 01",
+                    "type": "string",
+                    "name": "285c66d2_6a71_4164_acc6_c6f6f72164ba"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Data: String 02",
+                    "type": "string",
+                    "name": "4320ff0e_1ddf_4c0d_ba31_27dc8ffa7d17"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Data: String 03",
+                    "type": "string",
+                    "name": "58cedd40_32b6_49a8_a05c_f513f5cb8454"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Data: String 04",
+                    "type": "string",
+                    "name": "aaf01e95_2ecb_4411_889d_59ffd1caf858"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Data: String 05",
+                    "type": "string",
+                    "name": "54c4251a_2f38_491d_a7dd_b2be2fb27d6a"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Data: Bool 01",
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Data: Bool 01",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "c434de15_3550_4e0e_b509_1e52b6e40bb0"
+                    },
+                    "type": "boolean",
+                    "name": "c434de15_3550_4e0e_b509_1e52b6e40bb0"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Data: Bool 02",
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Data: Bool 02",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "228e10bc_49c6_451c_9aa3_98f9630fa402"
+                    },
+                    "type": "boolean",
+                    "name": "228e10bc_49c6_451c_9aa3_98f9630fa402"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Data: Bool 03",
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Data: Bool 03",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "90c2e695_c81d_4af5_8699_18408da58e62"
+                    },
+                    "type": "boolean",
+                    "name": "90c2e695_c81d_4af5_8699_18408da58e62"
+                  },
+                  {
+                    "control_type": "date_time",
+                    "label": "Created at",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "type": "date_time",
+                    "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                  },
+                  {
+                    "control_type": "date_time",
+                    "label": "Updated at",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "type": "date_time",
+                    "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Fill the fields for the new or updated record. Fields that are not specified will not be updated.",
+                "label": "Record fields",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Key",
+                    "optional": false,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "168fc8d7_00c0_432c_9d7d_ef2a2d8e3593"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Type",
+                    "optional": false,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "ff70ca1e_efa8_4ff5_874c_f071c3e117a6"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Target Identifier",
+                    "optional": false,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "39f99dd9_b969_483a_854e_ad028dd38544"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Source Identifier",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "cf76ca01_886f_4001_abc9_c311ec03e79e"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Data: String 01",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "285c66d2_6a71_4164_acc6_c6f6f72164ba"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Data: String 02",
+                    "optional": true,
+                    "sticky": false,
+                    "type": "string",
+                    "name": "4320ff0e_1ddf_4c0d_ba31_27dc8ffa7d17"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Data: String 03",
+                    "optional": true,
+                    "sticky": false,
+                    "type": "string",
+                    "name": "58cedd40_32b6_49a8_a05c_f513f5cb8454"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Data: String 04",
+                    "optional": true,
+                    "sticky": false,
+                    "type": "string",
+                    "name": "aaf01e95_2ecb_4411_889d_59ffd1caf858"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Data: String 05",
+                    "optional": true,
+                    "sticky": false,
+                    "type": "string",
+                    "name": "54c4251a_2f38_491d_a7dd_b2be2fb27d6a"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Data: Bool 01",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "optional": true,
+                    "sticky": false,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Data: Bool 01",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "hint": null,
+                      "placeholder": null,
+                      "optional": true,
+                      "sticky": false,
+                      "render_input": "boolean_conversion",
+                      "parse_output": "boolean_conversion",
+                      "type": "boolean",
+                      "name": "c434de15_3550_4e0e_b509_1e52b6e40bb0"
+                    },
+                    "type": "boolean",
+                    "name": "c434de15_3550_4e0e_b509_1e52b6e40bb0"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Data: Bool 02",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "optional": true,
+                    "sticky": false,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Data: Bool 02",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "hint": null,
+                      "placeholder": null,
+                      "optional": true,
+                      "sticky": false,
+                      "render_input": "boolean_conversion",
+                      "parse_output": "boolean_conversion",
+                      "type": "boolean",
+                      "name": "228e10bc_49c6_451c_9aa3_98f9630fa402"
+                    },
+                    "type": "boolean",
+                    "name": "228e10bc_49c6_451c_9aa3_98f9630fa402"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Data: Bool 03",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "optional": true,
+                    "sticky": false,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Data: Bool 03",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "hint": null,
+                      "placeholder": null,
+                      "optional": true,
+                      "sticky": false,
+                      "render_input": "boolean_conversion",
+                      "parse_output": "boolean_conversion",
+                      "type": "boolean",
+                      "name": "90c2e695_c81d_4af5_8699_18408da58e62"
+                    },
+                    "type": "boolean",
+                    "name": "90c2e695_c81d_4af5_8699_18408da58e62"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "table_id",
+              "primary_field_id",
+              "parameters.168fc8d7_00c0_432c_9d7d_ef2a2d8e3593",
+              "parameters.ff70ca1e_efa8_4ff5_874c_f071c3e117a6",
+              "parameters.39f99dd9_b969_483a_854e_ad028dd38544",
+              "parameters.cf76ca01_886f_4001_abc9_c311ec03e79e",
+              "parameters.285c66d2_6a71_4164_acc6_c6f6f72164ba",
+              "parameters.4320ff0e_1ddf_4c0d_ba31_27dc8ffa7d17",
+              "parameters.58cedd40_32b6_49a8_a05c_f513f5cb8454",
+              "parameters.aaf01e95_2ecb_4411_889d_59ffd1caf858",
+              "parameters.54c4251a_2f38_491d_a7dd_b2be2fb27d6a",
+              "parameters.c434de15_3550_4e0e_b509_1e52b6e40bb0",
+              "parameters.228e10bc_49c6_451c_9aa3_98f9630fa402",
+              "parameters.90c2e695_c81d_4af5_8699_18408da58e62"
+            ],
+            "comment": "Insert or update record. Update to modify \"last modified time\" so when oldest records are selected for deletion, this one will most likely not be selected for deletion.",
+            "uuid": "3a9fe083-a8fb-487f-aa80-1ec028907100"
+          },
+          {
+            "number": 3,
+            "as": "69cf7acb",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "3",
+              "retry_interval": "1"
+            },
+            "filter": {
+              "conditions": [
+                {
+                  "operand": "not_contains",
+                  "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"69cf7acb\",\"path\":[\"message\"]}').to_s.downcase",
+                  "rhs": "maximum",
+                  "uuid": "43c43e1f-5ece-4490-8503-b96e6c597ad6"
+                },
+                {
+                  "operand": "not_contains",
+                  "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"69cf7acb\",\"path\":[\"message\"]}').to_s.downcase",
+                  "rhs": "limit",
+                  "uuid": "120684bb-a89b-4e24-9c4f-086967ad0716"
+                }
+              ],
+              "operand": "and",
+              "type": "compound"
+            },
+            "block": [
+              {
+                "number": 4,
+                "keyword": "if",
+                "input": {
+                  "type": "compound",
+                  "operand": "or",
+                  "conditions": [
+                    {
+                      "operand": "contains",
+                      "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"69cf7acb\",\"path\":[\"message\"]}').to_s.downcase",
+                      "rhs": "maximum",
+                      "uuid": "6947566a-5407-4406-8bc1-a4eda484ce5b"
+                    },
+                    {
+                      "operand": "contains",
+                      "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"69cf7acb\",\"path\":[\"message\"]}').to_s.downcase",
+                      "rhs": "limit",
+                      "uuid": "5f19c8d4-135e-4499-b742-860345f340ee"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "number": 5,
+                    "keyword": "try",
+                    "input": {
+                    },
+                    "block": [
+                      {
+                        "number": 6,
+                        "provider": "workato_db_table",
+                        "name": "get_records",
+                        "as": "b8aac469",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "table_id": "DT | Target shared lookup cache",
+                          "order_by_field_id": "Last modified time"
+                        },
+                        "input": {
+                          "order_direction": "asc",
+                          "limit": "1000",
+                          "table_id": {
+                            "zip_name": "Lookups, helpers, etc/Cache/target_shared_lookup_cache.workato_db_table.json",
+                            "name": "Target | Shared lookup cache",
+                            "folder": "Lookups, helpers, etc/Cache"
+                          },
+                          "168fc8d7-00c0-432c-9d7d-ef2a2d8e3593": "string",
+                          "ff70ca1e-efa8-4ff5-874c-f071c3e117a6": "string",
+                          "39f99dd9-b969-483a-854e-ad028dd38544": "string",
+                          "cf76ca01-886f-4001-abc9-c311ec03e79e": "string",
+                          "285c66d2-6a71-4164-acc6-c6f6f72164ba": "string",
+                          "4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17": "string",
+                          "58cedd40-32b6-49a8-a05c-f513f5cb8454": "string",
+                          "aaf01e95-2ecb-4411-889d-59ffd1caf858": "string",
+                          "54c4251a-2f38-491d-a7dd-b2be2fb27d6a": "string",
+                          "c434de15-3550-4e0e-b509-1e52b6e40bb0": "boolean",
+                          "228e10bc-49c6-451c-9aa3-98f9630fa402": "boolean",
+                          "90c2e695-c81d-4af5-8699-18408da58e62": "boolean",
+                          "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+                          "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+                          "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+                          "order_by_field_id": "61aae604-a95e-4519-9091-bb0bf754a67f"
+                        },
+                        "extended_output_schema": [
+                          {
+                            "label": "Records",
+                            "name": "records",
+                            "of": "object",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Record ID",
+                                "type": "string",
+                                "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Key",
+                                "type": "string",
+                                "name": "168fc8d7_00c0_432c_9d7d_ef2a2d8e3593"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Type",
+                                "type": "string",
+                                "name": "ff70ca1e_efa8_4ff5_874c_f071c3e117a6"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Target Identifier",
+                                "type": "string",
+                                "name": "39f99dd9_b969_483a_854e_ad028dd38544"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Source Identifier",
+                                "type": "string",
+                                "name": "cf76ca01_886f_4001_abc9_c311ec03e79e"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Data: String 01",
+                                "type": "string",
+                                "name": "285c66d2_6a71_4164_acc6_c6f6f72164ba"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Data: String 02",
+                                "type": "string",
+                                "name": "4320ff0e_1ddf_4c0d_ba31_27dc8ffa7d17"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Data: String 03",
+                                "type": "string",
+                                "name": "58cedd40_32b6_49a8_a05c_f513f5cb8454"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Data: String 04",
+                                "type": "string",
+                                "name": "aaf01e95_2ecb_4411_889d_59ffd1caf858"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Data: String 05",
+                                "type": "string",
+                                "name": "54c4251a_2f38_491d_a7dd_b2be2fb27d6a"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Data: Bool 01",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Data: Bool 01",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "render_input": null,
+                                  "parse_output": null,
+                                  "type": "boolean",
+                                  "name": "c434de15_3550_4e0e_b509_1e52b6e40bb0"
+                                },
+                                "type": "boolean",
+                                "name": "c434de15_3550_4e0e_b509_1e52b6e40bb0"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Data: Bool 02",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Data: Bool 02",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "render_input": null,
+                                  "parse_output": null,
+                                  "type": "boolean",
+                                  "name": "228e10bc_49c6_451c_9aa3_98f9630fa402"
+                                },
+                                "type": "boolean",
+                                "name": "228e10bc_49c6_451c_9aa3_98f9630fa402"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Data: Bool 03",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Data: Bool 03",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "render_input": null,
+                                  "parse_output": null,
+                                  "type": "boolean",
+                                  "name": "90c2e695_c81d_4af5_8699_18408da58e62"
+                                },
+                                "type": "boolean",
+                                "name": "90c2e695_c81d_4af5_8699_18408da58e62"
+                              },
+                              {
+                                "control_type": "date_time",
+                                "label": "Created at",
+                                "render_input": "date_time_conversion",
+                                "parse_output": "date_time_conversion",
+                                "type": "date_time",
+                                "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                              },
+                              {
+                                "control_type": "date_time",
+                                "label": "Updated at",
+                                "render_input": "date_time_conversion",
+                                "parse_output": "date_time_conversion",
+                                "type": "date_time",
+                                "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                              }
+                            ],
+                            "type": "array"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Next Page Token",
+                            "name": "continuation_token",
+                            "type": "string"
+                          }
+                        ],
+                        "extended_input_schema": [
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_168fc8d7-00c0-432c-9d7d-ef2a2d8e3593",
+                            "name": "168fc8d7-00c0-432c-9d7d-ef2a2d8e3593",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+                            "name": "ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_39f99dd9-b969-483a-854e-ad028dd38544",
+                            "name": "39f99dd9-b969-483a-854e-ad028dd38544",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_cf76ca01-886f-4001-abc9-c311ec03e79e",
+                            "name": "cf76ca01-886f-4001-abc9-c311ec03e79e",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_285c66d2-6a71-4164-acc6-c6f6f72164ba",
+                            "name": "285c66d2-6a71-4164-acc6-c6f6f72164ba",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17",
+                            "name": "4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_58cedd40-32b6-49a8-a05c-f513f5cb8454",
+                            "name": "58cedd40-32b6-49a8-a05c-f513f5cb8454",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_aaf01e95-2ecb-4411-889d-59ffd1caf858",
+                            "name": "aaf01e95-2ecb-4411-889d-59ffd1caf858",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_54c4251a-2f38-491d-a7dd-b2be2fb27d6a",
+                            "name": "54c4251a-2f38-491d-a7dd-b2be2fb27d6a",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "boolean",
+                            "label": "$internal_value_c434de15-3550-4e0e-b509-1e52b6e40bb0",
+                            "name": "c434de15-3550-4e0e-b509-1e52b6e40bb0",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "boolean",
+                            "label": "$internal_value_228e10bc-49c6-451c-9aa3-98f9630fa402",
+                            "name": "228e10bc-49c6-451c-9aa3-98f9630fa402",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "boolean",
+                            "label": "$internal_value_90c2e695-c81d-4af5-8699-18408da58e62",
+                            "name": "90c2e695-c81d-4af5-8699-18408da58e62",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "id",
+                            "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                            "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "date_time",
+                            "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                            "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "date_time",
+                            "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                            "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          }
+                        ],
+                        "comment": "Get oldest 1,000 data table records by last modified time",
+                        "uuid": "ffbbafde-ff15-4ce6-bbb6-e136052d5a35"
+                      },
+                      {
+                        "number": 7,
+                        "provider": "workato_db_table",
+                        "name": "delete_records_batch",
+                        "as": "d589bc0e",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "table_id": "DT | Target shared lookup cache"
+                        },
+                        "input": {
+                          "table_id": {
+                            "zip_name": "Lookups, helpers, etc/Cache/target_shared_lookup_cache.workato_db_table.json",
+                            "name": "Target | Shared lookup cache",
+                            "folder": "Lookups, helpers, etc/Cache"
+                          },
+                          "records": {
+                            "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"b8aac469\",\"path\":[\"records\"]}')}",
+                            "record_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"b8aac469\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}"
+                          }
+                        },
+                        "comment": "Delete oldest 1,000 records",
+                        "uuid": "03936f8e-a675-45f0-88ef-300677740860"
+                      },
+                      {
+                        "number": 8,
+                        "provider": "logger",
+                        "name": "log_message",
+                        "as": "fb49f922",
+                        "keyword": "action",
+                        "input": {
+                          "user_logs_enabled": "false",
+                          "message": "Deleted #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"d589bc0e\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')} records"
+                        },
+                        "extended_input_schema": [
+                          {
+                            "control_type": "switch",
+                            "default": false,
+                            "disable_formula": true,
+                            "extends_schema": true,
+                            "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
+                            "label": "Send to Workato log service",
+                            "name": "user_logs_enabled",
+                            "optional": true,
+                            "type": "string"
+                          }
+                        ],
+                        "uuid": "d48350f8-6c77-43d1-ac52-bf30846cac1b"
+                      },
+                      {
+                        "number": 9,
+                        "provider": "workato_db_table",
+                        "name": "upsert_record",
+                        "as": "3e2867a6",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "table_id": "DT | Target shared lookup cache",
+                          "primary_field_id": "Key"
+                        },
+                        "toggleCfg": {
+                          "parameters.c434de15_3550_4e0e_b509_1e52b6e40bb0": false,
+                          "parameters.228e10bc_49c6_451c_9aa3_98f9630fa402": false,
+                          "parameters.90c2e695_c81d_4af5_8699_18408da58e62": false
+                        },
+                        "input": {
+                          "table_id": {
+                            "zip_name": "Lookups, helpers, etc/Cache/target_shared_lookup_cache.workato_db_table.json",
+                            "name": "Target | Shared lookup cache",
+                            "folder": "Lookups, helpers, etc/Cache"
+                          },
+                          "primary_field_id": "168fc8d7-00c0-432c-9d7d-ef2a2d8e3593",
+                          "parameters": {
+                            "168fc8d7_00c0_432c_9d7d_ef2a2d8e3593": "=_dp('{\"recipe_step\": 1, \"provider\": \"workato_recipe_function\", \"action\": \"execute\", \"label\": \"Type\", \"value_type\": \"string\", \"pill_type\": \"output\", \"line\": \"3387c39d\", \"path\": [\"parameters\", \"type\"]}') + \"::\" + _dp('{\"recipe_step\": 1, \"provider\": \"workato_recipe_function\", \"action\": \"execute\", \"label\": \"Target Identifier\", \"value_type\": \"string\", \"pill_type\": \"output\", \"line\": \"3387c39d\", \"path\": [\"parameters\", \"target_identifier\"]}')",
+                            "ff70ca1e_efa8_4ff5_874c_f071c3e117a6": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"type\"]}')}",
+                            "39f99dd9_b969_483a_854e_ad028dd38544": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"target_identifier\"]}')}",
+                            "cf76ca01_886f_4001_abc9_c311ec03e79e": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"source_identifier\"]}')}",
+                            "285c66d2_6a71_4164_acc6_c6f6f72164ba": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_string_01\"]}')}",
+                            "4320ff0e_1ddf_4c0d_ba31_27dc8ffa7d17": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_string_02\"]}')}",
+                            "58cedd40_32b6_49a8_a05c_f513f5cb8454": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_string_03\"]}')}",
+                            "aaf01e95_2ecb_4411_889d_59ffd1caf858": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_string_04\"]}')}",
+                            "54c4251a_2f38_491d_a7dd_b2be2fb27d6a": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_string_05\"]}')}",
+                            "c434de15_3550_4e0e_b509_1e52b6e40bb0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_bool_01\"]}')}",
+                            "228e10bc_49c6_451c_9aa3_98f9630fa402": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_bool_02\"]}')}",
+                            "90c2e695_c81d_4af5_8699_18408da58e62": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3387c39d\",\"path\":[\"parameters\",\"data_bool_03\"]}')}"
+                          }
+                        },
+                        "extended_output_schema": [
+                          {
+                            "label": "Record",
+                            "name": "record",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Record ID",
+                                "type": "string",
+                                "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Key",
+                                "type": "string",
+                                "name": "168fc8d7_00c0_432c_9d7d_ef2a2d8e3593"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Type",
+                                "type": "string",
+                                "name": "ff70ca1e_efa8_4ff5_874c_f071c3e117a6"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Target Identifier",
+                                "type": "string",
+                                "name": "39f99dd9_b969_483a_854e_ad028dd38544"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Source Identifier",
+                                "type": "string",
+                                "name": "cf76ca01_886f_4001_abc9_c311ec03e79e"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Data: String 01",
+                                "type": "string",
+                                "name": "285c66d2_6a71_4164_acc6_c6f6f72164ba"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Data: String 02",
+                                "type": "string",
+                                "name": "4320ff0e_1ddf_4c0d_ba31_27dc8ffa7d17"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Data: String 03",
+                                "type": "string",
+                                "name": "58cedd40_32b6_49a8_a05c_f513f5cb8454"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Data: String 04",
+                                "type": "string",
+                                "name": "aaf01e95_2ecb_4411_889d_59ffd1caf858"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Data: String 05",
+                                "type": "string",
+                                "name": "54c4251a_2f38_491d_a7dd_b2be2fb27d6a"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Data: Bool 01",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Data: Bool 01",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "render_input": null,
+                                  "parse_output": null,
+                                  "type": "boolean",
+                                  "name": "c434de15_3550_4e0e_b509_1e52b6e40bb0"
+                                },
+                                "type": "boolean",
+                                "name": "c434de15_3550_4e0e_b509_1e52b6e40bb0"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Data: Bool 02",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Data: Bool 02",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "render_input": null,
+                                  "parse_output": null,
+                                  "type": "boolean",
+                                  "name": "228e10bc_49c6_451c_9aa3_98f9630fa402"
+                                },
+                                "type": "boolean",
+                                "name": "228e10bc_49c6_451c_9aa3_98f9630fa402"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Data: Bool 03",
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Data: Bool 03",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "render_input": null,
+                                  "parse_output": null,
+                                  "type": "boolean",
+                                  "name": "90c2e695_c81d_4af5_8699_18408da58e62"
+                                },
+                                "type": "boolean",
+                                "name": "90c2e695_c81d_4af5_8699_18408da58e62"
+                              },
+                              {
+                                "control_type": "date_time",
+                                "label": "Created at",
+                                "render_input": "date_time_conversion",
+                                "parse_output": "date_time_conversion",
+                                "type": "date_time",
+                                "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                              },
+                              {
+                                "control_type": "date_time",
+                                "label": "Updated at",
+                                "render_input": "date_time_conversion",
+                                "parse_output": "date_time_conversion",
+                                "type": "date_time",
+                                "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "extended_input_schema": [
+                          {
+                            "hint": "Fill the fields for the new or updated record. Fields that are not specified will not be updated.",
+                            "label": "Record fields",
+                            "name": "parameters",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Key",
+                                "optional": false,
+                                "sticky": true,
+                                "type": "string",
+                                "name": "168fc8d7_00c0_432c_9d7d_ef2a2d8e3593"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Type",
+                                "optional": false,
+                                "sticky": true,
+                                "type": "string",
+                                "name": "ff70ca1e_efa8_4ff5_874c_f071c3e117a6"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Target Identifier",
+                                "optional": false,
+                                "sticky": true,
+                                "type": "string",
+                                "name": "39f99dd9_b969_483a_854e_ad028dd38544"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Source Identifier",
+                                "optional": true,
+                                "sticky": true,
+                                "type": "string",
+                                "name": "cf76ca01_886f_4001_abc9_c311ec03e79e"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Data: String 01",
+                                "optional": true,
+                                "sticky": true,
+                                "type": "string",
+                                "name": "285c66d2_6a71_4164_acc6_c6f6f72164ba"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Data: String 02",
+                                "optional": true,
+                                "sticky": false,
+                                "type": "string",
+                                "name": "4320ff0e_1ddf_4c0d_ba31_27dc8ffa7d17"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Data: String 03",
+                                "optional": true,
+                                "sticky": false,
+                                "type": "string",
+                                "name": "58cedd40_32b6_49a8_a05c_f513f5cb8454"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Data: String 04",
+                                "optional": true,
+                                "sticky": false,
+                                "type": "string",
+                                "name": "aaf01e95_2ecb_4411_889d_59ffd1caf858"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Data: String 05",
+                                "optional": true,
+                                "sticky": false,
+                                "type": "string",
+                                "name": "54c4251a_2f38_491d_a7dd_b2be2fb27d6a"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Data: Bool 01",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "optional": true,
+                                "sticky": false,
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Data: Bool 01",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "hint": null,
+                                  "placeholder": null,
+                                  "optional": true,
+                                  "sticky": false,
+                                  "render_input": "boolean_conversion",
+                                  "parse_output": "boolean_conversion",
+                                  "type": "boolean",
+                                  "name": "c434de15_3550_4e0e_b509_1e52b6e40bb0"
+                                },
+                                "type": "boolean",
+                                "name": "c434de15_3550_4e0e_b509_1e52b6e40bb0"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Data: Bool 02",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "optional": true,
+                                "sticky": false,
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Data: Bool 02",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "hint": null,
+                                  "placeholder": null,
+                                  "optional": true,
+                                  "sticky": false,
+                                  "render_input": "boolean_conversion",
+                                  "parse_output": "boolean_conversion",
+                                  "type": "boolean",
+                                  "name": "228e10bc_49c6_451c_9aa3_98f9630fa402"
+                                },
+                                "type": "boolean",
+                                "name": "228e10bc_49c6_451c_9aa3_98f9630fa402"
+                              },
+                              {
+                                "control_type": "checkbox",
+                                "label": "Data: Bool 03",
+                                "render_input": "boolean_conversion",
+                                "parse_output": "boolean_conversion",
+                                "optional": true,
+                                "sticky": false,
+                                "toggle_hint": "Select from option list",
+                                "toggle_field": {
+                                  "label": "Data: Bool 03",
+                                  "control_type": "text",
+                                  "toggle_hint": "Use custom value",
+                                  "hint": null,
+                                  "placeholder": null,
+                                  "optional": true,
+                                  "sticky": false,
+                                  "render_input": "boolean_conversion",
+                                  "parse_output": "boolean_conversion",
+                                  "type": "boolean",
+                                  "name": "90c2e695_c81d_4af5_8699_18408da58e62"
+                                },
+                                "type": "boolean",
+                                "name": "90c2e695_c81d_4af5_8699_18408da58e62"
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "visible_config_fields": [
+                          "table_id",
+                          "primary_field_id",
+                          "parameters.168fc8d7_00c0_432c_9d7d_ef2a2d8e3593",
+                          "parameters.ff70ca1e_efa8_4ff5_874c_f071c3e117a6",
+                          "parameters.39f99dd9_b969_483a_854e_ad028dd38544",
+                          "parameters.cf76ca01_886f_4001_abc9_c311ec03e79e",
+                          "parameters.285c66d2_6a71_4164_acc6_c6f6f72164ba",
+                          "parameters.4320ff0e_1ddf_4c0d_ba31_27dc8ffa7d17",
+                          "parameters.58cedd40_32b6_49a8_a05c_f513f5cb8454",
+                          "parameters.aaf01e95_2ecb_4411_889d_59ffd1caf858",
+                          "parameters.54c4251a_2f38_491d_a7dd_b2be2fb27d6a",
+                          "parameters.c434de15_3550_4e0e_b509_1e52b6e40bb0",
+                          "parameters.228e10bc_49c6_451c_9aa3_98f9630fa402",
+                          "parameters.90c2e695_c81d_4af5_8699_18408da58e62"
+                        ],
+                        "comment": "Retry upsert",
+                        "uuid": "6dba386b-7e12-4477-86b6-f6f8419f627b"
+                      },
+                      {
+                        "number": 10,
+                        "as": "75a7fca2",
+                        "keyword": "catch",
+                        "input": {
+                          "max_retry_count": "3",
+                          "retry_interval": "1"
+                        },
+                        "filter": {
+                          "conditions": [
+                            {
+                              "operand": "contains",
+                              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"75a7fca2\",\"path\":[\"message\"]}').to_s.downcase",
+                              "rhs": "maximum",
+                              "uuid": "e6349c70-a3de-4835-8ddc-c4831fc85f40"
+                            },
+                            {
+                              "operand": "contains",
+                              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"75a7fca2\",\"path\":[\"message\"]}').to_s.downcase",
+                              "rhs": "limit",
+                              "uuid": "1a6e10a0-15ba-45df-a7c7-79149173aeaa"
+                            }
+                          ],
+                          "operand": "or",
+                          "type": "compound"
+                        },
+                        "block": [
+                          {
+                            "number": 11,
+                            "provider": "logger",
+                            "name": "log_message",
+                            "as": "5315f469",
+                            "keyword": "action",
+                            "input": {
+                              "user_logs_enabled": "false",
+                              "message": "Upsert failed: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"75a7fca2\",\"path\":[\"message\"]}')}"
+                            },
+                            "extended_input_schema": [
+                              {
+                                "control_type": "switch",
+                                "default": false,
+                                "disable_formula": true,
+                                "extends_schema": true,
+                                "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
+                                "label": "Send to Workato log service",
+                                "name": "user_logs_enabled",
+                                "optional": true,
+                                "type": "string"
+                              }
+                            ],
+                            "uuid": "7a2b6bca-dde2-4da7-b9e9-5db6edf942b6"
+                          }
+                        ],
+                        "uuid": "fa759ee4-083a-49c2-9695-e0e5e095b567"
+                      }
+                    ],
+                    "uuid": "8a373749-2c0e-4676-b352-2732d9fc5f31"
+                  },
+                  {
+                    "number": 12,
+                    "keyword": "else",
+                    "input": {
+                    },
+                    "block": [
+                      {
+                        "number": 13,
+                        "provider": "logger",
+                        "name": "log_message",
+                        "as": "14b44dee",
+                        "keyword": "action",
+                        "input": {
+                          "user_logs_enabled": "false",
+                          "message": "Upsert failed: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"69cf7acb\",\"path\":[\"message\"]}')}"
+                        },
+                        "extended_input_schema": [
+                          {
+                            "control_type": "switch",
+                            "default": false,
+                            "disable_formula": true,
+                            "extends_schema": true,
+                            "hint": "Send a copy of the message to Workato logs.\n<a href=\"https://docs.workato.com/features/logging-service.html\" target=\"_blank\" class=\"ng-scope\">\n  Learn more\n</a>\n",
+                            "label": "Send to Workato log service",
+                            "name": "user_logs_enabled",
+                            "optional": true,
+                            "type": "string"
+                          }
+                        ],
+                        "uuid": "786e8b3e-896f-4e77-9f50-8e38e99656de"
+                      }
+                    ],
+                    "uuid": "a37ebdd6-cca3-45ad-aa42-ac9d0403ebd1"
+                  }
+                ],
+                "comment": "Data table is full",
+                "uuid": "69290689-790d-440c-bbcb-5dd797393620"
+              }
+            ],
+            "comment": "Retry unless data table is full",
+            "uuid": "edf9ebe5-e40d-4785-84a6-84b55b143353"
+          }
+        ],
+        "uuid": "1416b107-c686-4c17-b29d-ff3860390a2f"
+      }
+    ],
+    "uuid": "90303de0-975e-46da-9187-5df091686060"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_db_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "logger",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ],
+  "tags": [
+    "cache",
+    "lookup",
+    "shared"
+  ]
+}

@@ -1,0 +1,1326 @@
+{
+  "name": "Target | Business hours lookup by name [FUNCTION]",
+  "description": "Searches for target Salesforce `BusinessHours` active record matching input criteria. If no match or an error occurs, returns a default.",
+  "version": 17,
+  "private": true,
+  "concurrency": 5,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "defbb109",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"control_type\":\"text\",\"label\":\"Name\",\"name\":\"name\",\"type\":\"string\",\"optional\":true}]",
+      "result_schema_json": "[{\"control_type\":\"text\",\"label\":\"ID\",\"name\":\"id\",\"type\":\"string\",\"optional\":false}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Name",
+            "name": "name",
+            "type": "string",
+            "optional": true
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "is_true",
+              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"defbb109\",\"path\":[\"parameters\",\"name\"]}').to_s.strip.blank?",
+              "rhs": "",
+              "uuid": "ba1fe591-3a53-427d-90a5-9a0b2c15e2cf"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 2,
+            "provider": "workato_recipe_function",
+            "name": "return_result",
+            "as": "1c27c165",
+            "keyword": "action",
+            "input": {
+              "result": {
+                "id": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"default_business_hour\"}')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "name": "id",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "name": "id",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "659b3d89-5581-4565-ac54-6f27edb87858"
+          }
+        ],
+        "comment": "If no input, return default",
+        "uuid": "2f919949-bae9-4c63-b6e6-23d997acbd2e"
+      },
+      {
+        "number": 3,
+        "provider": "workato_db_table",
+        "name": "get_records",
+        "as": "e2e9b1d7",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "table_id": "DT | Target shared lookup cache",
+          "filters.0.field_id": "Type",
+          "filters.1.field_id": "Data: String 01",
+          "filters.2.field_id": "Last modified time"
+        },
+        "input": {
+          "order_direction": "desc",
+          "limit": "1000",
+          "table_id": {
+            "zip_name": "Lookups, helpers, etc/Cache/target_shared_lookup_cache.workato_db_table.json",
+            "name": "Target | Shared lookup cache",
+            "folder": "Lookups, helpers, etc/Cache"
+          },
+          "168fc8d7-00c0-432c-9d7d-ef2a2d8e3593": "string",
+          "ff70ca1e-efa8-4ff5-874c-f071c3e117a6": "string",
+          "39f99dd9-b969-483a-854e-ad028dd38544": "string",
+          "cf76ca01-886f-4001-abc9-c311ec03e79e": "string",
+          "285c66d2-6a71-4164-acc6-c6f6f72164ba": "string",
+          "4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17": "string",
+          "58cedd40-32b6-49a8-a05c-f513f5cb8454": "string",
+          "aaf01e95-2ecb-4411-889d-59ffd1caf858": "string",
+          "54c4251a-2f38-491d-a7dd-b2be2fb27d6a": "string",
+          "c434de15-3550-4e0e-b509-1e52b6e40bb0": "boolean",
+          "228e10bc-49c6-451c-9aa3-98f9630fa402": "boolean",
+          "90c2e695-c81d-4af5-8699-18408da58e62": "boolean",
+          "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+          "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+          "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+          "filters": [
+            {
+              "field_id": "ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+              "op_default": "eq",
+              "value_default": "BusinessHours"
+            },
+            {
+              "field_id": "285c66d2-6a71-4164-acc6-c6f6f72164ba",
+              "op_default": "eq",
+              "value_default": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"defbb109\",\"path\":[\"parameters\",\"name\"]}').to_s.downcase"
+            },
+            {
+              "field_id": "61aae604-a95e-4519-9091-bb0bf754a67f",
+              "op_date_time": "gte",
+              "value_date_time": "=now - 60.minutes"
+            }
+          ]
+        },
+        "extended_output_schema": [
+          {
+            "label": "Records",
+            "name": "records",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Record ID",
+                "type": "string",
+                "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+              },
+              {
+                "control_type": "text",
+                "label": "Key",
+                "type": "string",
+                "name": "168fc8d7_00c0_432c_9d7d_ef2a2d8e3593"
+              },
+              {
+                "control_type": "text",
+                "label": "Type",
+                "type": "string",
+                "name": "ff70ca1e_efa8_4ff5_874c_f071c3e117a6"
+              },
+              {
+                "control_type": "text",
+                "label": "Target Identifier",
+                "type": "string",
+                "name": "39f99dd9_b969_483a_854e_ad028dd38544"
+              },
+              {
+                "control_type": "text",
+                "label": "Source Identifier",
+                "type": "string",
+                "name": "cf76ca01_886f_4001_abc9_c311ec03e79e"
+              },
+              {
+                "control_type": "text",
+                "label": "Data: String 01",
+                "type": "string",
+                "name": "285c66d2_6a71_4164_acc6_c6f6f72164ba"
+              },
+              {
+                "control_type": "text",
+                "label": "Data: String 02",
+                "type": "string",
+                "name": "4320ff0e_1ddf_4c0d_ba31_27dc8ffa7d17"
+              },
+              {
+                "control_type": "text",
+                "label": "Data: String 03",
+                "type": "string",
+                "name": "58cedd40_32b6_49a8_a05c_f513f5cb8454"
+              },
+              {
+                "control_type": "text",
+                "label": "Data: String 04",
+                "type": "string",
+                "name": "aaf01e95_2ecb_4411_889d_59ffd1caf858"
+              },
+              {
+                "control_type": "text",
+                "label": "Data: String 05",
+                "type": "string",
+                "name": "54c4251a_2f38_491d_a7dd_b2be2fb27d6a"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Data: Bool 01",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Data: Bool 01",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "render_input": null,
+                  "parse_output": null,
+                  "type": "boolean",
+                  "name": "c434de15_3550_4e0e_b509_1e52b6e40bb0"
+                },
+                "type": "boolean",
+                "name": "c434de15_3550_4e0e_b509_1e52b6e40bb0"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Data: Bool 02",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Data: Bool 02",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "render_input": null,
+                  "parse_output": null,
+                  "type": "boolean",
+                  "name": "228e10bc_49c6_451c_9aa3_98f9630fa402"
+                },
+                "type": "boolean",
+                "name": "228e10bc_49c6_451c_9aa3_98f9630fa402"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Data: Bool 03",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Data: Bool 03",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "render_input": null,
+                  "parse_output": null,
+                  "type": "boolean",
+                  "name": "90c2e695_c81d_4af5_8699_18408da58e62"
+                },
+                "type": "boolean",
+                "name": "90c2e695_c81d_4af5_8699_18408da58e62"
+              },
+              {
+                "control_type": "date_time",
+                "label": "Created at",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "type": "date_time",
+                "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+              },
+              {
+                "control_type": "date_time",
+                "label": "Updated at",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "type": "date_time",
+                "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "control_type": "text",
+            "label": "Next Page Token",
+            "name": "continuation_token",
+            "type": "string"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_168fc8d7-00c0-432c-9d7d-ef2a2d8e3593",
+            "name": "168fc8d7-00c0-432c-9d7d-ef2a2d8e3593",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+            "name": "ff70ca1e-efa8-4ff5-874c-f071c3e117a6",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_39f99dd9-b969-483a-854e-ad028dd38544",
+            "name": "39f99dd9-b969-483a-854e-ad028dd38544",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_cf76ca01-886f-4001-abc9-c311ec03e79e",
+            "name": "cf76ca01-886f-4001-abc9-c311ec03e79e",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_285c66d2-6a71-4164-acc6-c6f6f72164ba",
+            "name": "285c66d2-6a71-4164-acc6-c6f6f72164ba",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17",
+            "name": "4320ff0e-1ddf-4c0d-ba31-27dc8ffa7d17",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_58cedd40-32b6-49a8-a05c-f513f5cb8454",
+            "name": "58cedd40-32b6-49a8-a05c-f513f5cb8454",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_aaf01e95-2ecb-4411-889d-59ffd1caf858",
+            "name": "aaf01e95-2ecb-4411-889d-59ffd1caf858",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_54c4251a-2f38-491d-a7dd-b2be2fb27d6a",
+            "name": "54c4251a-2f38-491d-a7dd-b2be2fb27d6a",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_c434de15-3550-4e0e-b509-1e52b6e40bb0",
+            "name": "c434de15-3550-4e0e-b509-1e52b6e40bb0",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_228e10bc-49c6-451c-9aa3-98f9630fa402",
+            "name": "228e10bc-49c6-451c-9aa3-98f9630fa402",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_90c2e695-c81d-4af5-8699-18408da58e62",
+            "name": "90c2e695-c81d-4af5-8699-18408da58e62",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "id",
+            "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+            "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          }
+        ],
+        "uuid": "049ce389-6ab6-43d3-a996-0180d0923e24"
+      },
+      {
+        "number": 4,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "equals_to",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"e2e9b1d7\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}",
+              "rhs": "1",
+              "uuid": "337ce96e-5110-4106-810a-545d17296ae4"
+            },
+            {
+              "operand": "present",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"e2e9b1d7\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"39f99dd9_b969_483a_854e_ad028dd38544\"]}')}",
+              "rhs": "",
+              "uuid": "26d30c93-3d40-4003-a80d-7e8c3eb23e76"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 5,
+            "provider": "workato_recipe_function",
+            "name": "return_result",
+            "as": "d1d2faf9",
+            "keyword": "action",
+            "input": {
+              "result": {
+                "id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"e2e9b1d7\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"39f99dd9_b969_483a_854e_ad028dd38544\"]}')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "name": "id",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "name": "id",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "2ffc3f17-d937-44ec-a7ee-cf6f754ff930"
+          },
+          {
+            "number": 6,
+            "keyword": "elsif",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "greater_than",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"e2e9b1d7\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}",
+                  "rhs": "0",
+                  "uuid": "5e4568e2-ee1b-451a-aff1-a2ec2bf525aa"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 7,
+                "keyword": "try",
+                "input": {
+                },
+                "block": [
+                  {
+                    "number": 8,
+                    "provider": "workato_db_table",
+                    "name": "delete_records_batch",
+                    "as": "a1d06a59",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "table_id": "DT | Target shared lookup cache"
+                    },
+                    "input": {
+                      "table_id": {
+                        "zip_name": "Lookups, helpers, etc/Cache/target_shared_lookup_cache.workato_db_table.json",
+                        "name": "Target | Shared lookup cache",
+                        "folder": "Lookups, helpers, etc/Cache"
+                      },
+                      "records": {
+                        "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"e2e9b1d7\",\"path\":[\"records\"]}')}",
+                        "record_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"e2e9b1d7\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}"
+                      }
+                    },
+                    "uuid": "a2e9ec55-9076-4436-a28c-01ba0eae804f"
+                  },
+                  {
+                    "number": 9,
+                    "as": "3885ff0a",
+                    "keyword": "catch",
+                    "input": {
+                      "max_retry_count": "1",
+                      "retry_interval": "2"
+                    },
+                    "block": [
+
+                    ],
+                    "comment": "Retry but ignore errors",
+                    "uuid": "2f101b37-4041-487e-a906-a1714b8ac370"
+                  }
+                ],
+                "uuid": "dddbe053-fede-41d7-a2e4-235292ae931d"
+              }
+            ],
+            "comment": "Cache hit but invalid",
+            "uuid": "e08237ce-368a-4fd8-8f2b-ff75fb349691"
+          }
+        ],
+        "comment": "Cache hit and valid",
+        "uuid": "5c72a748-0426-45fb-98b3-b6f1bb391c94"
+      },
+      {
+        "number": 10,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 11,
+            "provider": "salesforce",
+            "name": "search_sobjects",
+            "as": "b6f810ad",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "sobject_name": "Business Hours",
+              "field_list": [
+                {
+                  "label": "Business Hours ID",
+                  "value": "Id"
+                }
+              ]
+            },
+            "toggleCfg": {
+              "IsActive": true
+            },
+            "input": {
+              "limit": "2",
+              "sobject_name": "BusinessHours",
+              "field_list": "Id",
+              "IsActive": "true",
+              "Name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"defbb109\",\"path\":[\"parameters\",\"name\"]}')}"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Business Hours",
+                "name": "BusinessHours",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Business Hours ID",
+                    "optional": true,
+                    "custom": false,
+                    "sfdc_createable": false,
+                    "sfdc_updateable": false,
+                    "type": "string",
+                    "name": "Id"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "number",
+                "label": "List size",
+                "name": "list_size",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "checkbox",
+                "custom": false,
+                "label": "Active",
+                "name": "IsActive",
+                "optional": true,
+                "toggle_field": {
+                  "label": "Active",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "render_input": null,
+                  "parse_output": null,
+                  "optional": true,
+                  "custom": false,
+                  "sfdc_createable": false,
+                  "sfdc_updateable": false,
+                  "type": "boolean",
+                  "name": "IsActive"
+                },
+                "toggle_hint": "Select from option list",
+                "type": "boolean",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Business Hours ID",
+                "name": "Id",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Business Hours Name",
+                "name": "Name",
+                "optional": true,
+                "type": "string",
+                "event_title": true,
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Created By ID",
+                "name": "CreatedById",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "date_time",
+                "custom": false,
+                "label": "Created Date",
+                "name": "CreatedDate",
+                "optional": true,
+                "parse_output": "parse_iso8601_timestamp",
+                "type": "date_time",
+                "render_input": "render_iso8601_timestamp",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "checkbox",
+                "custom": false,
+                "label": "Default Business Hours",
+                "name": "IsDefault",
+                "optional": true,
+                "toggle_field": {
+                  "label": "Default Business Hours",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "render_input": null,
+                  "parse_output": null,
+                  "optional": true,
+                  "custom": false,
+                  "sfdc_createable": false,
+                  "sfdc_updateable": false,
+                  "type": "boolean",
+                  "name": "IsDefault"
+                },
+                "toggle_hint": "Select from option list",
+                "type": "boolean",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Friday End",
+                "name": "FridayEndTime",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Friday Start",
+                "name": "FridayStartTime",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Last Modified By ID",
+                "name": "LastModifiedById",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "date_time",
+                "custom": false,
+                "label": "Last Modified Date",
+                "name": "LastModifiedDate",
+                "optional": true,
+                "parse_output": "parse_iso8601_timestamp",
+                "type": "date_time",
+                "render_input": "render_iso8601_timestamp",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "date_time",
+                "custom": false,
+                "label": "Last Viewed Date",
+                "name": "LastViewedDate",
+                "optional": true,
+                "parse_output": "parse_iso8601_timestamp",
+                "type": "date_time",
+                "render_input": "render_iso8601_timestamp",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Monday End",
+                "name": "MondayEndTime",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Monday Start",
+                "name": "MondayStartTime",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Saturday End",
+                "name": "SaturdayEndTime",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Saturday Start",
+                "name": "SaturdayStartTime",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Sunday End",
+                "name": "SundayEndTime",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Sunday Start",
+                "name": "SundayStartTime",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "date_time",
+                "custom": false,
+                "label": "System Modstamp",
+                "name": "SystemModstamp",
+                "optional": true,
+                "parse_output": "parse_iso8601_timestamp",
+                "type": "date_time",
+                "render_input": "render_iso8601_timestamp",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Thursday End",
+                "name": "ThursdayEndTime",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Thursday Start",
+                "name": "ThursdayStartTime",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "select",
+                "custom": false,
+                "label": "Time Zone",
+                "name": "TimeZoneSidKey",
+                "optional": true,
+                "pick_list": "sobject_field_values_list",
+                "pick_list_params": {
+                  "sobject_name": "\"BusinessHours\"",
+                  "field_name": "\"TimeZoneSidKey\""
+                },
+                "toggle_field": {
+                  "control_type": "text",
+                  "label": "Time Zone",
+                  "toggle_hint": "Enter custom value",
+                  "custom": false,
+                  "sfdc_createable": false,
+                  "sfdc_updateable": false,
+                  "optional": true,
+                  "type": "string",
+                  "name": "TimeZoneSidKey"
+                },
+                "toggle_hint": "Select from list",
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Tuesday End",
+                "name": "TuesdayEndTime",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Tuesday Start",
+                "name": "TuesdayStartTime",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Wednesday End",
+                "name": "WednesdayEndTime",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "label": "Wednesday Start",
+                "name": "WednesdayStartTime",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": false,
+                "sfdc_updateable": false
+              }
+            ],
+            "visible_config_fields": [
+              "sobject_name",
+              "field_list",
+              "limit",
+              "requester_email",
+              "AccountNumber",
+              "LegacyID__c",
+              "IsActive",
+              "Name"
+            ],
+            "uuid": "7f103c6b-4174-4a36-ba8f-c0faa683b51e"
+          },
+          {
+            "number": 12,
+            "as": "113846fb",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "3",
+              "retry_interval": "2"
+            },
+            "filter": {
+              "conditions": [
+                {
+                  "operand": "not_equals_to",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"113846fb\",\"path\":[\"http_response\",\"code\"]}')}",
+                  "rhs": "404",
+                  "uuid": "2dca272d-0338-4c26-b8fb-875fa3e5e467"
+                }
+              ],
+              "operand": "and",
+              "type": "compound"
+            },
+            "block": [
+              {
+                "number": 13,
+                "as": "5577a469",
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "true",
+                  "stop_reason": "Query failed: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"113846fb\",\"path\":[\"message\"]}')}"
+                },
+                "uuid": "a1e9e3b9-ec6c-414f-878f-918064a13662"
+              }
+            ],
+            "uuid": "0f3e19a9-3037-481f-bfce-b7613aec2d41"
+          }
+        ],
+        "uuid": "5ef4d317-c0b0-4ecd-9143-6060af674324"
+      },
+      {
+        "number": 14,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "less_than",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"b6f810ad\",\"path\":[\"BusinessHours\",{\"path_element_type\":\"size\"}]}')}",
+              "rhs": "1",
+              "uuid": "908eada3-ebb9-4e43-a135-6a92643dbeb1"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 15,
+            "provider": "workato_recipe_function",
+            "name": "return_result",
+            "as": "2510127f",
+            "keyword": "action",
+            "input": {
+              "result": {
+                "id": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"default_business_hour\"}')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "name": "id",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "name": "id",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "cb680158-a1ff-4df7-b2df-b16e15d228da"
+          },
+          {
+            "number": 16,
+            "keyword": "elsif",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "greater_than",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"b6f810ad\",\"path\":[\"BusinessHours\",{\"path_element_type\":\"size\"}]}')}",
+                  "rhs": "1",
+                  "uuid": "4637b8c3-1f2d-4dfd-8f8b-7558956d893a"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 17,
+                "as": "4f1b8e82",
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "true",
+                  "stop_reason": "Too many results (#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"b6f810ad\",\"path\":[\"BusinessHours\",{\"path_element_type\":\"size\"}]}')}) match name \"#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"defbb109\",\"path\":[\"parameters\",\"name\"]}')}\""
+                },
+                "uuid": "eda4c7c3-aaf4-4e0d-b57a-6d414a4e2150"
+              }
+            ],
+            "comment": "Invalid results",
+            "uuid": "15875d46-7521-46fb-a559-681d7e2cde7b"
+          }
+        ],
+        "comment": "No match, return default",
+        "uuid": "6d06e9d3-812c-4409-8db6-8a57611e1cca"
+      },
+      {
+        "number": 18,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe_async",
+        "as": "fd329ff3",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "REC FX | Target shared lookup cache upsert"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Lookups, helpers, etc/Cache/target_shared_lookup_cache_upsert_function.recipe.json",
+            "name": "Target | Shared lookup cache upsert [FUNCTION]",
+            "folder": "Lookups, helpers, etc/Cache"
+          },
+          "parameters": {
+            "type": "BusinessHours",
+            "target_identifier": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"b6f810ad\",\"path\":[\"BusinessHours\",{\"path_element_type\":\"current_item\"},\"Id\"]}')}",
+            "data_string_01": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"defbb109\",\"path\":[\"parameters\",\"name\"]}').to_s.downcase"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Type",
+                "name": "type",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Target Identifier",
+                "name": "target_identifier",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Source Identifier",
+                "name": "source_identifier",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Data: String 01",
+                "name": "data_string_01",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Data: String 02",
+                "name": "data_string_02",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Data: String 03",
+                "name": "data_string_03",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Data: String 04",
+                "name": "data_string_04",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "text",
+                "label": "Data: String 05",
+                "name": "data_string_05",
+                "type": "string",
+                "optional": true
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Data: Bool 01",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "data_bool_01",
+                "type": "boolean",
+                "optional": true,
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Data: Bool 01",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "data_bool_01",
+                  "type": "boolean",
+                  "optional": true
+                }
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Data: Bool 02",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "data_bool_02",
+                "type": "boolean",
+                "optional": true,
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Data: Bool 02",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "data_bool_02",
+                  "type": "boolean",
+                  "optional": true
+                }
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Data: Bool 03",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "data_bool_03",
+                "type": "boolean",
+                "optional": true,
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Data: Bool 03",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "data_bool_03",
+                  "type": "boolean",
+                  "optional": true
+                }
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "flow_id",
+          "parameters",
+          "parameters.type",
+          "parameters.target_identifier",
+          "parameters.data_string_01"
+        ],
+        "uuid": "82946d63-0f27-4ddc-a179-f1768ca32df8"
+      },
+      {
+        "number": 19,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "68910ff2",
+        "keyword": "action",
+        "input": {
+          "result": {
+            "id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"b6f810ad\",\"path\":[\"BusinessHours\",{\"path_element_type\":\"current_item\"},\"Id\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "ID",
+                "name": "id",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "ID",
+                "name": "id",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "c72d3812-5204-4ef1-bc1c-a692d1f9f8cc"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_0",
+        "label": "Name"
+      },
+      {
+        "name": "custom_column_1",
+        "label": "Target ID"
+      },
+      {
+        "name": "custom_column_2",
+        "label": "Default?"
+      },
+      {
+        "name": "custom_column_3",
+        "label": "Cached?"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"defbb109\",\"path\":[\"parameters\",\"name\"]}')}",
+      "custom_column_1": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1c27c165\",\"path\":[\"result\",\"id\"]}') || _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"d1d2faf9\",\"path\":[\"result\",\"id\"]}') || _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"2510127f\",\"path\":[\"result\",\"id\"]}') || _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"68910ff2\",\"path\":[\"result\",\"id\"]}')",
+      "custom_column_2": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"1c27c165\",\"path\":[\"result\",\"id\"]}').present? || _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"2510127f\",\"path\":[\"result\",\"id\"]}').present?",
+      "custom_column_3": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"d1d2faf9\",\"path\":[\"result\",\"id\"]}').present?"
+    },
+    "uuid": "75ee11d4-65a9-41f5-ab6a-3cbb4cf9b013"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/sf_sct_target.connection.json",
+        "name": "SF_SCT_Target",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_db_table",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ],
+  "tags": [
+    "business hours",
+    "cached",
+    "function",
+    "lookup"
+  ]
+}

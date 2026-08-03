@@ -1,0 +1,396 @@
+{
+  "name": "Case groups & labels | Initial migration | 01.x Fetch source [FUNCTION]",
+  "description": "",
+  "version": 14,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "3e7b3e62",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"directory\",\"type\":\"string\",\"optional\":false,\"label\":\"Directory\",\"control_type\":\"text\"},{\"name\":\"output_filename\",\"type\":\"string\",\"optional\":false,\"label\":\"Output filename\",\"control_type\":\"text\"},{\"name\":\"output_overwrite\",\"type\":\"boolean\",\"optional\":true,\"label\":\"Overwrite output if it exists?\",\"control_type\":\"checkbox\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Overwrite output if it exists?\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"name\":\"output_overwrite\",\"type\":\"boolean\",\"optional\":true}},{\"name\":\"modified_timestamp_boundary\",\"type\":\"string\",\"optional\":true,\"label\":\"Modified timestamp boundary\",\"control_type\":\"text\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Directory",
+            "name": "directory",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Output filename",
+            "name": "output_filename",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Overwrite output if it exists?",
+            "render_input": "boolean_conversion",
+            "parse_output": "boolean_conversion",
+            "name": "output_overwrite",
+            "type": "boolean",
+            "optional": true,
+            "toggle_hint": "Select from option list",
+            "toggle_field": {
+              "label": "Overwrite output if it exists?",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "name": "output_overwrite",
+              "type": "boolean",
+              "optional": true
+            }
+          },
+          {
+            "control_type": "text",
+            "label": "Modified timestamp boundary",
+            "name": "modified_timestamp_boundary",
+            "type": "string",
+            "optional": true
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_files",
+        "name": "search_files",
+        "as": "7945abda",
+        "keyword": "action",
+        "toggleCfg": {
+          "file_path": false
+        },
+        "input": {
+          "file_name_filter": {
+            "condition": "equals",
+            "value": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3e7b3e62\",\"path\":[\"parameters\",\"output_filename\"]}')}"
+          },
+          "file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3e7b3e62\",\"path\":[\"parameters\",\"directory\"]}')}"
+        },
+        "comment": "Search for existing output file",
+        "uuid": "c7fc8886-a7f9-4b71-b717-8d3d4e171c30"
+      },
+      {
+        "number": 2,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "greater_than",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"7945abda\",\"path\":[\"files\",{\"path_element_type\":\"size\"}]}')}",
+              "rhs": "0",
+              "uuid": "45ebff13-11f1-49dd-8886-ae004ac0dad3"
+            },
+            {
+              "operand": "is_not_true",
+              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3e7b3e62\",\"path\":[\"parameters\",\"output_overwrite\"]}') == true",
+              "rhs": "",
+              "uuid": "2b7913c7-568e-4378-a380-6924c638c552"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 3,
+            "as": "132b7650",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "false"
+            },
+            "uuid": "59294e89-b9c8-4ef4-8252-479677525b95"
+          }
+        ],
+        "uuid": "95b5bfc1-16e5-4003-a6e7-1e3813c035a6"
+      },
+      {
+        "number": 4,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "present",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3e7b3e62\",\"path\":[\"parameters\",\"modified_timestamp_boundary\"]}')}",
+              "rhs": "",
+              "uuid": "f74be725-0efc-40ea-bfa4-9f09ae06adcb"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 5,
+            "provider": "workato_variable",
+            "name": "declare_variable",
+            "as": "8ebb45a5",
+            "keyword": "action",
+            "input": {
+              "variables": {
+                "schema": "[{\"control_type\":\"text\",\"label\":\"Modified timestamp boundary SOQL\",\"name\":\"modified_timestamp_boundary_soql\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"Modified timestamp boundary SOQL\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]",
+                "data": {
+                  "modified_timestamp_boundary_soql": "WHERE\n    SystemModstamp < #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3e7b3e62\",\"path\":[\"parameters\",\"modified_timestamp_boundary\"]}')}"
+                }
+              }
+            },
+            "extended_output_schema": [
+              {
+                "control_type": "text",
+                "hint": "Defaults to nil if not supplied.",
+                "label": "Modified timestamp boundary SOQL",
+                "name": "modified_timestamp_boundary_soql",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "details": {
+                  "real_name": "Modified timestamp boundary SOQL"
+                }
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "add_field_label": "Add a variable",
+                "control_type": "form-schema-builder",
+                "empty_schema_title": "Add variables by giving them a name, type and default value",
+                "exclude_fields": [
+                  "hint"
+                ],
+                "item_label": "variable",
+                "label": "Variables",
+                "mark_as_required": true,
+                "name": "variables",
+                "ngIf": "!input.name",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Schema",
+                    "extends_schema": true,
+                    "broadcast_change_event": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Modified timestamp boundary SOQL",
+                        "name": "modified_timestamp_boundary_soql",
+                        "type": "string",
+                        "optional": true,
+                        "details": {
+                          "real_name": "Modified timestamp boundary SOQL"
+                        },
+                        "hint": "Defaults to nil if not supplied.",
+                        "sticky": true,
+                        "parent": [
+                          "variables",
+                          "data"
+                        ]
+                      }
+                    ],
+                    "label": "Data",
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "variables.data.created_timestamp_boundary_soql",
+              "variables",
+              "variables.schema",
+              "variables.data",
+              "variables.data.modified_timestamp_boundary_soql"
+            ],
+            "uuid": "3f857ad4-be6c-429f-9e42-452a75328e0a"
+          }
+        ],
+        "uuid": "99dc9f1d-e77e-41d9-802b-77211f401653"
+      },
+      {
+        "number": 6,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 7,
+            "provider": "salesforce",
+            "name": "search_sobjects_soql_bulk_csv_v2",
+            "as": "21c4ae4b",
+            "keyword": "action",
+            "input": {
+              "include_deleted_records": "false",
+              "include_header": "true",
+              "skip_delete_failed_job": "true",
+              "wait_for_job_completion": "true",
+              "query": "SELECT\n    Id,\n    AccountId__r.AccountNumber,\n    AccountId__r.hasGroupACLs__c,\n    CreatedById,\n    CreatedDate,\n    LastModifiedById,\n    LastModifiedDate,\n    Name,\n    OwnerId\nFROM\n    CaseFolder__c\n#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"8ebb45a5\",\"path\":[\"modified_timestamp_boundary_soql\"]}')}"
+            },
+            "uuid": "f59b059b-3853-41bd-9443-4880a41e06b2"
+          },
+          {
+            "number": 8,
+            "as": "fcd9ed6f",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "2",
+              "retry_interval": "2"
+            },
+            "filter": {
+              "conditions": [
+                {
+                  "operand": "not_equals_to",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"fcd9ed6f\",\"path\":[\"http_response\",\"code\"]}')}",
+                  "rhs": "400",
+                  "uuid": "53831fe1-16cf-4b36-8ff9-435c953a3c44"
+                }
+              ],
+              "operand": "and",
+              "type": "compound"
+            },
+            "block": [
+              {
+                "number": 9,
+                "as": "09468958",
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "true",
+                  "stop_reason": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"fcd9ed6f\",\"path\":[\"message\"]}')}"
+                },
+                "uuid": "0e7b1f96-760b-4b8b-a6da-c1bfac963503"
+              }
+            ],
+            "comment": "Retry unless bad request",
+            "uuid": "fe21f5be-0719-495f-9013-2f405a9786a9"
+          }
+        ],
+        "uuid": "1ccb9779-49c3-40c8-918b-787099cbc70d"
+      },
+      {
+        "number": 10,
+        "provider": "workato_files",
+        "name": "store_file",
+        "as": "14c5a3ad",
+        "keyword": "action",
+        "toggleCfg": {
+          "is_csv_file": true,
+          "overwrite": true,
+          "file_path": false,
+          "csv_has_header": true
+        },
+        "input": {
+          "is_csv_file": "true",
+          "schema_type": "auto",
+          "csv_has_header": "true",
+          "csv_delimiter": "comma",
+          "csv_quote": "double",
+          "encoding": "UTF-8",
+          "overwrite": "true",
+          "file_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3e7b3e62\",\"path\":[\"parameters\",\"output_filename\"]}')}",
+          "file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3e7b3e62\",\"path\":[\"parameters\",\"directory\"]}')}",
+          "content": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"21c4ae4b\",\"path\":[\"results\"]}')}"
+        },
+        "uuid": "d7d69fe8-67d1-4be3-98ad-a1bda681f591"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_12",
+        "label": "Modified timestamp boundary "
+      },
+      {
+        "name": "custom_column_11",
+        "label": "Salesforce bulk job ID"
+      },
+      {
+        "name": "custom_column_5",
+        "label": "All records successfully processed?"
+      },
+      {
+        "name": "custom_column_7",
+        "label": "Number of records processed"
+      },
+      {
+        "name": "custom_column_8",
+        "label": "Number of records failed"
+      },
+      {
+        "name": "custom_column_9",
+        "label": "Number of retried records"
+      },
+      {
+        "name": "custom_column_10",
+        "label": "Search processing time"
+      },
+      {
+        "name": "custom_column_3",
+        "label": "Output file"
+      },
+      {
+        "name": "custom_column_6",
+        "label": "Output existed?"
+      },
+      {
+        "name": "custom_column_4",
+        "label": "Overwrite output if it existed?"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_12": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3e7b3e62\",\"path\":[\"parameters\",\"modified_timestamp_boundary\"]}')}",
+      "custom_column_11": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"21c4ae4b\",\"path\":[\"job_id\"]}')}",
+      "custom_column_5": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"21c4ae4b\",\"path\":[\"success\"]}')}",
+      "custom_column_7": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"21c4ae4b\",\"path\":[\"numberRecordsProcessed\"]}')}",
+      "custom_column_8": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"21c4ae4b\",\"path\":[\"numberRecordsFailed\"]}')}",
+      "custom_column_9": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"21c4ae4b\",\"path\":[\"retryCount\"]}')}",
+      "custom_column_10": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"21c4ae4b\",\"path\":[\"totalProcessingTime\"]}')}",
+      "custom_column_3": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3e7b3e62\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3e7b3e62\",\"path\":[\"parameters\",\"output_filename\"]}')}",
+      "custom_column_6": "=(_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"7945abda\",\"path\":[\"files\",{\"path_element_type\":\"size\"}]}') || 0) > 0",
+      "custom_column_4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3e7b3e62\",\"path\":[\"parameters\",\"output_overwrite\"]}')}"
+    },
+    "uuid": "d742132f-69d0-4078-b160-4a51219936a6"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/sf_legacy_source.connection.json",
+        "name": "SF_Legacy_Source",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_files",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

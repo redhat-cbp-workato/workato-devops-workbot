@@ -1,0 +1,498 @@
+{
+  "name": "Case groups & labels | Initial migration | 01.x Fetch target [FUNCTION]",
+  "description": "",
+  "version": 7,
+  "private": true,
+  "concurrency": 5,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "3c2aac12",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"control_type\":\"text\",\"label\":\"Object\",\"name\":\"object\",\"type\":\"string\",\"optional\":false,\"hint\":\"Valid values: Account, BusinessHours, Case, Entitlement, User\"},{\"control_type\":\"text\",\"label\":\"Directory\",\"name\":\"directory\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Output filename\",\"name\":\"output_filename\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"checkbox\",\"label\":\"Overwrite output if it exists?\",\"name\":\"output_overwrite\",\"type\":\"boolean\",\"optional\":false,\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Overwrite output if it exists?\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"name\":\"output_overwrite\",\"type\":\"boolean\",\"optional\":false}}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Object",
+            "name": "object",
+            "type": "string",
+            "optional": false,
+            "hint": "Valid values: Account, BusinessHours, Case, Entitlement, User"
+          },
+          {
+            "control_type": "text",
+            "label": "Directory",
+            "name": "directory",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Output filename",
+            "name": "output_filename",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Overwrite output if it exists?",
+            "render_input": "boolean_conversion",
+            "parse_output": "boolean_conversion",
+            "name": "output_overwrite",
+            "type": "boolean",
+            "optional": false,
+            "toggle_hint": "Select from option list",
+            "toggle_field": {
+              "label": "Overwrite output if it exists?",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "name": "output_overwrite",
+              "type": "boolean",
+              "optional": false
+            }
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_files",
+        "name": "search_files",
+        "as": "445048a6",
+        "keyword": "action",
+        "toggleCfg": {
+          "file_path": false
+        },
+        "input": {
+          "file_name_filter": {
+            "condition": "equals",
+            "value": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c2aac12\",\"path\":[\"parameters\",\"output_filename\"]}')}"
+          },
+          "file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c2aac12\",\"path\":[\"parameters\",\"directory\"]}')}"
+        },
+        "comment": "Search for existing output file",
+        "uuid": "a3f8ce21-1a07-4945-a262-bfab212239b4"
+      },
+      {
+        "number": 2,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "greater_than",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"445048a6\",\"path\":[\"files\",{\"path_element_type\":\"size\"}]}')}",
+              "rhs": "0",
+              "uuid": "45ebff13-11f1-49dd-8886-ae004ac0dad3"
+            },
+            {
+              "operand": "is_not_true",
+              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c2aac12\",\"path\":[\"parameters\",\"output_overwrite\"]}') == true",
+              "rhs": "",
+              "uuid": "ffa46db7-0aa8-4ac1-b77f-f9f1c64ad8af"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 3,
+            "as": "052f480e",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "false"
+            },
+            "uuid": "b9b72d30-ee22-4fb3-9bc6-3b3ab7e7057e"
+          }
+        ],
+        "uuid": "785e3a61-fc72-40e3-9f6a-8464fd2c49e8"
+      },
+      {
+        "number": 4,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "07bc99d1",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"SOQL query\",\"name\":\"soql_query\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"SOQL query\"},\"parent\":[\"variables\",\"data\"],\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true}]"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "SOQL query",
+            "name": "soql_query",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "SOQL query"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "SOQL query",
+                    "name": "soql_query",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "SOQL query"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.soql_query",
+          "variables",
+          "variables.schema",
+          "variables.data.header_line",
+          "variables.data.header_line_fields_in_case_no_results"
+        ],
+        "uuid": "a595a3c4-b21d-4b73-95ea-44137b5034b1"
+      },
+      {
+        "number": 5,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "equals_to",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c2aac12\",\"path\":[\"parameters\",\"object\"]}')}",
+              "rhs": "Account",
+              "uuid": "7ac24e8a-d0b1-4db6-aebb-00aabf2df5bb"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 6,
+            "provider": "workato_variable",
+            "name": "update_variables",
+            "as": "40be0144",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": [
+                {
+                  "label": "SOQL query (step 5)",
+                  "value": "a595a3c4-b21d-4b73-95ea-44137b5034b1:07bc99d1:soql_query"
+                }
+              ]
+            },
+            "input": {
+              "input_mode": "raw",
+              "name": "a595a3c4-b21d-4b73-95ea-44137b5034b1:07bc99d1:soql_query",
+              "soql_query": "SELECT\n    Id,\n    AccountNumber\nFROM\n    Account\nWHERE\n    AccountNumber > ''"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "SOQL query",
+                "name": "soql_query",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              }
+            ],
+            "uuid": "1cace6da-7822-4745-9444-a3723e583fb5"
+          },
+          {
+            "number": 7,
+            "keyword": "elsif",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "equals_to",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c2aac12\",\"path\":[\"parameters\",\"object\"]}')}",
+                  "rhs": "User",
+                  "uuid": "54724857-01b6-47fe-8f40-89e98b1d6de2"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 8,
+                "provider": "workato_variable",
+                "name": "update_variables",
+                "as": "ac854c5e",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "name": [
+                    {
+                      "label": "SOQL query (step 2)",
+                      "value": "a595a3c4-b21d-4b73-95ea-44137b5034b1:07bc99d1:soql_query"
+                    }
+                  ]
+                },
+                "input": {
+                  "input_mode": "raw",
+                  "name": "a595a3c4-b21d-4b73-95ea-44137b5034b1:07bc99d1:soql_query",
+                  "soql_query": "SELECT\n    Id,\n    ContactId,\n    Legacy_ID__c,\n    ContactLegacyId__c\nFROM\n    User\nWHERE\n    Legacy_ID__c > ''\n    OR ContactLegacyId__c > ''"
+                },
+                "extended_input_schema": [
+                  {
+                    "control_type": "text",
+                    "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                    "label": "SOQL query",
+                    "name": "soql_query",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "strip_interpolation": true
+                  }
+                ],
+                "uuid": "ede513b5-8784-4aca-97f0-e82f1bbaed31"
+              }
+            ],
+            "uuid": "b61c8e11-3fc5-4a8b-a7d4-e7024a0561ef"
+          },
+          {
+            "number": 9,
+            "keyword": "else",
+            "input": {
+            },
+            "block": [
+              {
+                "number": 10,
+                "as": "b5794a2c",
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "true",
+                  "stop_reason": "Invalid object \"#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c2aac12\",\"path\":[\"parameters\",\"object\"]}')}\""
+                },
+                "uuid": "3e43ba71-1f39-42f4-a462-9424d37ac193"
+              }
+            ],
+            "uuid": "b9d23053-d501-41bd-97ed-eb93c588725a"
+          }
+        ],
+        "uuid": "c3214a1b-7233-4ef8-a28d-98f603e5d983"
+      },
+      {
+        "number": 11,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 12,
+            "provider": "salesforce",
+            "name": "search_sobjects_soql_bulk_csv_v2",
+            "as": "8149a78a",
+            "keyword": "action",
+            "input": {
+              "include_deleted_records": "false",
+              "include_header": "true",
+              "skip_delete_failed_job": "true",
+              "wait_for_job_completion": "true",
+              "query": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"07bc99d1\",\"path\":[\"soql_query\"]}')}"
+            },
+            "uuid": "5a202baf-fc29-42a3-ae02-e153300ce423"
+          },
+          {
+            "number": 13,
+            "as": "ba7ffc9b",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "2",
+              "retry_interval": "2"
+            },
+            "filter": {
+              "conditions": [
+                {
+                  "operand": "not_equals_to",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"ba7ffc9b\",\"path\":[\"http_response\",\"code\"]}')}",
+                  "rhs": "400",
+                  "uuid": "47daf99b-c4ee-4252-a233-08d01f4b5abc"
+                }
+              ],
+              "operand": "and",
+              "type": "compound"
+            },
+            "block": [
+              {
+                "number": 14,
+                "as": "94781170",
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "true",
+                  "stop_reason": "Search failed: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"ba7ffc9b\",\"path\":[\"message\"]}')}"
+                },
+                "uuid": "39430dbf-bc98-4bc0-b1cd-338500aeb514"
+              }
+            ],
+            "comment": "Retry unless bad request",
+            "uuid": "1dfbcb76-7c87-4f69-a1bb-68308406b4ab"
+          }
+        ],
+        "uuid": "fb42c1a2-6723-4f2d-b753-e1b8a5938376"
+      },
+      {
+        "number": 15,
+        "provider": "workato_files",
+        "name": "store_file",
+        "as": "03b2f874",
+        "keyword": "action",
+        "toggleCfg": {
+          "is_csv_file": true,
+          "overwrite": true,
+          "file_path": false,
+          "csv_has_header": true
+        },
+        "input": {
+          "is_csv_file": "true",
+          "schema_type": "auto",
+          "csv_has_header": "true",
+          "csv_delimiter": "comma",
+          "csv_quote": "double",
+          "encoding": "UTF-8",
+          "overwrite": "true",
+          "file_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c2aac12\",\"path\":[\"parameters\",\"output_filename\"]}')}",
+          "file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c2aac12\",\"path\":[\"parameters\",\"directory\"]}')}",
+          "content": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"8149a78a\",\"path\":[\"results\"]}')}"
+        },
+        "uuid": "f33dcf0c-61cc-430f-9824-86fbf6cd4029"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_9",
+        "label": "Object"
+      },
+      {
+        "name": "custom_column_0",
+        "label": "Salesforce bulk job ID"
+      },
+      {
+        "name": "custom_column_1",
+        "label": "All records successfully processed?"
+      },
+      {
+        "name": "custom_column_2",
+        "label": "Number of records processed"
+      },
+      {
+        "name": "custom_column_3",
+        "label": "Number of records failed"
+      },
+      {
+        "name": "custom_column_4",
+        "label": "Number of retried records"
+      },
+      {
+        "name": "custom_column_5",
+        "label": "Search processing time"
+      },
+      {
+        "name": "custom_column_6",
+        "label": "Output file"
+      },
+      {
+        "name": "custom_column_7",
+        "label": "Output existed?"
+      },
+      {
+        "name": "custom_column_8",
+        "label": "Overwrite output if it existed?"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_9": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c2aac12\",\"path\":[\"parameters\",\"object\"]}')}",
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"8149a78a\",\"path\":[\"job_id\"]}')}",
+      "custom_column_1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"8149a78a\",\"path\":[\"success\"]}')}",
+      "custom_column_2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"8149a78a\",\"path\":[\"numberRecordsProcessed\"]}')}",
+      "custom_column_3": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"8149a78a\",\"path\":[\"numberRecordsFailed\"]}')}",
+      "custom_column_4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"8149a78a\",\"path\":[\"retryCount\"]}')}",
+      "custom_column_5": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"8149a78a\",\"path\":[\"totalProcessingTime\"]}')}",
+      "custom_column_6": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c2aac12\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c2aac12\",\"path\":[\"parameters\",\"output_filename\"]}')}",
+      "custom_column_7": "=(_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"445048a6\",\"path\":[\"files\",{\"path_element_type\":\"size\"}]}') || 0) > 0",
+      "custom_column_8": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c2aac12\",\"path\":[\"parameters\",\"output_overwrite\"]}')}"
+    },
+    "uuid": "988dee45-5399-49f9-be67-9785832b6e59"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/sf_sct_target.connection.json",
+        "name": "SF_SCT_Target",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_files",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
