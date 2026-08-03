@@ -1,0 +1,319 @@
+{
+  "name": "Case groups & labels | Initial migration | 04.x Delete and retry from batch file [WEBHOOK]",
+  "description": "",
+  "version": 7,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_webhooks",
+    "name": "new_event",
+    "as": "95814802",
+    "keyword": "trigger",
+    "input": {
+      "request": {
+        "webhook_type": "get",
+        "query_params": "[{\"name\":\"directory\",\"type\":\"string\",\"optional\":false,\"label\":\"Directory\",\"control_type\":\"text\"},{\"name\":\"create_batch_filename\",\"type\":\"string\",\"optional\":false,\"label\":\"Create batch filename\",\"control_type\":\"text\"},{\"name\":\"acl\",\"type\":\"boolean\",\"optional\":false,\"label\":\"ACL?\",\"control_type\":\"checkbox\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"ACL?\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"name\":\"acl\",\"type\":\"boolean\",\"optional\":false}},{\"name\":\"expected_count\",\"type\":\"integer\",\"optional\":true,\"label\":\"Expected count\",\"control_type\":\"integer\",\"parse_output\":\"integer_conversion\",\"render_input\":\"integer_conversion\"}]",
+        "headers_schema": "[{\"name\":\"key\",\"type\":\"string\",\"optional\":false,\"label\":\"Key\",\"control_type\":\"text\"}]"
+      },
+      "webhook_suffix": "case-groups-and-labels-initial-migration-delete-and-retry-from-batch-file"
+    },
+    "filter": {
+      "conditions": [
+        {
+          "operand": "present",
+          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"95814802\",\"path\":[\"headers\",\"key\"]}')}",
+          "rhs": "",
+          "uuid": "83917424-29a8-41bf-92d2-e00718da08b2"
+        },
+        {
+          "operand": "equals_to",
+          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"95814802\",\"path\":[\"headers\",\"key\"]}')}",
+          "rhs": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"webhook_key\"}')}",
+          "uuid": "8c504c0d-7cdb-4b56-aacf-98e4a4aad1c0"
+        }
+      ],
+      "operand": "and",
+      "type": "compound"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Headers",
+        "name": "headers",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Key",
+            "name": "key",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      },
+      {
+        "label": "Payload",
+        "name": "payload",
+        "properties": [
+
+        ],
+        "type": "object"
+      },
+      {
+        "label": "Params",
+        "name": "params",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Directory",
+            "name": "directory",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Create batch filename",
+            "name": "create_batch_filename",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "checkbox",
+            "label": "ACL?",
+            "render_input": "boolean_conversion",
+            "parse_output": "boolean_conversion",
+            "name": "acl",
+            "type": "boolean",
+            "optional": false,
+            "toggle_hint": "Select from option list",
+            "toggle_field": {
+              "label": "ACL?",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "name": "acl",
+              "type": "boolean",
+              "optional": false
+            }
+          },
+          {
+            "control_type": "integer",
+            "label": "Expected count",
+            "parse_output": "integer_conversion",
+            "name": "expected_count",
+            "type": "integer",
+            "optional": true,
+            "render_input": "integer_conversion"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "extended_input_schema": [
+      {
+        "label": "Payload configuration",
+        "name": "request",
+        "override": true,
+        "properties": [
+          {
+            "control_type": "select",
+            "label": "Webhook type",
+            "pick_list": [
+              [
+                "GET request",
+                "get"
+              ],
+              [
+                "PUT/POST with JSON payload",
+                "json"
+              ],
+              [
+                "PUT/POST with XML payload",
+                "xml"
+              ],
+              [
+                "PUT/POST with FORM encoded payload",
+                "form"
+              ],
+              [
+                "PUT/POST with raw binary data",
+                "rawdata"
+              ],
+              [
+                "PUT/POST with unicode text data",
+                "rawdatatxt"
+              ]
+            ],
+            "hint": "Select the HTTP method and payload data type used by webhook. <a href=\"https://docs.workato.com/developing-connectors/http.html#set-up-your-non-oauth-2-0-connection\" target=\"_blank\">Learn more</a>",
+            "default": "json",
+            "extends_schema": true,
+            "type": "string",
+            "name": "webhook_type"
+          },
+          {
+            "control_type": "schema-designer",
+            "label": "Payload schema",
+            "sample_data_type": "form",
+            "extends_schema": true,
+            "empty_schema_title": "Describe all fields in your response.",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "name": "payload_schema"
+          },
+          {
+            "control_type": "schema-designer",
+            "label": "Query params",
+            "extends_schema": true,
+            "empty_schema_title": "Describe all the query params",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "name": "query_params"
+          },
+          {
+            "control_type": "schema-designer",
+            "label": "Headers",
+            "extends_schema": true,
+            "empty_schema_title": "Describe all the webhook headers",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "name": "headers_schema"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe",
+        "as": "e74deed8",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "*WIP* Case groups & labels | Initial migration | 04.x Delete and retry from batch file [FUNCTION]"
+        },
+        "toggleCfg": {
+          "parameters.acl": false
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Legacy=>SCT migration/Case groups & labels/Initial/case_groups_labels_initial_migration_04_x_delete_and_retry_from_batch_file_function.recipe.json",
+            "name": "Case groups & labels | Initial migration | 04.x Delete and retry from batch file [FUNCTION]",
+            "folder": "Legacy=>SCT migration/Case groups & labels/Initial"
+          },
+          "parameters": {
+            "directory": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"95814802\",\"path\":[\"params\",\"directory\"]}')}",
+            "create_batch_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"95814802\",\"path\":[\"params\",\"create_batch_filename\"]}')}",
+            "expected_count": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"95814802\",\"path\":[\"params\",\"expected_count\"]}')}",
+            "acl": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"95814802\",\"path\":[\"params\",\"acl\"]}') == true"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Directory",
+                "name": "directory",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Create batch filename",
+                "name": "create_batch_filename",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "checkbox",
+                "label": "ACL?",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "acl",
+                "type": "boolean",
+                "optional": false,
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "ACL?",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "acl",
+                  "type": "boolean",
+                  "optional": false
+                }
+              },
+              {
+                "control_type": "integer",
+                "label": "Expected count",
+                "parse_output": "integer_conversion",
+                "name": "expected_count",
+                "type": "integer",
+                "optional": true,
+                "render_input": "integer_conversion"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "flow_id",
+          "parameters.expected_count"
+        ],
+        "uuid": "202d8f72-7889-44fa-9c6d-53e27cbdd6d4"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_0",
+        "label": "Create file"
+      },
+      {
+        "name": "custom_column_5",
+        "label": "ACL?"
+      },
+      {
+        "name": "custom_column_1",
+        "label": "Source (legacy) records expected count"
+      },
+      {
+        "name": "custom_column_3",
+        "label": "Delete and retry job ID"
+      },
+      {
+        "name": "custom_column_4",
+        "label": "Delete and retry job URL"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"95814802\",\"path\":[\"params\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"95814802\",\"path\":[\"params\",\"create_batch_filename\"]}')}",
+      "custom_column_5": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"95814802\",\"path\":[\"params\",\"acl\"]}') == true",
+      "custom_column_1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"95814802\",\"path\":[\"params\",\"expected_count\"]}')}",
+      "custom_column_3": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"e74deed8\",\"path\":[\"job_id\"]}')}",
+      "custom_column_4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"e74deed8\",\"path\":[\"job_url\"]}')}"
+    },
+    "uuid": "1ddba3bb-3aa3-44ce-9dcd-f06f7f332c78",
+    "wizardFinished": true
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_webhooks",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ],
+  "tags": [
+    "keep-turned-off-unless-needed"
+  ]
+}

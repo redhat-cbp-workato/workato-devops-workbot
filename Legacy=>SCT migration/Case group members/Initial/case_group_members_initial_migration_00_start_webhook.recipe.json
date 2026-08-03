@@ -1,0 +1,492 @@
+{
+  "name": "Case group members | Initial migration | 00 Start [WEBHOOK]",
+  "description": "",
+  "version": 8,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_webhooks",
+    "name": "new_event",
+    "as": "5ea43419",
+    "keyword": "trigger",
+    "input": {
+      "request": {
+        "webhook_type": "get",
+        "query_params": "[{\"name\":\"overwrite_source\",\"type\":\"boolean\",\"optional\":true,\"label\":\"Overwrite *SOURCE* output if it exists?\",\"control_type\":\"checkbox\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Overwrite *SOURCE* output if it exists?\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"name\":\"overwrite_source\",\"type\":\"boolean\",\"optional\":true}},{\"name\":\"overwrite_target\",\"type\":\"boolean\",\"optional\":true,\"label\":\"Overwrite *TARGET* outputs if they exist?\",\"control_type\":\"checkbox\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Overwrite *TARGET* outputs if they exist?\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"name\":\"overwrite_target\",\"type\":\"boolean\",\"optional\":true}},{\"name\":\"source_modified_timestamp_boundary\",\"type\":\"string\",\"optional\":true,\"label\":\"Source modified timestamp boundary\",\"control_type\":\"text\"}]",
+        "headers_schema": "[{\"name\":\"key\",\"type\":\"string\",\"optional\":false,\"label\":\"Key\",\"control_type\":\"text\"}]"
+      },
+      "webhook_suffix": "case-group-members-initial-migration"
+    },
+    "filter": {
+      "conditions": [
+        {
+          "operand": "present",
+          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"5ea43419\",\"path\":[\"headers\",\"key\"]}')}",
+          "rhs": "",
+          "uuid": "ab07b428-701c-47be-ad92-698630624f09"
+        },
+        {
+          "operand": "equals_to",
+          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"5ea43419\",\"path\":[\"headers\",\"key\"]}')}",
+          "rhs": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"webhook_key\"}')}",
+          "uuid": "2f0995dc-b191-4fe0-ab7b-493b53994797"
+        }
+      ],
+      "operand": "and",
+      "type": "compound"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Headers",
+        "name": "headers",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Key",
+            "name": "key",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      },
+      {
+        "label": "Payload",
+        "name": "payload",
+        "properties": [
+
+        ],
+        "type": "object"
+      },
+      {
+        "label": "Params",
+        "name": "params",
+        "properties": [
+          {
+            "control_type": "checkbox",
+            "label": "Overwrite *SOURCE* output if it exists?",
+            "render_input": "boolean_conversion",
+            "parse_output": "boolean_conversion",
+            "name": "overwrite_source",
+            "type": "boolean",
+            "optional": true,
+            "toggle_hint": "Select from option list",
+            "toggle_field": {
+              "label": "Overwrite *SOURCE* output if it exists?",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "name": "overwrite_source",
+              "type": "boolean",
+              "optional": true
+            }
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Overwrite *TARGET* outputs if they exist?",
+            "render_input": "boolean_conversion",
+            "parse_output": "boolean_conversion",
+            "name": "overwrite_target",
+            "type": "boolean",
+            "optional": true,
+            "toggle_hint": "Select from option list",
+            "toggle_field": {
+              "label": "Overwrite *TARGET* outputs if they exist?",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "name": "overwrite_target",
+              "type": "boolean",
+              "optional": true
+            }
+          },
+          {
+            "control_type": "text",
+            "label": "Source modified timestamp boundary",
+            "name": "source_modified_timestamp_boundary",
+            "type": "string",
+            "optional": true
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "extended_input_schema": [
+      {
+        "label": "Payload configuration",
+        "name": "request",
+        "override": true,
+        "properties": [
+          {
+            "control_type": "select",
+            "label": "Webhook type",
+            "pick_list": [
+              [
+                "GET request",
+                "get"
+              ],
+              [
+                "PUT/POST with JSON payload",
+                "json"
+              ],
+              [
+                "PUT/POST with XML payload",
+                "xml"
+              ],
+              [
+                "PUT/POST with FORM encoded payload",
+                "form"
+              ],
+              [
+                "PUT/POST with raw binary data",
+                "rawdata"
+              ],
+              [
+                "PUT/POST with unicode text data",
+                "rawdatatxt"
+              ]
+            ],
+            "hint": "Select the HTTP method and payload data type used by webhook. <a href=\"https://docs.workato.com/developing-connectors/http.html#set-up-your-non-oauth-2-0-connection\" target=\"_blank\">Learn more</a>",
+            "default": "json",
+            "extends_schema": true,
+            "type": "string",
+            "name": "webhook_type"
+          },
+          {
+            "control_type": "schema-designer",
+            "label": "Payload schema",
+            "sample_data_type": "form",
+            "extends_schema": true,
+            "empty_schema_title": "Describe all fields in your response.",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "name": "payload_schema"
+          },
+          {
+            "control_type": "schema-designer",
+            "label": "Query params",
+            "extends_schema": true,
+            "empty_schema_title": "Describe all the query params",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "name": "query_params"
+          },
+          {
+            "control_type": "schema-designer",
+            "label": "Headers",
+            "extends_schema": true,
+            "empty_schema_title": "Describe all the webhook headers",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "name": "headers_schema"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "773210c8",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"Directory\",\"name\":\"Directory\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"Directory\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "Directory": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"filestorage_dir_env\"}')}/initial-migration/case-group-members"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Directory",
+            "name": "Directory",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "Directory"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Directory",
+                    "name": "Directory",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Directory"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.Directory",
+          "variables",
+          "variables.schema",
+          "variables.data",
+          "variables.data.Wave",
+          "variables.data.year_start",
+          "variables.data.year_end",
+          "variables.data.year_process",
+          "variables.data.dir_base",
+          "variables.data.dir_name",
+          "variables.data.year_min"
+        ],
+        "uuid": "4b92daf2-3243-484e-85b9-45889452c9a4"
+      },
+      {
+        "number": 2,
+        "provider": "workato_files",
+        "name": "ensure_dir_exists",
+        "as": "8400389f",
+        "keyword": "action",
+        "toggleCfg": {
+          "directory_path": false
+        },
+        "input": {
+          "directory_path": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"773210c8\",\"path\":[\"Directory\"]}').split('/')[0..-2].join('/')",
+          "directory_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"773210c8\",\"path\":[\"Directory\"]}').split('/').last"
+        },
+        "comment": "Ensure directory exists",
+        "uuid": "80b0a666-025f-449c-9b2a-be111ca70b14"
+      },
+      {
+        "number": 3,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe_async",
+        "as": "0248419b",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "Case group members | Initial migration | 01 Fetch [FUNCTION]"
+        },
+        "toggleCfg": {
+          "parameters.overwrite_source": false,
+          "parameters.overwrite_target": false
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Legacy=>SCT migration/Case group members/Initial/case_group_members_initial_migration_01_fetch_function.recipe.json",
+            "name": "Case group members | Initial migration | 01 Fetch [FUNCTION]",
+            "folder": "Legacy=>SCT migration/Case group members/Initial"
+          },
+          "parameters": {
+            "overwrite_target": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"5ea43419\",\"path\":[\"params\",\"overwrite_target\"]}') == true",
+            "overwrite_source": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"5ea43419\",\"path\":[\"params\",\"overwrite_source\"]}') == true",
+            "directory": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"773210c8\",\"path\":[\"Directory\"]}')}",
+            "source_modified_timestamp_boundary": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"5ea43419\",\"path\":[\"params\",\"source_modified_timestamp_boundary\"]}')}"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Directory",
+                "name": "directory",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Overwrite *SOURCE* outputs if they exist?",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "overwrite_source",
+                "type": "boolean",
+                "optional": false,
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Overwrite *SOURCE* outputs if they exist?",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "overwrite_source",
+                  "type": "boolean",
+                  "optional": false
+                }
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Overwrite *TARGET* outputs if they exist?",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "overwrite_target",
+                "type": "boolean",
+                "optional": false,
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Overwrite *TARGET* outputs if they exist?",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "overwrite_target",
+                  "type": "boolean",
+                  "optional": false
+                }
+              },
+              {
+                "control_type": "text",
+                "label": "Source modified timestamp boundary",
+                "name": "source_modified_timestamp_boundary",
+                "type": "string",
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "flow_id",
+          "parameters.source_modified_timestamp_boundary"
+        ],
+        "uuid": "3757c9a1-6ebc-4ceb-b14e-066154760c7b"
+      },
+      {
+        "number": 4,
+        "provider": "workato_recipe_function",
+        "name": "wait_for_async_jobs",
+        "as": "966c7f51",
+        "keyword": "action",
+        "input": {
+          "timeout": "1440",
+          "async_calls": [
+            {
+              "job_ref": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0248419b\",\"path\":[\"job_ref\"]}')}"
+            }
+          ]
+        },
+        "uuid": "57a8c550-2003-4265-ab30-570d1f165b81"
+      },
+      {
+        "number": 5,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "is_not_true",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"966c7f51\",\"path\":[\"all_jobs_succeeded\"]}')}",
+              "rhs": "",
+              "uuid": "362b2f3b-52ea-4980-ab53-4f84aa09109f"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 6,
+            "as": "79c99f7e",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "true",
+              "stop_reason": "Next phase(s) failed"
+            },
+            "uuid": "acdc9cda-d0b0-4b12-bfd1-40f58683ac2a"
+          }
+        ],
+        "uuid": "9911740d-e33e-46d3-83b6-601702d8517d"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_5",
+        "label": "Source modified timestamp boundary"
+      },
+      {
+        "name": "custom_column_0",
+        "label": "Directory"
+      },
+      {
+        "name": "custom_column_3",
+        "label": "Overwite source?"
+      },
+      {
+        "name": "custom_column_4",
+        "label": "Overwrite target?"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_5": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"5ea43419\",\"path\":[\"params\",\"source_modified_timestamp_boundary\"]}')}",
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"773210c8\",\"path\":[\"Directory\"]}')}",
+      "custom_column_3": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"5ea43419\",\"path\":[\"params\",\"overwrite_source\"]}') == true",
+      "custom_column_4": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"5ea43419\",\"path\":[\"params\",\"overwrite_target\"]}') == true"
+    },
+    "uuid": "663a811e-39d3-49c8-ba8b-9e6932ed434d",
+    "wizardFinished": true
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_files",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_webhooks",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ],
+  "tags": [
+    "keep-turned-off-unless-needed"
+  ]
+}

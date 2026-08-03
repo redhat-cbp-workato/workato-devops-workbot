@@ -1,0 +1,207 @@
+{
+  "name": "Case groups and labels | Source | Deletion watcher [APP TRIGGER]",
+  "description": "Watches source (legacy) for external link object deletions. When a source (legacy) case case external link object is deleted, calls function recipe to delete target case case external link object.",
+  "version": 8,
+  "private": true,
+  "concurrency": 5,
+  "code": {
+    "number": 0,
+    "provider": "salesforce",
+    "name": "sobject_deleted",
+    "as": "a0c4032c",
+    "keyword": "trigger",
+    "dynamicPickListSelection": {
+      "sobject_name": "Case Group",
+      "table_list": [
+        {
+          "label": "AccountId",
+          "value": "Account"
+        }
+      ],
+      "field_list": [
+        {
+          "label": "Record ID",
+          "value": "Id"
+        },
+        {
+          "label": "AccountId.Account Number",
+          "value": "AccountId__r$AccountId.AccountNumber"
+        }
+      ]
+    },
+    "input": {
+      "sobject_name": "CaseFolder__c",
+      "since": "=16.days.ago",
+      "table_list": "Account",
+      "field_list": "Id\nAccountId__r$AccountId.AccountNumber"
+    },
+    "filter": {
+      "conditions": [
+        {
+          "operand": "present",
+          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a0c4032c\",\"path\":[\"AccountId__r\",\"AccountNumber\"]}')}",
+          "rhs": "",
+          "uuid": "968ca177-a407-4808-8e9b-79f85375e373"
+        }
+      ],
+      "operand": "and",
+      "type": "compound"
+    },
+    "extended_output_schema": [
+      {
+        "control_type": "text",
+        "custom": false,
+        "label": "Record ID",
+        "name": "Id",
+        "optional": true,
+        "type": "string",
+        "sfdc_createable": false,
+        "sfdc_updateable": false
+      },
+      {
+        "label": "Account",
+        "name": "AccountId__r",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Account Number",
+            "optional": true,
+            "custom": false,
+            "sfdc_createable": true,
+            "sfdc_updateable": true,
+            "type": "string",
+            "name": "AccountNumber"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "visible_config_fields": [
+      "sobject_name",
+      "field_list",
+      "since",
+      "table_list"
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe",
+        "as": "5507e2cf",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "Case groups and labels | Target | Delete by source (legacy) ID [FUNCTION]"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Legacy=>SCT migration/Case groups & labels/Deletions/case_groups_and_labels_target_delete_by_source_legacy_id_function.recipe.json",
+            "name": "Case groups and labels | Target | Delete by source (legacy) ID [FUNCTION]",
+            "folder": "Legacy=>SCT migration/Case groups & labels/Deletions"
+          },
+          "parameters": {
+            "source_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a0c4032c\",\"path\":[\"Id\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Id",
+                "name": "Id",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Target found",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "found",
+                "type": "boolean",
+                "optional": false,
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Target found",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "found",
+                  "type": "boolean",
+                  "optional": false
+                }
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Source (legacy) ID",
+                "name": "source_id",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "636687bf-e7f5-471c-96d6-6cfb88a0e360"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_0",
+        "label": "Source (legacy) ID"
+      },
+      {
+        "name": "custom_column_2",
+        "label": "Account number"
+      },
+      {
+        "name": "custom_column_4",
+        "label": "Target found?"
+      },
+      {
+        "name": "custom_column_3",
+        "label": "Target ID"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a0c4032c\",\"path\":[\"Id\"]}')}",
+      "custom_column_2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a0c4032c\",\"path\":[\"AccountId__r\",\"AccountNumber\"]}')}",
+      "custom_column_4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"5507e2cf\",\"path\":[\"result\",\"found\"]}')}",
+      "custom_column_3": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"5507e2cf\",\"path\":[\"result\",\"Id\"]}')}"
+    },
+    "uuid": "36a30848-d7a8-419a-a99b-4b0b6e7519c7"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/sf_legacy_source.connection.json",
+        "name": "SF_Legacy_Source",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ],
+  "tags": [
+    "delete",
+    "driver",
+    "source"
+  ]
+}

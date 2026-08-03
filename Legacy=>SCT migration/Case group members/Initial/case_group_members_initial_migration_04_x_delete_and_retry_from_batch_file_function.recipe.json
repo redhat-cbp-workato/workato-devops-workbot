@@ -1,0 +1,2729 @@
+{
+  "name": "Case group members | Initial migration | 04.x Delete and retry from batch file [FUNCTION]",
+  "description": "",
+  "version": 5,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "99dedb09",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"name\":\"directory\",\"type\":\"string\",\"optional\":false,\"label\":\"Directory\",\"control_type\":\"text\"},{\"name\":\"create_batch_filename\",\"type\":\"string\",\"optional\":false,\"label\":\"Create batch filename\",\"control_type\":\"text\"},{\"name\":\"expected_count\",\"type\":\"integer\",\"optional\":true,\"label\":\"Expected count\",\"control_type\":\"integer\",\"parse_output\":\"integer_conversion\",\"render_input\":\"integer_conversion\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Directory",
+            "name": "directory",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Create batch filename",
+            "name": "create_batch_filename",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "integer",
+            "label": "Expected count",
+            "parse_output": "integer_conversion",
+            "name": "expected_count",
+            "type": "integer",
+            "optional": true,
+            "render_input": "integer_conversion"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "f589e3a0",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"Results subdirectory\",\"name\":\"results_subdirectory\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"Results subdirectory\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"integer\",\"label\":\"Search batch size\",\"parse_output\":\"integer_conversion\",\"name\":\"search_batch_size\",\"type\":\"integer\",\"optional\":true,\"details\":{\"real_name\":\"Search batch size\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"render_input\":\"integer_conversion\",\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"integer\",\"label\":\"Search batch offset\",\"parse_output\":\"integer_conversion\",\"name\":\"search_batch_offset\",\"type\":\"integer\",\"optional\":true,\"details\":{\"real_name\":\"Search batch offset\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"render_input\":\"integer_conversion\",\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"integer\",\"label\":\"Delete batch size\",\"parse_output\":\"integer_conversion\",\"name\":\"delete_batch_size\",\"type\":\"integer\",\"optional\":true,\"details\":{\"real_name\":\"Delete batch size\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"render_input\":\"integer_conversion\",\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"integer\",\"label\":\"Delete batch offset\",\"parse_output\":\"integer_conversion\",\"name\":\"delete_batch_offset\",\"type\":\"integer\",\"optional\":true,\"details\":{\"real_name\":\"Delete batch offset\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"render_input\":\"integer_conversion\",\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"text\",\"label\":\"Legacy IDs filename\",\"name\":\"legacy_i_ds_filename\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"Legacy IDs filename\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"text\",\"label\":\"Target IDs filename\",\"name\":\"target_i_ds_filename\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"Target IDs filename\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"integer\",\"label\":\"Created count\",\"parse_output\":\"integer_conversion\",\"name\":\"created_count\",\"type\":\"integer\",\"optional\":true,\"details\":{\"real_name\":\"Created count\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"render_input\":\"integer_conversion\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "results_subdirectory": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"create_batch_filename\"]}').sub(/\\.csv$/, '') + \"-delete-and-retry\"",
+              "search_batch_size": "4000",
+              "search_batch_offset": "0",
+              "legacy_i_ds_filename": "legacy-ids.csv",
+              "target_i_ds_filename": "target-ids.csv",
+              "created_count": "0",
+              "delete_batch_size": "4000",
+              "delete_batch_offset": "0"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Results subdirectory",
+            "name": "results_subdirectory",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "Results subdirectory"
+            }
+          },
+          {
+            "control_type": "integer",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Search batch size",
+            "name": "search_batch_size",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "sticky": true,
+            "type": "integer",
+            "details": {
+              "real_name": "Search batch size"
+            },
+            "render_input": "integer_conversion"
+          },
+          {
+            "control_type": "integer",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Search batch offset",
+            "name": "search_batch_offset",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "sticky": true,
+            "type": "integer",
+            "details": {
+              "real_name": "Search batch offset"
+            },
+            "render_input": "integer_conversion"
+          },
+          {
+            "control_type": "integer",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Delete batch size",
+            "name": "delete_batch_size",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "sticky": true,
+            "type": "integer",
+            "details": {
+              "real_name": "Delete batch size"
+            },
+            "render_input": "integer_conversion"
+          },
+          {
+            "control_type": "integer",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Delete batch offset",
+            "name": "delete_batch_offset",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "sticky": true,
+            "type": "integer",
+            "details": {
+              "real_name": "Delete batch offset"
+            },
+            "render_input": "integer_conversion"
+          },
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Legacy IDs filename",
+            "name": "legacy_i_ds_filename",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "Legacy IDs filename"
+            }
+          },
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Target IDs filename",
+            "name": "target_i_ds_filename",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "Target IDs filename"
+            }
+          },
+          {
+            "control_type": "integer",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Created count",
+            "name": "created_count",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "sticky": true,
+            "type": "integer",
+            "details": {
+              "real_name": "Created count"
+            },
+            "render_input": "integer_conversion"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Results subdirectory",
+                    "name": "results_subdirectory",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Results subdirectory"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Search batch size",
+                    "parse_output": "integer_conversion",
+                    "name": "search_batch_size",
+                    "type": "integer",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Search batch size"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "render_input": "integer_conversion",
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Search batch offset",
+                    "parse_output": "integer_conversion",
+                    "name": "search_batch_offset",
+                    "type": "integer",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Search batch offset"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "render_input": "integer_conversion",
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Delete batch size",
+                    "parse_output": "integer_conversion",
+                    "name": "delete_batch_size",
+                    "type": "integer",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Delete batch size"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "render_input": "integer_conversion",
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Delete batch offset",
+                    "parse_output": "integer_conversion",
+                    "name": "delete_batch_offset",
+                    "type": "integer",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Delete batch offset"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "render_input": "integer_conversion",
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Legacy IDs filename",
+                    "name": "legacy_i_ds_filename",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Legacy IDs filename"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Target IDs filename",
+                    "name": "target_i_ds_filename",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Target IDs filename"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Created count",
+                    "parse_output": "integer_conversion",
+                    "name": "created_count",
+                    "type": "integer",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Created count"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "render_input": "integer_conversion",
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.parent_directory",
+          "variables",
+          "variables.schema",
+          "variables.data.file_subdirectory",
+          "variables.data.results_subdirectory",
+          "variables.data.batch_size",
+          "variables.data.batch_offset",
+          "variables.data.delete_results_subdirectory",
+          "variables.data.delete_batch_size",
+          "variables.data.delete_batch_offset",
+          "variables.data",
+          "variables.data.select_batch_size",
+          "variables.data.search_batch_size",
+          "variables.data.search_batch_offset",
+          "variables.data.legacy_i_ds_filename",
+          "variables.data.target_i_ds_filename",
+          "variables.data.created_count",
+          "variables.data.sanity_check",
+          "variables.data.deleted_count",
+          "variables.data.Object"
+        ],
+        "uuid": "47a6f22c-58c5-4001-aa5c-cc9c27e67ba8"
+      },
+      {
+        "number": 2,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 3,
+            "provider": "workato_files",
+            "name": "delete_directory",
+            "as": "8b5a56c6",
+            "keyword": "action",
+            "toggleCfg": {
+              "directory_path": true
+            },
+            "input": {
+              "directory_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"results_subdirectory\"]}')}"
+            },
+            "uuid": "a5a2b282-dba1-4658-b1ed-8ea75689b4d4"
+          },
+          {
+            "number": 4,
+            "as": "4f897ebb",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "0",
+              "retry_interval": "2"
+            },
+            "block": [
+
+            ],
+            "comment": "Ignore all errors (such as directory does not exist)",
+            "uuid": "4d810bc8-bd0c-4b20-a26c-fe4646f571f7"
+          }
+        ],
+        "uuid": "0de38149-4d76-463d-8e85-cf58a09d11f1"
+      },
+      {
+        "number": 5,
+        "provider": "workato_files",
+        "name": "ensure_dir_exists",
+        "as": "0ae4b613",
+        "keyword": "action",
+        "toggleCfg": {
+          "directory_path": false
+        },
+        "input": {
+          "directory_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"results_subdirectory\"]}')}",
+          "directory_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"directory\"]}')}"
+        },
+        "uuid": "48268a02-140c-4c75-bf3e-ceec9df9abf6"
+      },
+      {
+        "number": 6,
+        "provider": "workato_transformations",
+        "name": "query_data",
+        "as": "50c16909",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "sources.0.data_source_type": "FileStorage file"
+        },
+        "toggleCfg": {
+          "output.csv_include_header": true,
+          "sources.0.wf_file_path": true,
+          "sources.0.allow_relaxed_schema": true,
+          "sources.0.csv_ignore_header": true,
+          "output.wf_file_path": false
+        },
+        "input": {
+          "query": {
+            "engine": "datafusion_v53",
+            "sql_select_query": "SELECT\n    LegacyID__c\nFROM\n    create_csv"
+          },
+          "output": {
+            "type": "wf_file",
+            "mode": "create",
+            "file_format": "csv",
+            "excel_include_header": "false",
+            "excel_sheet_name": "Sheet 1",
+            "excel_start_from": "A1",
+            "csv_include_header": "true",
+            "csv_delimiter": "comma",
+            "csv_quote_style": "necessary",
+            "csv_quote": "double",
+            "wf_file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"results_subdirectory\"]}')}",
+            "wf_file_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"legacy_i_ds_filename\"]}')}"
+          },
+          "sources": [
+            {
+              "file_format": "csv",
+              "schema_type": "infer",
+              "dynamic_table_schema": "=",
+              "excel_dynamic_table_schema": "=",
+              "parquet_dynamic_table_schema": "=",
+              "avro_dynamic_table_schema": "=",
+              "allow_relaxed_schema": "false",
+              "csv_ignore_header": "false",
+              "excel_ignore_header": "false",
+              "matching_mode": "ordered",
+              "csv_delimiter": "comma",
+              "table_name": "create_csv",
+              "data_source_type": "wf_file",
+              "wf_file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"create_batch_filename\"]}')}"
+            }
+          ]
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "integer",
+            "hint": "Number of lines in the resulting CSV",
+            "label": "Number of rows",
+            "name": "result_lines",
+            "parse_output": "integer_conversion",
+            "type": "integer"
+          },
+          {
+            "control_type": "text",
+            "hint": "FileStorage file path (conditional, based on output type selected)",
+            "label": "FileStorage file path",
+            "name": "wf_output_full_path",
+            "type": "string"
+          },
+          {
+            "control_type": "string",
+            "label": "Query execution time",
+            "name": "query_execution_time",
+            "type": "string"
+          },
+          {
+            "control_type": "string",
+            "label": "Total processing time",
+            "name": "total_processing_time",
+            "type": "string"
+          },
+          {
+            "label": "Source schemas",
+            "name": "source_schemas",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Table name",
+                "type": "string",
+                "name": "source"
+              },
+              {
+                "label": "Schema",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Field name",
+                    "type": "string",
+                    "name": "name"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Field type",
+                    "type": "string",
+                    "name": "type"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Is field optional",
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Is field optional",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "optional"
+                    },
+                    "type": "boolean",
+                    "name": "optional"
+                  }
+                ],
+                "type": "array",
+                "name": "schema"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "label": "Output schema",
+            "name": "output_schema",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Field name",
+                "type": "string",
+                "name": "name"
+              },
+              {
+                "control_type": "text",
+                "label": "Field type",
+                "type": "string",
+                "name": "type"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Is field optional",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Is field optional",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "render_input": null,
+                  "parse_output": null,
+                  "type": "boolean",
+                  "name": "optional"
+                },
+                "type": "boolean",
+                "name": "optional"
+              }
+            ],
+            "type": "array"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_item_label": "Add data source",
+            "empty_list_text": "At least one data-source must be provided.",
+            "empty_list_title": "Multiple data-sources can be added to perform `join` operations.",
+            "enforce_template_mode": true,
+            "hint": "Specify data-sources to perform SQL over them",
+            "initially_expanded": true,
+            "item_label": "Source",
+            "label": "Data Sources",
+            "list_mode": "static",
+            "name": "sources",
+            "of": "object",
+            "overridden_value": [
+              {
+                "file_format": "csv",
+                "schema_type": "infer",
+                "dynamic_table_schema": "=",
+                "excel_dynamic_table_schema": "=",
+                "parquet_dynamic_table_schema": "=",
+                "avro_dynamic_table_schema": "=",
+                "allow_relaxed_schema": "false",
+                "csv_ignore_header": "false",
+                "excel_ignore_header": "false",
+                "matching_mode": "ordered",
+                "csv_delimiter": "comma",
+                "table_name": "create_csv",
+                "data_source_type": "wf_file",
+                "wf_file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"create_batch_filename\"]}')}",
+                "prev_file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"create_batch_filename\"]}')}"
+              }
+            ],
+            "override": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Data source name",
+                "sticky": true,
+                "support_pills": true,
+                "extends_schema": false,
+                "optional": false,
+                "hint": "Provide an alias name for the data source. E.g: contacts, orders. This name is to be used in the query.",
+                "type": "string",
+                "name": "table_name"
+              },
+              {
+                "control_type": "select",
+                "label": "Data source type",
+                "extends_schema": true,
+                "change_on_blur": true,
+                "pick_list": "data_sources_list",
+                "hint": "                   Provide the data source type. To pass file content directly from upstream action/trigger chooser Content Stream.\n                   You can also refer to a file in Workato FileStorage or a table from Data tables.\n",
+                "type": "string",
+                "name": "data_source_type"
+              },
+              {
+                "control_type": "text-area",
+                "label": "Content input stream",
+                "sticky": true,
+                "supports_byte_streaming": true,
+                "change_on_blur": true,
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type === 'content_stream'",
+                "optionalExpression": "parentInput.data_source_type && parentInput.data_source_type !== 'content_stream'",
+                "optional": true,
+                "hint": "Pass the contents or file contents reference pill here from an upstream action or trigger.",
+                "type": "string",
+                "name": "source_stream"
+              },
+              {
+                "control_type": "text",
+                "label": "FileStorage file",
+                "sticky": true,
+                "change_on_blur": true,
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type === 'wf_file'",
+                "optionalExpression": "parentInput.data_source_type && parentInput.data_source_type !== 'wf_file'",
+                "extends_schema": true,
+                "optional": true,
+                "mark_as_required": true,
+                "toggle_hint": "Enter file path",
+                "toggle_field": {
+                  "control_type": "tree",
+                  "label": "FileStorage file",
+                  "toggle_hint": "Choose a file",
+                  "tree_options": {
+                    "selectable_folder": false
+                  },
+                  "pick_list": "wf_files_list",
+                  "extends_schema": true,
+                  "toggle_to_primary_hint": "Enter file path",
+                  "toggle_to_secondary_hint": "Choose a file",
+                  "hint": "Choose the file to fetch the data",
+                  "type": "string",
+                  "name": "wf_file_path"
+                },
+                "hint": "                   Provide the FileStorage file full path here to fetch the data. For example, “samplepath/filename.csv”.\n",
+                "type": "string",
+                "name": "wf_file_path"
+              },
+              {
+                "control_type": "select",
+                "label": "Data table",
+                "pick_list": "current_user_table_list",
+                "extends_schema": true,
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type === 'wdb_table'",
+                "optionalExpression": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table'",
+                "optional": true,
+                "hint": "Select a data table to fetch the data.",
+                "type": "string",
+                "name": "table_id"
+              },
+              {
+                "control_type": "select",
+                "label": "File format",
+                "extends_schema": true,
+                "change_on_blur": true,
+                "default": "csv",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table'",
+                "optional": true,
+                "sticky": true,
+                "pick_list": "file_formats_list",
+                "hint": "Choose the data format.",
+                "type": "string",
+                "name": "file_format"
+              },
+              {
+                "control_type": "code",
+                "label": "jq expression",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'json'",
+                "optionalExpression": "parentInput.file_format && parentInput.file_format !== 'json'",
+                "optional": true,
+                "mark_as_required": true,
+                "extends_schema": false,
+                "hint": "Provide a jq expression to convert your JSON data into CSV format. For example, <code>.items[] | [ keys[] as $k | .[$k] ] | @csv</code>.",
+                "type": "string",
+                "name": "json_jq_expression"
+              },
+              {
+                "control_type": "text",
+                "label": "Worksheet",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'excel'",
+                "optionalExpression": "parentInput.file_format && parentInput.file_format !== 'excel'",
+                "optional": true,
+                "mark_as_required": true,
+                "extends_schema": false,
+                "hint": "Provide the sheet name from the Excel file where the data is available.",
+                "type": "string",
+                "name": "excel_sheet_name"
+              },
+              {
+                "control_type": "text",
+                "label": "Range",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'excel'",
+                "optionalExpression": "parentInput.file_format !== 'excel'",
+                "optional": true,
+                "mark_as_required": true,
+                "extends_schema": false,
+                "hint": "Provide the cell range of the data. e.g A5:F2000. Make sure to include the header row if the schema type selected is ‘Infer’.",
+                "type": "string",
+                "name": "excel_range"
+              },
+              {
+                "control_type": "select",
+                "label": "Column schema type",
+                "extends_schema": true,
+                "change_on_blur": true,
+                "default": "defined",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table'",
+                "optional": true,
+                "sticky": true,
+                "pick_list": [
+                  [
+                    "Defined",
+                    "defined"
+                  ],
+                  [
+                    "Dynamic",
+                    "dynamic"
+                  ],
+                  [
+                    "Infer",
+                    "infer"
+                  ]
+                ],
+                "hint": "                   Choose ‘Define' to provide column names and types explicitly in the action.\n                   Choose ‘Dynamic’ to pass schema as array data pill from upstream action.\n                   Choose ‘Infer’ to infer column names and schema automatically from the data and its header.\n",
+                "type": "string",
+                "name": "schema_type"
+              },
+              {
+                "control_type": "schema-designer",
+                "label": "Data schema",
+                "sample_data_type": "csv",
+                "add_field_label": "Add column name",
+                "exclude_fields": [
+                  "hint",
+                  "parentId"
+                ],
+                "exclude_fields_types": [
+                  "array",
+                  "object"
+                ],
+                "empty_schema_title": "Provide column names in your CSV.",
+                "empty_schema_message": "<button type=\"button\" data-action=\"generateSchema\">Use a sample CSV file</button> to input all column names at once.",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' &&(parentInput.file_format === 'csv' || parentInput.file_format === 'json') &&parentInput.schema_type === 'defined'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' || (parentInput.file_format !== 'csv' &&parentInput.file_format !== 'json') || parentInput.schema_type !== 'defined'",
+                "optional": true,
+                "mark_as_required": true,
+                "enforce_generated_schema_fields_optional": true,
+                "hint": "Describe the column schema of the data in this data source.",
+                "type": "string",
+                "name": "table_schema"
+              },
+              {
+                "control_type": "list",
+                "label": "Data schema",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' &&(parentInput.file_format === 'csv' || parentInput.file_format === 'json') &&parentInput.schema_type === 'dynamic'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' || (parentInput.file_format  !== 'csv' &&parentInput.file_format !== 'json') || parentInput.schema_type !== 'dynamic'",
+                "optional": true,
+                "mark_as_required": true,
+                "extends_schema": true,
+                "send_list_schema": true,
+                "drag_list": true,
+                "default": "=",
+                "hint": "Provide the data pill with a schema.",
+                "type": "string",
+                "name": "dynamic_table_schema"
+              },
+              {
+                "control_type": "schema-designer",
+                "label": "Data schema",
+                "sample_data_type": "excel",
+                "add_field_label": "Add column name",
+                "exclude_fields": [
+                  "hint",
+                  "parentId"
+                ],
+                "exclude_fields_types": [
+                  "array",
+                  "object"
+                ],
+                "empty_schema_title": "Provide column names in your data source.",
+                "empty_schema_message": "Provide all column names within the selected range",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'excel' && parentInput.schema_type === 'defined'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' ||parentInput.file_format !== 'excel' || parentInput.schema_type !== 'defined'",
+                "optional": true,
+                "mark_as_required": true,
+                "enforce_generated_schema_fields_optional": true,
+                "hint": "Describe the schema of the columns of the data source.",
+                "type": "string",
+                "name": "excel_table_schema"
+              },
+              {
+                "control_type": "list",
+                "label": "Data schema",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'excel' && parentInput.schema_type === 'dynamic'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' ||parentInput.file_format !== 'excel' ||parentInput.schema_type !== 'dynamic'",
+                "optional": true,
+                "mark_as_required": true,
+                "extends_schema": true,
+                "send_list_schema": true,
+                "drag_list": true,
+                "default": "=",
+                "hint": "Provide the sheet name from the Excel file where the data is available.",
+                "type": "string",
+                "name": "excel_dynamic_table_schema"
+              },
+              {
+                "control_type": "schema-designer",
+                "label": "Data schema",
+                "sample_data_type": "parquet",
+                "add_field_label": "Add column name",
+                "exclude_fields": [
+                  "hint",
+                  "parentId"
+                ],
+                "exclude_fields_types": [
+                  "array",
+                  "object"
+                ],
+                "empty_schema_title": "Provide column names in your Parquet data source.",
+                "empty_schema_message": "Provide all column names within the selected range",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'parquet' && parentInput.schema_type === 'defined'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' ||parentInput.file_format !== 'parquet' || parentInput.schema_type !== 'defined'",
+                "optional": true,
+                "mark_as_required": true,
+                "enforce_generated_schema_fields_optional": true,
+                "hint": "Describe the schema of the columns of the Parquet data source.",
+                "type": "string",
+                "name": "parquet_table_schema"
+              },
+              {
+                "control_type": "list",
+                "label": "Data schema",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'parquet' && parentInput.schema_type === 'dynamic'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' ||parentInput.file_format !== 'parquet' || parentInput.schema_type !== 'dynamic'",
+                "optional": true,
+                "mark_as_required": true,
+                "extends_schema": true,
+                "send_list_schema": true,
+                "drag_list": true,
+                "default": "=",
+                "hint": "Provide the data pill with a schema for the Parquet data source.",
+                "type": "string",
+                "name": "parquet_dynamic_table_schema"
+              },
+              {
+                "control_type": "schema-designer",
+                "label": "Data schema",
+                "sample_data_type": "avro",
+                "add_field_label": "Add column name",
+                "exclude_fields": [
+                  "hint",
+                  "parentId"
+                ],
+                "exclude_fields_types": [
+                  "array",
+                  "object"
+                ],
+                "empty_schema_title": "Provide column names in your Avro data source.",
+                "empty_schema_message": "Provide all column names within the selected range",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'avro' && parentInput.schema_type === 'defined'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' || parentInput.file_format !== 'avro' || parentInput.schema_type !== 'defined'",
+                "optional": true,
+                "mark_as_required": true,
+                "enforce_generated_schema_fields_optional": true,
+                "hint": "Describe the schema of the columns of the Avro data source.",
+                "type": "string",
+                "name": "avro_table_schema"
+              },
+              {
+                "control_type": "list",
+                "label": "Data schema",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'avro' && parentInput.schema_type === 'dynamic'",
+                "optionalExpression": "parentInput.data_source_type === 'wdb_table' || parentInput.file_format !== 'avro' || parentInput.schema_type !== 'dynamic'",
+                "optional": true,
+                "mark_as_required": true,
+                "extends_schema": true,
+                "send_list_schema": true,
+                "drag_list": true,
+                "default": "=",
+                "hint": "Provide the data pill with a schema for the Avro data source.",
+                "type": "string",
+                "name": "avro_dynamic_table_schema"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Column relaxation",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "sticky": true,
+                "optional": true,
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.schema_type === 'defined'",
+                "optionalExpression": "parentInput.data_source_type && parentInput.data_source_type === 'wdb_table' || parentInput.schema_type !== 'defined'",
+                "default": "false",
+                "hint": "                    Select <b>Yes</b> if the incoming source data may contain additional columns than the schema provided.\n                    Select <b>No</b> to exactly match schema with the data, and it returns error if additional columns are encountered.\n",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Column relaxation",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "sticky": true,
+                  "optional": true,
+                  "render_input": "boolean_conversion",
+                  "parse_output": "boolean_conversion",
+                  "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.schema_type === 'defined'",
+                  "optionalExpression": "parentInput.data_source_type && parentInput.data_source_type === 'wdb_table' || parentInput.schema_type !== 'defined'",
+                  "default": false,
+                  "hint": "                    Select <b>Yes</b> if the incoming source data may contain additional columns than the schema provided.\n                    Select <b>No</b> to exactly match schema with the data, and it returns error if additional columns are encountered.\n",
+                  "type": "boolean",
+                  "name": "allow_relaxed_schema"
+                },
+                "type": "boolean",
+                "name": "allow_relaxed_schema"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Contains header",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "sticky": true,
+                "optional": true,
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'csv' && parentInput.schema_type !== 'infer'",
+                "default": "false",
+                "hint": "                    Select <b>Yes</b> if the incoming data contains header as the first row. If so, SQL transformations will understand the columns in the file by name matching the first row in the file with the schema provided.\n                    If <b>No</b> is chosen, the column schema provided will be matched to the order of the columns in the file from left to right.\n",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Contains header",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "sticky": true,
+                  "optional": true,
+                  "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'csv' && parentInput.schema_type !== 'infer'",
+                  "default": false,
+                  "render_input": "boolean_conversion",
+                  "parse_output": "boolean_conversion",
+                  "hint": "                    Select <b>Yes</b> if the incoming data contains header as the first row. If so, SQL transformations will understand the columns in the file by name matching the first row in the file with the schema provided.\n                    If <b>No</b> is chosen, the column schema provided will be matched to the order of the columns in the file from left to right.\n",
+                  "type": "boolean",
+                  "name": "csv_ignore_header"
+                },
+                "type": "boolean",
+                "name": "csv_ignore_header"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Contains header",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "sticky": true,
+                "optional": true,
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'excel' && parentInput.schema_type !== 'infer'",
+                "hint": "Set to <b>Yes</b> if the Excel range contain a header row that needs to be ignored. Default is set to No.",
+                "default": "false",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Contains header",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "sticky": true,
+                  "optional": true,
+                  "render_input": "boolean_conversion",
+                  "parse_output": "boolean_conversion",
+                  "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'excel' && parentInput.schema_type !== 'infer'",
+                  "hint": "Set to <b>Yes</b> if the Excel range contain a header row that needs to be ignored. Default is set to No.",
+                  "default": false,
+                  "type": "boolean",
+                  "name": "excel_ignore_header"
+                },
+                "type": "boolean",
+                "name": "excel_ignore_header"
+              },
+              {
+                "control_type": "select",
+                "label": "Header matching",
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.schema_type !== 'infer' &&((parentInput.file_format == 'csv' && parentInput.csv_ignore_header === 'true') || (parentInput.file_format == 'excel' && parentInput.excel_ignore_header === 'true'))",
+                "optional": true,
+                "sticky": true,
+                "pick_list": [
+                  [
+                    "Ordered",
+                    "ordered"
+                  ],
+                  [
+                    "Named",
+                    "named"
+                  ]
+                ],
+                "hint": "Choose how to match header with schema columns",
+                "default": "ordered",
+                "type": "string",
+                "name": "matching_mode"
+              },
+              {
+                "control_type": "select",
+                "label": "Column delimiter",
+                "pick_list": "csv_delimiters",
+                "sticky": true,
+                "optional": true,
+                "ngIf": "parentInput.data_source_type && parentInput.data_source_type !== 'wdb_table' && parentInput.file_format === 'csv'",
+                "hint": "Select the character that separates columns in the CSV contents. Default is set to comma.",
+                "default": "comma",
+                "type": "string",
+                "name": "csv_delimiter"
+              }
+            ],
+            "sticky": true,
+            "type": "array"
+          },
+          {
+            "initially_expanded": true,
+            "label": "Query",
+            "name": "query",
+            "optional": false,
+            "override": true,
+            "properties": [
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Schema",
+                    "extends_schema": true,
+                    "broadcast_change_event": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+
+                    ],
+                    "label": "Data",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "label": "Query parameters",
+                "control_type": "form-schema-builder",
+                "item_label": "parameter",
+                "exclude_fields": [
+                  "hint"
+                ],
+                "optional": true,
+                "override": true,
+                "sticky": true,
+                "schema_field_name_regex": [
+                  "^[a-zA-Z][\\w]*$",
+                  "Query parameter names only allow alphanumerical symbols and underscore (_)"
+                ],
+                "force_name_label_equality": true,
+                "hint": "Add the parameters to be used in the WHERE condition of the query below. e.g. id.\nNext, add the actual parameter value, which can be static or datapills.\nSelect the closest corresponding data type that your database is expecting for the bind variable\n",
+                "type": "object",
+                "name": "parameters"
+              },
+              {
+                "control_type": "code",
+                "label": "SQL query",
+                "language": "sql",
+                "sql_mime_type": "x-sql",
+                "support_pills": true,
+                "allow_formula_mode": true,
+                "sticky": true,
+                "optional": false,
+                "hint": "            Add SQL select statement to query one or more data sources.\n            Joins and more complex functions are also supported, more details available <a href=\"https://docs.workato.com/features/sql-transformations-query-setting.html\" target=\"_blank\">here</a>.\n            To add parameters in the WHERE condition, use bind variables notation, e.g. id = @id, where id denotes the field name from the parameters section above.\n",
+                "type": "string",
+                "name": "sql_select_query"
+              },
+              {
+                "control_type": "select",
+                "label": "Engine",
+                "pick_list": "query_engines",
+                "sticky": false,
+                "optional": true,
+                "default": "datafusion_v53",
+                "hint": "Choose the engine used to execute the query.",
+                "type": "string",
+                "name": "engine"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "comment": "Get legacy IDs from create file",
+        "uuid": "3e1a40e4-27ba-479a-9360-37c4eb9bda74"
+      },
+      {
+        "number": 7,
+        "provider": "workato_files",
+        "name": "store_file",
+        "as": "43569496",
+        "keyword": "action",
+        "toggleCfg": {
+          "is_csv_file": true,
+          "overwrite": true,
+          "file_path": false,
+          "csv_has_header": true
+        },
+        "input": {
+          "is_csv_file": "true",
+          "schema_type": "force",
+          "csv_has_header": "true",
+          "csv_delimiter": "comma",
+          "csv_quote": "double",
+          "encoding": "UTF-8",
+          "overwrite": "true",
+          "file_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"target_i_ds_filename\"]}')}",
+          "file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"results_subdirectory\"]}')}",
+          "content": "Id",
+          "schema": "[{\"name\":\"Id\",\"type\":\"string\",\"optional\":false,\"label\":\"Id\",\"control_type\":\"text\"}]"
+        },
+        "uuid": "fdd4917a-6860-4a93-9001-633b68f753a6"
+      },
+      {
+        "number": 8,
+        "as": "3c9cb992",
+        "keyword": "repeat",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 9,
+            "provider": "workato_files",
+            "name": "get_csv_file_contents",
+            "as": "1af640e9",
+            "keyword": "action",
+            "toggleCfg": {
+              "file_path": true
+            },
+            "input": {
+              "batch_size": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"search_batch_size\"]}')}",
+              "batch_offset": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"search_batch_offset\"]}')}",
+              "file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"results_subdirectory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"legacy_i_ds_filename\"]}')}",
+              "schema_type": "manual",
+              "schema": "[{\"control_type\":\"text\",\"label\":\"LegacyID__c\",\"name\":\"LegacyID__c\",\"type\":\"string\",\"optional\":false}]"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Rows",
+                "name": "records",
+                "of": "object",
+                "properties": [
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "LegacyID__c",
+                        "type": "string",
+                        "name": "LegacyID__c"
+                      }
+                    ],
+                    "label": "Columns",
+                    "type": "object",
+                    "name": "fields"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Has more",
+                "name": "has_more",
+                "toggle_field": {
+                  "label": "Has more",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "render_input": null,
+                  "parse_output": null,
+                  "type": "boolean",
+                  "name": "has_more"
+                },
+                "toggle_hint": "Select from option list",
+                "type": "boolean"
+              },
+              {
+                "control_type": "integer",
+                "label": "Count",
+                "name": "count",
+                "parse_output": "integer_conversion",
+                "type": "integer"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "select",
+                "extends_schema": true,
+                "hint": "Select the schema template of the file that is to be retrieved in batches. If you have a sample CSV file in the directory, choose “Provide with sample file” option. If not, select “Provide manually” to define the schema.",
+                "label": "CSV column schema",
+                "mark_as_required": true,
+                "name": "schema_type",
+                "ngIf": "input.file_path && input.schema_type && input.schema_type != 'origin_file'",
+                "optional": true,
+                "override": true,
+                "pick_list": [
+                  [
+                    "Provide with sample file",
+                    "sample_file"
+                  ],
+                  [
+                    "Provide manually",
+                    "manual"
+                  ]
+                ],
+                "type": "string"
+              },
+              {
+                "add_field_label": "Add column name",
+                "broadcast_change_event": true,
+                "control_type": "schema-designer",
+                "empty_schema_message": "<button type=\"button\" data-action=\"generateSchema\">Use a sample CSV file</button> to input all column names at once.",
+                "empty_schema_title": "Provide schema of the columns in your CSV",
+                "exclude_fields": [
+                  "hint",
+                  "optional"
+                ],
+                "exclude_fields_types": [
+                  "array",
+                  "object"
+                ],
+                "extends_schema": true,
+                "hint": "Describe the schema of the columns in the CSV files that needs to be fetched. Only records from the CSV files matching with the provided schema can be fetched, with permitted relaxations. To learn more, <a target='_blank' href='https://docs.workato.com/features/filestorage/filestorage-connector.html#csv'>click here</a>.",
+                "label": "Column schema",
+                "mark_as_required": true,
+                "name": "schema",
+                "ngIf": "input.file_path && input.schema_type == 'manual'",
+                "optional": true,
+                "optionalExpression": "input.schema_type != 'manual'",
+                "override": true,
+                "sample_data_type": "csv",
+                "type": "string"
+              },
+              {
+                "control_type": "multiselect",
+                "delimiter": ",",
+                "extends_schema": true,
+                "hint": "Select the columns to be returned in the output datatree. If left blank, all columns will be retrieved.",
+                "label": "Columns to retrieve",
+                "name": "selected_fields",
+                "ngIf": "input.file_path && input.schema_type != 'manual'",
+                "optional": true,
+                "override": true,
+                "pick_list": "csv_schema_fields",
+                "pick_list_params": {
+                  "file_path": "file_path",
+                  "schema_type": "schema_type",
+                  "csv_file": "sample_csv_file",
+                  "schema": "schema"
+                },
+                "sticky": true,
+                "type": "string"
+              }
+            ],
+            "uuid": "a334fda0-4c7b-4df2-be11-648d603a8f7c"
+          },
+          {
+            "number": 10,
+            "provider": "salesforce",
+            "name": "search_sobjects_soql_bulk_csv_v2",
+            "as": "e60de061",
+            "keyword": "action",
+            "input": {
+              "include_deleted_records": "false",
+              "include_header": "false",
+              "skip_delete_failed_job": "true",
+              "wait_for_job_completion": "true",
+              "query": "=\"SELECT Id FROM CaseGroupMember__c WHERE LegacyID__c IN ('\" + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"1af640e9\",\"path\":[\"records\"]}').pluck('fields').pluck('LegacyID__c').join(\"','\") + \"')\""
+            },
+            "uuid": "a624b947-0ec6-4a59-9368-5a2f8c4aba70"
+          },
+          {
+            "number": 11,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"e60de061\",\"path\":[\"success\"]}')}",
+                  "rhs": "",
+                  "uuid": "05d8fdd4-98f8-4f90-819e-686680f77e9e"
+                },
+                {
+                  "operand": "is_not_true",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"e60de061\",\"path\":[\"success\"]}')}",
+                  "rhs": "",
+                  "uuid": "087ce0e7-e96f-43d3-aac1-88c21e803142"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 12,
+                "as": "2edcf8bc",
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "true",
+                  "stop_reason": "Search query failed"
+                },
+                "uuid": "9041e0f7-3710-4998-8c6a-ab2366607212"
+              }
+            ],
+            "comment": "Previous action should fail if errors but this check is just in case",
+            "uuid": "e74e97db-555a-4f08-a5ed-ae59ed757b52"
+          },
+          {
+            "number": 13,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "present",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"e60de061\",\"path\":[\"numberRecordsProcessed\"]}')}",
+                  "rhs": "",
+                  "uuid": "a3b85f1b-f13d-45d2-9202-2625beff396c"
+                },
+                {
+                  "operand": "greater_than",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"e60de061\",\"path\":[\"numberRecordsProcessed\"]}')}",
+                  "rhs": "0",
+                  "uuid": "a5e6333e-9c84-4c89-a29d-b4ffe560240e"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 14,
+                "provider": "workato_files",
+                "name": "append_to_file",
+                "as": "121dd9f0",
+                "keyword": "action",
+                "toggleCfg": {
+                  "is_csv_file": true,
+                  "file_path": false,
+                  "csv_has_header": true
+                },
+                "input": {
+                  "is_csv_file": "true",
+                  "schema_type": "force",
+                  "csv_has_header": "false",
+                  "csv_preserve_header": "false",
+                  "csv_delimiter": "comma",
+                  "csv_quote": "double",
+                  "encoding": "UTF-8",
+                  "file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"results_subdirectory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"target_i_ds_filename\"]}')}",
+                  "content": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"e60de061\",\"path\":[\"results\"]}')}",
+                  "schema": "[{\"name\":\"Id\",\"type\":\"string\",\"optional\":false,\"label\":\"Id\",\"control_type\":\"text\"}]"
+                },
+                "uuid": "821b5f63-bc7f-45ff-bd2f-e331b9b0b7d6"
+              }
+            ],
+            "uuid": "a23f3a65-f426-4743-8507-d67c1f86cd72"
+          },
+          {
+            "number": 15,
+            "provider": "workato_variable",
+            "name": "update_variables",
+            "as": "8dc55121",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": [
+                {
+                  "label": "Created count (step 2)",
+                  "value": "47a6f22c-58c5-4001-aa5c-cc9c27e67ba8:f589e3a0:created_count"
+                },
+                {
+                  "label": "Search batch offset (step 2)",
+                  "value": "47a6f22c-58c5-4001-aa5c-cc9c27e67ba8:f589e3a0:search_batch_offset"
+                }
+              ]
+            },
+            "input": {
+              "input_mode": "raw",
+              "name": "47a6f22c-58c5-4001-aa5c-cc9c27e67ba8:f589e3a0:created_count\n47a6f22c-58c5-4001-aa5c-cc9c27e67ba8:f589e3a0:search_batch_offset",
+              "created_count": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"created_count\"]}') + (_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"e60de061\",\"path\":[\"numberRecordsProcessed\"]}') || 0)",
+              "search_batch_offset": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"search_batch_offset\"]}') + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"search_batch_size\"]}')"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "integer",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "Created count",
+                "name": "created_count",
+                "optional": true,
+                "parse_output": "integer_conversion",
+                "sticky": true,
+                "type": "integer",
+                "strip_interpolation": true
+              },
+              {
+                "control_type": "integer",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "Search batch offset",
+                "name": "search_batch_offset",
+                "optional": true,
+                "parse_output": "integer_conversion",
+                "sticky": true,
+                "type": "integer",
+                "strip_interpolation": true
+              }
+            ],
+            "uuid": "d7aae4d2-6734-4d53-a232-876551cc4636"
+          },
+          {
+            "number": 16,
+            "keyword": "while_condition",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "is_true",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"1af640e9\",\"path\":[\"has_more\"]}')}",
+                  "rhs": "",
+                  "uuid": "1ea1e5e9-0064-4097-b600-67dfea0074ed"
+                }
+              ]
+            },
+            "uuid": "bb359101-6840-43d0-8b45-ae27c80ef1af"
+          }
+        ],
+        "comment": "Get target IDs matching legacy IDs.  Must be done in batches because of SOQL query character limit.",
+        "uuid": "142107a2-5b38-4b5f-813d-b7aca4a3d91e"
+      },
+      {
+        "number": 17,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "greater_than",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"created_count\"]}')}",
+              "rhs": "0",
+              "uuid": "7a391dd6-6d97-412c-934f-251e1aaf5e6f"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 18,
+            "provider": "workato_files",
+            "name": "get_file_contents",
+            "as": "f176f65e",
+            "keyword": "action",
+            "toggleCfg": {
+              "file_path": true
+            },
+            "input": {
+              "file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"results_subdirectory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"target_i_ds_filename\"]}')}"
+            },
+            "uuid": "b3ce10a4-d138-4921-a891-31595afc78ec"
+          },
+          {
+            "number": 19,
+            "provider": "salesforce",
+            "name": "__adhoc_http_action",
+            "as": "dd5f55c1",
+            "keyword": "action",
+            "input": {
+              "mnemonic": "Bulk job setup",
+              "verb": "post",
+              "request_type": "json",
+              "response_type": "json",
+              "path": "services/data/v66.0/jobs/ingest",
+              "input": {
+                "schema": "[{\"control_type\":\"text\",\"label\":\"Object\",\"type\":\"string\",\"name\":\"object\",\"details\":{\"real_name\":\"object\"}},{\"control_type\":\"text\",\"label\":\"Operation\",\"type\":\"string\",\"name\":\"operation\",\"details\":{\"real_name\":\"operation\"}}]",
+                "data": {
+                  "object": "CaseGroupMember__c",
+                  "operation": "delete"
+                }
+              },
+              "output": "[{\"control_type\":\"text\",\"label\":\"ID\",\"type\":\"string\",\"name\":\"id\"},{\"control_type\":\"text\",\"label\":\"Operation\",\"type\":\"string\",\"name\":\"operation\"},{\"control_type\":\"text\",\"label\":\"Object\",\"type\":\"string\",\"name\":\"object\"},{\"control_type\":\"text\",\"label\":\"Created by ID\",\"type\":\"string\",\"name\":\"createdById\"},{\"control_type\":\"text\",\"label\":\"Created date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"createdDate\"},{\"control_type\":\"text\",\"label\":\"System modstamp\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"systemModstamp\"},{\"control_type\":\"text\",\"label\":\"State\",\"type\":\"string\",\"name\":\"state\"},{\"control_type\":\"text\",\"label\":\"Concurrency mode\",\"type\":\"string\",\"name\":\"concurrencyMode\"},{\"control_type\":\"text\",\"label\":\"Content type\",\"type\":\"string\",\"name\":\"contentType\"},{\"control_type\":\"number\",\"label\":\"Api version\",\"parse_output\":\"float_conversion\",\"type\":\"number\",\"name\":\"apiVersion\"},{\"control_type\":\"text\",\"label\":\"Content URL\",\"type\":\"string\",\"name\":\"contentUrl\"},{\"control_type\":\"text\",\"label\":\"Line ending\",\"type\":\"string\",\"name\":\"lineEnding\"},{\"control_type\":\"text\",\"label\":\"Column delimiter\",\"type\":\"string\",\"name\":\"columnDelimiter\"}]",
+              "response_headers": "[{\"control_type\":\"text\",\"label\":\"Date\",\"render_input\":\"date_time_conversion\",\"parse_output\":\"date_time_conversion\",\"type\":\"date_time\",\"name\":\"date\"},{\"control_type\":\"text\",\"label\":\"Content type\",\"type\":\"string\",\"name\":\"content_type\"},{\"control_type\":\"text\",\"label\":\"Transfer encoding\",\"type\":\"string\",\"name\":\"transfer_encoding\"},{\"control_type\":\"text\",\"label\":\"Connection\",\"type\":\"string\",\"name\":\"connection\"},{\"control_type\":\"text\",\"label\":\"Vary\",\"type\":\"string\",\"name\":\"vary\"},{\"control_type\":\"text\",\"label\":\"Strict transport security\",\"type\":\"string\",\"name\":\"strict_transport_security\"},{\"control_type\":\"text\",\"label\":\"Cache control\",\"type\":\"string\",\"name\":\"cache_control\"},{\"control_type\":\"text\",\"label\":\"X content type options\",\"type\":\"string\",\"name\":\"x_content_type_options\"},{\"control_type\":\"text\",\"label\":\"Sforce limit info\",\"type\":\"string\",\"name\":\"sforce_limit_info\"},{\"control_type\":\"text\",\"label\":\"X robots tag\",\"type\":\"string\",\"name\":\"x_robots_tag\"},{\"control_type\":\"text\",\"label\":\"Set cookie\",\"type\":\"string\",\"name\":\"set_cookie\"},{\"control_type\":\"text\",\"label\":\"Server\",\"type\":\"string\",\"name\":\"server\"},{\"control_type\":\"text\",\"label\":\"X sfdc request ID\",\"type\":\"string\",\"name\":\"x_sfdc_request_id\"},{\"control_type\":\"text\",\"label\":\"X request ID\",\"type\":\"string\",\"name\":\"x_request_id\"},{\"control_type\":\"text\",\"label\":\"X sfdc edge cache\",\"type\":\"string\",\"name\":\"x_sfdc_edge_cache\"}]"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Body",
+                "name": "body",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Operation",
+                    "optional": true,
+                    "type": "string",
+                    "name": "operation"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Object",
+                    "optional": true,
+                    "type": "string",
+                    "name": "object"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Created by ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "createdById"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Created date",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "optional": true,
+                    "type": "date_time",
+                    "name": "createdDate"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "System modstamp",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "optional": true,
+                    "type": "date_time",
+                    "name": "systemModstamp"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "State",
+                    "optional": true,
+                    "type": "string",
+                    "name": "state"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Concurrency mode",
+                    "optional": true,
+                    "type": "string",
+                    "name": "concurrencyMode"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Content type",
+                    "optional": true,
+                    "type": "string",
+                    "name": "contentType"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "Api version",
+                    "parse_output": "float_conversion",
+                    "optional": true,
+                    "type": "number",
+                    "name": "apiVersion"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Content URL",
+                    "optional": true,
+                    "type": "string",
+                    "name": "contentUrl"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Line ending",
+                    "optional": true,
+                    "type": "string",
+                    "name": "lineEnding"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Column delimiter",
+                    "optional": true,
+                    "type": "string",
+                    "name": "columnDelimiter"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "label": "Headers",
+                "name": "headers",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Date",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "optional": true,
+                    "type": "date_time",
+                    "name": "date"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Content type",
+                    "optional": true,
+                    "type": "string",
+                    "name": "content_type"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Transfer encoding",
+                    "optional": true,
+                    "type": "string",
+                    "name": "transfer_encoding"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Connection",
+                    "optional": true,
+                    "type": "string",
+                    "name": "connection"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Vary",
+                    "optional": true,
+                    "type": "string",
+                    "name": "vary"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Strict transport security",
+                    "optional": true,
+                    "type": "string",
+                    "name": "strict_transport_security"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Cache control",
+                    "optional": true,
+                    "type": "string",
+                    "name": "cache_control"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "X content type options",
+                    "optional": true,
+                    "type": "string",
+                    "name": "x_content_type_options"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Sforce limit info",
+                    "optional": true,
+                    "type": "string",
+                    "name": "sforce_limit_info"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "X robots tag",
+                    "optional": true,
+                    "type": "string",
+                    "name": "x_robots_tag"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Set cookie",
+                    "optional": true,
+                    "type": "string",
+                    "name": "set_cookie"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Server",
+                    "optional": true,
+                    "type": "string",
+                    "name": "server"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "X sfdc request ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "x_sfdc_request_id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "X request ID",
+                    "optional": true,
+                    "type": "string",
+                    "name": "x_request_id"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "X sfdc edge cache",
+                    "optional": true,
+                    "type": "string",
+                    "name": "x_sfdc_edge_cache"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Base URI is <b>https://redhatsupport--tsmig.sandbox.my.salesforce.com/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+                "label": "Path",
+                "name": "path",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "control_type": "email",
+                "hint": "Email of the Salesforce user to execute this action on behalf of. If not provided, uses the connection-level user. <b>Note: This feature is only available for JWT connections.</b>",
+                "label": "On-behalf-of user email",
+                "name": "requester_email",
+                "ngIf": "authUser.feature_flags.salesforce_jwt_on_behalf_user",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Request type",
+                "name": "request_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON request body",
+                    "json"
+                  ],
+                  [
+                    "URL encoded form",
+                    "urlencoded"
+                  ],
+                  [
+                    "Multipart form",
+                    "multipart"
+                  ],
+                  [
+                    "Raw JSON request body",
+                    "raw"
+                  ],
+                  [
+                    "XML request body",
+                    "xml"
+                  ],
+                  [
+                    "Plain text",
+                    "text"
+                  ],
+                  [
+                    "Raw request body",
+                    "rawdata"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Response type",
+                "name": "response_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON response",
+                    "json"
+                  ],
+                  [
+                    "Raw JSON Response",
+                    "raw"
+                  ],
+                  [
+                    "XML Response",
+                    "xml2"
+                  ],
+                  [
+                    "Raw response",
+                    "text"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "label": "Input",
+                "name": "input",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Request body parameters",
+                    "extends_schema": true,
+                    "schema_neutral": true,
+                    "sample_data_type": "json_input",
+                    "sticky": true,
+                    "add_field_label": "Add request body parameter",
+                    "optional": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Object",
+                        "details": {
+                          "real_name": "object"
+                        },
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "object"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Operation",
+                        "details": {
+                          "real_name": "operation"
+                        },
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "operation"
+                      }
+                    ],
+                    "label": "Data",
+                    "optional": true,
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "control_type": "key_value",
+                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                "empty_list_title": "Does this HTTP request require headers?",
+                "item_label": "Header",
+                "label": "Request headers",
+                "name": "request_headers",
+                "of": "object",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "optional": true,
+                    "type": "string",
+                    "name": "name"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Value",
+                    "optional": true,
+                    "type": "string",
+                    "name": "value"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response body",
+                "name": "output",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": true,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response headers",
+                "name": "response_headers",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": false,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Inspect",
+                "name": "inspect",
+                "ngIf": "false",
+                "optional": true,
+                "parse_output": "float_conversion",
+                "type": "number"
+              }
+            ],
+            "comment": "Initialize bulk delete job",
+            "uuid": "3c887dcd-2736-4c64-80bf-4682f468b02d",
+            "wizardFinished": true
+          },
+          {
+            "number": 20,
+            "provider": "salesforce",
+            "name": "__adhoc_http_action",
+            "as": "002d8ebd",
+            "keyword": "action",
+            "input": {
+              "mnemonic": "Bulk upload data",
+              "verb": "put",
+              "request_type": "rawdata",
+              "response_type": "json",
+              "path": "services/data/v66.0/jobs/ingest/#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"dd5f55c1\",\"path\":[\"body\",\"id\"]}')}/batches",
+              "request_headers": [
+                {
+                  "name": "Content-Type",
+                  "value": "text/csv"
+                }
+              ],
+              "input": {
+                "data": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"f176f65e\",\"path\":[\"content\"]}')}"
+              }
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Base URI is <b>https://redhatsupport--tsmig.sandbox.my.salesforce.com/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+                "label": "Path",
+                "name": "path",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "control_type": "email",
+                "hint": "Email of the Salesforce user to execute this action on behalf of. If not provided, uses the connection-level user. <b>Note: This feature is only available for JWT connections.</b>",
+                "label": "On-behalf-of user email",
+                "name": "requester_email",
+                "ngIf": "authUser.feature_flags.salesforce_jwt_on_behalf_user",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Request type",
+                "name": "request_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON request body",
+                    "json"
+                  ],
+                  [
+                    "URL encoded form",
+                    "urlencoded"
+                  ],
+                  [
+                    "Multipart form",
+                    "multipart"
+                  ],
+                  [
+                    "Raw JSON request body",
+                    "raw"
+                  ],
+                  [
+                    "XML request body",
+                    "xml"
+                  ],
+                  [
+                    "Plain text",
+                    "text"
+                  ],
+                  [
+                    "Raw request body",
+                    "rawdata"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Response type",
+                "name": "response_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON response",
+                    "json"
+                  ],
+                  [
+                    "Raw JSON Response",
+                    "raw"
+                  ],
+                  [
+                    "XML Response",
+                    "xml2"
+                  ],
+                  [
+                    "Raw response",
+                    "text"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "label": "Input",
+                "name": "input",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text-area",
+                    "label": "Data",
+                    "sticky": true,
+                    "optional": true,
+                    "type": "string",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "control_type": "key_value",
+                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                "empty_list_title": "Does this HTTP request require headers?",
+                "item_label": "Header",
+                "label": "Request headers",
+                "name": "request_headers",
+                "of": "object",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "optional": true,
+                    "type": "string",
+                    "name": "name"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Value",
+                    "optional": true,
+                    "type": "string",
+                    "name": "value"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response body",
+                "name": "output",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": true,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response headers",
+                "name": "response_headers",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": false,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Inspect",
+                "name": "inspect",
+                "ngIf": "false",
+                "optional": true,
+                "parse_output": "float_conversion",
+                "type": "number"
+              }
+            ],
+            "visible_config_fields": [
+              "mnemonic",
+              "verb",
+              "path",
+              "request_type",
+              "response_type",
+              "input.data",
+              "output",
+              "request_headers"
+            ],
+            "comment": "Upload data (i.e. IDs to be deleted)",
+            "uuid": "3f354b27-2bb5-457e-a74a-db8e2a90aa05",
+            "wizardFinished": true
+          },
+          {
+            "number": 21,
+            "provider": "salesforce",
+            "name": "__adhoc_http_action",
+            "as": "35b36e15",
+            "keyword": "action",
+            "input": {
+              "mnemonic": "Bulk job close",
+              "verb": "patch",
+              "request_type": "json",
+              "response_type": "json",
+              "path": "services/data/v66.0/jobs/ingest/#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"dd5f55c1\",\"path\":[\"body\",\"id\"]}')}",
+              "input": {
+                "schema": "[{\"control_type\":\"text\",\"label\":\"State\",\"type\":\"string\",\"name\":\"state\",\"details\":{\"real_name\":\"state\"}}]",
+                "data": {
+                  "state": "UploadComplete"
+                }
+              }
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Base URI is <b>https://redhatsupport--tsmig.sandbox.my.salesforce.com/</b> - path will be appended to this URI. Use absolute URI to override this base URI.",
+                "label": "Path",
+                "name": "path",
+                "optional": false,
+                "type": "string"
+              },
+              {
+                "control_type": "email",
+                "hint": "Email of the Salesforce user to execute this action on behalf of. If not provided, uses the connection-level user. <b>Note: This feature is only available for JWT connections.</b>",
+                "label": "On-behalf-of user email",
+                "name": "requester_email",
+                "ngIf": "authUser.feature_flags.salesforce_jwt_on_behalf_user",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Request type",
+                "name": "request_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON request body",
+                    "json"
+                  ],
+                  [
+                    "URL encoded form",
+                    "urlencoded"
+                  ],
+                  [
+                    "Multipart form",
+                    "multipart"
+                  ],
+                  [
+                    "Raw JSON request body",
+                    "raw"
+                  ],
+                  [
+                    "XML request body",
+                    "xml"
+                  ],
+                  [
+                    "Plain text",
+                    "text"
+                  ],
+                  [
+                    "Raw request body",
+                    "rawdata"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "control_type": "select",
+                "default": "json",
+                "extends_schema": true,
+                "label": "Response type",
+                "name": "response_type",
+                "optional": true,
+                "pick_list": [
+                  [
+                    "JSON response",
+                    "json"
+                  ],
+                  [
+                    "Raw JSON Response",
+                    "raw"
+                  ],
+                  [
+                    "XML Response",
+                    "xml2"
+                  ],
+                  [
+                    "Raw response",
+                    "text"
+                  ]
+                ],
+                "sticky": false,
+                "type": "string"
+              },
+              {
+                "label": "Input",
+                "name": "input",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "schema-designer",
+                    "label": "Request body parameters",
+                    "extends_schema": true,
+                    "schema_neutral": true,
+                    "sample_data_type": "json_input",
+                    "sticky": true,
+                    "add_field_label": "Add request body parameter",
+                    "optional": true,
+                    "type": "string",
+                    "name": "schema"
+                  },
+                  {
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "State",
+                        "details": {
+                          "real_name": "state"
+                        },
+                        "sticky": true,
+                        "optional": true,
+                        "type": "string",
+                        "name": "state"
+                      }
+                    ],
+                    "label": "Data",
+                    "optional": true,
+                    "type": "object",
+                    "name": "data"
+                  }
+                ],
+                "type": "object"
+              },
+              {
+                "control_type": "key_value",
+                "empty_list_text": "Refer to the API documentation and add required headers to this HTTP request",
+                "empty_list_title": "Does this HTTP request require headers?",
+                "item_label": "Header",
+                "label": "Request headers",
+                "name": "request_headers",
+                "of": "object",
+                "optional": true,
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Name",
+                    "optional": true,
+                    "type": "string",
+                    "name": "name"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Value",
+                    "optional": true,
+                    "type": "string",
+                    "name": "value"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response body",
+                "name": "output",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": true,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "schema-designer",
+                "extends_schema": true,
+                "label": "Response headers",
+                "name": "response_headers",
+                "optional": true,
+                "sample_data_type": "json_http",
+                "sticky": false,
+                "type": "string",
+                "schema_neutral": true
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Inspect",
+                "name": "inspect",
+                "ngIf": "false",
+                "optional": true,
+                "parse_output": "float_conversion",
+                "type": "number"
+              }
+            ],
+            "visible_config_fields": [
+              "mnemonic",
+              "verb",
+              "path",
+              "request_type",
+              "response_type",
+              "input.data",
+              "output",
+              "request_headers"
+            ],
+            "comment": "Complete bulk job creation",
+            "uuid": "d900f109-1977-4380-9af9-c1c36586df6e",
+            "wizardFinished": true
+          },
+          {
+            "number": 22,
+            "provider": "workato_recipe_function",
+            "name": "call_recipe",
+            "as": "d9e19a01",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "flow_id": "Target | Bulk job monitor"
+            },
+            "input": {
+              "flow_id": {
+                "zip_name": "Lookups, helpers, etc/target_bulk_job_monitor.recipe.json",
+                "name": "Target | Bulk job monitor",
+                "folder": "Lookups, helpers, etc"
+              },
+              "parameters": {
+                "bulk_job_ids": [
+                  {
+                    "job_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"dd5f55c1\",\"path\":[\"body\",\"id\"]}')}"
+                  }
+                ],
+                "results_directory_base": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"results_subdirectory\"]}')}",
+                "results_name_base": "delete"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "checkbox",
+                    "label": "Status",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "name": "status",
+                    "type": "boolean",
+                    "optional": false,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Status",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "name": "status",
+                      "type": "boolean",
+                      "optional": false
+                    }
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Successful count",
+                    "parse_output": "integer_conversion",
+                    "name": "successful_count",
+                    "type": "integer",
+                    "optional": false,
+                    "render_input": "integer_conversion"
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Failed count",
+                    "parse_output": "integer_conversion",
+                    "name": "failed_count",
+                    "type": "integer",
+                    "optional": false,
+                    "render_input": "integer_conversion"
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Unprocessed count",
+                    "parse_output": "integer_conversion",
+                    "name": "unprocessed_count",
+                    "type": "integer",
+                    "optional": false,
+                    "render_input": "integer_conversion"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Results directory",
+                    "name": "results_directory",
+                    "type": "string",
+                    "optional": false
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Parameters",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "label": "Bulk job IDs",
+                    "name": "bulk_job_ids",
+                    "type": "array",
+                    "optional": false,
+                    "of": "object",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Job ID",
+                        "name": "job_id",
+                        "type": "string",
+                        "optional": false
+                      }
+                    ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Results directory base",
+                    "name": "results_directory_base",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Results name base",
+                    "name": "results_name_base",
+                    "type": "string",
+                    "optional": false,
+                    "hint": "With or without `.csv` suffix/extension"
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Max wait/sleep time between status checks",
+                    "parse_output": "integer_conversion",
+                    "name": "max_wait",
+                    "type": "integer",
+                    "optional": true,
+                    "hint": "Seconds.  Default is 300.",
+                    "render_input": "integer_conversion"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "d9686a59-93c5-404b-b31c-635eda920eb6"
+          },
+          {
+            "number": 23,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "is_not_true",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"d9e19a01\",\"path\":[\"result\",\"status\"]}')}",
+                  "rhs": "",
+                  "uuid": "6317b441-320d-4e93-a13a-fc91c89fd5d2"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 24,
+                "as": "4f653239",
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "true",
+                  "stop_reason": "Delete failed (success:#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"d9e19a01\",\"path\":[\"result\",\"successful_count\"]}')} failed:#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"d9e19a01\",\"path\":[\"result\",\"failed_count\"]}')} unprocessed:#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"d9e19a01\",\"path\":[\"result\",\"unprocessed_count\"]}')})"
+                },
+                "uuid": "856cebbf-1a18-47b6-aaa4-b60c4fbaeafc"
+              }
+            ],
+            "uuid": "0bf6f06f-9e53-43cb-a3fe-e11f2ae7e6d8"
+          }
+        ],
+        "uuid": "97686177-28ca-4ac6-b5f5-495c416af0d3"
+      },
+      {
+        "number": 25,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe_async",
+        "as": "5faa6591",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "Case group members | Initial migration | 04.x Create from batch file [FUNCTION]"
+        },
+        "toggleCfg": {
+          "parameters.acl": false
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Legacy=>SCT migration/Case group members/Initial/case_group_members_initial_migration_04_x_create_from_batch_file_function.recipe.json",
+            "name": "Case group members | Initial migration | 04.x Create from batch file [FUNCTION]",
+            "folder": "Legacy=>SCT migration/Case group members/Initial"
+          },
+          "parameters": {
+            "directory": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"directory\"]}')}",
+            "create_batch_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"create_batch_filename\"]}')}",
+            "expected_count": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"expected_count\"]}')}"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Directory",
+                "name": "directory",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Create batch filename",
+                "name": "create_batch_filename",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "integer",
+                "label": "Expected count",
+                "parse_output": "integer_conversion",
+                "name": "expected_count",
+                "type": "integer",
+                "optional": true,
+                "render_input": "integer_conversion"
+              },
+              {
+                "control_type": "integer",
+                "label": "Wait/sleep",
+                "parse_output": "integer_conversion",
+                "name": "wait",
+                "type": "integer",
+                "optional": true,
+                "hint": "Seconds",
+                "render_input": "integer_conversion"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "flow_id",
+          "parameters.expected_count"
+        ],
+        "uuid": "aceb2cad-730e-4c65-b9db-1c7771cffea5"
+      },
+      {
+        "number": 26,
+        "provider": "workato_recipe_function",
+        "name": "wait_for_async_jobs",
+        "as": "85ce26f9",
+        "keyword": "action",
+        "input": {
+          "timeout": "1400",
+          "async_calls": [
+            {
+              "job_ref": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"5faa6591\",\"path\":[\"job_ref\"]}')}"
+            }
+          ]
+        },
+        "uuid": "f0fcfbcb-4750-4a71-8638-490bfc2ff1a3"
+      },
+      {
+        "number": 27,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "is_not_true",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"85ce26f9\",\"path\":[\"all_jobs_succeeded\"]}')}",
+              "rhs": "",
+              "uuid": "471e41cb-2ab3-49a5-b872-57c9d9d9951d"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 28,
+            "as": "3db092a1",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "true",
+              "stop_reason": "Retry failed"
+            },
+            "uuid": "e9e20965-5988-4c44-b172-b9d0bdbbfd40"
+          }
+        ],
+        "uuid": "fe312a45-a6f7-439b-8b9b-a86e80fa9d7b"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_0",
+        "label": "Create file"
+      },
+      {
+        "name": "custom_column_2",
+        "label": "Source (legacy) records"
+      },
+      {
+        "name": "custom_column_3",
+        "label": "Target records"
+      },
+      {
+        "name": "custom_column_4",
+        "label": "Target records delete successful"
+      },
+      {
+        "name": "custom_column_5",
+        "label": "Target records delete failed"
+      },
+      {
+        "name": "custom_column_6",
+        "label": "Target records delete unprocessed"
+      },
+      {
+        "name": "custom_column_1",
+        "label": "Results directory"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"create_batch_filename\"]}')}",
+      "custom_column_2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_transformations\",\"line\":\"50c16909\",\"path\":[\"result_lines\"]}')}",
+      "custom_column_3": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"created_count\"]}')}",
+      "custom_column_4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"d9e19a01\",\"path\":[\"result\",\"successful_count\"]}')}",
+      "custom_column_5": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"d9e19a01\",\"path\":[\"result\",\"failed_count\"]}')}",
+      "custom_column_6": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"d9e19a01\",\"path\":[\"result\",\"unprocessed_count\"]}')}",
+      "custom_column_1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"99dedb09\",\"path\":[\"parameters\",\"directory\"]}')}/#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"f589e3a0\",\"path\":[\"results_subdirectory\"]}')}"
+    },
+    "uuid": "a50b6897-8535-41fc-9740-9f3777652bef"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_transformations",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_files",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/sf_sct_target.connection.json",
+        "name": "SF_SCT_Target",
+        "folder": "Connections"
+      }
+    }
+  ]
+}

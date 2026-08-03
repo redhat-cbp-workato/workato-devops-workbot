@@ -1,0 +1,3438 @@
+{
+  "name": "Target | User/contact lookup by source (legacy) IDs or SSO username [FUNCTION]",
+  "description": "",
+  "version": 55,
+  "private": true,
+  "concurrency": 5,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "97788d35",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"control_type\":\"text\",\"label\":\"Legacy ID\",\"name\":\"legacy_id\",\"type\":\"string\",\"optional\":true,\"hint\":\"User field `Legacy_ID__c`.  Second searched.  If match is found, \\\"SSO username\\\" criteria is ignored.\"},{\"control_type\":\"text\",\"label\":\"Contact legacy ID\",\"name\":\"contact_legacy_id\",\"type\":\"string\",\"optional\":true,\"hint\":\"User field `ContactLegacyId__c`.  First searched.  If match is found, \\\"Legacy ID\\\" and \\\"SSO username\\\" criteria is ignored.\"},{\"control_type\":\"text\",\"label\":\"SSO username\",\"name\":\"sso_username\",\"type\":\"string\",\"optional\":true,\"hint\":\"User field `FederationIdentifier`.  Third searched.\"}]",
+      "result_schema_json": "[{\"control_type\":\"text\",\"label\":\"Id\",\"name\":\"Id\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"ContactId\",\"name\":\"ContactId\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"FederationIdentifier\",\"name\":\"FederationIdentifier\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"Legacy_ID__c\",\"name\":\"Legacy_ID__c\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"ContactLegacyId__c\",\"name\":\"ContactLegacyId__c\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"checkbox\",\"label\":\"Was Found?\",\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"name\":\"found\",\"type\":\"boolean\",\"optional\":false,\"hint\":\"Whether returned ID was found in target or not.  If false, default value was returned.\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Was Found?\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"name\":\"found\",\"type\":\"boolean\",\"optional\":false,\"hint\":\"Whether returned ID was found in target or not.  If false, default value was returned.\"}}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Legacy ID",
+            "name": "legacy_id",
+            "type": "string",
+            "optional": true,
+            "hint": "User field `Legacy_ID__c`.  Second searched.  If match is found, \"SSO username\" criteria is ignored."
+          },
+          {
+            "control_type": "text",
+            "label": "Contact legacy ID",
+            "name": "contact_legacy_id",
+            "type": "string",
+            "optional": true,
+            "hint": "User field `ContactLegacyId__c`.  First searched.  If match is found, \"Legacy ID\" and \"SSO username\" criteria is ignored."
+          },
+          {
+            "control_type": "text",
+            "label": "SSO username",
+            "name": "sso_username",
+            "type": "string",
+            "optional": true,
+            "hint": "User field `FederationIdentifier`.  Third searched."
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "58f2c4ee",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"Id\",\"name\":\"Id\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"Id\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"text\",\"label\":\"ContactId\",\"name\":\"ContactId\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"Id\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"text\",\"label\":\"FederationIdentifier\",\"name\":\"FederationIdentifier\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"FederationIdentifier\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"text\",\"label\":\"LegacyID__c\",\"name\":\"LegacyID__c\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"LegacyID__c\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"text\",\"label\":\"ContactLegacyId__c\",\"name\":\"ContactLegacyId__c\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"ContactLegacyId__c\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Id",
+            "name": "Id",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "Id"
+            }
+          },
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "ContactId",
+            "name": "ContactId",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "Id"
+            }
+          },
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "FederationIdentifier",
+            "name": "FederationIdentifier",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "FederationIdentifier"
+            }
+          },
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "LegacyID__c",
+            "name": "LegacyID__c",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "LegacyID__c"
+            }
+          },
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "ContactLegacyId__c",
+            "name": "ContactLegacyId__c",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "ContactLegacyId__c"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Id",
+                    "name": "Id",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Id"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactId",
+                    "name": "ContactId",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Id"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "FederationIdentifier",
+                    "name": "FederationIdentifier",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "FederationIdentifier"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "LegacyID__c",
+                    "name": "LegacyID__c",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "LegacyID__c"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactLegacyId__c",
+                    "name": "ContactLegacyId__c",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "ContactLegacyId__c"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.target_user_id",
+          "variables",
+          "variables.schema",
+          "variables.data.target_sso_username",
+          "variables.data.target_email",
+          "variables.data.cache_hits",
+          "variables.data.source_id",
+          "variables.data.hold",
+          "variables.data.hold.target_user_id",
+          "variables.data.source_sso_username",
+          "variables.data.hold.target_sso_username",
+          "variables.data",
+          "variables.data.source_contact_legacy_id",
+          "variables.data.Source",
+          "variables.data.Source.source_id",
+          "variables.data.Source.source_sso_username",
+          "variables.data.Source.source_contact_legacy_id",
+          "variables.data.Target",
+          "variables.data.Target.target_sso_username",
+          "variables.data.Target.target_user_id",
+          "Source.source_id",
+          "Source.source_sso_username",
+          "Source.source_contact_legacy_id",
+          "Target.target_user_id",
+          "Target.target_sso_username",
+          "Source.source_contact_id",
+          "variables.data.Source.source_contact_id",
+          "variables.data.test1",
+          "variables.data.source_contact_id",
+          "variables.data.target_id",
+          "variables.data.target_contact_id",
+          "variables.data.Id",
+          "variables.data.FederationIdentifier",
+          "variables.data.ContactLegacyId__c",
+          "variables.data.LegacyID__c",
+          "variables.data.ContactId"
+        ],
+        "uuid": "0f4ad619-eaa7-4200-a891-aba159a8261d"
+      },
+      {
+        "number": 2,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "is_true",
+              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"97788d35\",\"path\":[\"parameters\",\"contact_legacy_id\"]}').present?",
+              "rhs": "",
+              "uuid": "991877cd-1fff-4ecf-80e4-62ea93050fae"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 3,
+            "provider": "workato_db_table",
+            "name": "get_records",
+            "as": "9c79f7e1",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "table_id": "DT | Target user lookup cache",
+              "filters.0.field_id": "ContactLegacyId__c",
+              "order_by_field_id": "Last modified time",
+              "filters.1.field_id": "Last modified time"
+            },
+            "input": {
+              "order_direction": "desc",
+              "limit": "1",
+              "table_id": {
+                "zip_name": "Lookups, helpers, etc/Cache/target_user_lookup_cache.workato_db_table.json",
+                "name": "Target | User lookup cache",
+                "folder": "Lookups, helpers, etc/Cache"
+              },
+              "cb9c2f4c-1f03-4fee-9ac3-e771ec3494fb": "string",
+              "4b515a76-52a8-4799-abf4-330f936bf88f": "string",
+              "df2262b5-ef08-4880-9c64-5c73366f0aff": "string",
+              "9764e099-5e4f-4197-855a-98a4e46887b5": "string",
+              "7a1592cb-7fc2-4f0d-9d7e-a27ba0cc4c74": "string",
+              "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+              "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+              "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+              "filters": [
+                {
+                  "field_id": "7a1592cb-7fc2-4f0d-9d7e-a27ba0cc4c74",
+                  "op_default": "eq",
+                  "value_default": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"97788d35\",\"path\":[\"parameters\",\"contact_legacy_id\"]}')}"
+                },
+                {
+                  "field_id": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                  "op_date_time": "gte",
+                  "value_date_time": "=now - 60.minutes"
+                }
+              ],
+              "order_by_field_id": "61aae604-a95e-4519-9091-bb0bf754a67f"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Records",
+                "name": "records",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Record ID",
+                    "type": "string",
+                    "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Id",
+                    "type": "string",
+                    "name": "cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactId",
+                    "type": "string",
+                    "name": "4b515a76_52a8_4799_abf4_330f936bf88f"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "FederationIdentifier",
+                    "type": "string",
+                    "name": "df2262b5_ef08_4880_9c64_5c73366f0aff"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Legacy_ID__c",
+                    "type": "string",
+                    "name": "9764e099_5e4f_4197_855a_98a4e46887b5"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactLegacyId__c",
+                    "type": "string",
+                    "name": "7a1592cb_7fc2_4f0d_9d7e_a27ba0cc4c74"
+                  },
+                  {
+                    "control_type": "date_time",
+                    "label": "Created at",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "type": "date_time",
+                    "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                  },
+                  {
+                    "control_type": "date_time",
+                    "label": "Updated at",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "type": "date_time",
+                    "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "text",
+                "label": "Next Page Token",
+                "name": "continuation_token",
+                "type": "string"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "default": "string",
+                "label": "$internal_value_cb9c2f4c-1f03-4fee-9ac3-e771ec3494fb",
+                "name": "cb9c2f4c-1f03-4fee-9ac3-e771ec3494fb",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "string",
+                "label": "$internal_value_4b515a76-52a8-4799-abf4-330f936bf88f",
+                "name": "4b515a76-52a8-4799-abf4-330f936bf88f",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "string",
+                "label": "$internal_value_df2262b5-ef08-4880-9c64-5c73366f0aff",
+                "name": "df2262b5-ef08-4880-9c64-5c73366f0aff",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "string",
+                "label": "$internal_value_9764e099-5e4f-4197-855a-98a4e46887b5",
+                "name": "9764e099-5e4f-4197-855a-98a4e46887b5",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "string",
+                "label": "$internal_value_7a1592cb-7fc2-4f0d-9d7e-a27ba0cc4c74",
+                "name": "7a1592cb-7fc2-4f0d-9d7e-a27ba0cc4c74",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "id",
+                "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "date_time",
+                "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "date_time",
+                "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              }
+            ],
+            "uuid": "0339ef92-cd90-4642-b07b-9730b909a351"
+          },
+          {
+            "number": 4,
+            "provider": "workato_variable",
+            "name": "update_variables",
+            "as": "7bd6534f",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": [
+                {
+                  "label": "Id (step 2)",
+                  "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:Id"
+                },
+                {
+                  "label": "ContactId (step 2)",
+                  "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactId"
+                },
+                {
+                  "label": "FederationIdentifier (step 2)",
+                  "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:FederationIdentifier"
+                },
+                {
+                  "label": "LegacyID__c (step 2)",
+                  "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:LegacyID__c"
+                },
+                {
+                  "label": "ContactLegacyId__c (step 2)",
+                  "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactLegacyId__c"
+                }
+              ]
+            },
+            "input": {
+              "input_mode": "raw",
+              "name": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:Id\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactId\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:FederationIdentifier\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:LegacyID__c\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactLegacyId__c",
+              "Id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"9c79f7e1\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb\"]}')}",
+              "FederationIdentifier": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"9c79f7e1\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"df2262b5_ef08_4880_9c64_5c73366f0aff\"]}')}",
+              "LegacyID__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"9c79f7e1\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"9764e099_5e4f_4197_855a_98a4e46887b5\"]}')}",
+              "ContactLegacyId__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"9c79f7e1\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"7a1592cb_7fc2_4f0d_9d7e_a27ba0cc4c74\"]}')}",
+              "ContactId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"9c79f7e1\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"4b515a76_52a8_4799_abf4_330f936bf88f\"]}')}"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "Id",
+                "name": "Id",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              },
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "ContactId",
+                "name": "ContactId",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              },
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "FederationIdentifier",
+                "name": "FederationIdentifier",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              },
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "LegacyID__c",
+                "name": "LegacyID__c",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              },
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "ContactLegacyId__c",
+                "name": "ContactLegacyId__c",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              }
+            ],
+            "uuid": "97838141-4e01-4637-bef7-727d097ffc4d"
+          },
+          {
+            "number": 5,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "is_true",
+                  "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"Id\"]}').blank?",
+                  "rhs": "",
+                  "uuid": "b78ac2bb-661f-48dc-a677-9ee42c1f6b13"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 6,
+                "keyword": "try",
+                "input": {
+                },
+                "block": [
+                  {
+                    "number": 7,
+                    "provider": "salesforce",
+                    "name": "search_sobjects_soql",
+                    "as": "5a6f4f9e",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "sobject_name": "User",
+                      "field_list": [
+                        {
+                          "label": "User ID",
+                          "value": "Id"
+                        },
+                        {
+                          "label": "SAML Federation ID",
+                          "value": "FederationIdentifier"
+                        },
+                        {
+                          "label": "Legacy ID",
+                          "value": "Legacy_ID__c"
+                        },
+                        {
+                          "label": "Contact Legacy ID",
+                          "value": "ContactLegacyId__c"
+                        },
+                        {
+                          "label": "Contact ID",
+                          "value": "ContactId"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "limit": "1",
+                      "sobject_name": "User",
+                      "query": "ContactLegacyId__c = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"97788d35\",\"path\":[\"parameters\",\"contact_legacy_id\"]}')}'",
+                      "field_list": "Id\nFederationIdentifier\nLegacy_ID__c\nContactLegacyId__c\nContactId"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Users",
+                        "name": "User",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Contact ID",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "ContactId"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "SAML Federation ID",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": false,
+                            "sfdc_updateable": false,
+                            "type": "string",
+                            "name": "FederationIdentifier"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "User ID",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": false,
+                            "sfdc_updateable": false,
+                            "type": "string",
+                            "name": "Id"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Contact Legacy ID",
+                            "optional": true,
+                            "custom": true,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "ContactLegacyId__c"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Legacy ID",
+                            "optional": true,
+                            "custom": true,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "Legacy_ID__c"
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "number",
+                                "label": "Total size",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "totalSize"
+                              },
+                              {
+                                "label": "Files",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "ID",
+                                    "type": "string",
+                                    "name": "Id"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Content size",
+                                    "parse_output": "integer_conversion",
+                                    "type": "integer",
+                                    "name": "ContentSize"
+                                  },
+                                  {
+                                    "control_type": "url",
+                                    "label": "Content URL",
+                                    "type": "string",
+                                    "name": "ContentUrl"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "File extension",
+                                    "type": "string",
+                                    "name": "FileExtension"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "File type",
+                                    "type": "string",
+                                    "name": "FileType"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Parent ID",
+                                    "type": "string",
+                                    "name": "ParentId"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Record type",
+                                    "type": "string",
+                                    "name": "RecordType"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Title",
+                                    "type": "string",
+                                    "name": "Title"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "records"
+                              }
+                            ],
+                            "label": "Combined attachments",
+                            "sfdc_field_type": "CombinedAttachment",
+                            "type": "object",
+                            "name": "CombinedAttachments"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "List size",
+                        "name": "list_size",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Processed all records?",
+                        "name": "done",
+                        "toggle_field": {
+                          "label": "Processed all records?",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "render_input": null,
+                          "parse_output": null,
+                          "name": "done"
+                        },
+                        "toggle_hint": "Select from option list",
+                        "type": "boolean"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Total records",
+                        "name": "total_records",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "url",
+                        "label": "Next page URL",
+                        "name": "next_page_url",
+                        "type": "string"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "checkbox",
+                        "disable_formula": true,
+                        "extends_schema": true,
+                        "hint": "Select <b>Yes</b> to obtain data from notes, attachments and files associated to the queried records. Default value is <b>Yes</b>.",
+                        "label": "Select combined attachments",
+                        "name": "include_combined_attachments",
+                        "optional": true,
+                        "support_pills": false,
+                        "type": "boolean"
+                      }
+                    ],
+                    "uuid": "177fd8ea-889c-4976-91e9-11928925a2b2"
+                  },
+                  {
+                    "number": 8,
+                    "provider": "workato_variable",
+                    "name": "update_variables",
+                    "as": "ed437dbb",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": [
+                        {
+                          "label": "Id (step 2)",
+                          "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:Id"
+                        },
+                        {
+                          "label": "FederationIdentifier (step 2)",
+                          "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:FederationIdentifier"
+                        },
+                        {
+                          "label": "LegacyID__c (step 2)",
+                          "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:LegacyID__c"
+                        },
+                        {
+                          "label": "ContactLegacyId__c (step 2)",
+                          "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactLegacyId__c"
+                        },
+                        {
+                          "label": "ContactId (step 2)",
+                          "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactId"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "input_mode": "raw",
+                      "name": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:Id\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:FederationIdentifier\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:LegacyID__c\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactLegacyId__c\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactId",
+                      "Id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"5a6f4f9e\",\"path\":[\"User\",{\"path_element_type\":\"current_item\"},\"Id\"]}')}",
+                      "FederationIdentifier": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"5a6f4f9e\",\"path\":[\"User\",{\"path_element_type\":\"current_item\"},\"FederationIdentifier\"]}')}",
+                      "LegacyID__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"5a6f4f9e\",\"path\":[\"User\",{\"path_element_type\":\"current_item\"},\"Legacy_ID__c\"]}')}",
+                      "ContactLegacyId__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"5a6f4f9e\",\"path\":[\"User\",{\"path_element_type\":\"current_item\"},\"ContactLegacyId__c\"]}')}",
+                      "ContactId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"5a6f4f9e\",\"path\":[\"User\",{\"path_element_type\":\"current_item\"},\"ContactId\"]}')}"
+                    },
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "Id",
+                        "name": "Id",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      },
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "FederationIdentifier",
+                        "name": "FederationIdentifier",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      },
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "LegacyID__c",
+                        "name": "LegacyID__c",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      },
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "ContactLegacyId__c",
+                        "name": "ContactLegacyId__c",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      },
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "ContactId",
+                        "name": "ContactId",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      }
+                    ],
+                    "uuid": "659f878f-6597-491f-9b38-58a9d89abd1c"
+                  },
+                  {
+                    "number": 9,
+                    "as": "2e1712d1",
+                    "keyword": "catch",
+                    "input": {
+                      "max_retry_count": "3",
+                      "retry_interval": "2"
+                    },
+                    "filter": {
+                      "conditions": [
+                        {
+                          "operand": "not_equals_to",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"2e1712d1\",\"path\":[\"http_response\",\"code\"]}')}",
+                          "rhs": "404",
+                          "uuid": "10202f52-5c1e-42e5-9d67-aeff0999e610"
+                        }
+                      ],
+                      "operand": "and",
+                      "type": "compound"
+                    },
+                    "block": [
+
+                    ],
+                    "uuid": "40796269-001a-4536-8cfc-625ea4994f71"
+                  }
+                ],
+                "uuid": "91165d5a-709f-4605-9c65-a914d521516c"
+              }
+            ],
+            "comment": "If no cache hit, search target",
+            "uuid": "043324f2-5afd-4d2f-9cf0-4372c4002463"
+          }
+        ],
+        "uuid": "f6566fc1-2f77-4a5c-a059-3159bdcca308"
+      },
+      {
+        "number": 10,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "is_true",
+              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"97788d35\",\"path\":[\"parameters\",\"contact_legacy_id\"]}').blank?",
+              "rhs": "",
+              "uuid": "4e31d833-a780-4f24-8da0-ef2bffa9e025"
+            },
+            {
+              "operand": "is_true",
+              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"Id\"]}').blank?",
+              "rhs": "",
+              "uuid": "ebd93610-4fa5-4c94-b231-1ed5a64c1c9d"
+            },
+            {
+              "operand": "is_true",
+              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"97788d35\",\"path\":[\"parameters\",\"legacy_id\"]}').present?",
+              "rhs": "",
+              "uuid": "0eb877b2-0e8e-4018-9b3a-1e6bd56ff002"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 11,
+            "provider": "workato_db_table",
+            "name": "get_records",
+            "as": "ab9357ae",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "table_id": "DT | Target user lookup cache",
+              "filters.0.field_id": "Legacy_ID__c",
+              "order_by_field_id": "Last modified time",
+              "filters.1.field_id": "Last modified time"
+            },
+            "input": {
+              "order_direction": "desc",
+              "limit": "1",
+              "table_id": {
+                "zip_name": "Lookups, helpers, etc/Cache/target_user_lookup_cache.workato_db_table.json",
+                "name": "Target | User lookup cache",
+                "folder": "Lookups, helpers, etc/Cache"
+              },
+              "cb9c2f4c-1f03-4fee-9ac3-e771ec3494fb": "string",
+              "4b515a76-52a8-4799-abf4-330f936bf88f": "string",
+              "df2262b5-ef08-4880-9c64-5c73366f0aff": "string",
+              "9764e099-5e4f-4197-855a-98a4e46887b5": "string",
+              "7a1592cb-7fc2-4f0d-9d7e-a27ba0cc4c74": "string",
+              "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+              "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+              "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+              "filters": [
+                {
+                  "field_id": "9764e099-5e4f-4197-855a-98a4e46887b5",
+                  "op_default": "eq",
+                  "value_default": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"97788d35\",\"path\":[\"parameters\",\"legacy_id\"]}')}"
+                },
+                {
+                  "field_id": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                  "op_date_time": "gte",
+                  "value_date_time": "=now - 60.minutes"
+                }
+              ],
+              "order_by_field_id": "61aae604-a95e-4519-9091-bb0bf754a67f"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Records",
+                "name": "records",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Record ID",
+                    "type": "string",
+                    "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Id",
+                    "type": "string",
+                    "name": "cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactId",
+                    "type": "string",
+                    "name": "4b515a76_52a8_4799_abf4_330f936bf88f"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "FederationIdentifier",
+                    "type": "string",
+                    "name": "df2262b5_ef08_4880_9c64_5c73366f0aff"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Legacy_ID__c",
+                    "type": "string",
+                    "name": "9764e099_5e4f_4197_855a_98a4e46887b5"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactLegacyId__c",
+                    "type": "string",
+                    "name": "7a1592cb_7fc2_4f0d_9d7e_a27ba0cc4c74"
+                  },
+                  {
+                    "control_type": "date_time",
+                    "label": "Created at",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "type": "date_time",
+                    "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                  },
+                  {
+                    "control_type": "date_time",
+                    "label": "Updated at",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "type": "date_time",
+                    "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "text",
+                "label": "Next Page Token",
+                "name": "continuation_token",
+                "type": "string"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "default": "string",
+                "label": "$internal_value_cb9c2f4c-1f03-4fee-9ac3-e771ec3494fb",
+                "name": "cb9c2f4c-1f03-4fee-9ac3-e771ec3494fb",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "string",
+                "label": "$internal_value_4b515a76-52a8-4799-abf4-330f936bf88f",
+                "name": "4b515a76-52a8-4799-abf4-330f936bf88f",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "string",
+                "label": "$internal_value_df2262b5-ef08-4880-9c64-5c73366f0aff",
+                "name": "df2262b5-ef08-4880-9c64-5c73366f0aff",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "string",
+                "label": "$internal_value_9764e099-5e4f-4197-855a-98a4e46887b5",
+                "name": "9764e099-5e4f-4197-855a-98a4e46887b5",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "string",
+                "label": "$internal_value_7a1592cb-7fc2-4f0d-9d7e-a27ba0cc4c74",
+                "name": "7a1592cb-7fc2-4f0d-9d7e-a27ba0cc4c74",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "id",
+                "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "date_time",
+                "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "date_time",
+                "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              }
+            ],
+            "uuid": "1c6d0d66-662b-46b9-a093-30b2da23865f"
+          },
+          {
+            "number": 12,
+            "provider": "workato_variable",
+            "name": "update_variables",
+            "as": "6a1557cc",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": [
+                {
+                  "label": "Id (step 2)",
+                  "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:Id"
+                },
+                {
+                  "label": "ContactId (step 2)",
+                  "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactId"
+                },
+                {
+                  "label": "FederationIdentifier (step 2)",
+                  "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:FederationIdentifier"
+                },
+                {
+                  "label": "LegacyID__c (step 2)",
+                  "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:LegacyID__c"
+                },
+                {
+                  "label": "ContactLegacyId__c (step 2)",
+                  "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactLegacyId__c"
+                }
+              ]
+            },
+            "input": {
+              "input_mode": "raw",
+              "name": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:Id\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactId\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:FederationIdentifier\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:LegacyID__c\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactLegacyId__c",
+              "Id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"ab9357ae\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb\"]}')}",
+              "FederationIdentifier": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"ab9357ae\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"df2262b5_ef08_4880_9c64_5c73366f0aff\"]}')}",
+              "ContactLegacyId__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"ab9357ae\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"7a1592cb_7fc2_4f0d_9d7e_a27ba0cc4c74\"]}')}",
+              "LegacyID__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"ab9357ae\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"9764e099_5e4f_4197_855a_98a4e46887b5\"]}')}",
+              "ContactId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"ab9357ae\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"4b515a76_52a8_4799_abf4_330f936bf88f\"]}')}"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "Id",
+                "name": "Id",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              },
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "ContactId",
+                "name": "ContactId",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              },
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "FederationIdentifier",
+                "name": "FederationIdentifier",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              },
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "LegacyID__c",
+                "name": "LegacyID__c",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              },
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "ContactLegacyId__c",
+                "name": "ContactLegacyId__c",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              }
+            ],
+            "uuid": "576f75a2-e0f0-4481-a82a-499744c5f02d"
+          },
+          {
+            "number": 13,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "is_true",
+                  "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"Id\"]}').blank?",
+                  "uuid": "47d5cf3f-b879-4a96-93b9-45a994558dca"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 14,
+                "keyword": "try",
+                "input": {
+                },
+                "block": [
+                  {
+                    "number": 15,
+                    "provider": "salesforce",
+                    "name": "search_sobjects_soql",
+                    "as": "a9271b89",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "sobject_name": "User",
+                      "field_list": [
+                        {
+                          "label": "User ID",
+                          "value": "Id"
+                        },
+                        {
+                          "label": "SAML Federation ID",
+                          "value": "FederationIdentifier"
+                        },
+                        {
+                          "label": "Legacy ID",
+                          "value": "Legacy_ID__c"
+                        },
+                        {
+                          "label": "Contact Legacy ID",
+                          "value": "ContactLegacyId__c"
+                        },
+                        {
+                          "label": "Contact ID",
+                          "value": "ContactId"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "limit": "1",
+                      "sobject_name": "User",
+                      "query": "Legacy_ID__c = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"97788d35\",\"path\":[\"parameters\",\"legacy_id\"]}')}'",
+                      "field_list": "Id\nFederationIdentifier\nLegacy_ID__c\nContactLegacyId__c\nContactId"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Users",
+                        "name": "User",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Contact ID",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "ContactId"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "SAML Federation ID",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": false,
+                            "sfdc_updateable": false,
+                            "type": "string",
+                            "name": "FederationIdentifier"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "User ID",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": false,
+                            "sfdc_updateable": false,
+                            "type": "string",
+                            "name": "Id"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Contact Legacy ID",
+                            "optional": true,
+                            "custom": true,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "ContactLegacyId__c"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Legacy ID",
+                            "optional": true,
+                            "custom": true,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "Legacy_ID__c"
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "number",
+                                "label": "Total size",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "totalSize"
+                              },
+                              {
+                                "label": "Files",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "ID",
+                                    "type": "string",
+                                    "name": "Id"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Content size",
+                                    "parse_output": "integer_conversion",
+                                    "type": "integer",
+                                    "name": "ContentSize"
+                                  },
+                                  {
+                                    "control_type": "url",
+                                    "label": "Content URL",
+                                    "type": "string",
+                                    "name": "ContentUrl"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "File extension",
+                                    "type": "string",
+                                    "name": "FileExtension"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "File type",
+                                    "type": "string",
+                                    "name": "FileType"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Parent ID",
+                                    "type": "string",
+                                    "name": "ParentId"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Record type",
+                                    "type": "string",
+                                    "name": "RecordType"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Title",
+                                    "type": "string",
+                                    "name": "Title"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "records"
+                              }
+                            ],
+                            "label": "Combined attachments",
+                            "sfdc_field_type": "CombinedAttachment",
+                            "type": "object",
+                            "name": "CombinedAttachments"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "List size",
+                        "name": "list_size",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Processed all records?",
+                        "name": "done",
+                        "toggle_field": {
+                          "label": "Processed all records?",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "render_input": null,
+                          "parse_output": null,
+                          "name": "done"
+                        },
+                        "toggle_hint": "Select from option list",
+                        "type": "boolean"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Total records",
+                        "name": "total_records",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "url",
+                        "label": "Next page URL",
+                        "name": "next_page_url",
+                        "type": "string"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "checkbox",
+                        "disable_formula": true,
+                        "extends_schema": true,
+                        "hint": "Select <b>Yes</b> to obtain data from notes, attachments and files associated to the queried records. Default value is <b>Yes</b>.",
+                        "label": "Select combined attachments",
+                        "name": "include_combined_attachments",
+                        "optional": true,
+                        "support_pills": false,
+                        "type": "boolean"
+                      }
+                    ],
+                    "uuid": "8176f060-71fa-4aff-82fc-fc4da27253f3"
+                  },
+                  {
+                    "number": 16,
+                    "provider": "workato_variable",
+                    "name": "update_variables",
+                    "as": "b9fed8c2",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": [
+                        {
+                          "label": "Id (step 2)",
+                          "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:Id"
+                        },
+                        {
+                          "label": "FederationIdentifier (step 2)",
+                          "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:FederationIdentifier"
+                        },
+                        {
+                          "label": "LegacyID__c (step 2)",
+                          "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:LegacyID__c"
+                        },
+                        {
+                          "label": "ContactLegacyId__c (step 2)",
+                          "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactLegacyId__c"
+                        },
+                        {
+                          "label": "ContactId (step 2)",
+                          "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactId"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "input_mode": "raw",
+                      "name": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:Id\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:FederationIdentifier\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:LegacyID__c\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactLegacyId__c\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactId",
+                      "Id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a9271b89\",\"path\":[\"User\",{\"path_element_type\":\"current_item\"},\"Id\"]}')}",
+                      "FederationIdentifier": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a9271b89\",\"path\":[\"User\",{\"path_element_type\":\"current_item\"},\"FederationIdentifier\"]}')}",
+                      "ContactLegacyId__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a9271b89\",\"path\":[\"User\",{\"path_element_type\":\"current_item\"},\"ContactLegacyId__c\"]}')}",
+                      "LegacyID__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a9271b89\",\"path\":[\"User\",{\"path_element_type\":\"current_item\"},\"Legacy_ID__c\"]}')}",
+                      "ContactId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"a9271b89\",\"path\":[\"User\",{\"path_element_type\":\"current_item\"},\"ContactId\"]}')}"
+                    },
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "Id",
+                        "name": "Id",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      },
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "FederationIdentifier",
+                        "name": "FederationIdentifier",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      },
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "LegacyID__c",
+                        "name": "LegacyID__c",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      },
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "ContactLegacyId__c",
+                        "name": "ContactLegacyId__c",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      },
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "ContactId",
+                        "name": "ContactId",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      }
+                    ],
+                    "uuid": "5c930d41-1621-4d96-8405-27692b414082"
+                  },
+                  {
+                    "number": 17,
+                    "as": "05fe270f",
+                    "keyword": "catch",
+                    "input": {
+                      "max_retry_count": "3",
+                      "retry_interval": "2"
+                    },
+                    "filter": {
+                      "conditions": [
+                        {
+                          "operand": "not_equals_to",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"05fe270f\",\"path\":[\"http_response\",\"code\"]}')}",
+                          "rhs": "404",
+                          "uuid": "9b55d867-5ebe-4bf6-940f-e69557e7630d"
+                        }
+                      ],
+                      "operand": "and",
+                      "type": "compound"
+                    },
+                    "block": [
+
+                    ],
+                    "uuid": "bf0ad332-a87c-4a15-9a16-25f7fd1546df"
+                  }
+                ],
+                "uuid": "b4dcbb86-79ef-498a-a458-810de802267f"
+              }
+            ],
+            "comment": "If no cache hit, search target",
+            "uuid": "f92bd41f-ad11-48ad-a43d-42b93856b5e6"
+          }
+        ],
+        "comment": "Contact legacy ID not provided and no ID yet.  If legacy ID provided, try using it.",
+        "uuid": "dd3e43f8-7e9f-4036-b98d-c7a6e5839bcd"
+      },
+      {
+        "number": 18,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "is_true",
+              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"97788d35\",\"path\":[\"parameters\",\"contact_legacy_id\"]}').blank?",
+              "rhs": "",
+              "uuid": "2bf9864a-4a0f-407e-b361-41a7439ef824"
+            },
+            {
+              "operand": "is_true",
+              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"Id\"]}').blank?",
+              "rhs": "",
+              "uuid": "991877cd-1fff-4ecf-80e4-62ea93050fae"
+            },
+            {
+              "operand": "is_true",
+              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"97788d35\",\"path\":[\"parameters\",\"sso_username\"]}').present?",
+              "rhs": "",
+              "uuid": "81f2b72c-a374-4031-ba13-28593bbc26c6"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 19,
+            "provider": "workato_db_table",
+            "name": "get_records",
+            "as": "2fad257b",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "table_id": "DT | Target user lookup cache",
+              "filters.0.field_id": "FederationIdentifier",
+              "order_by_field_id": "Last modified time",
+              "filters.1.field_id": "Last modified time"
+            },
+            "input": {
+              "order_direction": "desc",
+              "limit": "1",
+              "table_id": {
+                "zip_name": "Lookups, helpers, etc/Cache/target_user_lookup_cache.workato_db_table.json",
+                "name": "Target | User lookup cache",
+                "folder": "Lookups, helpers, etc/Cache"
+              },
+              "cb9c2f4c-1f03-4fee-9ac3-e771ec3494fb": "string",
+              "4b515a76-52a8-4799-abf4-330f936bf88f": "string",
+              "df2262b5-ef08-4880-9c64-5c73366f0aff": "string",
+              "9764e099-5e4f-4197-855a-98a4e46887b5": "string",
+              "7a1592cb-7fc2-4f0d-9d7e-a27ba0cc4c74": "string",
+              "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+              "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+              "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+              "filters": [
+                {
+                  "field_id": "df2262b5-ef08-4880-9c64-5c73366f0aff",
+                  "op_default": "eq",
+                  "value_default": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"97788d35\",\"path\":[\"parameters\",\"sso_username\"]}')}"
+                },
+                {
+                  "field_id": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                  "op_date_time": "gte",
+                  "value_date_time": "=now - 60.minutes"
+                }
+              ],
+              "order_by_field_id": "61aae604-a95e-4519-9091-bb0bf754a67f"
+            },
+            "extended_output_schema": [
+              {
+                "label": "Records",
+                "name": "records",
+                "of": "object",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Record ID",
+                    "type": "string",
+                    "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Id",
+                    "type": "string",
+                    "name": "cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactId",
+                    "type": "string",
+                    "name": "4b515a76_52a8_4799_abf4_330f936bf88f"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "FederationIdentifier",
+                    "type": "string",
+                    "name": "df2262b5_ef08_4880_9c64_5c73366f0aff"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Legacy_ID__c",
+                    "type": "string",
+                    "name": "9764e099_5e4f_4197_855a_98a4e46887b5"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactLegacyId__c",
+                    "type": "string",
+                    "name": "7a1592cb_7fc2_4f0d_9d7e_a27ba0cc4c74"
+                  },
+                  {
+                    "control_type": "date_time",
+                    "label": "Created at",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "type": "date_time",
+                    "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                  },
+                  {
+                    "control_type": "date_time",
+                    "label": "Updated at",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "type": "date_time",
+                    "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                  }
+                ],
+                "type": "array"
+              },
+              {
+                "control_type": "text",
+                "label": "Next Page Token",
+                "name": "continuation_token",
+                "type": "string"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "default": "string",
+                "label": "$internal_value_cb9c2f4c-1f03-4fee-9ac3-e771ec3494fb",
+                "name": "cb9c2f4c-1f03-4fee-9ac3-e771ec3494fb",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "string",
+                "label": "$internal_value_4b515a76-52a8-4799-abf4-330f936bf88f",
+                "name": "4b515a76-52a8-4799-abf4-330f936bf88f",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "string",
+                "label": "$internal_value_df2262b5-ef08-4880-9c64-5c73366f0aff",
+                "name": "df2262b5-ef08-4880-9c64-5c73366f0aff",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "string",
+                "label": "$internal_value_9764e099-5e4f-4197-855a-98a4e46887b5",
+                "name": "9764e099-5e4f-4197-855a-98a4e46887b5",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "string",
+                "label": "$internal_value_7a1592cb-7fc2-4f0d-9d7e-a27ba0cc4c74",
+                "name": "7a1592cb-7fc2-4f0d-9d7e-a27ba0cc4c74",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "id",
+                "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "date_time",
+                "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              },
+              {
+                "control_type": "text",
+                "default": "date_time",
+                "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                "ngIf": "false",
+                "optional": true,
+                "type": "string"
+              }
+            ],
+            "uuid": "81113250-d820-47b4-9b85-1c41ecd3a96a"
+          },
+          {
+            "number": 20,
+            "provider": "workato_variable",
+            "name": "update_variables",
+            "as": "49c4c244",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "name": [
+                {
+                  "label": "Id (step 2)",
+                  "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:Id"
+                },
+                {
+                  "label": "ContactId (step 2)",
+                  "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactId"
+                },
+                {
+                  "label": "FederationIdentifier (step 2)",
+                  "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:FederationIdentifier"
+                },
+                {
+                  "label": "LegacyID__c (step 2)",
+                  "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:LegacyID__c"
+                },
+                {
+                  "label": "ContactLegacyId__c (step 2)",
+                  "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactLegacyId__c"
+                }
+              ]
+            },
+            "input": {
+              "input_mode": "raw",
+              "name": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:Id\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactId\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:FederationIdentifier\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:LegacyID__c\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactLegacyId__c",
+              "Id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"2fad257b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb\"]}')}",
+              "FederationIdentifier": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"2fad257b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"df2262b5_ef08_4880_9c64_5c73366f0aff\"]}')}",
+              "LegacyID__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"2fad257b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"9764e099_5e4f_4197_855a_98a4e46887b5\"]}')}",
+              "ContactLegacyId__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"2fad257b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"7a1592cb_7fc2_4f0d_9d7e_a27ba0cc4c74\"]}')}",
+              "ContactId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"2fad257b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"4b515a76_52a8_4799_abf4_330f936bf88f\"]}')}"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "Id",
+                "name": "Id",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              },
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "ContactId",
+                "name": "ContactId",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              },
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "FederationIdentifier",
+                "name": "FederationIdentifier",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              },
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "LegacyID__c",
+                "name": "LegacyID__c",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              },
+              {
+                "control_type": "text",
+                "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                "label": "ContactLegacyId__c",
+                "name": "ContactLegacyId__c",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "strip_interpolation": true
+              }
+            ],
+            "uuid": "2d38de64-8e04-49f2-aabf-a743af4ca026"
+          },
+          {
+            "number": 21,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "is_true",
+                  "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"Id\"]}').blank?",
+                  "rhs": "",
+                  "uuid": "b78ac2bb-661f-48dc-a677-9ee42c1f6b13"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 22,
+                "keyword": "try",
+                "input": {
+                },
+                "block": [
+                  {
+                    "number": 23,
+                    "provider": "salesforce",
+                    "name": "search_sobjects_soql",
+                    "as": "541c2169",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "sobject_name": "User",
+                      "field_list": [
+                        {
+                          "label": "User ID",
+                          "value": "Id"
+                        },
+                        {
+                          "label": "SAML Federation ID",
+                          "value": "FederationIdentifier"
+                        },
+                        {
+                          "label": "Legacy ID",
+                          "value": "Legacy_ID__c"
+                        },
+                        {
+                          "label": "Contact Legacy ID",
+                          "value": "ContactLegacyId__c"
+                        },
+                        {
+                          "label": "Contact ID",
+                          "value": "ContactId"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "limit": "1",
+                      "sobject_name": "User",
+                      "query": "FederationIdentifier = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"97788d35\",\"path\":[\"parameters\",\"sso_username\"]}')}'",
+                      "field_list": "Id\nFederationIdentifier\nLegacy_ID__c\nContactLegacyId__c\nContactId"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Users",
+                        "name": "User",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "control_type": "text",
+                            "label": "Contact ID",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "ContactId"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "SAML Federation ID",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": false,
+                            "sfdc_updateable": false,
+                            "type": "string",
+                            "name": "FederationIdentifier"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "User ID",
+                            "optional": true,
+                            "custom": false,
+                            "sfdc_createable": false,
+                            "sfdc_updateable": false,
+                            "type": "string",
+                            "name": "Id"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Contact Legacy ID",
+                            "optional": true,
+                            "custom": true,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "ContactLegacyId__c"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Legacy ID",
+                            "optional": true,
+                            "custom": true,
+                            "sfdc_createable": true,
+                            "sfdc_updateable": true,
+                            "type": "string",
+                            "name": "Legacy_ID__c"
+                          },
+                          {
+                            "properties": [
+                              {
+                                "control_type": "number",
+                                "label": "Total size",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "totalSize"
+                              },
+                              {
+                                "label": "Files",
+                                "of": "object",
+                                "properties": [
+                                  {
+                                    "control_type": "text",
+                                    "label": "ID",
+                                    "type": "string",
+                                    "name": "Id"
+                                  },
+                                  {
+                                    "control_type": "number",
+                                    "label": "Content size",
+                                    "parse_output": "integer_conversion",
+                                    "type": "integer",
+                                    "name": "ContentSize"
+                                  },
+                                  {
+                                    "control_type": "url",
+                                    "label": "Content URL",
+                                    "type": "string",
+                                    "name": "ContentUrl"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "File extension",
+                                    "type": "string",
+                                    "name": "FileExtension"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "File type",
+                                    "type": "string",
+                                    "name": "FileType"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Parent ID",
+                                    "type": "string",
+                                    "name": "ParentId"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Record type",
+                                    "type": "string",
+                                    "name": "RecordType"
+                                  },
+                                  {
+                                    "control_type": "text",
+                                    "label": "Title",
+                                    "type": "string",
+                                    "name": "Title"
+                                  }
+                                ],
+                                "type": "array",
+                                "name": "records"
+                              }
+                            ],
+                            "label": "Combined attachments",
+                            "sfdc_field_type": "CombinedAttachment",
+                            "type": "object",
+                            "name": "CombinedAttachments"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "List size",
+                        "name": "list_size",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Processed all records?",
+                        "name": "done",
+                        "toggle_field": {
+                          "label": "Processed all records?",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "type": "boolean",
+                          "render_input": null,
+                          "parse_output": null,
+                          "name": "done"
+                        },
+                        "toggle_hint": "Select from option list",
+                        "type": "boolean"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Total records",
+                        "name": "total_records",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      },
+                      {
+                        "control_type": "url",
+                        "label": "Next page URL",
+                        "name": "next_page_url",
+                        "type": "string"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "checkbox",
+                        "disable_formula": true,
+                        "extends_schema": true,
+                        "hint": "Select <b>Yes</b> to obtain data from notes, attachments and files associated to the queried records. Default value is <b>Yes</b>.",
+                        "label": "Select combined attachments",
+                        "name": "include_combined_attachments",
+                        "optional": true,
+                        "support_pills": false,
+                        "type": "boolean"
+                      }
+                    ],
+                    "uuid": "69c9586c-8e93-49c5-aed6-2c4a8e8ac9e6"
+                  },
+                  {
+                    "number": 24,
+                    "provider": "workato_variable",
+                    "name": "update_variables",
+                    "as": "b06e18ea",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": [
+                        {
+                          "label": "Id (step 2)",
+                          "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:Id"
+                        },
+                        {
+                          "label": "FederationIdentifier (step 2)",
+                          "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:FederationIdentifier"
+                        },
+                        {
+                          "label": "LegacyID__c (step 2)",
+                          "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:LegacyID__c"
+                        },
+                        {
+                          "label": "ContactLegacyId__c (step 2)",
+                          "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactLegacyId__c"
+                        },
+                        {
+                          "label": "ContactId (step 2)",
+                          "value": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactId"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "input_mode": "raw",
+                      "name": "0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:Id\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:FederationIdentifier\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:LegacyID__c\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactLegacyId__c\n0f4ad619-eaa7-4200-a891-aba159a8261d:58f2c4ee:ContactId",
+                      "Id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"541c2169\",\"path\":[\"User\",{\"path_element_type\":\"current_item\"},\"Id\"]}')}",
+                      "FederationIdentifier": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"541c2169\",\"path\":[\"User\",{\"path_element_type\":\"current_item\"},\"FederationIdentifier\"]}')}",
+                      "LegacyID__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"541c2169\",\"path\":[\"User\",{\"path_element_type\":\"current_item\"},\"Legacy_ID__c\"]}')}",
+                      "ContactLegacyId__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"541c2169\",\"path\":[\"User\",{\"path_element_type\":\"current_item\"},\"ContactLegacyId__c\"]}')}",
+                      "ContactId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"541c2169\",\"path\":[\"User\",{\"path_element_type\":\"current_item\"},\"ContactId\"]}')}"
+                    },
+                    "extended_input_schema": [
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "Id",
+                        "name": "Id",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      },
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "FederationIdentifier",
+                        "name": "FederationIdentifier",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      },
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "LegacyID__c",
+                        "name": "LegacyID__c",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      },
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "ContactLegacyId__c",
+                        "name": "ContactLegacyId__c",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      },
+                      {
+                        "control_type": "text",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "ContactId",
+                        "name": "ContactId",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "strip_interpolation": true
+                      }
+                    ],
+                    "uuid": "20ba6ab5-eb93-401e-b217-d8547e7b4bcc"
+                  },
+                  {
+                    "number": 25,
+                    "as": "195d32f9",
+                    "keyword": "catch",
+                    "input": {
+                      "max_retry_count": "3",
+                      "retry_interval": "2"
+                    },
+                    "filter": {
+                      "conditions": [
+                        {
+                          "operand": "not_equals_to",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"195d32f9\",\"path\":[\"http_response\",\"code\"]}')}",
+                          "rhs": "404",
+                          "uuid": "619fed3e-2bb3-4008-a482-0aec2e0d7c20"
+                        }
+                      ],
+                      "operand": "and",
+                      "type": "compound"
+                    },
+                    "block": [
+
+                    ],
+                    "uuid": "04f872af-f5b2-4ff1-84b7-e1b490697ee5"
+                  }
+                ],
+                "uuid": "c25adaf3-f6e3-4283-8b2e-09ff7c8cb6e3"
+              }
+            ],
+            "comment": "If no cache hit, search target",
+            "uuid": "18ed3ca2-3ce5-4815-997f-df7cf9eec988"
+          }
+        ],
+        "comment": "Contact legacy ID not provided and no ID yet. If SSO username provided, try using it.",
+        "uuid": "51d87f6f-bf2b-4977-b36c-cf90e1f38d88"
+      },
+      {
+        "number": 26,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "is_true",
+              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"Id\"]}').blank?",
+              "rhs": "",
+              "uuid": "fa4e1531-9930-4cd2-b294-f0dfa67677f3"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 27,
+            "keyword": "if",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "is_true",
+                  "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"97788d35\",\"path\":[\"parameters\",\"contact_legacy_id\"]}').present?",
+                  "rhs": "",
+                  "uuid": "e97d3527-5b76-4329-a4ec-f6293533c815"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 28,
+                "provider": "workato_recipe_function",
+                "name": "return_result",
+                "as": "3c44bc13",
+                "keyword": "action",
+                "toggleCfg": {
+                  "result.found": true
+                },
+                "input": {
+                  "result": {
+                    "Id": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"default_contact_user\"}')}",
+                    "FederationIdentifier": "=nil",
+                    "Legacy_ID__c": "=nil",
+                    "ContactLegacyId__c": "=nil",
+                    "found": "false",
+                    "ContactId": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"default_contact\"}')}"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Id",
+                        "name": "Id",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "ContactId",
+                        "name": "ContactId",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "FederationIdentifier",
+                        "name": "FederationIdentifier",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Legacy_ID__c",
+                        "name": "Legacy_ID__c",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "ContactLegacyId__c",
+                        "name": "ContactLegacyId__c",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Was Found?",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "found",
+                        "type": "boolean",
+                        "optional": false,
+                        "hint": "Whether returned ID was found in target or not.  If false, default value was returned.",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Was Found?",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "found",
+                          "type": "boolean",
+                          "optional": false,
+                          "hint": "Whether returned ID was found in target or not.  If false, default value was returned."
+                        }
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "label": "Result",
+                    "name": "result",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Id",
+                        "name": "Id",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "ContactId",
+                        "name": "ContactId",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "FederationIdentifier",
+                        "name": "FederationIdentifier",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Legacy_ID__c",
+                        "name": "Legacy_ID__c",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "ContactLegacyId__c",
+                        "name": "ContactLegacyId__c",
+                        "type": "string",
+                        "optional": false
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Was Found?",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "name": "found",
+                        "type": "boolean",
+                        "optional": false,
+                        "hint": "Whether returned ID was found in target or not.  If false, default value was returned.",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Was Found?",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "name": "found",
+                          "type": "boolean",
+                          "optional": false,
+                          "hint": "Whether returned ID was found in target or not.  If false, default value was returned."
+                        }
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "uuid": "48223b97-76b8-4ab5-ab20-ffd0bba82705"
+              }
+            ],
+            "uuid": "9f0a89b4-c5ac-4ee4-bc1b-49fbe28d5504"
+          },
+          {
+            "number": 29,
+            "provider": "workato_recipe_function",
+            "name": "return_result",
+            "as": "c056464e",
+            "keyword": "action",
+            "toggleCfg": {
+              "result.found": true
+            },
+            "input": {
+              "result": {
+                "found": "false",
+                "FederationIdentifier": "=nil",
+                "Legacy_ID__c": "=nil",
+                "ContactLegacyId__c": "=nil",
+                "Id": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"default_user\"}')}",
+                "ContactId": "=nil"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Id",
+                    "name": "Id",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactId",
+                    "name": "ContactId",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "FederationIdentifier",
+                    "name": "FederationIdentifier",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Legacy_ID__c",
+                    "name": "Legacy_ID__c",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactLegacyId__c",
+                    "name": "ContactLegacyId__c",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Was Found?",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "name": "found",
+                    "type": "boolean",
+                    "optional": false,
+                    "hint": "Whether returned ID was found in target or not.  If false, default value was returned.",
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Was Found?",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "name": "found",
+                      "type": "boolean",
+                      "optional": false,
+                      "hint": "Whether returned ID was found in target or not.  If false, default value was returned."
+                    }
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "label": "Result",
+                "name": "result",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Id",
+                    "name": "Id",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactId",
+                    "name": "ContactId",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "FederationIdentifier",
+                    "name": "FederationIdentifier",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Legacy_ID__c",
+                    "name": "Legacy_ID__c",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactLegacyId__c",
+                    "name": "ContactLegacyId__c",
+                    "type": "string",
+                    "optional": false
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Was Found?",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "name": "found",
+                    "type": "boolean",
+                    "optional": false,
+                    "hint": "Whether returned ID was found in target or not.  If false, default value was returned.",
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Was Found?",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "name": "found",
+                      "type": "boolean",
+                      "optional": false,
+                      "hint": "Whether returned ID was found in target or not.  If false, default value was returned."
+                    }
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "uuid": "45120a92-1e4f-4a14-a70d-1828af2ea185"
+          }
+        ],
+        "comment": "Still no ID, return default",
+        "uuid": "469cf087-ab69-44ea-86eb-05015f388f5b"
+      },
+      {
+        "number": 30,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 31,
+            "provider": "workato_db_table",
+            "name": "upsert_record",
+            "as": "686d3ad1",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "table_id": "DT | Target user lookup cache",
+              "primary_field_id": "Id"
+            },
+            "input": {
+              "table_id": {
+                "zip_name": "Lookups, helpers, etc/Cache/target_user_lookup_cache.workato_db_table.json",
+                "name": "Target | User lookup cache",
+                "folder": "Lookups, helpers, etc/Cache"
+              },
+              "primary_field_id": "cb9c2f4c-1f03-4fee-9ac3-e771ec3494fb",
+              "parameters": {
+                "cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"Id\"]}')}",
+                "4b515a76_52a8_4799_abf4_330f936bf88f": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"ContactId\"]}')}",
+                "df2262b5_ef08_4880_9c64_5c73366f0aff": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"FederationIdentifier\"]}')}",
+                "9764e099_5e4f_4197_855a_98a4e46887b5": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"LegacyID__c\"]}')}",
+                "7a1592cb_7fc2_4f0d_9d7e_a27ba0cc4c74": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"ContactLegacyId__c\"]}')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Record",
+                "name": "record",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Record ID",
+                    "type": "string",
+                    "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Id",
+                    "type": "string",
+                    "name": "cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactId",
+                    "type": "string",
+                    "name": "4b515a76_52a8_4799_abf4_330f936bf88f"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "FederationIdentifier",
+                    "type": "string",
+                    "name": "df2262b5_ef08_4880_9c64_5c73366f0aff"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Legacy_ID__c",
+                    "type": "string",
+                    "name": "9764e099_5e4f_4197_855a_98a4e46887b5"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactLegacyId__c",
+                    "type": "string",
+                    "name": "7a1592cb_7fc2_4f0d_9d7e_a27ba0cc4c74"
+                  },
+                  {
+                    "control_type": "date_time",
+                    "label": "Created at",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "type": "date_time",
+                    "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                  },
+                  {
+                    "control_type": "date_time",
+                    "label": "Updated at",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "type": "date_time",
+                    "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Fill the fields for the new or updated record. Fields that are not specified will not be updated.",
+                "label": "Record fields",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Id",
+                    "optional": false,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactId",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "4b515a76_52a8_4799_abf4_330f936bf88f"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "FederationIdentifier",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "df2262b5_ef08_4880_9c64_5c73366f0aff"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Legacy_ID__c",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "9764e099_5e4f_4197_855a_98a4e46887b5"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "ContactLegacyId__c",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "7a1592cb_7fc2_4f0d_9d7e_a27ba0cc4c74"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "comment": "Insert or update cache record. Update to modify \"last modified time\" so when oldest records are selected for deletion, this one will most likely not be selected for deletion.",
+            "uuid": "3b6bc662-95be-4c0b-bcc9-7250046adef0"
+          },
+          {
+            "number": 32,
+            "as": "72836080",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "3",
+              "retry_interval": "1"
+            },
+            "filter": {
+              "conditions": [
+                {
+                  "operand": "not_contains",
+                  "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"72836080\",\"path\":[\"message\"]}').downcase",
+                  "rhs": "maximum",
+                  "uuid": "65018378-71a7-4451-9917-35d3aacaf045"
+                },
+                {
+                  "operand": "not_contains",
+                  "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"72836080\",\"path\":[\"message\"]}').downcase",
+                  "rhs": "limit",
+                  "uuid": "5b0c1cdc-43a9-4d40-a482-8fbad382a269"
+                }
+              ],
+              "operand": "and",
+              "type": "compound"
+            },
+            "block": [
+              {
+                "number": 33,
+                "keyword": "if",
+                "input": {
+                  "type": "compound",
+                  "operand": "or",
+                  "conditions": [
+                    {
+                      "operand": "contains",
+                      "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"72836080\",\"path\":[\"message\"]}').downcase",
+                      "rhs": "maximum",
+                      "uuid": "4b2f1e5e-cc5b-48ba-ac22-7e40a99ea588"
+                    },
+                    {
+                      "operand": "contains",
+                      "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"72836080\",\"path\":[\"message\"]}').downcase",
+                      "rhs": "limit",
+                      "uuid": "cdbb06e7-728e-4f35-9cfe-bf872ecf2a69"
+                    }
+                  ]
+                },
+                "block": [
+                  {
+                    "number": 34,
+                    "keyword": "try",
+                    "input": {
+                    },
+                    "block": [
+                      {
+                        "number": 35,
+                        "provider": "workato_db_table",
+                        "name": "get_records",
+                        "as": "44f53e95",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "table_id": "[TS] DT | Search Target User by Legacy_ID__C then FedrationIdentifier (Workato cache)",
+                          "order_by_field_id": "Last modified time"
+                        },
+                        "input": {
+                          "order_direction": "asc",
+                          "limit": "1000",
+                          "table_id": {
+                            "zip_name": "Lookups, helpers, etc/Cache/target_user_lookup_cache.workato_db_table.json",
+                            "name": "Target | User lookup cache",
+                            "folder": "Lookups, helpers, etc/Cache"
+                          },
+                          "cb9c2f4c-1f03-4fee-9ac3-e771ec3494fb": "string",
+                          "9764e099-5e4f-4197-855a-98a4e46887b5": "string",
+                          "df2262b5-ef08-4880-9c64-5c73366f0aff": "string",
+                          "2aa198d7-7015-4f94-8966-31fa0d0e2f9b": "integer",
+                          "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+                          "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+                          "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+                          "order_by_field_id": "61aae604-a95e-4519-9091-bb0bf754a67f"
+                        },
+                        "extended_output_schema": [
+                          {
+                            "label": "Records",
+                            "name": "records",
+                            "of": "object",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Record ID",
+                                "type": "string",
+                                "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Id",
+                                "type": "string",
+                                "name": "cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Legacy_ID__c",
+                                "type": "string",
+                                "name": "9764e099_5e4f_4197_855a_98a4e46887b5"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "FederationIdentifier",
+                                "type": "string",
+                                "name": "df2262b5_ef08_4880_9c64_5c73366f0aff"
+                              },
+                              {
+                                "control_type": "number",
+                                "label": "Cache Hits",
+                                "parse_output": "integer_conversion",
+                                "type": "integer",
+                                "name": "2aa198d7_7015_4f94_8966_31fa0d0e2f9b"
+                              },
+                              {
+                                "control_type": "date_time",
+                                "label": "Created at",
+                                "render_input": "date_time_conversion",
+                                "parse_output": "date_time_conversion",
+                                "type": "date_time",
+                                "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                              },
+                              {
+                                "control_type": "date_time",
+                                "label": "Updated at",
+                                "render_input": "date_time_conversion",
+                                "parse_output": "date_time_conversion",
+                                "type": "date_time",
+                                "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                              }
+                            ],
+                            "type": "array"
+                          },
+                          {
+                            "control_type": "text",
+                            "label": "Next Page Token",
+                            "name": "continuation_token",
+                            "type": "string"
+                          }
+                        ],
+                        "extended_input_schema": [
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_cb9c2f4c-1f03-4fee-9ac3-e771ec3494fb",
+                            "name": "cb9c2f4c-1f03-4fee-9ac3-e771ec3494fb",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_9764e099-5e4f-4197-855a-98a4e46887b5",
+                            "name": "9764e099-5e4f-4197-855a-98a4e46887b5",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "string",
+                            "label": "$internal_value_df2262b5-ef08-4880-9c64-5c73366f0aff",
+                            "name": "df2262b5-ef08-4880-9c64-5c73366f0aff",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "integer",
+                            "label": "$internal_value_2aa198d7-7015-4f94-8966-31fa0d0e2f9b",
+                            "name": "2aa198d7-7015-4f94-8966-31fa0d0e2f9b",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "id",
+                            "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                            "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "date_time",
+                            "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                            "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          },
+                          {
+                            "control_type": "text",
+                            "default": "date_time",
+                            "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+                            "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+                            "ngIf": "false",
+                            "optional": true,
+                            "type": "string"
+                          }
+                        ],
+                        "comment": "Get oldest 1,000 cache records",
+                        "uuid": "a3bbbde3-efac-4f97-8f54-aa2fd698765c"
+                      },
+                      {
+                        "number": 36,
+                        "provider": "workato_db_table",
+                        "name": "delete_records_batch",
+                        "as": "97f36bec",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "table_id": "[TS] DT | Search Target User by Legacy_ID__C then FedrationIdentifier (Workato cache)"
+                        },
+                        "input": {
+                          "table_id": {
+                            "zip_name": "Lookups, helpers, etc/Cache/target_user_lookup_cache.workato_db_table.json",
+                            "name": "Target | User lookup cache",
+                            "folder": "Lookups, helpers, etc/Cache"
+                          },
+                          "records": {
+                            "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"44f53e95\",\"path\":[\"records\"]}')}",
+                            "record_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"44f53e95\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}"
+                          }
+                        },
+                        "comment": "Delete oldest 1,000 cache records",
+                        "uuid": "fee179bd-ee17-49ff-8f02-5a4a5b87e0db"
+                      },
+                      {
+                        "number": 37,
+                        "provider": "workato_db_table",
+                        "name": "upsert_record",
+                        "as": "6a9ebe46",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "table_id": "DT | Target user lookup cache",
+                          "primary_field_id": "Id"
+                        },
+                        "input": {
+                          "table_id": {
+                            "zip_name": "Lookups, helpers, etc/Cache/target_user_lookup_cache.workato_db_table.json",
+                            "name": "Target | User lookup cache",
+                            "folder": "Lookups, helpers, etc/Cache"
+                          },
+                          "primary_field_id": "cb9c2f4c-1f03-4fee-9ac3-e771ec3494fb",
+                          "parameters": {
+                            "cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"Id\"]}')}",
+                            "4b515a76_52a8_4799_abf4_330f936bf88f": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"ContactId\"]}')}",
+                            "df2262b5_ef08_4880_9c64_5c73366f0aff": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"FederationIdentifier\"]}')}",
+                            "9764e099_5e4f_4197_855a_98a4e46887b5": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"LegacyID__c\"]}')}",
+                            "7a1592cb_7fc2_4f0d_9d7e_a27ba0cc4c74": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"ContactLegacyId__c\"]}')}"
+                          }
+                        },
+                        "extended_output_schema": [
+                          {
+                            "label": "Record",
+                            "name": "record",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Record ID",
+                                "type": "string",
+                                "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Id",
+                                "type": "string",
+                                "name": "cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "ContactId",
+                                "type": "string",
+                                "name": "4b515a76_52a8_4799_abf4_330f936bf88f"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "FederationIdentifier",
+                                "type": "string",
+                                "name": "df2262b5_ef08_4880_9c64_5c73366f0aff"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Legacy_ID__c",
+                                "type": "string",
+                                "name": "9764e099_5e4f_4197_855a_98a4e46887b5"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "ContactLegacyId__c",
+                                "type": "string",
+                                "name": "7a1592cb_7fc2_4f0d_9d7e_a27ba0cc4c74"
+                              },
+                              {
+                                "control_type": "date_time",
+                                "label": "Created at",
+                                "render_input": "date_time_conversion",
+                                "parse_output": "date_time_conversion",
+                                "type": "date_time",
+                                "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                              },
+                              {
+                                "control_type": "date_time",
+                                "label": "Updated at",
+                                "render_input": "date_time_conversion",
+                                "parse_output": "date_time_conversion",
+                                "type": "date_time",
+                                "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "extended_input_schema": [
+                          {
+                            "hint": "Fill the fields for the new or updated record. Fields that are not specified will not be updated.",
+                            "label": "Record fields",
+                            "name": "parameters",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Id",
+                                "optional": false,
+                                "sticky": true,
+                                "type": "string",
+                                "name": "cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "ContactId",
+                                "optional": true,
+                                "sticky": true,
+                                "type": "string",
+                                "name": "4b515a76_52a8_4799_abf4_330f936bf88f"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "FederationIdentifier",
+                                "optional": true,
+                                "sticky": true,
+                                "type": "string",
+                                "name": "df2262b5_ef08_4880_9c64_5c73366f0aff"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Legacy_ID__c",
+                                "optional": true,
+                                "sticky": true,
+                                "type": "string",
+                                "name": "9764e099_5e4f_4197_855a_98a4e46887b5"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "ContactLegacyId__c",
+                                "optional": true,
+                                "sticky": true,
+                                "type": "string",
+                                "name": "7a1592cb_7fc2_4f0d_9d7e_a27ba0cc4c74"
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "comment": "Insert or update cache record. Update to modify \"last modified time\" so when oldest records are selected for deletion, this one will most likely not be selected for deletion.",
+                        "uuid": "93bb152b-e4fc-4b81-b058-09f8c811be6a"
+                      },
+                      {
+                        "number": 38,
+                        "as": "48beb6e8",
+                        "keyword": "catch",
+                        "input": {
+                          "max_retry_count": "3",
+                          "retry_interval": "2"
+                        },
+                        "filter": {
+                          "conditions": [
+                            {
+                              "operand": "contains",
+                              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"48beb6e8\",\"path\":[\"message\"]}').downcase",
+                              "rhs": "maximum",
+                              "uuid": "f254d571-a287-4e1d-8912-c7bbb79fdcaa"
+                            },
+                            {
+                              "operand": "contains",
+                              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"48beb6e8\",\"path\":[\"message\"]}').downcase",
+                              "rhs": "limit",
+                              "uuid": "fb0b5673-82b4-4119-b184-8e26be0abeb6"
+                            }
+                          ],
+                          "operand": "or",
+                          "type": "compound"
+                        },
+                        "block": [
+
+                        ],
+                        "uuid": "557a434c-3361-439f-85ce-e771a81ceaf5"
+                      }
+                    ],
+                    "comment": "Clear some cache space",
+                    "uuid": "bc913798-6d0e-4130-b62f-c116c4d159b2"
+                  }
+                ],
+                "comment": "If cache is full",
+                "uuid": "82716745-56d7-492c-9832-2088d19f36f3"
+              }
+            ],
+            "comment": "Retry unless cache is full",
+            "uuid": "e816bd20-e7f1-46a8-b486-c64c04dace80"
+          }
+        ],
+        "comment": "Save to cache",
+        "uuid": "658d5138-218c-4eb2-9444-dd5c6c627574"
+      },
+      {
+        "number": 39,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "bd7880d5",
+        "keyword": "action",
+        "toggleCfg": {
+          "result.found": true
+        },
+        "input": {
+          "result": {
+            "Id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"Id\"]}')}",
+            "FederationIdentifier": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"FederationIdentifier\"]}')}",
+            "Legacy_ID__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"LegacyID__c\"]}')}",
+            "ContactLegacyId__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"ContactLegacyId__c\"]}')}",
+            "found": "true",
+            "ContactId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"ContactId\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Id",
+                "name": "Id",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "ContactId",
+                "name": "ContactId",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "FederationIdentifier",
+                "name": "FederationIdentifier",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Legacy_ID__c",
+                "name": "Legacy_ID__c",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "ContactLegacyId__c",
+                "name": "ContactLegacyId__c",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Was Found?",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "found",
+                "type": "boolean",
+                "optional": false,
+                "hint": "Whether returned ID was found in target or not.  If false, default value was returned.",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Was Found?",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "found",
+                  "type": "boolean",
+                  "optional": false,
+                  "hint": "Whether returned ID was found in target or not.  If false, default value was returned."
+                }
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Id",
+                "name": "Id",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "ContactId",
+                "name": "ContactId",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "FederationIdentifier",
+                "name": "FederationIdentifier",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Legacy_ID__c",
+                "name": "Legacy_ID__c",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "ContactLegacyId__c",
+                "name": "ContactLegacyId__c",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Was Found?",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "found",
+                "type": "boolean",
+                "optional": false,
+                "hint": "Whether returned ID was found in target or not.  If false, default value was returned.",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Was Found?",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "found",
+                  "type": "boolean",
+                  "optional": false,
+                  "hint": "Whether returned ID was found in target or not.  If false, default value was returned."
+                }
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "3c8cf7c0-73a1-4c52-b873-587bd05b8ee7"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_0",
+        "label": "Source (legacy) ID <input>"
+      },
+      {
+        "name": "custom_column_1",
+        "label": "Source (legacy) contact ID <input>"
+      },
+      {
+        "name": "custom_column_2",
+        "label": "Source (legacy) SSO username <input>"
+      },
+      {
+        "name": "custom_column_3",
+        "label": "Target ID"
+      },
+      {
+        "name": "custom_column_4",
+        "label": "Target contact ID"
+      },
+      {
+        "name": "custom_column_5",
+        "label": "Target SSO username"
+      },
+      {
+        "name": "custom_column_6",
+        "label": "Default associate?"
+      },
+      {
+        "name": "custom_column_7",
+        "label": "Default customer?"
+      },
+      {
+        "name": "custom_column_8",
+        "label": "Cached?"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"97788d35\",\"path\":[\"parameters\",\"legacy_id\"]}')}",
+      "custom_column_1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"97788d35\",\"path\":[\"parameters\",\"contact_legacy_id\"]}')}",
+      "custom_column_2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"97788d35\",\"path\":[\"parameters\",\"sso_username\"]}')}",
+      "custom_column_3": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"Id\"]}') || _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c44bc13\",\"path\":[\"result\",\"Id\"]}') || _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"c056464e\",\"path\":[\"result\",\"Id\"]}')",
+      "custom_column_4": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"ContactId\"]}') || _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c44bc13\",\"path\":[\"result\",\"ContactId\"]}') || _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"c056464e\",\"path\":[\"result\",\"ContactId\"]}')",
+      "custom_column_5": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"58f2c4ee\",\"path\":[\"FederationIdentifier\"]}') || _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c44bc13\",\"path\":[\"result\",\"FederationIdentifier\"]}') || _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"c056464e\",\"path\":[\"result\",\"FederationIdentifier\"]}')",
+      "custom_column_6": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"c056464e\",\"path\":[\"result\",\"Id\"]}').present?",
+      "custom_column_7": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"3c44bc13\",\"path\":[\"result\",\"Id\"]}').present?",
+      "custom_column_8": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"9c79f7e1\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb\"]}').present? || _dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"ab9357ae\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb\"]}').present? || _dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"2fad257b\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"cb9c2f4c_1f03_4fee_9ac3_e771ec3494fb\"]}').present?"
+    },
+    "uuid": "e5478e11-5978-4824-b93f-aacf12f58d7e"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/sf_sct_target.connection.json",
+        "name": "SF_SCT_Target",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_db_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ],
+  "tags": [
+    "cached",
+    "lookup",
+    "user"
+  ]
+}
