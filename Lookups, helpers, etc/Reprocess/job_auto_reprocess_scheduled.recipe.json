@@ -1,0 +1,374 @@
+{
+  "name": "Job auto reprocess [SCHEDULED]",
+  "description": "",
+  "version": 10,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "clock",
+    "name": "scheduled_event",
+    "as": "24781336",
+    "keyword": "trigger",
+    "input": {
+      "time_unit": "minutes",
+      "trigger_every": "5"
+    },
+    "extended_input_schema": [
+      {
+        "control_type": "integer",
+        "default": "5",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Define repeating schedule. Enter whole numbers only.This field can be set to a minimum of 5 minutes.",
+        "label": "Trigger every",
+        "name": "trigger_every",
+        "optional": false,
+        "suffix": {
+          "text": "minutes"
+        },
+        "type": "string"
+      },
+      {
+        "control_type": "select",
+        "hint": "Select the timezone to use. Leave it blank to use <b>{{authUser.account_timezone}}</b>",
+        "label": "Timezone",
+        "name": "timezone",
+        "optional": true,
+        "pick_list": "timezone_id_global_pick_list",
+        "pick_list_connection_less": true,
+        "type": "string"
+      },
+      {
+        "control_type": "date_time",
+        "enforce_template_mode": true,
+        "extends_schema": true,
+        "hint": "Set date and time to start or leave blank to start immediately. <b>Once recipe has been run or tested, value cannot be changed.</b>",
+        "label": "Start after",
+        "name": "start_after",
+        "optional": true,
+        "parse_output": "date_time_conversion",
+        "since_field": true,
+        "type": "date_time",
+        "ignore_timezone": true,
+        "render_input": "date_time_conversion"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_db_table",
+        "name": "get_records",
+        "as": "b4192591",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "table_id": "Job reprocess queue",
+          "filters.0.field_id": "Auto reprocess",
+          "filters.1.field_id": "Last modified time",
+          "order_by_field_id": "Last modified time"
+        },
+        "input": {
+          "order_direction": "asc",
+          "limit": "100",
+          "table_id": {
+            "zip_name": "Lookups, helpers, etc/Reprocess/job_reprocess_queue.workato_db_table.json",
+            "name": "Job reprocess queue",
+            "folder": "Lookups, helpers, etc/Reprocess"
+          },
+          "c5a8659d-e909-4e04-b798-67929ca7e1e4": "string",
+          "3fb4b9ad-66d1-438b-9c9b-1ee66895a3a0": "string",
+          "2e248ca1-ee09-4df6-b2e5-c9b4c512c099": "string",
+          "593d07a3-fa93-485e-996d-4c61a2cd8b96": "string",
+          "f3d6e078-bea2-4c4d-820f-87d31f50ab36": "integer",
+          "29ef9ae9-8d30-4f88-b3d0-2a4f58945327": "string",
+          "df13b58e-7145-41bd-8f56-a8b212a0eb45": "integer",
+          "ce1837eb-ccb1-4277-b9ff-8eb94cff5d4d": "boolean",
+          "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+          "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+          "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+          "filters": [
+            {
+              "field_id": "ce1837eb-ccb1-4277-b9ff-8eb94cff5d4d",
+              "op_boolean": "istrue"
+            },
+            {
+              "field_id": "61aae604-a95e-4519-9091-bb0bf754a67f",
+              "op_date_time": "lte",
+              "value_date_time": "=now - 5.minutes"
+            }
+          ],
+          "order_by_field_id": "61aae604-a95e-4519-9091-bb0bf754a67f"
+        },
+        "extended_output_schema": [
+          {
+            "label": "Records",
+            "name": "records",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Record ID",
+                "type": "string",
+                "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+              },
+              {
+                "control_type": "text",
+                "label": "Key",
+                "type": "string",
+                "name": "c5a8659d_e909_4e04_b798_67929ca7e1e4"
+              },
+              {
+                "control_type": "text",
+                "label": "Recipe ID",
+                "type": "string",
+                "name": "3fb4b9ad_66d1_438b_9c9b_1ee66895a3a0"
+              },
+              {
+                "control_type": "text",
+                "label": "Job ID",
+                "type": "string",
+                "name": "2e248ca1_ee09_4df6_b2e5_c9b4c512c099"
+              },
+              {
+                "control_type": "text",
+                "label": "Reason",
+                "type": "string",
+                "name": "593d07a3_fa93_485e_996d_4c61a2cd8b96"
+              },
+              {
+                "control_type": "number",
+                "label": "Repeat count",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "f3d6e078_bea2_4c4d_820f_87d31f50ab36"
+              },
+              {
+                "control_type": "text",
+                "label": "Recipe name",
+                "type": "string",
+                "name": "29ef9ae9_8d30_4f88_b3d0_2a4f58945327"
+              },
+              {
+                "control_type": "number",
+                "label": "HTTP status code",
+                "parse_output": "integer_conversion",
+                "type": "integer",
+                "name": "df13b58e_7145_41bd_8f56_a8b212a0eb45"
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Auto reprocess",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Auto reprocess",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "render_input": null,
+                  "parse_output": null,
+                  "type": "boolean",
+                  "name": "ce1837eb_ccb1_4277_b9ff_8eb94cff5d4d"
+                },
+                "type": "boolean",
+                "name": "ce1837eb_ccb1_4277_b9ff_8eb94cff5d4d"
+              },
+              {
+                "control_type": "date_time",
+                "label": "Created at",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "type": "date_time",
+                "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+              },
+              {
+                "control_type": "date_time",
+                "label": "Updated at",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "type": "date_time",
+                "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "control_type": "text",
+            "label": "Next Page Token",
+            "name": "continuation_token",
+            "type": "string"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_c5a8659d-e909-4e04-b798-67929ca7e1e4",
+            "name": "c5a8659d-e909-4e04-b798-67929ca7e1e4",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_3fb4b9ad-66d1-438b-9c9b-1ee66895a3a0",
+            "name": "3fb4b9ad-66d1-438b-9c9b-1ee66895a3a0",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_2e248ca1-ee09-4df6-b2e5-c9b4c512c099",
+            "name": "2e248ca1-ee09-4df6-b2e5-c9b4c512c099",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_593d07a3-fa93-485e-996d-4c61a2cd8b96",
+            "name": "593d07a3-fa93-485e-996d-4c61a2cd8b96",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "integer",
+            "label": "$internal_value_f3d6e078-bea2-4c4d-820f-87d31f50ab36",
+            "name": "f3d6e078-bea2-4c4d-820f-87d31f50ab36",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_29ef9ae9-8d30-4f88-b3d0-2a4f58945327",
+            "name": "29ef9ae9-8d30-4f88-b3d0-2a4f58945327",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "integer",
+            "label": "$internal_value_df13b58e-7145-41bd-8f56-a8b212a0eb45",
+            "name": "df13b58e-7145-41bd-8f56-a8b212a0eb45",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "boolean",
+            "label": "$internal_value_ce1837eb-ccb1-4277-b9ff-8eb94cff5d4d",
+            "name": "ce1837eb-ccb1-4277-b9ff-8eb94cff5d4d",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "id",
+            "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+            "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          }
+        ],
+        "comment": "Fetch reprocess  records that are:\n1. Set to \"Auto reprocess\"\n2. Older than current timestamp minus 5 minutes (basically a debouncing)",
+        "uuid": "67572355-1480-4ad8-9418-640858c74a21"
+      },
+      {
+        "number": 2,
+        "as": "fd5b76a3",
+        "keyword": "foreach",
+        "repeat_mode": "simple",
+        "clear_scope": "false",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 3,
+            "provider": "workato_app",
+            "name": "rerun_jobs",
+            "as": "7413fa94",
+            "keyword": "action",
+            "toggleCfg": {
+              "recipe_id": false
+            },
+            "input": {
+              "recipe_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"fd5b76a3\",\"path\":[\"3fb4b9ad_66d1_438b_9c9b_1ee66895a3a0\"]}')}",
+              "jobs": [
+                {
+                  "job_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"fd5b76a3\",\"path\":[\"2e248ca1_ee09_4df6_b2e5_c9b4c512c099\"]}')}",
+                  "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"b4192591\",\"path\":[\"records\"]}')}"
+                }
+              ]
+            },
+            "comment": "NOTE: There is no status available for this task.  Individual jobs that are being reprocessed need to manage deleting or updating their own reprocess records.",
+            "uuid": "eea213bf-8724-4374-8e2a-7186c3d8b88b"
+          }
+        ],
+        "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"b4192591\",\"path\":[\"records\"]}')}",
+        "uuid": "adb4088b-b605-40c3-9952-5d35c2e365fa"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_0",
+        "label": "Reprocess records"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"b4192591\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}"
+    },
+    "uuid": "586d6223-8515-4607-961d-35cecb3b8e81"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "clock",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_db_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_app",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/project_recipeops.connection.json",
+        "name": "Project RecipeOps",
+        "folder": "Connections"
+      }
+    }
+  ]
+}

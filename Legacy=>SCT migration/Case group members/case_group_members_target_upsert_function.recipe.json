@@ -1,0 +1,1894 @@
+{
+  "name": "Case group members | Target | Upsert [FUNCTION]",
+  "description": "",
+  "version": 18,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "a5f9cc25",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"control_type\":\"text\",\"label\":\"Id\",\"name\":\"Id\",\"type\":\"string\",\"optional\":false},{\"name\":\"Contact__c\",\"type\":\"string\",\"optional\":false,\"label\":\"Contact__c\",\"control_type\":\"text\"},{\"control_type\":\"text\",\"label\":\"CreatedById\",\"name\":\"CreatedById\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"CreatedDate\",\"name\":\"CreatedDate\",\"type\":\"string\",\"optional\":false},{\"name\":\"Group__c\",\"type\":\"string\",\"optional\":false,\"label\":\"Group__c\",\"control_type\":\"text\"},{\"control_type\":\"text\",\"label\":\"LastModifiedById\",\"name\":\"LastModifiedById\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"text\",\"label\":\"LastModifiedDate\",\"name\":\"LastModifiedDate\",\"type\":\"string\",\"optional\":false}]",
+      "result_schema_json": "[{\"name\":\"Id\",\"type\":\"string\",\"optional\":false,\"label\":\"Id\",\"control_type\":\"text\"},{\"name\":\"action\",\"type\":\"string\",\"optional\":false,\"label\":\"Action\",\"control_type\":\"text\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Id",
+            "name": "Id",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Contact__c",
+            "name": "Contact__c",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "CreatedById",
+            "name": "CreatedById",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "CreatedDate",
+            "name": "CreatedDate",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "Group__c",
+            "name": "Group__c",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "LastModifiedById",
+            "name": "LastModifiedById",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "text",
+            "label": "LastModifiedDate",
+            "name": "LastModifiedDate",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "d89f5bd3",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"name\":\"reprocess_key\",\"type\":\"string\",\"optional\":true,\"label\":\"Reprocess key\",\"details\":{\"real_name\":\"Reprocess key\"},\"control_type\":\"text\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "reprocess_key": "CaseGroupMembers:upsert:#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a5f9cc25\",\"path\":[\"parameters\",\"Id\"]}')}"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "label": "Reprocess key",
+            "name": "reprocess_key",
+            "optional": true,
+            "type": "string",
+            "details": {
+              "real_name": "Reprocess key"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Reprocess key",
+                    "name": "reprocess_key",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Reprocess key"
+                    },
+                    "parent": [
+                      "variables",
+                      "data"
+                    ],
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.reprocess_key"
+        ],
+        "uuid": "84b8521f-5083-4ec2-ab67-dfbe17d37514"
+      },
+      {
+        "number": 2,
+        "provider": "workato_db_table",
+        "name": "get_records",
+        "as": "9fc6328e",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "table_id": "DT | Target job reprocess queue",
+          "filters.0.field_id": "Key"
+        },
+        "input": {
+          "order_direction": "asc",
+          "limit": "100",
+          "table_id": {
+            "zip_name": "Lookups, helpers, etc/Reprocess/job_reprocess_queue.workato_db_table.json",
+            "name": "Job reprocess queue",
+            "folder": "Lookups, helpers, etc/Reprocess"
+          },
+          "c5a8659d-e909-4e04-b798-67929ca7e1e4": "string",
+          "3fb4b9ad-66d1-438b-9c9b-1ee66895a3a0": "string",
+          "2e248ca1-ee09-4df6-b2e5-c9b4c512c099": "string",
+          "7a464cf4-87d9-4219-837b-0a0b547f9fef": "string",
+          "11fbe9a6-a16d-4d7e-86ea-afe42ec03005": "id",
+          "a5612739-5401-4ae7-bd07-782c1a6fb2d1": "date_time",
+          "61aae604-a95e-4519-9091-bb0bf754a67f": "date_time",
+          "filters": [
+            {
+              "field_id": "c5a8659d-e909-4e04-b798-67929ca7e1e4",
+              "op_default": "eq",
+              "value_default": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"d89f5bd3\",\"path\":[\"reprocess_key\"]}')}"
+            }
+          ]
+        },
+        "extended_output_schema": [
+          {
+            "label": "Records",
+            "name": "records",
+            "of": "object",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Record ID",
+                "type": "string",
+                "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+              },
+              {
+                "control_type": "text",
+                "label": "Key",
+                "type": "string",
+                "name": "c5a8659d_e909_4e04_b798_67929ca7e1e4"
+              },
+              {
+                "control_type": "text",
+                "label": "Recipe ID",
+                "type": "string",
+                "name": "3fb4b9ad_66d1_438b_9c9b_1ee66895a3a0"
+              },
+              {
+                "control_type": "text",
+                "label": "Job ID",
+                "type": "string",
+                "name": "2e248ca1_ee09_4df6_b2e5_c9b4c512c099"
+              },
+              {
+                "control_type": "text",
+                "label": "Description",
+                "type": "string",
+                "name": "7a464cf4_87d9_4219_837b_0a0b547f9fef"
+              },
+              {
+                "control_type": "date_time",
+                "label": "Created at",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "type": "date_time",
+                "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+              },
+              {
+                "control_type": "date_time",
+                "label": "Updated at",
+                "render_input": "date_time_conversion",
+                "parse_output": "date_time_conversion",
+                "type": "date_time",
+                "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+              }
+            ],
+            "type": "array"
+          },
+          {
+            "control_type": "text",
+            "label": "Next Page Token",
+            "name": "continuation_token",
+            "type": "string"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_c5a8659d-e909-4e04-b798-67929ca7e1e4",
+            "name": "c5a8659d-e909-4e04-b798-67929ca7e1e4",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_3fb4b9ad-66d1-438b-9c9b-1ee66895a3a0",
+            "name": "3fb4b9ad-66d1-438b-9c9b-1ee66895a3a0",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_2e248ca1-ee09-4df6-b2e5-c9b4c512c099",
+            "name": "2e248ca1-ee09-4df6-b2e5-c9b4c512c099",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "string",
+            "label": "$internal_value_7a464cf4-87d9-4219-837b-0a0b547f9fef",
+            "name": "7a464cf4-87d9-4219-837b-0a0b547f9fef",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "id",
+            "label": "$internal_value_11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "name": "11fbe9a6-a16d-4d7e-86ea-afe42ec03005",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "name": "a5612739-5401-4ae7-bd07-782c1a6fb2d1",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          },
+          {
+            "control_type": "text",
+            "default": "date_time",
+            "label": "$internal_value_61aae604-a95e-4519-9091-bb0bf754a67f",
+            "name": "61aae604-a95e-4519-9091-bb0bf754a67f",
+            "ngIf": "false",
+            "optional": true,
+            "type": "string"
+          }
+        ],
+        "uuid": "5cadac80-48be-4725-8e95-7014320feace"
+      },
+      {
+        "number": 3,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "greater_than",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"9fc6328e\",\"path\":[\"records\",{\"path_element_type\":\"size\"}]}')}",
+              "rhs": "0",
+              "uuid": "e69b903c-abc8-4456-9b28-6e8581e54a47"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 4,
+            "provider": "workato_db_table",
+            "name": "delete_records_batch",
+            "as": "28643cc6",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "table_id": "DT | Target job reprocess queue"
+            },
+            "input": {
+              "table_id": {
+                "zip_name": "Lookups, helpers, etc/Reprocess/job_reprocess_queue.workato_db_table.json",
+                "name": "Job reprocess queue",
+                "folder": "Lookups, helpers, etc/Reprocess"
+              },
+              "records": {
+                "____source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"9fc6328e\",\"path\":[\"records\"]}')}",
+                "record_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"9fc6328e\",\"path\":[\"records\",{\"path_element_type\":\"current_item\"},\"11fbe9a6_a16d_4d7e_86ea_afe42ec03005\"]}')}"
+              }
+            },
+            "uuid": "00d779f0-b2dc-4520-9cb4-4c21c2900d9a"
+          }
+        ],
+        "comment": "If existing reprocess record(s), delete it/them:\n1. As they are older than this current job.  Doing this hopefully helps prevent upsert race conditions.\n2. The job reprocessor requires jobs to manage their own reprocess records",
+        "uuid": "f12f73a4-091e-4568-b030-5bef32d40d08"
+      },
+      {
+        "number": 5,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe",
+        "as": "0a16b3e4",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "REC | Target user lookup"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Lookups, helpers, etc/target_user_contact_lookup_by_source_legacy_ids_or_sso_username_function.recipe.json",
+            "name": "Target | User/contact lookup by source (legacy) IDs or SSO username [FUNCTION]",
+            "folder": "Lookups, helpers, etc"
+          },
+          "parameters": {
+            "contact_legacy_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a5f9cc25\",\"path\":[\"parameters\",\"Contact__c\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Id",
+                "name": "Id",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "ContactId",
+                "name": "ContactId",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "FederationIdentifier",
+                "name": "FederationIdentifier",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Legacy_ID__c",
+                "name": "Legacy_ID__c",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "ContactLegacyId__c",
+                "name": "ContactLegacyId__c",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Was Found?",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "found",
+                "type": "boolean",
+                "optional": false,
+                "hint": "Whether returned ID was found in target or not.  If false, default value was returned.",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Was Found?",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "found",
+                  "type": "boolean",
+                  "optional": false,
+                  "hint": "Whether returned ID was found in target or not.  If false, default value was returned."
+                }
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Legacy ID",
+                "name": "legacy_id",
+                "type": "string",
+                "optional": true,
+                "hint": "User field `Legacy_ID__c`.  First searched.  If match is found, \"Contact legacy ID\" and \"SSO username\" criteria is ignored."
+              },
+              {
+                "control_type": "text",
+                "label": "Contact legacy ID",
+                "name": "contact_legacy_id",
+                "type": "string",
+                "optional": true,
+                "hint": "User field `ContactLegacyId__c`.  Second searched.  If match is found, \"SSO username\" criteria is ignored."
+              },
+              {
+                "control_type": "text",
+                "label": "SSO username",
+                "name": "sso_username",
+                "type": "string",
+                "optional": true,
+                "hint": "User field `FederationIdentifier`.  Third searched."
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "flow_id",
+          "parameters",
+          "parameters.number",
+          "parameters.contact_legacy_id"
+        ],
+        "comment": "Contact user",
+        "uuid": "d048857a-20a2-4bdc-8bd2-6a7930780fce"
+      },
+      {
+        "number": 6,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "or",
+          "conditions": [
+            {
+              "operand": "blank",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0a16b3e4\",\"path\":[\"result\",\"ContactId\"]}')}",
+              "rhs": "",
+              "uuid": "4ac9bc8b-7498-4517-876a-5c36c21239ad"
+            },
+            {
+              "operand": "equals_to",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0a16b3e4\",\"path\":[\"result\",\"ContactId\"]}')}",
+              "rhs": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"default_contact\"}')}",
+              "uuid": "397c863a-047e-4370-a5e7-7271fa45d97c"
+            },
+            {
+              "operand": "equals_to",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0a16b3e4\",\"path\":[\"result\",\"Id\"]}')}",
+              "rhs": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"default_contact_user\"}')}",
+              "uuid": "449d23da-f905-40ef-84d3-4c7460ce07fc"
+            },
+            {
+              "operand": "equals_to",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0a16b3e4\",\"path\":[\"result\",\"Id\"]}')}",
+              "rhs": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"default_user\"}')}",
+              "uuid": "89679d52-7abc-42cf-aee6-b02348a1e287"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 7,
+            "provider": "workato_db_table",
+            "name": "upsert_record",
+            "as": "5ba0780f",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "table_id": "Job reprocess queue",
+              "primary_field_id": "Key"
+            },
+            "input": {
+              "table_id": {
+                "zip_name": "Lookups, helpers, etc/Reprocess/job_reprocess_queue.workato_db_table.json",
+                "name": "Job reprocess queue",
+                "folder": "Lookups, helpers, etc/Reprocess"
+              },
+              "primary_field_id": "c5a8659d-e909-4e04-b798-67929ca7e1e4",
+              "parameters": {
+                "c5a8659d_e909_4e04_b798_67929ca7e1e4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"d89f5bd3\",\"path\":[\"reprocess_key\"]}')}",
+                "3fb4b9ad_66d1_438b_9c9b_1ee66895a3a0": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_id\"]}')}",
+                "2e248ca1_ee09_4df6_b2e5_c9b4c512c099": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_id\"]}')}",
+                "593d07a3_fa93_485e_996d_4c61a2cd8b96": "Parent contact user not found (source ID = #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a5f9cc25\",\"path\":[\"parameters\",\"Contact__c\"]}')})",
+                "f3d6e078_bea2_4c4d_820f_87d31f50ab36": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"repeat_count\"]}')}",
+                "29ef9ae9_8d30_4f88_b3d0_2a4f58945327": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_name\"]}')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Record",
+                "name": "record",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Record ID",
+                    "type": "string",
+                    "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Key",
+                    "type": "string",
+                    "name": "c5a8659d_e909_4e04_b798_67929ca7e1e4"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Recipe ID",
+                    "type": "string",
+                    "name": "3fb4b9ad_66d1_438b_9c9b_1ee66895a3a0"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Job ID",
+                    "type": "string",
+                    "name": "2e248ca1_ee09_4df6_b2e5_c9b4c512c099"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Reason",
+                    "type": "string",
+                    "name": "593d07a3_fa93_485e_996d_4c61a2cd8b96"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "Repeat count",
+                    "parse_output": "integer_conversion",
+                    "type": "integer",
+                    "name": "f3d6e078_bea2_4c4d_820f_87d31f50ab36"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Recipe name",
+                    "type": "string",
+                    "name": "29ef9ae9_8d30_4f88_b3d0_2a4f58945327"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "HTTP status code",
+                    "parse_output": "integer_conversion",
+                    "type": "integer",
+                    "name": "df13b58e_7145_41bd_8f56_a8b212a0eb45"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Auto reprocess",
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Auto reprocess",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "ce1837eb_ccb1_4277_b9ff_8eb94cff5d4d"
+                    },
+                    "type": "boolean",
+                    "name": "ce1837eb_ccb1_4277_b9ff_8eb94cff5d4d"
+                  },
+                  {
+                    "control_type": "date_time",
+                    "label": "Created at",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "type": "date_time",
+                    "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                  },
+                  {
+                    "control_type": "date_time",
+                    "label": "Updated at",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "type": "date_time",
+                    "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Fill the fields for the new or updated record. Fields that are not specified will not be updated.",
+                "label": "Record fields",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Key",
+                    "hint": "Recipes inserting their data into this table are responsible for managing their own key structure/values",
+                    "optional": false,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "c5a8659d_e909_4e04_b798_67929ca7e1e4"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Recipe ID",
+                    "optional": false,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "3fb4b9ad_66d1_438b_9c9b_1ee66895a3a0"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Job ID",
+                    "optional": false,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "2e248ca1_ee09_4df6_b2e5_c9b4c512c099"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Reason",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "593d07a3_fa93_485e_996d_4c61a2cd8b96"
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Repeat count",
+                    "parse_output": "integer_conversion",
+                    "optional": true,
+                    "sticky": true,
+                    "render_input": "integer_conversion",
+                    "type": "integer",
+                    "name": "f3d6e078_bea2_4c4d_820f_87d31f50ab36"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Recipe name",
+                    "optional": true,
+                    "sticky": false,
+                    "type": "string",
+                    "name": "29ef9ae9_8d30_4f88_b3d0_2a4f58945327"
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "HTTP status code",
+                    "parse_output": "integer_conversion",
+                    "optional": true,
+                    "sticky": false,
+                    "render_input": "integer_conversion",
+                    "type": "integer",
+                    "name": "df13b58e_7145_41bd_8f56_a8b212a0eb45"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Auto reprocess",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "hint": "Set to FALSE to log an error that needs to manual intervention before reprocessing",
+                    "placeholder": true,
+                    "optional": true,
+                    "sticky": false,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Auto reprocess",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "hint": "Set to FALSE to log an error that needs to manual intervention before reprocessing",
+                      "placeholder": true,
+                      "optional": true,
+                      "sticky": false,
+                      "render_input": "boolean_conversion",
+                      "parse_output": "boolean_conversion",
+                      "type": "boolean",
+                      "name": "ce1837eb_ccb1_4277_b9ff_8eb94cff5d4d"
+                    },
+                    "type": "boolean",
+                    "name": "ce1837eb_ccb1_4277_b9ff_8eb94cff5d4d"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "table_id",
+              "primary_field_id",
+              "parameters",
+              "parameters.c5a8659d_e909_4e04_b798_67929ca7e1e4",
+              "parameters.3fb4b9ad_66d1_438b_9c9b_1ee66895a3a0",
+              "parameters.2e248ca1_ee09_4df6_b2e5_c9b4c512c099",
+              "parameters.593d07a3_fa93_485e_996d_4c61a2cd8b96",
+              "parameters.f3d6e078_bea2_4c4d_820f_87d31f50ab36",
+              "parameters.29ef9ae9_8d30_4f88_b3d0_2a4f58945327"
+            ],
+            "uuid": "42dbca0f-ad54-4105-af69-403ce06eeeae"
+          },
+          {
+            "number": 8,
+            "as": "5e6c11cb",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "true",
+              "stop_reason": "Parent contact user not found (source ID = #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a5f9cc25\",\"path\":[\"parameters\",\"Contact__c\"]}')}).  Added to reprocess queue."
+            },
+            "uuid": "772fc9d9-d341-4206-a910-179eb0c72760"
+          }
+        ],
+        "comment": "Parent contact not found",
+        "uuid": "bdc48c59-5d90-46d3-869d-621b42cf9ac7"
+      },
+      {
+        "number": 9,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe",
+        "as": "594a3d87",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "Case groups | Target | Lookup by source (legacy) ID [FUNCTION]"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Legacy=>SCT migration/Case groups & labels/case_groups_target_lookup_by_source_legacy_id_function.recipe.json",
+            "name": "Case groups | Target | Lookup by source (legacy) ID [FUNCTION]",
+            "folder": "Legacy=>SCT migration/Case groups & labels"
+          },
+          "parameters": {
+            "legacy_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a5f9cc25\",\"path\":[\"parameters\",\"Group__c\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "ID",
+                "name": "id",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Legacy ID",
+                "name": "legacy_id",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "flow_id",
+          "parameters",
+          "parameters.number"
+        ],
+        "comment": "Group",
+        "uuid": "2a0e241d-20c5-40df-8b27-64567c443b7a"
+      },
+      {
+        "number": 10,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "blank",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"594a3d87\",\"path\":[\"result\",\"id\"]}')}",
+              "rhs": "",
+              "uuid": "4ac9bc8b-7498-4517-876a-5c36c21239ad"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 11,
+            "provider": "workato_db_table",
+            "name": "upsert_record",
+            "as": "ae05297a",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "table_id": "Job reprocess queue",
+              "primary_field_id": "Key"
+            },
+            "input": {
+              "table_id": {
+                "zip_name": "Lookups, helpers, etc/Reprocess/job_reprocess_queue.workato_db_table.json",
+                "name": "Job reprocess queue",
+                "folder": "Lookups, helpers, etc/Reprocess"
+              },
+              "primary_field_id": "c5a8659d-e909-4e04-b798-67929ca7e1e4",
+              "parameters": {
+                "c5a8659d_e909_4e04_b798_67929ca7e1e4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"d89f5bd3\",\"path\":[\"reprocess_key\"]}')}",
+                "3fb4b9ad_66d1_438b_9c9b_1ee66895a3a0": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_id\"]}')}",
+                "2e248ca1_ee09_4df6_b2e5_c9b4c512c099": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_id\"]}')}",
+                "593d07a3_fa93_485e_996d_4c61a2cd8b96": "Parent group not found (source ID = #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a5f9cc25\",\"path\":[\"parameters\",\"Group__c\"]}')})",
+                "f3d6e078_bea2_4c4d_820f_87d31f50ab36": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"repeat_count\"]}')}",
+                "29ef9ae9_8d30_4f88_b3d0_2a4f58945327": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_name\"]}')}"
+              }
+            },
+            "extended_output_schema": [
+              {
+                "label": "Record",
+                "name": "record",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Record ID",
+                    "type": "string",
+                    "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Key",
+                    "type": "string",
+                    "name": "c5a8659d_e909_4e04_b798_67929ca7e1e4"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Recipe ID",
+                    "type": "string",
+                    "name": "3fb4b9ad_66d1_438b_9c9b_1ee66895a3a0"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Job ID",
+                    "type": "string",
+                    "name": "2e248ca1_ee09_4df6_b2e5_c9b4c512c099"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Reason",
+                    "type": "string",
+                    "name": "593d07a3_fa93_485e_996d_4c61a2cd8b96"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "Repeat count",
+                    "parse_output": "integer_conversion",
+                    "type": "integer",
+                    "name": "f3d6e078_bea2_4c4d_820f_87d31f50ab36"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Recipe name",
+                    "type": "string",
+                    "name": "29ef9ae9_8d30_4f88_b3d0_2a4f58945327"
+                  },
+                  {
+                    "control_type": "number",
+                    "label": "HTTP status code",
+                    "parse_output": "integer_conversion",
+                    "type": "integer",
+                    "name": "df13b58e_7145_41bd_8f56_a8b212a0eb45"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Auto reprocess",
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Auto reprocess",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "render_input": null,
+                      "parse_output": null,
+                      "type": "boolean",
+                      "name": "ce1837eb_ccb1_4277_b9ff_8eb94cff5d4d"
+                    },
+                    "type": "boolean",
+                    "name": "ce1837eb_ccb1_4277_b9ff_8eb94cff5d4d"
+                  },
+                  {
+                    "control_type": "date_time",
+                    "label": "Created at",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "type": "date_time",
+                    "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                  },
+                  {
+                    "control_type": "date_time",
+                    "label": "Updated at",
+                    "render_input": "date_time_conversion",
+                    "parse_output": "date_time_conversion",
+                    "type": "date_time",
+                    "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "extended_input_schema": [
+              {
+                "hint": "Fill the fields for the new or updated record. Fields that are not specified will not be updated.",
+                "label": "Record fields",
+                "name": "parameters",
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Key",
+                    "hint": "Recipes inserting their data into this table are responsible for managing their own key structure/values",
+                    "optional": false,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "c5a8659d_e909_4e04_b798_67929ca7e1e4"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Recipe ID",
+                    "optional": false,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "3fb4b9ad_66d1_438b_9c9b_1ee66895a3a0"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Job ID",
+                    "optional": false,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "2e248ca1_ee09_4df6_b2e5_c9b4c512c099"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Reason",
+                    "optional": true,
+                    "sticky": true,
+                    "type": "string",
+                    "name": "593d07a3_fa93_485e_996d_4c61a2cd8b96"
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Repeat count",
+                    "parse_output": "integer_conversion",
+                    "optional": true,
+                    "sticky": true,
+                    "render_input": "integer_conversion",
+                    "type": "integer",
+                    "name": "f3d6e078_bea2_4c4d_820f_87d31f50ab36"
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Recipe name",
+                    "optional": true,
+                    "sticky": false,
+                    "type": "string",
+                    "name": "29ef9ae9_8d30_4f88_b3d0_2a4f58945327"
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "HTTP status code",
+                    "parse_output": "integer_conversion",
+                    "optional": true,
+                    "sticky": false,
+                    "render_input": "integer_conversion",
+                    "type": "integer",
+                    "name": "df13b58e_7145_41bd_8f56_a8b212a0eb45"
+                  },
+                  {
+                    "control_type": "checkbox",
+                    "label": "Auto reprocess",
+                    "render_input": "boolean_conversion",
+                    "parse_output": "boolean_conversion",
+                    "hint": "Set to FALSE to log an error that needs to manual intervention before reprocessing",
+                    "placeholder": true,
+                    "optional": true,
+                    "sticky": false,
+                    "toggle_hint": "Select from option list",
+                    "toggle_field": {
+                      "label": "Auto reprocess",
+                      "control_type": "text",
+                      "toggle_hint": "Use custom value",
+                      "hint": "Set to FALSE to log an error that needs to manual intervention before reprocessing",
+                      "placeholder": true,
+                      "optional": true,
+                      "sticky": false,
+                      "render_input": "boolean_conversion",
+                      "parse_output": "boolean_conversion",
+                      "type": "boolean",
+                      "name": "ce1837eb_ccb1_4277_b9ff_8eb94cff5d4d"
+                    },
+                    "type": "boolean",
+                    "name": "ce1837eb_ccb1_4277_b9ff_8eb94cff5d4d"
+                  }
+                ],
+                "type": "object"
+              }
+            ],
+            "visible_config_fields": [
+              "table_id",
+              "primary_field_id",
+              "parameters",
+              "parameters.c5a8659d_e909_4e04_b798_67929ca7e1e4",
+              "parameters.3fb4b9ad_66d1_438b_9c9b_1ee66895a3a0",
+              "parameters.2e248ca1_ee09_4df6_b2e5_c9b4c512c099",
+              "parameters.593d07a3_fa93_485e_996d_4c61a2cd8b96",
+              "parameters.f3d6e078_bea2_4c4d_820f_87d31f50ab36",
+              "parameters.29ef9ae9_8d30_4f88_b3d0_2a4f58945327"
+            ],
+            "uuid": "23acb41a-d9d4-428c-822e-9629918eca49"
+          },
+          {
+            "number": 12,
+            "as": "07dbb97d",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "true",
+              "stop_reason": "Parent group not found (source ID = #{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a5f9cc25\",\"path\":[\"parameters\",\"Group__c\"]}')}).  Added to reprocess queue."
+            },
+            "uuid": "74700141-d6b1-4b9e-9c3d-042bc0d951ac"
+          }
+        ],
+        "comment": "Parent group not found",
+        "uuid": "917ec551-af2b-4b41-9f26-8e09eeb8561d"
+      },
+      {
+        "number": 13,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe",
+        "as": "4f2a0348",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "REC | Target user lookup"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Lookups, helpers, etc/target_user_contact_lookup_by_source_legacy_ids_or_sso_username_function.recipe.json",
+            "name": "Target | User/contact lookup by source (legacy) IDs or SSO username [FUNCTION]",
+            "folder": "Lookups, helpers, etc"
+          },
+          "parameters": {
+            "legacy_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a5f9cc25\",\"path\":[\"parameters\",\"CreatedById\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Id",
+                "name": "Id",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "ContactId",
+                "name": "ContactId",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "FederationIdentifier",
+                "name": "FederationIdentifier",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Legacy_ID__c",
+                "name": "Legacy_ID__c",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "ContactLegacyId__c",
+                "name": "ContactLegacyId__c",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Was Found?",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "found",
+                "type": "boolean",
+                "optional": false,
+                "hint": "Whether returned ID was found in target or not.  If false, default value was returned.",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Was Found?",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "found",
+                  "type": "boolean",
+                  "optional": false,
+                  "hint": "Whether returned ID was found in target or not.  If false, default value was returned."
+                }
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Legacy ID",
+                "name": "legacy_id",
+                "type": "string",
+                "optional": true,
+                "hint": "User field `Legacy_ID__c`.  First searched.  If match is found, \"Contact legacy ID\" and \"SSO username\" criteria is ignored."
+              },
+              {
+                "control_type": "text",
+                "label": "Contact legacy ID",
+                "name": "contact_legacy_id",
+                "type": "string",
+                "optional": true,
+                "hint": "User field `ContactLegacyId__c`.  Second searched.  If match is found, \"SSO username\" criteria is ignored."
+              },
+              {
+                "control_type": "text",
+                "label": "SSO username",
+                "name": "sso_username",
+                "type": "string",
+                "optional": true,
+                "hint": "User field `FederationIdentifier`.  Third searched."
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "flow_id",
+          "parameters.legacy_id",
+          "parameters"
+        ],
+        "comment": "CreatedById",
+        "uuid": "faae7aca-bc9d-4199-b3f6-9ab528543ff3"
+      },
+      {
+        "number": 14,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe",
+        "as": "27df5c05",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "REC | Target user lookup"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Lookups, helpers, etc/target_user_contact_lookup_by_source_legacy_ids_or_sso_username_function.recipe.json",
+            "name": "Target | User/contact lookup by source (legacy) IDs or SSO username [FUNCTION]",
+            "folder": "Lookups, helpers, etc"
+          },
+          "parameters": {
+            "legacy_id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a5f9cc25\",\"path\":[\"parameters\",\"LastModifiedById\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Id",
+                "name": "Id",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "ContactId",
+                "name": "ContactId",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "FederationIdentifier",
+                "name": "FederationIdentifier",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Legacy_ID__c",
+                "name": "Legacy_ID__c",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "ContactLegacyId__c",
+                "name": "ContactLegacyId__c",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Was Found?",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "found",
+                "type": "boolean",
+                "optional": false,
+                "hint": "Whether returned ID was found in target or not.  If false, default value was returned.",
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Was Found?",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "found",
+                  "type": "boolean",
+                  "optional": false,
+                  "hint": "Whether returned ID was found in target or not.  If false, default value was returned."
+                }
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Legacy ID",
+                "name": "legacy_id",
+                "type": "string",
+                "optional": true,
+                "hint": "User field `Legacy_ID__c`.  First searched.  If match is found, \"Contact legacy ID\" and \"SSO username\" criteria is ignored."
+              },
+              {
+                "control_type": "text",
+                "label": "Contact legacy ID",
+                "name": "contact_legacy_id",
+                "type": "string",
+                "optional": true,
+                "hint": "User field `ContactLegacyId__c`.  Second searched.  If match is found, \"SSO username\" criteria is ignored."
+              },
+              {
+                "control_type": "text",
+                "label": "SSO username",
+                "name": "sso_username",
+                "type": "string",
+                "optional": true,
+                "hint": "User field `FederationIdentifier`.  Third searched."
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "flow_id",
+          "parameters.legacy_id",
+          "parameters"
+        ],
+        "comment": "LastModifiedById",
+        "uuid": "68ba5d25-242a-45da-85d6-ef55b518d044"
+      },
+      {
+        "number": 15,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 16,
+            "provider": "salesforce",
+            "name": "upsert_sobject",
+            "as": "3ebc476c",
+            "keyword": "action",
+            "dynamicPickListSelection": {
+              "sobject_name": "Case Group Member",
+              "query_field.primary_key": [
+                {
+                  "label": "Legacy ID",
+                  "value": "LegacyID__c"
+                }
+              ]
+            },
+            "input": {
+              "sobject_name": "CaseGroupMember__c",
+              "query_field": {
+                "primary_key": "LegacyID__c"
+              },
+              "CreatedById": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"4f2a0348\",\"path\":[\"result\",\"Id\"]}')}",
+              "LastModifiedById": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"27df5c05\",\"path\":[\"result\",\"Id\"]}')}",
+              "CreatedDate": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a5f9cc25\",\"path\":[\"parameters\",\"CreatedDate\"]}')}",
+              "LastModifiedDate": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a5f9cc25\",\"path\":[\"parameters\",\"LastModifiedDate\"]}')}",
+              "LegacyID__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a5f9cc25\",\"path\":[\"parameters\",\"Id\"]}')}",
+              "Contact__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0a16b3e4\",\"path\":[\"result\",\"ContactId\"]}')}",
+              "Member__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0a16b3e4\",\"path\":[\"result\",\"Id\"]}')}",
+              "Group__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"594a3d87\",\"path\":[\"result\",\"id\"]}')}",
+              "ExternalId__c": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"594a3d87\",\"path\":[\"result\",\"id\"]}') + ':' + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0a16b3e4\",\"path\":[\"result\",\"ContactId\"]}')"
+            },
+            "extended_input_schema": [
+              {
+                "control_type": "text",
+                "custom": true,
+                "hint": "Search for  where Legacy ID has this value. If a record already exists, it will be updated. Otherwise, a new record will be created",
+                "label": "Legacy ID",
+                "name": "LegacyID__c",
+                "optional": true,
+                "sticky": true,
+                "type": "string",
+                "sfdc_createable": true,
+                "sfdc_updateable": true
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "hint": "Only applies when creating CaseGroupMember__c",
+                "label": "Created By ID",
+                "name": "CreatedById",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": true,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "date_time",
+                "custom": false,
+                "hint": "Only applies when creating CaseGroupMember__c",
+                "label": "Created Date",
+                "name": "CreatedDate",
+                "optional": true,
+                "parse_output": "parse_iso8601_timestamp",
+                "type": "date_time",
+                "render_input": "render_iso8601_timestamp",
+                "sfdc_createable": true,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": false,
+                "hint": "Only applies when creating CaseGroupMember__c",
+                "label": "Last Modified By ID",
+                "name": "LastModifiedById",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": true,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "date_time",
+                "custom": false,
+                "hint": "Only applies when creating CaseGroupMember__c",
+                "label": "Last Modified Date",
+                "name": "LastModifiedDate",
+                "optional": true,
+                "parse_output": "parse_iso8601_timestamp",
+                "type": "date_time",
+                "render_input": "render_iso8601_timestamp",
+                "sfdc_createable": true,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "label": "Contact",
+                "name": "Contact__c",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": true,
+                "sfdc_updateable": true
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "label": "External Id",
+                "name": "ExternalId__c",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": true,
+                "sfdc_updateable": true
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "hint": "Only applies when creating CaseGroupMember__c",
+                "label": "Group",
+                "name": "Group__c",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": true,
+                "sfdc_updateable": false
+              },
+              {
+                "control_type": "text",
+                "custom": true,
+                "label": "Member",
+                "name": "Member__c",
+                "optional": true,
+                "type": "string",
+                "sfdc_createable": true,
+                "sfdc_updateable": true
+              }
+            ],
+            "visible_config_fields": [
+              "sobject_name",
+              "query_field",
+              "query_field.primary_key",
+              "requester_email",
+              "Legacy_ID__c",
+              "Legacy_System__c",
+              "Body__c",
+              "LastModifiedDate",
+              "LastModifiedById",
+              "CreatedDate",
+              "CreatedById",
+              "Case__c",
+              "LegacyId__c",
+              "Name",
+              "LegacySystem__c",
+              "External_Id__c",
+              "Description__c",
+              "ExternalSystem__c",
+              "LinkURL__c",
+              "LegacyID__c",
+              "OwnerId",
+              "Member__c",
+              "Group__c",
+              "ExternalId__c",
+              "Contact__c"
+            ],
+            "uuid": "fb0041eb-5c7d-4574-bc7b-1f88021f5e75"
+          },
+          {
+            "number": 17,
+            "as": "31cf2fd0",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "1",
+              "retry_interval": "2"
+            },
+            "block": [
+              {
+                "number": 18,
+                "provider": "workato_db_table",
+                "name": "upsert_record",
+                "as": "9037f056",
+                "keyword": "action",
+                "dynamicPickListSelection": {
+                  "table_id": "Job reprocess queue",
+                  "primary_field_id": "Key"
+                },
+                "input": {
+                  "table_id": {
+                    "zip_name": "Lookups, helpers, etc/Reprocess/job_reprocess_queue.workato_db_table.json",
+                    "name": "Job reprocess queue",
+                    "folder": "Lookups, helpers, etc/Reprocess"
+                  },
+                  "primary_field_id": "c5a8659d-e909-4e04-b798-67929ca7e1e4",
+                  "parameters": {
+                    "c5a8659d_e909_4e04_b798_67929ca7e1e4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"d89f5bd3\",\"path\":[\"reprocess_key\"]}')}",
+                    "3fb4b9ad_66d1_438b_9c9b_1ee66895a3a0": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_id\"]}')}",
+                    "2e248ca1_ee09_4df6_b2e5_c9b4c512c099": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"job_id\"]}')}",
+                    "593d07a3_fa93_485e_996d_4c61a2cd8b96": "Upsert failed: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"31cf2fd0\",\"path\":[\"message\"]}')}",
+                    "f3d6e078_bea2_4c4d_820f_87d31f50ab36": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"repeat_count\"]}')}",
+                    "29ef9ae9_8d30_4f88_b3d0_2a4f58945327": "#{_dp('{\"pill_type\":\"job_context\",\"path\":[\"recipe_name\"]}')}",
+                    "df13b58e_7145_41bd_8f56_a8b212a0eb45": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"31cf2fd0\",\"path\":[\"http_response\",\"code\"]}')}"
+                  }
+                },
+                "extended_output_schema": [
+                  {
+                    "label": "Record",
+                    "name": "record",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Record ID",
+                        "type": "string",
+                        "name": "11fbe9a6_a16d_4d7e_86ea_afe42ec03005"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Key",
+                        "type": "string",
+                        "name": "c5a8659d_e909_4e04_b798_67929ca7e1e4"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Recipe ID",
+                        "type": "string",
+                        "name": "3fb4b9ad_66d1_438b_9c9b_1ee66895a3a0"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Job ID",
+                        "type": "string",
+                        "name": "2e248ca1_ee09_4df6_b2e5_c9b4c512c099"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "type": "string",
+                        "name": "593d07a3_fa93_485e_996d_4c61a2cd8b96"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "Repeat count",
+                        "parse_output": "integer_conversion",
+                        "type": "integer",
+                        "name": "f3d6e078_bea2_4c4d_820f_87d31f50ab36"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Recipe name",
+                        "type": "string",
+                        "name": "29ef9ae9_8d30_4f88_b3d0_2a4f58945327"
+                      },
+                      {
+                        "control_type": "number",
+                        "label": "HTTP status code",
+                        "parse_output": "integer_conversion",
+                        "type": "integer",
+                        "name": "df13b58e_7145_41bd_8f56_a8b212a0eb45"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Auto reprocess",
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Auto reprocess",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "render_input": null,
+                          "parse_output": null,
+                          "type": "boolean",
+                          "name": "ce1837eb_ccb1_4277_b9ff_8eb94cff5d4d"
+                        },
+                        "type": "boolean",
+                        "name": "ce1837eb_ccb1_4277_b9ff_8eb94cff5d4d"
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "Created at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "type": "date_time",
+                        "name": "a5612739_5401_4ae7_bd07_782c1a6fb2d1"
+                      },
+                      {
+                        "control_type": "date_time",
+                        "label": "Updated at",
+                        "render_input": "date_time_conversion",
+                        "parse_output": "date_time_conversion",
+                        "type": "date_time",
+                        "name": "61aae604_a95e_4519_9091_bb0bf754a67f"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "extended_input_schema": [
+                  {
+                    "hint": "Fill the fields for the new or updated record. Fields that are not specified will not be updated.",
+                    "label": "Record fields",
+                    "name": "parameters",
+                    "properties": [
+                      {
+                        "control_type": "text",
+                        "label": "Key",
+                        "hint": "Recipes inserting their data into this table are responsible for managing their own key structure/values",
+                        "optional": false,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "c5a8659d_e909_4e04_b798_67929ca7e1e4"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Recipe ID",
+                        "optional": false,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "3fb4b9ad_66d1_438b_9c9b_1ee66895a3a0"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Job ID",
+                        "optional": false,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "2e248ca1_ee09_4df6_b2e5_c9b4c512c099"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Reason",
+                        "optional": true,
+                        "sticky": true,
+                        "type": "string",
+                        "name": "593d07a3_fa93_485e_996d_4c61a2cd8b96"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Repeat count",
+                        "parse_output": "integer_conversion",
+                        "optional": true,
+                        "sticky": true,
+                        "render_input": "integer_conversion",
+                        "type": "integer",
+                        "name": "f3d6e078_bea2_4c4d_820f_87d31f50ab36"
+                      },
+                      {
+                        "control_type": "text",
+                        "label": "Recipe name",
+                        "optional": true,
+                        "sticky": false,
+                        "type": "string",
+                        "name": "29ef9ae9_8d30_4f88_b3d0_2a4f58945327"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "HTTP status code",
+                        "parse_output": "integer_conversion",
+                        "optional": true,
+                        "sticky": false,
+                        "render_input": "integer_conversion",
+                        "type": "integer",
+                        "name": "df13b58e_7145_41bd_8f56_a8b212a0eb45"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Auto reprocess",
+                        "render_input": "boolean_conversion",
+                        "parse_output": "boolean_conversion",
+                        "hint": "Set to FALSE to log an error that needs to manual intervention before reprocessing",
+                        "placeholder": true,
+                        "optional": true,
+                        "sticky": false,
+                        "toggle_hint": "Select from option list",
+                        "toggle_field": {
+                          "label": "Auto reprocess",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "hint": "Set to FALSE to log an error that needs to manual intervention before reprocessing",
+                          "placeholder": true,
+                          "optional": true,
+                          "sticky": false,
+                          "render_input": "boolean_conversion",
+                          "parse_output": "boolean_conversion",
+                          "type": "boolean",
+                          "name": "ce1837eb_ccb1_4277_b9ff_8eb94cff5d4d"
+                        },
+                        "type": "boolean",
+                        "name": "ce1837eb_ccb1_4277_b9ff_8eb94cff5d4d"
+                      }
+                    ],
+                    "type": "object"
+                  }
+                ],
+                "visible_config_fields": [
+                  "table_id",
+                  "primary_field_id",
+                  "parameters",
+                  "parameters.c5a8659d_e909_4e04_b798_67929ca7e1e4",
+                  "parameters.3fb4b9ad_66d1_438b_9c9b_1ee66895a3a0",
+                  "parameters.2e248ca1_ee09_4df6_b2e5_c9b4c512c099",
+                  "parameters.593d07a3_fa93_485e_996d_4c61a2cd8b96",
+                  "parameters.f3d6e078_bea2_4c4d_820f_87d31f50ab36",
+                  "parameters.29ef9ae9_8d30_4f88_b3d0_2a4f58945327",
+                  "parameters.df13b58e_7145_41bd_8f56_a8b212a0eb45"
+                ],
+                "uuid": "61a091a5-4aad-48f1-a967-e22eb98feaec"
+              },
+              {
+                "number": 19,
+                "as": "0df742b6",
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "true",
+                  "stop_reason": "Upsert failed: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"31cf2fd0\",\"path\":[\"message\"]}')}.  Added to reprocess queue."
+                },
+                "uuid": "797a160e-869a-4d69-843f-f5354050b1ad"
+              }
+            ],
+            "uuid": "dc72cac7-ff2d-43e2-8e34-a246803b54dd"
+          }
+        ],
+        "uuid": "b9d43732-ed95-4fcf-924d-e5035889e9bf"
+      },
+      {
+        "number": 20,
+        "provider": "workato_recipe_function",
+        "name": "return_result",
+        "as": "d1990ef0",
+        "keyword": "action",
+        "input": {
+          "result": {
+            "Id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"3ebc476c\",\"path\":[\"id\"]}')}",
+            "action": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"3ebc476c\",\"path\":[\"status\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Id",
+                "name": "Id",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Action",
+                "name": "action",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Id",
+                "name": "Id",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Action",
+                "name": "action",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "uuid": "2d98437f-0995-40b1-8167-3a83a9e64aea"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_0",
+        "label": "Source ID"
+      },
+      {
+        "name": "custom_column_1",
+        "label": "Source group ID"
+      },
+      {
+        "name": "custom_column_7",
+        "label": "Source contact ID"
+      },
+      {
+        "name": "custom_column_6",
+        "label": "Target action"
+      },
+      {
+        "name": "custom_column_2",
+        "label": "Target ID"
+      },
+      {
+        "name": "custom_column_8",
+        "label": "Target group ID"
+      },
+      {
+        "name": "custom_column_9",
+        "label": "Target contact/member ID"
+      },
+      {
+        "name": "custom_column_3",
+        "label": "Reprocess key"
+      },
+      {
+        "name": "custom_column_4",
+        "label": "Reprocess reason"
+      },
+      {
+        "name": "custom_column_5",
+        "label": "Upsert error HTTP status code"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a5f9cc25\",\"path\":[\"parameters\",\"Id\"]}')}",
+      "custom_column_1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a5f9cc25\",\"path\":[\"parameters\",\"Group__c\"]}')}",
+      "custom_column_7": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a5f9cc25\",\"path\":[\"parameters\",\"Contact__c\"]}')}",
+      "custom_column_6": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"3ebc476c\",\"path\":[\"status\"]}')}",
+      "custom_column_2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"3ebc476c\",\"path\":[\"id\"]}')}",
+      "custom_column_8": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"594a3d87\",\"path\":[\"result\",\"id\"]}')}",
+      "custom_column_9": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0a16b3e4\",\"path\":[\"result\",\"ContactId\"]}') + '/' + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"0a16b3e4\",\"path\":[\"result\",\"Id\"]}')",
+      "custom_column_3": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"d89f5bd3\",\"path\":[\"reprocess_key\"]}')}",
+      "custom_column_4": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"5ba0780f\",\"path\":[\"record\",\"593d07a3_fa93_485e_996d_4c61a2cd8b96\"]}') || _dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"ae05297a\",\"path\":[\"record\",\"593d07a3_fa93_485e_996d_4c61a2cd8b96\"]}') || _dp('{\"pill_type\":\"output\",\"provider\":\"workato_db_table\",\"line\":\"9037f056\",\"path\":[\"record\",\"593d07a3_fa93_485e_996d_4c61a2cd8b96\"]}')",
+      "custom_column_5": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"31cf2fd0\",\"path\":[\"http_response\",\"code\"]}')}"
+    },
+    "uuid": "46d475a9-f76a-49c5-8ff3-e961b7b1e325"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/sf_sct_target.connection.json",
+        "name": "SF_SCT_Target",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_db_table",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

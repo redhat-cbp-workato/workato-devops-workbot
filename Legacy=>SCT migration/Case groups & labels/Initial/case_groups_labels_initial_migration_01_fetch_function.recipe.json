@@ -1,0 +1,663 @@
+{
+  "name": "Case groups & labels | Initial migration | 01 Fetch [FUNCTION]",
+  "description": "",
+  "version": 19,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_recipe_function",
+    "name": "execute",
+    "as": "7e2ce7a7",
+    "keyword": "trigger",
+    "input": {
+      "parameters_schema_json": "[{\"control_type\":\"text\",\"label\":\"Directory\",\"name\":\"directory\",\"type\":\"string\",\"optional\":false},{\"control_type\":\"checkbox\",\"label\":\"Overwrite *SOURCE* outputs if they exist?\",\"name\":\"overwrite_source\",\"type\":\"boolean\",\"optional\":false,\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Overwrite *SOURCE* outputs if they exist?\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"name\":\"overwrite_source\",\"type\":\"boolean\",\"optional\":false}},{\"control_type\":\"checkbox\",\"label\":\"Overwrite *TARGET* outputs if they exist?\",\"name\":\"overwrite_target\",\"type\":\"boolean\",\"optional\":false,\"render_input\":\"boolean_conversion\",\"parse_output\":\"boolean_conversion\",\"toggle_hint\":\"Select from option list\",\"toggle_field\":{\"label\":\"Overwrite *TARGET* outputs if they exist?\",\"control_type\":\"text\",\"toggle_hint\":\"Use custom value\",\"name\":\"overwrite_target\",\"type\":\"boolean\",\"optional\":false}},{\"name\":\"source_modified_timestamp_boundary\",\"type\":\"string\",\"optional\":true,\"label\":\"Source modified timestamp boundary\",\"control_type\":\"text\"}]"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Parameters",
+        "name": "parameters",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Directory",
+            "name": "directory",
+            "type": "string",
+            "optional": false
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Overwrite *SOURCE* outputs if they exist?",
+            "render_input": "boolean_conversion",
+            "parse_output": "boolean_conversion",
+            "name": "overwrite_source",
+            "type": "boolean",
+            "optional": false,
+            "toggle_hint": "Select from option list",
+            "toggle_field": {
+              "label": "Overwrite *SOURCE* outputs if they exist?",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "name": "overwrite_source",
+              "type": "boolean",
+              "optional": false
+            }
+          },
+          {
+            "control_type": "checkbox",
+            "label": "Overwrite *TARGET* outputs if they exist?",
+            "render_input": "boolean_conversion",
+            "parse_output": "boolean_conversion",
+            "name": "overwrite_target",
+            "type": "boolean",
+            "optional": false,
+            "toggle_hint": "Select from option list",
+            "toggle_field": {
+              "label": "Overwrite *TARGET* outputs if they exist?",
+              "control_type": "text",
+              "toggle_hint": "Use custom value",
+              "name": "overwrite_target",
+              "type": "boolean",
+              "optional": false
+            }
+          },
+          {
+            "control_type": "text",
+            "label": "Source modified timestamp boundary",
+            "name": "source_modified_timestamp_boundary",
+            "type": "string",
+            "optional": true
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "8468b74f",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"Source filename\",\"name\":\"source_filename\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"Source filename\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"text\",\"label\":\"Target accounts filename\",\"name\":\"target_accounts_filename\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"Target accounts filename\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"text\",\"label\":\"Target users filename\",\"name\":\"target_users_filename\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"Target users filename\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "source_filename": "source.csv",
+              "target_users_filename": "target-users.csv",
+              "target_accounts_filename": "target-accounts.csv"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Source filename",
+            "name": "source_filename",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "Source filename"
+            }
+          },
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Target accounts filename",
+            "name": "target_accounts_filename",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "Target accounts filename"
+            }
+          },
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Target users filename",
+            "name": "target_users_filename",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "Target users filename"
+            }
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Source filename",
+                    "name": "source_filename",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Source filename"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Target accounts filename",
+                    "name": "target_accounts_filename",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Target accounts filename"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Target users filename",
+                    "name": "target_users_filename",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Target users filename"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.Directory",
+          "variables",
+          "variables.schema",
+          "variables.data",
+          "variables.data.source_filename",
+          "variables.data.target_accounts_filename",
+          "variables.data.target_business_hours_filename",
+          "variables.data.target_entitlements_filename",
+          "variables.data.target_users_filename",
+          "variables.data.target_cases_filename",
+          "variables.data.directory",
+          "variables.data.subdirectory",
+          "variables.data.source_markdown_filename"
+        ],
+        "uuid": "3be4e1b1-9d12-45cf-8078-75f8e6c1d8ac"
+      },
+      {
+        "number": 2,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe_async",
+        "as": "01ac9c54",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "Case groups & labels | Initial migration | 01.x Fetch source [FUNCTION]"
+        },
+        "toggleCfg": {
+          "parameters.output_overwrite": false
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Legacy=>SCT migration/Case groups & labels/Initial/case_groups_labels_initial_migration_01_x_fetch_source_function.recipe.json",
+            "name": "Case groups & labels | Initial migration | 01.x Fetch source [FUNCTION]",
+            "folder": "Legacy=>SCT migration/Case groups & labels/Initial"
+          },
+          "parameters": {
+            "output_overwrite": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7e2ce7a7\",\"path\":[\"parameters\",\"overwrite_source\"]}') == true",
+            "output_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"8468b74f\",\"path\":[\"source_filename\"]}')}",
+            "directory": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7e2ce7a7\",\"path\":[\"parameters\",\"directory\"]}')}",
+            "modified_timestamp_boundary": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7e2ce7a7\",\"path\":[\"parameters\",\"source_modified_timestamp_boundary\"]}')}"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Directory",
+                "name": "directory",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Output filename",
+                "name": "output_filename",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Overwrite output if it exists?",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "output_overwrite",
+                "type": "boolean",
+                "optional": true,
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Overwrite output if it exists?",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "output_overwrite",
+                  "type": "boolean",
+                  "optional": true
+                }
+              },
+              {
+                "control_type": "text",
+                "label": "Modified timestamp boundary",
+                "name": "modified_timestamp_boundary",
+                "type": "string",
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "flow_id",
+          "parameters.modified_timestamp_boundary",
+          "parameters.output_overwrite"
+        ],
+        "comment": "Source (groups and labels)",
+        "uuid": "9382cd11-4fa4-4862-83f3-f7c2349c3e31"
+      },
+      {
+        "number": 3,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe_async",
+        "as": "376ff6d4",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "Case groups & labels | Initial migration | 01.x Fetch target [FUNCTION]"
+        },
+        "toggleCfg": {
+          "parameters.output_overwrite": false
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Legacy=>SCT migration/Case groups & labels/Initial/case_groups_labels_initial_migration_01_x_fetch_target_function.recipe.json",
+            "name": "Case groups & labels | Initial migration | 01.x Fetch target [FUNCTION]",
+            "folder": "Legacy=>SCT migration/Case groups & labels/Initial"
+          },
+          "parameters": {
+            "directory": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7e2ce7a7\",\"path\":[\"parameters\",\"directory\"]}')}",
+            "output_overwrite": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7e2ce7a7\",\"path\":[\"parameters\",\"overwrite_target\"]}') == true",
+            "object": "Account",
+            "output_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"8468b74f\",\"path\":[\"target_accounts_filename\"]}')}"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Object",
+                "name": "object",
+                "type": "string",
+                "optional": false,
+                "hint": "Valid values: Account, BusinessHours, Case, Entitlement, User"
+              },
+              {
+                "control_type": "text",
+                "label": "Directory",
+                "name": "directory",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Output filename",
+                "name": "output_filename",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Overwrite output if it exists?",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "output_overwrite",
+                "type": "boolean",
+                "optional": false,
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Overwrite output if it exists?",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "output_overwrite",
+                  "type": "boolean",
+                  "optional": false
+                }
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "comment": "Target accounts",
+        "uuid": "2fb67a19-75c0-4354-b9fd-309338c8809a"
+      },
+      {
+        "number": 4,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe_async",
+        "as": "48cd03cc",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "Case groups & labels | Initial migration | 01.x Fetch target [FUNCTION]"
+        },
+        "toggleCfg": {
+          "parameters.output_overwrite": false
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Legacy=>SCT migration/Case groups & labels/Initial/case_groups_labels_initial_migration_01_x_fetch_target_function.recipe.json",
+            "name": "Case groups & labels | Initial migration | 01.x Fetch target [FUNCTION]",
+            "folder": "Legacy=>SCT migration/Case groups & labels/Initial"
+          },
+          "parameters": {
+            "directory": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7e2ce7a7\",\"path\":[\"parameters\",\"directory\"]}')}",
+            "output_overwrite": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7e2ce7a7\",\"path\":[\"parameters\",\"overwrite_target\"]}') == true",
+            "object": "User",
+            "output_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"8468b74f\",\"path\":[\"target_users_filename\"]}')}"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Object",
+                "name": "object",
+                "type": "string",
+                "optional": false,
+                "hint": "Valid values: Account, BusinessHours, Case, Entitlement, User"
+              },
+              {
+                "control_type": "text",
+                "label": "Directory",
+                "name": "directory",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Output filename",
+                "name": "output_filename",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "checkbox",
+                "label": "Overwrite output if it exists?",
+                "render_input": "boolean_conversion",
+                "parse_output": "boolean_conversion",
+                "name": "output_overwrite",
+                "type": "boolean",
+                "optional": false,
+                "toggle_hint": "Select from option list",
+                "toggle_field": {
+                  "label": "Overwrite output if it exists?",
+                  "control_type": "text",
+                  "toggle_hint": "Use custom value",
+                  "name": "output_overwrite",
+                  "type": "boolean",
+                  "optional": false
+                }
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "comment": "Target users",
+        "uuid": "fa0a3ba9-1c1e-41ac-b8d5-51de348c4709"
+      },
+      {
+        "number": 5,
+        "provider": "workato_recipe_function",
+        "name": "wait_for_async_jobs",
+        "as": "5674ab23",
+        "keyword": "action",
+        "input": {
+          "timeout": "180",
+          "async_calls": [
+            {
+              "job_ref": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"01ac9c54\",\"path\":[\"job_ref\"]}')}"
+            },
+            {
+              "job_ref": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"376ff6d4\",\"path\":[\"job_ref\"]}')}"
+            },
+            {
+              "job_ref": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"48cd03cc\",\"path\":[\"job_ref\"]}')}"
+            }
+          ]
+        },
+        "uuid": "9cd12ef5-8909-4d16-b10f-c9f2472e2243"
+      },
+      {
+        "number": 6,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "is_not_true",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"5674ab23\",\"path\":[\"all_jobs_succeeded\"]}')}",
+              "rhs": "",
+              "uuid": "067a6d17-1441-4df2-a3a5-182e05315338"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 7,
+            "as": "9e7ef906",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "true",
+              "stop_reason": "One or more child jobs failed"
+            },
+            "uuid": "16399c94-1adb-4ded-8e44-6eb42b85b8b6"
+          }
+        ],
+        "uuid": "4c527e14-a831-48b7-9b7b-e1951ee66e40"
+      },
+      {
+        "number": 8,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe_async",
+        "as": "d79ef5fd",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "*WIP* Case groups & labels | Initial migration | 02 Generate maps [FUNCTION]"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Legacy=>SCT migration/Case groups & labels/Initial/case_groups_labels_initial_migration_02_generate_maps_function.recipe.json",
+            "name": "Case groups & labels | Initial migration | 02 Generate maps [FUNCTION]",
+            "folder": "Legacy=>SCT migration/Case groups & labels/Initial"
+          },
+          "parameters": {
+            "directory": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7e2ce7a7\",\"path\":[\"parameters\",\"directory\"]}')}",
+            "source_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"8468b74f\",\"path\":[\"source_filename\"]}')}",
+            "target_users_file_or_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"8468b74f\",\"path\":[\"target_users_filename\"]}')}",
+            "target_accounts_file_or_filename": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"8468b74f\",\"path\":[\"target_accounts_filename\"]}')}"
+          }
+        },
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Directory",
+                "name": "directory",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Source filename",
+                "name": "source_filename",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Target accounts file (full path and filename) or filename",
+                "name": "target_accounts_file_or_filename",
+                "type": "string",
+                "optional": false
+              },
+              {
+                "control_type": "text",
+                "label": "Target users file (full path and filename) or filename",
+                "name": "target_users_file_or_filename",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "comment": "Not markdown",
+        "uuid": "d3a226dd-e295-4c45-b5eb-d079a11c3e3c"
+      },
+      {
+        "number": 9,
+        "provider": "workato_recipe_function",
+        "name": "wait_for_async_jobs",
+        "as": "65bed3c2",
+        "keyword": "action",
+        "input": {
+          "timeout": "1440",
+          "async_calls": [
+            {
+              "job_ref": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"d79ef5fd\",\"path\":[\"job_ref\"]}')}"
+            }
+          ]
+        },
+        "uuid": "1c5cf9ee-8a7f-452f-80aa-91ef334ac1a3"
+      },
+      {
+        "number": 10,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "is_not_true",
+              "lhs": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"65bed3c2\",\"path\":[\"all_jobs_succeeded\"]}')",
+              "rhs": "",
+              "uuid": "08ffa264-c5de-47df-a6a2-e86b7a2dc781"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 11,
+            "as": "740f149b",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "true",
+              "stop_reason": "Next phase(s) failed"
+            },
+            "uuid": "e3002cb7-d09f-43eb-91c2-08e80e712c4e"
+          }
+        ],
+        "uuid": "87b6292a-8c67-4f79-8cda-61415e669d77"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_4",
+        "label": "Source modified timestamp boundary "
+      },
+      {
+        "name": "custom_column_3",
+        "label": "Directory"
+      },
+      {
+        "name": "custom_column_1",
+        "label": "Overwrite *source* output if it existed?"
+      },
+      {
+        "name": "custom_column_2",
+        "label": "Overwrite *target* outputs if they existed?"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_4": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7e2ce7a7\",\"path\":[\"parameters\",\"source_modified_timestamp_boundary\"]}')}",
+      "custom_column_3": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7e2ce7a7\",\"path\":[\"parameters\",\"directory\"]}')}",
+      "custom_column_1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7e2ce7a7\",\"path\":[\"parameters\",\"overwrite_source\"]}')}",
+      "custom_column_2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"7e2ce7a7\",\"path\":[\"parameters\",\"overwrite_target\"]}')}"
+    },
+    "uuid": "31e1499e-17e8-4fed-9b08-48a24b179ee5"
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}

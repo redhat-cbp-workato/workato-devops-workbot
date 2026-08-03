@@ -1,0 +1,1099 @@
+{
+  "name": "Case groups & labels | Source | Re-sync by parent account number [WEBHOOK]",
+  "description": "",
+  "version": 12,
+  "private": true,
+  "concurrency": 1,
+  "code": {
+    "number": 0,
+    "provider": "workato_webhooks",
+    "name": "new_event",
+    "as": "2f544db0",
+    "keyword": "trigger",
+    "input": {
+      "request": {
+        "webhook_type": "get",
+        "headers_schema": "[{\"name\":\"key\",\"type\":\"string\",\"optional\":false,\"label\":\"Key\",\"control_type\":\"text\"}]",
+        "query_params": "[{\"control_type\":\"text\",\"label\":\"Parent account number\",\"name\":\"parent_account_number\",\"type\":\"string\",\"optional\":false}]"
+      },
+      "webhook_suffix": "case-groups-and-labels-reprocess"
+    },
+    "filter": {
+      "conditions": [
+        {
+          "operand": "present",
+          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"2f544db0\",\"path\":[\"headers\",\"key\"]}')}",
+          "rhs": "",
+          "uuid": "3347f6a7-65f9-4f27-b6c4-f4442222d579"
+        },
+        {
+          "operand": "equals_to",
+          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"2f544db0\",\"path\":[\"headers\",\"key\"]}')}",
+          "rhs": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"webhook_key\"}')}",
+          "uuid": "6c99a29d-db44-44c6-94c2-a8e17ff6e7f5"
+        },
+        {
+          "operand": "present",
+          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"2f544db0\",\"path\":[\"params\",\"parent_account_number\"]}')}",
+          "rhs": "",
+          "uuid": "688172bf-caea-433b-b22e-263ff31d47de"
+        }
+      ],
+      "operand": "and",
+      "type": "compound"
+    },
+    "extended_output_schema": [
+      {
+        "label": "Headers",
+        "name": "headers",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Key",
+            "name": "key",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      },
+      {
+        "label": "Payload",
+        "name": "payload",
+        "properties": [
+
+        ],
+        "type": "object"
+      },
+      {
+        "label": "Params",
+        "name": "params",
+        "properties": [
+          {
+            "control_type": "text",
+            "label": "Parent account number",
+            "name": "parent_account_number",
+            "type": "string",
+            "optional": false
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "extended_input_schema": [
+      {
+        "label": "Payload configuration",
+        "name": "request",
+        "override": true,
+        "properties": [
+          {
+            "control_type": "select",
+            "label": "Webhook type",
+            "pick_list": [
+              [
+                "GET request",
+                "get"
+              ],
+              [
+                "PUT/POST with JSON payload",
+                "json"
+              ],
+              [
+                "PUT/POST with XML payload",
+                "xml"
+              ],
+              [
+                "PUT/POST with FORM encoded payload",
+                "form"
+              ],
+              [
+                "PUT/POST with raw binary data",
+                "rawdata"
+              ],
+              [
+                "PUT/POST with unicode text data",
+                "rawdatatxt"
+              ]
+            ],
+            "hint": "Select the HTTP method and payload data type used by webhook. <a href=\"https://docs.workato.com/developing-connectors/http.html#set-up-your-non-oauth-2-0-connection\" target=\"_blank\">Learn more</a>",
+            "default": "json",
+            "extends_schema": true,
+            "type": "string",
+            "name": "webhook_type"
+          },
+          {
+            "control_type": "schema-designer",
+            "label": "Payload schema",
+            "sample_data_type": "form",
+            "extends_schema": true,
+            "empty_schema_title": "Describe all fields in your response.",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "name": "payload_schema"
+          },
+          {
+            "control_type": "schema-designer",
+            "label": "Query params",
+            "extends_schema": true,
+            "empty_schema_title": "Describe all the query params",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "name": "query_params"
+          },
+          {
+            "control_type": "schema-designer",
+            "label": "Headers",
+            "extends_schema": true,
+            "empty_schema_title": "Describe all the webhook headers",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "name": "headers_schema"
+          }
+        ],
+        "type": "object"
+      }
+    ],
+    "block": [
+      {
+        "number": 1,
+        "provider": "workato_recipe_function",
+        "name": "call_recipe",
+        "as": "a514d1a8",
+        "keyword": "action",
+        "dynamicPickListSelection": {
+          "flow_id": "REC FX | Target account lookup"
+        },
+        "input": {
+          "flow_id": {
+            "zip_name": "Lookups, helpers, etc/target_account_lookup_by_account_number_function.recipe.json",
+            "name": "Target | Account lookup by account number [FUNCTION]",
+            "folder": "Lookups, helpers, etc"
+          },
+          "parameters": {
+            "number": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"2f544db0\",\"path\":[\"params\",\"parent_account_number\"]}')}"
+          }
+        },
+        "extended_output_schema": [
+          {
+            "label": "Result",
+            "name": "result",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "ID",
+                "name": "id",
+                "type": "string",
+                "optional": false
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "label": "Parameters",
+            "name": "parameters",
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Number",
+                "name": "number",
+                "type": "string",
+                "optional": true
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "flow_id",
+          "parameters",
+          "parameters.number"
+        ],
+        "comment": "Fail fast if target account number not found",
+        "uuid": "65712e19-9c47-40b3-95d9-bb1fb2b9d367"
+      },
+      {
+        "number": 2,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "blank",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_recipe_function\",\"line\":\"a514d1a8\",\"path\":[\"result\",\"id\"]}')}",
+              "rhs": "",
+              "uuid": "dfdba423-f0f6-4361-b190-36a581b4ad50"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 3,
+            "as": "dee9f0cb",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "false"
+            },
+            "uuid": "4cf01738-bb7f-46be-8289-8057bf3e5924"
+          }
+        ],
+        "uuid": "9507c7a4-b615-4510-b118-a492e9d1efa5"
+      },
+      {
+        "number": 4,
+        "provider": "workato_variable",
+        "name": "declare_variable",
+        "as": "e9709b0c",
+        "keyword": "action",
+        "input": {
+          "variables": {
+            "schema": "[{\"control_type\":\"text\",\"label\":\"Parent account number escaped\",\"name\":\"parent_account_number_escaped\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"Parent account number escaped\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"text\",\"label\":\"Directory\",\"name\":\"Directory\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"Directory\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"text\",\"label\":\"Source CSV filename\",\"name\":\"source_filename\",\"type\":\"string\",\"optional\":true,\"details\":{\"real_name\":\"Source CSV filename\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"integer\",\"label\":\"Batch size\",\"parse_output\":\"integer_conversion\",\"name\":\"batch_size\",\"type\":\"integer\",\"optional\":true,\"details\":{\"real_name\":\"Batch size\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"render_input\":\"integer_conversion\",\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"integer\",\"label\":\"Batch offset\",\"parse_output\":\"integer_conversion\",\"name\":\"batch_offset\",\"type\":\"integer\",\"optional\":true,\"details\":{\"real_name\":\"Batch offset\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"render_input\":\"integer_conversion\",\"parent\":[\"variables\",\"data\"]},{\"control_type\":\"integer\",\"label\":\"Count\",\"parse_output\":\"integer_conversion\",\"name\":\"Count\",\"type\":\"integer\",\"optional\":true,\"details\":{\"real_name\":\"Count\"},\"hint\":\"Defaults to nil if not supplied.\",\"sticky\":true,\"render_input\":\"integer_conversion\",\"parent\":[\"variables\",\"data\"]}]",
+            "data": {
+              "Directory": "#{_dp('{\"pill_type\":\"project_property\",\"property_name\":\"filestorage_dir_env\"}')}/resync-migration/case-groups-and-labels",
+              "source_filename": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"2f544db0\",\"path\":[\"params\",\"parent_account_number\"]}').gsub(\"\\\\\", \"\").gsub(\"/\", \"\") + '.csv'",
+              "batch_size": "2000",
+              "batch_offset": "0",
+              "Count": "0",
+              "parent_account_number_escaped": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"2f544db0\",\"path\":[\"params\",\"parent_account_number\"]}').gsub(\"\\\\\", \"\\\\\\\\\").gsub(\"'\", \"\\\\\\\\'\")"
+            }
+          }
+        },
+        "extended_output_schema": [
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Parent account number escaped",
+            "name": "parent_account_number_escaped",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "Parent account number escaped"
+            }
+          },
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Directory",
+            "name": "Directory",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "Directory"
+            }
+          },
+          {
+            "control_type": "text",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Source CSV filename",
+            "name": "source_filename",
+            "optional": true,
+            "sticky": true,
+            "type": "string",
+            "details": {
+              "real_name": "Source CSV filename"
+            }
+          },
+          {
+            "control_type": "integer",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Batch size",
+            "name": "batch_size",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "sticky": true,
+            "type": "integer",
+            "details": {
+              "real_name": "Batch size"
+            },
+            "render_input": "integer_conversion"
+          },
+          {
+            "control_type": "integer",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Batch offset",
+            "name": "batch_offset",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "sticky": true,
+            "type": "integer",
+            "details": {
+              "real_name": "Batch offset"
+            },
+            "render_input": "integer_conversion"
+          },
+          {
+            "control_type": "integer",
+            "hint": "Defaults to nil if not supplied.",
+            "label": "Count",
+            "name": "Count",
+            "optional": true,
+            "parse_output": "integer_conversion",
+            "sticky": true,
+            "type": "integer",
+            "details": {
+              "real_name": "Count"
+            },
+            "render_input": "integer_conversion"
+          }
+        ],
+        "extended_input_schema": [
+          {
+            "add_field_label": "Add a variable",
+            "control_type": "form-schema-builder",
+            "empty_schema_title": "Add variables by giving them a name, type and default value",
+            "exclude_fields": [
+              "hint"
+            ],
+            "item_label": "variable",
+            "label": "Variables",
+            "mark_as_required": true,
+            "name": "variables",
+            "ngIf": "!input.name",
+            "optional": true,
+            "properties": [
+              {
+                "control_type": "text",
+                "label": "Schema",
+                "extends_schema": true,
+                "broadcast_change_event": true,
+                "type": "string",
+                "name": "schema"
+              },
+              {
+                "properties": [
+                  {
+                    "control_type": "text",
+                    "label": "Parent account number escaped",
+                    "name": "parent_account_number_escaped",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Parent account number escaped"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Directory",
+                    "name": "Directory",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Directory"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "text",
+                    "label": "Source CSV filename",
+                    "name": "source_filename",
+                    "type": "string",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Source CSV filename"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Batch size",
+                    "parse_output": "integer_conversion",
+                    "name": "batch_size",
+                    "type": "integer",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Batch size"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "render_input": "integer_conversion",
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Batch offset",
+                    "parse_output": "integer_conversion",
+                    "name": "batch_offset",
+                    "type": "integer",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Batch offset"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "render_input": "integer_conversion",
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  },
+                  {
+                    "control_type": "integer",
+                    "label": "Count",
+                    "parse_output": "integer_conversion",
+                    "name": "Count",
+                    "type": "integer",
+                    "optional": true,
+                    "details": {
+                      "real_name": "Count"
+                    },
+                    "hint": "Defaults to nil if not supplied.",
+                    "sticky": true,
+                    "render_input": "integer_conversion",
+                    "parent": [
+                      "variables",
+                      "data"
+                    ]
+                  }
+                ],
+                "label": "Data",
+                "type": "object",
+                "name": "data"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "visible_config_fields": [
+          "variables.data.Directory",
+          "variables",
+          "variables.schema",
+          "variables.data.Filename",
+          "variables.data.batch_size",
+          "variables.data.batch_offset",
+          "variables.data.escalation_source_legacy_id_escaped",
+          "variables.data",
+          "variables.data.source_filename",
+          "variables.data.Count",
+          "variables.data.parent_case_source_id_escaped",
+          "variables.data.parent_account_number_escaped"
+        ],
+        "uuid": "88ac1de6-40a5-4a1b-b8e3-7907dd3f0402"
+      },
+      {
+        "number": 5,
+        "provider": "workato_files",
+        "name": "ensure_dir_exists",
+        "as": "6021ee59",
+        "keyword": "action",
+        "toggleCfg": {
+          "directory_path": false
+        },
+        "input": {
+          "directory_path": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e9709b0c\",\"path\":[\"Directory\"]}').split('/')[0..-2].join('/')",
+          "directory_name": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e9709b0c\",\"path\":[\"Directory\"]}').split('/').last"
+        },
+        "uuid": "0f8dd894-27d9-4256-8438-32717074c394"
+      },
+      {
+        "number": 6,
+        "keyword": "try",
+        "input": {
+        },
+        "block": [
+          {
+            "number": 7,
+            "provider": "salesforce",
+            "name": "search_sobjects_soql_bulk_csv_v2",
+            "as": "cc385dd1",
+            "keyword": "action",
+            "input": {
+              "include_deleted_records": "false",
+              "include_header": "true",
+              "skip_delete_failed_job": "true",
+              "wait_for_job_completion": "true",
+              "query": "SELECT\n    Id,\n    AccountId__r.AccountNumber,\n    AccountId__r.hasGroupACLs__c,\n    CreatedById,\n    CreatedDate,\n    LastModifiedById,\n    LastModifiedDate,\n    Name,\n    OwnerId\nFROM\n    CaseFolder__c\nWHERE\n    AccountId__r.AccountNumber = '#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e9709b0c\",\"path\":[\"parent_account_number_escaped\"]}')}'"
+            },
+            "uuid": "18737ab0-065b-444e-98ab-40b859511215"
+          },
+          {
+            "number": 8,
+            "as": "229d4961",
+            "keyword": "catch",
+            "input": {
+              "max_retry_count": "2",
+              "retry_interval": "2"
+            },
+            "filter": {
+              "conditions": [
+                {
+                  "operand": "not_equals_to",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"229d4961\",\"path\":[\"http_response\",\"code\"]}')}",
+                  "rhs": "400",
+                  "uuid": "cee30665-ed73-4773-bc64-e401a2dbba83"
+                }
+              ],
+              "operand": "and",
+              "type": "compound"
+            },
+            "block": [
+              {
+                "number": 9,
+                "as": "52cb7069",
+                "keyword": "stop",
+                "input": {
+                  "stop_with_error": "true",
+                  "stop_reason": "Query failed: #{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"229d4961\",\"path\":[\"message\"]}')} (#{_dp('{\"pill_type\":\"output\",\"provider\":\"catch\",\"line\":\"229d4961\",\"path\":[\"http_response\",\"code\"]}')})"
+                },
+                "uuid": "65e6bac1-c316-42d9-a45b-eb07e6fc5f66"
+              }
+            ],
+            "comment": "Retry unless bad request",
+            "uuid": "69b0ca94-6d42-4351-9fe6-2075b31e9aa1"
+          }
+        ],
+        "uuid": "ade3e822-7614-417a-a3ad-e0b30f8d8685"
+      },
+      {
+        "number": 10,
+        "keyword": "if",
+        "input": {
+          "type": "compound",
+          "operand": "and",
+          "conditions": [
+            {
+              "operand": "is_not_true",
+              "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"cc385dd1\",\"path\":[\"success\"]}')}",
+              "rhs": "",
+              "uuid": "e3ea7820-f476-46ed-bcb0-8d807ab8904d"
+            }
+          ]
+        },
+        "block": [
+          {
+            "number": 11,
+            "as": "6d90db13",
+            "keyword": "stop",
+            "input": {
+              "stop_with_error": "true",
+              "stop_reason": "Not all records processed successfully (number of failed records = #{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"cc385dd1\",\"path\":[\"numberRecordsFailed\"]}')})"
+            },
+            "uuid": "6a646cb7-3af1-492a-b084-fb8742fa6f34"
+          },
+          {
+            "number": 12,
+            "keyword": "elsif",
+            "input": {
+              "type": "compound",
+              "operand": "and",
+              "conditions": [
+                {
+                  "operand": "greater_than",
+                  "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"cc385dd1\",\"path\":[\"numberRecordsProcessed\"]}')}",
+                  "rhs": "1",
+                  "uuid": "b21e879d-69c1-4f3e-9497-5f25c993e913"
+                }
+              ]
+            },
+            "block": [
+              {
+                "number": 13,
+                "provider": "workato_files",
+                "name": "store_file",
+                "as": "7a472040",
+                "keyword": "action",
+                "toggleCfg": {
+                  "is_csv_file": true,
+                  "overwrite": true,
+                  "file_path": false,
+                  "csv_has_header": true
+                },
+                "input": {
+                  "is_csv_file": "true",
+                  "schema_type": "auto",
+                  "csv_has_header": "true",
+                  "csv_delimiter": "comma",
+                  "csv_quote": "double",
+                  "encoding": "UTF-8",
+                  "overwrite": "true",
+                  "file_name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e9709b0c\",\"path\":[\"source_filename\"]}')}",
+                  "file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e9709b0c\",\"path\":[\"Directory\"]}')}",
+                  "content": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"cc385dd1\",\"path\":[\"results\"]}')}"
+                },
+                "uuid": "a500578c-6b19-4592-b56c-1dd4d7edafd3"
+              },
+              {
+                "number": 14,
+                "as": "0f3f3ba8",
+                "keyword": "repeat",
+                "block": [
+                  {
+                    "number": 15,
+                    "provider": "workato_files",
+                    "name": "get_csv_file_contents",
+                    "as": "1bc91045",
+                    "keyword": "action",
+                    "toggleCfg": {
+                      "file_path": true
+                    },
+                    "input": {
+                      "batch_size": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e9709b0c\",\"path\":[\"batch_size\"]}')}",
+                      "batch_offset": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e9709b0c\",\"path\":[\"batch_offset\"]}')}",
+                      "file_path": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"7a472040\",\"path\":[\"path\"]}')}",
+                      "schema_type": "manual",
+                      "schema": "[{\"name\":\"Id\",\"type\":\"string\",\"optional\":false,\"label\":\"Id\",\"control_type\":\"text\"},{\"name\":\"AccountId__r__AccountNumber\",\"type\":\"string\",\"optional\":false,\"label\":\"AccountId__r.AccountNumber\",\"control_type\":\"text\"},{\"name\":\"AccountId__r__hasGroupACLs__c\",\"type\":\"string\",\"optional\":false,\"label\":\"AccountId__r.hasGroupACLs__c\",\"control_type\":\"text\"},{\"name\":\"CreatedById\",\"type\":\"string\",\"optional\":false,\"label\":\"CreatedById\",\"control_type\":\"text\"},{\"name\":\"CreatedDate\",\"type\":\"string\",\"optional\":false,\"label\":\"CreatedDate\",\"control_type\":\"text\"},{\"name\":\"LastModifiedById\",\"type\":\"string\",\"optional\":false,\"label\":\"LastModifiedById\",\"control_type\":\"text\"},{\"name\":\"LastModifiedDate\",\"type\":\"string\",\"optional\":false,\"label\":\"LastModifiedDate\",\"control_type\":\"text\"},{\"name\":\"Name\",\"type\":\"string\",\"optional\":false,\"label\":\"Name\",\"control_type\":\"text\"},{\"name\":\"OwnerId\",\"type\":\"string\",\"optional\":false,\"label\":\"OwnerId\",\"control_type\":\"text\"}]"
+                    },
+                    "extended_output_schema": [
+                      {
+                        "label": "Rows",
+                        "name": "records",
+                        "of": "object",
+                        "properties": [
+                          {
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Id",
+                                "type": "string",
+                                "name": "Id"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "AccountId__r.AccountNumber",
+                                "type": "string",
+                                "name": "AccountId__r__AccountNumber"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "AccountId__r.hasGroupACLs__c",
+                                "type": "string",
+                                "name": "AccountId__r__hasGroupACLs__c"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "CreatedById",
+                                "type": "string",
+                                "name": "CreatedById"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "CreatedDate",
+                                "type": "string",
+                                "name": "CreatedDate"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "LastModifiedById",
+                                "type": "string",
+                                "name": "LastModifiedById"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "LastModifiedDate",
+                                "type": "string",
+                                "name": "LastModifiedDate"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Name",
+                                "type": "string",
+                                "name": "Name"
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "OwnerId",
+                                "type": "string",
+                                "name": "OwnerId"
+                              }
+                            ],
+                            "label": "Columns",
+                            "type": "object",
+                            "name": "fields"
+                          }
+                        ],
+                        "type": "array"
+                      },
+                      {
+                        "control_type": "checkbox",
+                        "label": "Has more",
+                        "name": "has_more",
+                        "toggle_field": {
+                          "label": "Has more",
+                          "control_type": "text",
+                          "toggle_hint": "Use custom value",
+                          "render_input": null,
+                          "parse_output": null,
+                          "type": "boolean",
+                          "name": "has_more"
+                        },
+                        "toggle_hint": "Select from option list",
+                        "type": "boolean"
+                      },
+                      {
+                        "control_type": "integer",
+                        "label": "Count",
+                        "name": "count",
+                        "parse_output": "integer_conversion",
+                        "type": "integer"
+                      }
+                    ],
+                    "extended_input_schema": [
+                      {
+                        "control_type": "select",
+                        "extends_schema": true,
+                        "hint": "Select the schema template of the file that is to be retrieved in batches. If you have a sample CSV file in the directory, choose “Provide with sample file” option. If not, select “Provide manually” to define the schema.",
+                        "label": "CSV column schema",
+                        "mark_as_required": true,
+                        "name": "schema_type",
+                        "ngIf": "input.file_path && input.schema_type && input.schema_type != 'origin_file'",
+                        "optional": true,
+                        "override": true,
+                        "pick_list": [
+                          [
+                            "Provide with sample file",
+                            "sample_file"
+                          ],
+                          [
+                            "Provide manually",
+                            "manual"
+                          ]
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "add_field_label": "Add column name",
+                        "broadcast_change_event": true,
+                        "control_type": "schema-designer",
+                        "empty_schema_message": "<button type=\"button\" data-action=\"generateSchema\">Use a sample CSV file</button> to input all column names at once.",
+                        "empty_schema_title": "Provide schema of the columns in your CSV",
+                        "exclude_fields": [
+                          "hint",
+                          "optional"
+                        ],
+                        "exclude_fields_types": [
+                          "array",
+                          "object"
+                        ],
+                        "extends_schema": true,
+                        "hint": "Describe the schema of the columns in the CSV files that needs to be fetched. Only records from the CSV files matching with the provided schema can be fetched, with permitted relaxations. To learn more, <a target='_blank' href='https://docs.workato.com/features/filestorage/filestorage-connector.html#csv'>click here</a>.",
+                        "label": "Column schema",
+                        "mark_as_required": true,
+                        "name": "schema",
+                        "ngIf": "input.file_path && input.schema_type == 'manual'",
+                        "optional": true,
+                        "optionalExpression": "input.schema_type != 'manual'",
+                        "override": true,
+                        "sample_data_type": "csv",
+                        "type": "string"
+                      },
+                      {
+                        "control_type": "multiselect",
+                        "delimiter": ",",
+                        "extends_schema": true,
+                        "hint": "Select the columns to be returned in the output datatree. If left blank, all columns will be retrieved.",
+                        "label": "Columns to retrieve",
+                        "name": "selected_fields",
+                        "ngIf": "input.file_path && input.schema_type != 'manual'",
+                        "optional": true,
+                        "override": true,
+                        "pick_list": "csv_schema_fields",
+                        "pick_list_params": {
+                          "file_path": "file_path",
+                          "schema_type": "schema_type",
+                          "csv_file": "sample_csv_file",
+                          "schema": "schema"
+                        },
+                        "sticky": true,
+                        "type": "string"
+                      }
+                    ],
+                    "uuid": "599f8ac5-c5b5-4c33-a3e8-e3a4ec961cd8"
+                  },
+                  {
+                    "number": 16,
+                    "as": "cc6a23c7",
+                    "keyword": "foreach",
+                    "repeat_mode": "simple",
+                    "clear_scope": "false",
+                    "input": {
+                    },
+                    "block": [
+                      {
+                        "number": 17,
+                        "provider": "workato_recipe_function",
+                        "name": "call_recipe",
+                        "as": "a0a823c7",
+                        "keyword": "action",
+                        "dynamicPickListSelection": {
+                          "flow_id": "Case groups & labels | Target | Upsert [FUNCTION]"
+                        },
+                        "input": {
+                          "flow_id": {
+                            "zip_name": "Legacy=>SCT migration/Case groups & labels/case_groups_labels_target_upsert_function.recipe.json",
+                            "name": "Case groups & labels | Target | Upsert [FUNCTION]",
+                            "folder": "Legacy=>SCT migration/Case groups & labels"
+                          },
+                          "parameters": {
+                            "Id": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"cc6a23c7\",\"path\":[\"fields\",\"Id\"]}')}",
+                            "AccountId__AccountNumber": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"cc6a23c7\",\"path\":[\"fields\",\"AccountId__r__AccountNumber\"]}')}",
+                            "AccountId__hasGroupACLs__c": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"cc6a23c7\",\"path\":[\"fields\",\"AccountId__r__hasGroupACLs__c\"]}')}",
+                            "CreatedById": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"cc6a23c7\",\"path\":[\"fields\",\"CreatedById\"]}')}",
+                            "CreatedDate": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"cc6a23c7\",\"path\":[\"fields\",\"CreatedDate\"]}')}",
+                            "LastModifiedById": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"cc6a23c7\",\"path\":[\"fields\",\"LastModifiedById\"]}')}",
+                            "LastModifiedDate": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"cc6a23c7\",\"path\":[\"fields\",\"LastModifiedDate\"]}')}",
+                            "Name": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"cc6a23c7\",\"path\":[\"fields\",\"Name\"]}')}",
+                            "OwnerId": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"foreach\",\"line\":\"cc6a23c7\",\"path\":[\"fields\",\"OwnerId\"]}')}"
+                          }
+                        },
+                        "extended_output_schema": [
+                          {
+                            "label": "Result",
+                            "name": "result",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Id",
+                                "name": "Id",
+                                "type": "string",
+                                "optional": false
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Action",
+                                "name": "action",
+                                "type": "string",
+                                "optional": false
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "extended_input_schema": [
+                          {
+                            "label": "Parameters",
+                            "name": "parameters",
+                            "properties": [
+                              {
+                                "control_type": "text",
+                                "label": "Id",
+                                "name": "Id",
+                                "type": "string",
+                                "optional": false
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "AccountId__AccountNumber",
+                                "name": "AccountId__AccountNumber",
+                                "type": "string",
+                                "optional": false
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "AccountId__hasGroupACLs__c",
+                                "name": "AccountId__hasGroupACLs__c",
+                                "type": "string",
+                                "optional": false
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "CreatedById",
+                                "name": "CreatedById",
+                                "type": "string",
+                                "optional": false
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "CreatedDate",
+                                "name": "CreatedDate",
+                                "type": "string",
+                                "optional": false
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "LastModifiedById",
+                                "name": "LastModifiedById",
+                                "type": "string",
+                                "optional": false
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "LastModifiedDate",
+                                "name": "LastModifiedDate",
+                                "type": "string",
+                                "optional": false
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "Name",
+                                "name": "Name",
+                                "type": "string",
+                                "optional": false
+                              },
+                              {
+                                "control_type": "text",
+                                "label": "OwnerId",
+                                "name": "OwnerId",
+                                "type": "string",
+                                "optional": false
+                              }
+                            ],
+                            "type": "object"
+                          }
+                        ],
+                        "uuid": "43b9708e-c5d3-4637-9c1a-e4774a4c0866"
+                      }
+                    ],
+                    "source": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"1bc91045\",\"path\":[\"records\"]}')}",
+                    "uuid": "944e7225-c559-4539-9116-223570eb2f51"
+                  },
+                  {
+                    "number": 18,
+                    "provider": "workato_variable",
+                    "name": "update_variables",
+                    "as": "0c98dbaf",
+                    "keyword": "action",
+                    "dynamicPickListSelection": {
+                      "name": [
+                        {
+                          "label": "Batch offset (step 4)",
+                          "value": "88ac1de6-40a5-4a1b-b8e3-7907dd3f0402:e9709b0c:batch_offset"
+                        },
+                        {
+                          "label": "Count (step 4)",
+                          "value": "88ac1de6-40a5-4a1b-b8e3-7907dd3f0402:e9709b0c:Count"
+                        }
+                      ]
+                    },
+                    "input": {
+                      "input_mode": "raw",
+                      "name": "88ac1de6-40a5-4a1b-b8e3-7907dd3f0402:e9709b0c:batch_offset\n88ac1de6-40a5-4a1b-b8e3-7907dd3f0402:e9709b0c:Count",
+                      "batch_offset": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e9709b0c\",\"path\":[\"batch_offset\"]}') + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"1bc91045\",\"path\":[\"count\"]}')",
+                      "Count": "=_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e9709b0c\",\"path\":[\"Count\"]}') + _dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"1bc91045\",\"path\":[\"count\"]}')"
+                    },
+                    "extended_input_schema": [
+                      {
+                        "control_type": "integer",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "Batch offset",
+                        "name": "batch_offset",
+                        "optional": true,
+                        "parse_output": "integer_conversion",
+                        "sticky": true,
+                        "type": "integer",
+                        "strip_interpolation": true
+                      },
+                      {
+                        "control_type": "integer",
+                        "hint": "Provide a value for the variable. When the value is not supplied, the variable is not updated.<br>To clear the value, set the value to <b>nil</b> in formula mode.",
+                        "label": "Count",
+                        "name": "Count",
+                        "optional": true,
+                        "parse_output": "integer_conversion",
+                        "sticky": true,
+                        "type": "integer",
+                        "strip_interpolation": true
+                      }
+                    ],
+                    "uuid": "9a4cccb9-cc4c-4ee0-a3e7-c3e9e9492593"
+                  },
+                  {
+                    "number": 19,
+                    "keyword": "while_condition",
+                    "input": {
+                      "type": "compound",
+                      "operand": "and",
+                      "conditions": [
+                        {
+                          "operand": "is_true",
+                          "lhs": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_files\",\"line\":\"1bc91045\",\"path\":[\"has_more\"]}')}",
+                          "rhs": "",
+                          "uuid": "6287c22f-bf4d-4541-8cb5-9569565bab27"
+                        }
+                      ]
+                    },
+                    "uuid": "93d2ac69-c9cc-4870-ab50-70d7cf2c8310"
+                  }
+                ],
+                "uuid": "5d3acd25-4892-4e08-ad04-b58a1dddf4db"
+              }
+            ],
+            "uuid": "4dd5318a-f6db-4253-bab0-64ce62a73d40"
+          }
+        ],
+        "uuid": "611cf277-dac3-4873-b474-21511ad6e833"
+      }
+    ],
+    "job_report_schema": [
+      {
+        "name": "custom_column_2",
+        "label": "Parent account number"
+      },
+      {
+        "name": "custom_column_0",
+        "label": "Search count"
+      },
+      {
+        "name": "custom_column_1",
+        "label": "Reprocess count"
+      }
+    ],
+    "job_report_config": {
+      "custom_column_2": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_webhooks\",\"line\":\"2f544db0\",\"path\":[\"params\",\"parent_account_number\"]}')}",
+      "custom_column_0": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"salesforce\",\"line\":\"cc385dd1\",\"path\":[\"numberRecordsProcessed\"]}')}",
+      "custom_column_1": "#{_dp('{\"pill_type\":\"output\",\"provider\":\"workato_variable\",\"line\":\"e9709b0c\",\"path\":[\"Count\"]}')}"
+    },
+    "uuid": "ef9990a7-fa42-4e46-913f-f65abe3e64e1",
+    "wizardFinished": true
+  },
+  "config": [
+    {
+      "keyword": "application",
+      "provider": "workato_webhooks",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_variable",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "salesforce",
+      "skip_validation": false,
+      "account_id": {
+        "zip_name": "Connections/sf_legacy_source.connection.json",
+        "name": "SF_Legacy_Source",
+        "folder": "Connections"
+      }
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_files",
+      "skip_validation": false,
+      "account_id": null
+    },
+    {
+      "keyword": "application",
+      "provider": "workato_recipe_function",
+      "skip_validation": false,
+      "account_id": null
+    }
+  ]
+}
